@@ -303,13 +303,17 @@ table tbody tr.contratacao-atrasada {
   }
   /* Ajuste na toolbar */
   .toolbar {
-    overflow-x: auto;
-    white-space: nowrap;
-    justify-content: flex-start;
+    display: flex;
+    flex-wrap: wrap;         /* Permite quebra de linha */
+    align-items: center;
+    justify-content: center; /* Centraliza os botões */
+    padding: 10px;           /* Reduz padding */
+    gap: 10px;               /* Espaçamento entre os botões */
   }
   .toolbar .btn {
     display: inline-block;
-    min-width: max-content;
+    padding: 5px 8px;        /* Reduz tamanho interno */
+    font-size: 0.875rem;      /* Fonte um pouco menor */
   }
   /* Esconde a linha de filtros (pode-se colocar os filtros móveis em um <details> com id "mobile-filters") */
   thead .filter-row {
@@ -330,8 +334,27 @@ table tbody tr.contratacao-atrasada {
   }
   /* Limita o tamanho da logo */
   .logo-tribunal {
-    max-width: 140px;
+    max-width: 200px; /* Ajuste conforme necessário para um tamanho ideal */
     height: auto;
+  }
+  /* Header: posiciona o h1 abaixo da imagem */
+  header {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Quadro de resumo: buttons não ocupam linha toda */
+  .painel-resumo {
+    /* Manter layout em linha e permitir quebra automática se necessário */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .painel-resumo .status-option {
+    /* Garante que o botão tenha largura somente do seu conteúdo */
+    width: auto;
+    margin: 5px;
   }
 }
 
