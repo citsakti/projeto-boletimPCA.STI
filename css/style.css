@@ -364,6 +364,12 @@ table tbody tr.contratacao-atrasada {
   }
 }
 
+@media (min-width: 576px) {
+    #mobile-filters {
+        display: none;
+    }
+}
+
 /* Prefers reduced motion */
 @media (prefers-reduced-motion: no-preference) {
     .status-badge {
