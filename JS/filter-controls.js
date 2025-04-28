@@ -56,11 +56,16 @@ function initFiltros() {
     const limparBtn = document.getElementById("btnLimparFiltros");
     if (limparBtn) {
         limparBtn.onclick = function() {
-            // Limpar inputs de texto e selects existentes
+            // Limpar inputs de texto e selects existentes da filter-row
             document.querySelectorAll(".filter-row input[type='text']").forEach(input => input.value = "");
             document.querySelectorAll(".filter-row select").forEach(select => {
                 if (select) select.value = "";
             });
+            // Limpar o filtro mobile "Projeto de Aquisição"
+            const mobileProjetoInput = document.getElementById('filtroProjeto');
+            if (mobileProjetoInput) {
+                mobileProjetoInput.value = "";
+            }
             // Limpa o dropdown de status via a função auxiliar
             clearStatusDropdown();
             
