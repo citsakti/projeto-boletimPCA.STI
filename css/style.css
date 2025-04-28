@@ -356,6 +356,28 @@ table tbody tr.contratacao-atrasada {
     width: auto;
     margin: 5px;
   }
+
+  /* Oculta a linha de filtros padrão */
+  thead .filter-row {
+    display: none;
+  }
+  /* Exibe e estiliza o filtro mobile */
+  #mobile-filters {
+    display: block;
+    margin-bottom: var(--space-2);
+  }
+  #mobile-filters summary {
+    cursor: pointer;
+    font-weight: bold;
+    padding: var(--space-1) 0;
+  }
+  #mobile-filters input {
+    width: 100%;
+    padding: var(--space-1);
+    border: 1px solid var(--brand-neutral);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-1);
+  }
 }
 
 /* Tablets: 576px a 991.98px */
