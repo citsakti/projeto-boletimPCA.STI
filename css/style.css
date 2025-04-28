@@ -321,50 +321,10 @@ table tbody tr.contratacao-atrasada {
   }
   #mobile-filters {
     display: block;
-  }
-  /* Ajuste para o painel-resumo */
-  .painel-resumo {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  /* Aumenta a altura mínima para inputs/selects para facilitar toque */
-  input,
-  select {
-    min-height: 36px;
-  }
-  /* Limita o tamanho da logo */
-  .logo-tribunal {
-    max-width: 200px; /* Ajuste conforme necessário para um tamanho ideal */
-    height: auto;
-  }
-  /* Header: posiciona o h1 abaixo da imagem */
-  header {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  /* Quadro de resumo: buttons não ocupam linha toda */
-  .painel-resumo {
-    /* Manter layout em linha e permitir quebra automática se necessário */
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .painel-resumo .status-option {
-    /* Garante que o botão tenha largura somente do seu conteúdo */
-    width: auto;
-    margin: 5px;
-  }
-
-  /* Oculta a linha de filtros padrão */
-  thead .filter-row {
-    display: none;
-  }
-  /* Exibe e estiliza o filtro mobile */
-  #mobile-filters {
-    display: block;
     margin-bottom: var(--space-2);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 var(--space-3); /* Mesmo padding do body/container, se necessário */
   }
   #mobile-filters summary {
     cursor: pointer;
@@ -373,6 +333,7 @@ table tbody tr.contratacao-atrasada {
   }
   #mobile-filters input {
     width: 100%;
+    box-sizing: border-box;
     padding: var(--space-1);
     border: 1px solid var(--brand-neutral);
     border-radius: var(--radius-sm);
