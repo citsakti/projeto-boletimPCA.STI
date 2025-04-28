@@ -6,6 +6,12 @@ function initFiltros() {
     if (!tabela) return; // segurança
     if (!tabela.querySelector('tbody tr')) return; // ainda sem linhas? sai
 
+    // Listener para o filtro mobile "Projeto de Aquisição"
+    const mobileProjetoInput = document.getElementById('filtroProjeto');
+    if (mobileProjetoInput) {
+        mobileProjetoInput.addEventListener('keyup', filterTable);
+    }
+
     // Função para obter valores únicos de uma coluna
     function getValoresUnicos(colIdx) {
         const valores = new Set();
@@ -210,40 +216,31 @@ function filterTable(){
     const areaValue = selectArea ? selectArea.value : '';
     const tipoValue = selectTipo ? selectTipo.value : '';
 
-    // Filtros de texto
+    // Filtro de texto que vem dos inputs dentro da filter-row
     const textFilters = {};
     document.querySelectorAll(".filter-row input[type='text'][data-col-index]").forEach(input => {
          const col = input.getAttribute('data-col-index');
          const val = input.value.trim().toLowerCase();
          if (val) textFilters[col] = val;
     });
+    
+    // Novo: Filtro mobile para "Projeto de Aquisição" (coluna 3)
+    const filtroProjeto = document.getElementById('filtroProjeto') ? 
+                            document.getElementById('filtroProjeto').value.trim().toLowerCase() : '';
 
     tabela.querySelectorAll('tbody tr').forEach(tr => {
          const areaText   = tr.children[1]?.textContent.trim() || '';
          const tipoText   = tr.children[2]?.textContent.trim() || '';
+         const projetoText = tr.children[3]?.textContent.trim() || '';
          const statusText = tr.children[5]?.textContent.trim() || '';
          
          let mostrar = true;
          if (areaValue && areaText !== areaValue) mostrar = false;
          if (tipoValue && tipoText !== tipoValue) mostrar = false;
-
-         // Verifica se há checkboxes marcadas no dropdown de status
-         const checkedStatus = Array.from(
-             document.querySelectorAll('#status-filter input[type="checkbox"]:checked')
-         ).map(cb => cb.value);
-
-         if (checkedStatus.length > 0) {
-             // Se o filtro do status do processo for utilizado, descarta o filtro do painel de resumo
-             window.painelFilterStatus = 'TODOS';
-             if (!checkedStatus.some(val => statusText.toLowerCase().includes(val.toLowerCase())))
-                 mostrar = false;
-         } else if (window.painelFilterStatus && window.painelFilterStatus !== 'TODOS') {
-             // Se não houver status selecionado no dropdown, aplica filtro do painel de resumo
-             if (!statusText.toLowerCase().includes(window.painelFilterStatus.toLowerCase()))
-                 mostrar = false;
-         }
+         // Aplicando o filtro mobile para "Projeto de Aquisição"
+         if (filtroProjeto && !projetoText.toLowerCase().includes(filtroProjeto)) mostrar = false;
          
-         // Aplica cada filtro de texto
+         // Aplica os demais filtros de texto, se houver inputs na filter-row
          for (const col in textFilters) {
              const cellText = tr.children[col]?.textContent.toLowerCase() || '';
              if (!cellText.includes(textFilters[col])) {
@@ -251,6 +248,21 @@ function filterTable(){
                  break;
              }
          }
+         
+         // Filtragem para Status (dropdown ou painel)
+         const checkedStatus = Array.from(
+             document.querySelectorAll('#status-filter input[type="checkbox"]:checked')
+         ).map(cb => cb.value);
+    
+         if (checkedStatus.length > 0) {
+             window.painelFilterStatus = 'TODOS';
+             if (!checkedStatus.some(val => statusText.toLowerCase().includes(val.toLowerCase())))
+                 mostrar = false;
+         } else if (window.painelFilterStatus && window.painelFilterStatus !== 'TODOS') {
+             if (!statusText.toLowerCase().includes(window.painelFilterStatus.toLowerCase()))
+                 mostrar = false;
+         }
+         
          tr.style.display = mostrar ? '' : 'none';
     });
 }
