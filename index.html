@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./IMG/favicon.ico" type="image/x-icon" />
+    <title>Boletim PCA 2025 - STI</title>
+    <link rel="stylesheet" href="./css/tokens.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style-emojis.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>  
+</head>
+<body>
+
+    <header>
+        <img src="./IMG/tribunal.png" alt="Tribunal" size="10" class="logo-tribunal">
+        <h1>Boletim PCA 2025 - STI</h1>
+    </header>
+    <div class="linha-decorativa"></div>
+    <div class="painel-resumo"> ... </div>
+    <div class="linha-decorativa"></div>
+
+    <!-- Toolbar para botões -->
+    <div class="toolbar">
+        <button class="btn btn-limpar-filtros" id="btnToggleCancelados">Ocultar Cancelados ❌</button>
+        <button class="btn btn-limpar-filtros" id="btnLimparFiltros">🚮 Limpar Filtros</button>
+        <button class="btn btn-print" id="btnPrint">🖨️ Imprimir</button>
+    </div>
+
+    <section id="detalhes">
+        <table>
+            <thead class="cabecalho">
+                <tr>
+                    <th>ID PCA</th>
+                    <th>Área</th>
+                    <th>Tipo</th>
+                    <th>Projeto de Aquisição</th>
+                    <th>Status Início</th>
+                    <th>Status do Processo</th>
+                    <th>Contratar Até</th>
+                    <th>Valor PCA</th>
+                    <th>Orçamento</th>
+                    <th>Processo</th>
+                </tr>
+                <tr class="filter-row">
+                    <!-- Coluna 0 – ID PCA -->
+                    <th>
+                        <input data-col-index="0" type="text" placeholder="Filtrar ID" style="width:55px;height:15px;">
+                    </th>
+
+                    <!-- Coluna 1 – Área (select já funciona) -->
+                    <th>
+                        <select id="filter-area" style="width:115px;height:21px;">
+                            <option value="">Todas as Áreas</option>
+                        </select>
+                    </th>
+
+                    <!-- Coluna 2 – Tipo (select já funciona) -->
+                    <th>
+                        <select id="filter-tipo" style="width:70px;height:21px;">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+
+                    <!-- Coluna 3 – Projeto de Aquisição -->
+                    <th>
+                        <input data-col-index="3" type="text" placeholder="Filtrar Projeto de Aquisição">
+                    </th>
+
+                    <!-- Coluna 4 – Status Início -->
+                    <th>
+                        <input data-col-index="4" type="text" placeholder="Filtrar Status Início" style="width:80px;height:15px;">
+                    </th>
+
+                    <!-- Coluna 5 – Status do Processo (dropdown já funciona) -->
+                    <th>
+                        <div id="status-filter" class="dropdown-multi">
+                            <!-- botão que abre a lista -->
+                            <button type="button" class="filter-toggle">▼</button>
+
+                            <!-- painel flutuante (fica invisível até o JS abrir) -->
+                            <div class="filter-panel">
+                                <div class="filter-header">
+                                    <a href="#" class="select-all">Selecionar tudo</a> ·
+                                    <a href="#" class="clear">Limpar</a>
+                                    <span class="count"></span>
+                                </div>
+
+                                <input type="text" class="search" placeholder="Buscar..." />
+
+                                <ul class="options"></ul> <!-- JS insere as opções aqui -->
+                            </div>
+                        </div>
+                    </th>
+
+                    <!-- Coluna 6 – Contratar Até -->
+                    <th>
+                        <input data-col-index="6" type="text" placeholder="Contratar Até" style="width:100px;height:15px;">
+                    </th>
+
+                    <!-- Coluna 7 – Valor PCA -->
+                    <th>
+                        <input data-col-index="7" type="text" placeholder="Filtrar Valor PCA" style="width:110px;height:15px;">
+                    </th>
+
+                    <!-- Coluna 8 – Orçamento -->
+                    <th>
+                        <input data-col-index="8" type="text" placeholder="Filtrar Orçamento" style="width:105px;height:15px;">
+                    </th>
+
+                    <!-- Coluna 9 – Processo -->
+                    <th>
+                        <input data-col-index="9" type="text" placeholder="Filtrar Processo" style="width:105px;height:15px;">
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- As linhas serão preenchidas via API Google Sheets -->
+            </tbody>
+        </table>
+    </section>
+
+    <footer>
+        <p>Status atualizado em: </p>
+    </footer>
+
+    <script src="./JS/main.js"></script>
+    <script src="./JS/table-formatters.js"></script>
+    <script src="./JS/filter-controls.js"></script>
+    <script src="./JS/sortTable.js"></script>
+    <script src="./JS/emoji animation function.js"></script>
+    <script src="./JS/painel de resumo.js"></script>
+    <script src="./JS/print function.js"></script>
+    <script src="./JS/toggleCancelados.js"></script>
+    <script src="./JS/updateStatus.js"></script>
+</body>
+</html>
