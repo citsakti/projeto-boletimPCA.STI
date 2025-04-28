@@ -221,7 +221,7 @@ function filterTable(){
     const areaValue = selectArea ? selectArea.value : '';
     const tipoValue = selectTipo ? selectTipo.value : '';
 
-    // Filtro de texto que vem dos inputs dentro da filter-row
+    // Filtro de texto dos inputs na filter-row
     const textFilters = {};
     document.querySelectorAll(".filter-row input[type='text'][data-col-index]").forEach(input => {
          const col = input.getAttribute('data-col-index');
@@ -229,7 +229,7 @@ function filterTable(){
          if (val) textFilters[col] = val;
     });
     
-    // Novo: Filtro mobile para "Projeto de Aquisição" (coluna 3)
+    // Filtro mobile para "Projeto de Aquisição" (coluna 3)
     const filtroProjeto = document.getElementById('filtroProjeto') ? 
                             document.getElementById('filtroProjeto').value.trim().toLowerCase() : '';
 
@@ -242,10 +242,9 @@ function filterTable(){
          let mostrar = true;
          if (areaValue && areaText !== areaValue) mostrar = false;
          if (tipoValue && tipoText !== tipoValue) mostrar = false;
-         // Aplicando o filtro mobile para "Projeto de Aquisição"
          if (filtroProjeto && !projetoText.toLowerCase().includes(filtroProjeto)) mostrar = false;
          
-         // Aplica os demais filtros de texto, se houver inputs na filter-row
+         // Aplica os demais filtros de texto
          for (const col in textFilters) {
              const cellText = tr.children[col]?.textContent.toLowerCase() || '';
              if (!cellText.includes(textFilters[col])) {
@@ -269,5 +268,17 @@ function filterTable(){
          }
          
          tr.style.display = mostrar ? '' : 'none';
+    });
+
+    // Recalcular as linhas visíveis para aplicar o padrão de linhas alternadas
+    const visibleRows = Array.from(tabela.querySelectorAll('tbody tr'))
+                             .filter(tr => tr.style.display !== 'none');
+    visibleRows.forEach((tr, index) => {
+        tr.classList.remove('row-even', 'row-odd');
+        if (index % 2 === 0) {
+            tr.classList.add('row-even');
+        } else {
+            tr.classList.add('row-odd');
+        }
     });
 }
