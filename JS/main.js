@@ -1,323 +1,304 @@
-// Renomeou a URL da planilha
-const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1123542137&single=true&output=csv';
+document.addEventListener('DOMContentLoaded', initFiltros);
+document.addEventListener('tabela-carregada', initFiltros); // NOVO
 
-// Busca dados da planilha e preenche a tabela
-function fetchAndPopulate() {
-    return new Promise((resolve, reject) => {
-        Papa.parse(SHEET_CSV_URL, {
-            download: true,
-            header: false,         // <-- ler como array de arrays
-            skipEmptyLines: true,  
-            complete: function(results) {
-                const allRows = results.data;         // [ [".", …], ["#", "PB", "ID PCA", …], [dados…], … ]
-                
-                // 1) Encontre a linha cujo índice 2 seja exatamente "ID PCA" (o cabeçalho real)
-                const headerRowIndex = allRows.findIndex(row =>
-                    row[2] && row[2].trim() === 'ID PCA'
-                );
-                if (headerRowIndex < 0) {
-                    console.error('Cabeçalho "ID PCA" não encontrado no CSV');
-                    reject('Cabeçalho "ID PCA" não encontrado no CSV');
-                    return;
-                }
-    
-                // 2) Separe a partir da próxima linha como dados
-                const dataRows = allRows.slice(headerRowIndex + 1);
-                
-                // Determina o último índice com valor em "Projeto de Aquisição"
-                // (no seu mapeamento, essa coluna vem do CSV na posição 5)
-                let lastValidIndex = -1;
-                dataRows.forEach((row, i) => {
-                    if (row[5] && row[5].trim() !== "") {
-                        lastValidIndex = i;
-                    }
-                });
-                // Apenas linhas até o último projeto
-                const validDataRows = dataRows.slice(0, lastValidIndex + 1);
-                
-                // 3) Monte a tabela usando apenas as colunas que importam
-                const tbody = document.querySelector('table tbody');
-                // Defina os cabeçalhos na ordem correta da tabela HTML final
-                const headers = [
-                    "ID PCA", "Área", "Tipo", "Projeto de Aquisição", 
-                    "Status Início", "Status do Processo", "Contratar Até", 
-                    "Valor PCA", "Orçamento", "Processo"
-                ];
+function initFiltros() {
+    const tabela = document.querySelector("#detalhes table");
+    if (!tabela) return; // segurança
+    if (!tabela.querySelector('tbody tr')) return; // ainda sem linhas? sai
 
-                validDataRows.forEach(row => {
-                    const tr = document.createElement('tr');
-    
-                    // Atualizado array de mapeamento para refletir a nova ordem:
-                    // Nova ordem:
-                    // 0: CSV[2] = ID PCA
-                    // 1: CSV[3] = Área
-                    // 2: CSV[4] = Tipo
-                    // 3: CSV[5] = Projeto de Aquisição
-                    // 4: CSV[10] = Status Início
-                    // 5: CSV[6] = Status do Processo
-                    // 6: CSV[9] = Contratar Até
-                    // 7: CSV[15] = Valor PCA
-                    // 8: CSV[14] = Orçamento
-                    // 9: CSV[13] = Processo
-                    [2, 3, 4, 5, 10, 6, 9, 15, 14, 13].forEach((i, colIndex) => {
-                        const td = document.createElement('td');
-                        // Insere o data-label para uso no mobile
-                        td.dataset.label = headers[colIndex];
-                        let value = row[i] || '';
-                        
-                        if (colIndex === 4) {
-                            // Coluna "Status Início"
-                            value = formatStatusInicio(value);
-                        } else if (colIndex === 6) {
-                            // Coluna "Contratar Até"
-                            value = formatContratarAte(value);
-                        } else if (colIndex === 8) {
-                            // Nova coluna "Orçamento": se vazio, substitui
-                            if (value === '') {
-                                value = '<Não Orçado>';
-                            }
-                        } else if (colIndex === 9) {
-                            // Coluna "Processo": se vazio, substitui por "*", senão adiciona emoji de link
-                            if (value.trim() === '') {
-                                td.textContent = '*';
-                            } else {
-                                td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
-                            }
-                            tr.appendChild(td);
-                            return; // Já adicionou o td, pula para o próximo
-                        }
-                        
-                        td.textContent = value;
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
-                });
-
-                // depois de inserir todas as linhas na <tbody>
-                if (window.aplicarAnimacaoBomba)      aplicarAnimacaoBomba();
-                if (window.aplicarAnimacaoHourglass)  aplicarAnimacaoHourglass();
-                if (window.aplicarAnimacaoExclamation) aplicarAnimacaoExclamation();
-
-                /* NOVO: avisa que a tabela já tem dados */
-                document.dispatchEvent(new Event('tabela-carregada'));
-                resolve();
-            },
-            error: function(err) {
-                console.error('Erro ao baixar/parsear CSV:', err);
-                reject(err);
-            }
-        });
-    });
-}
-
-// Função para popular o filtro "tipo" como select com as opções da tabela
-function populateTipoFiltro() {
-    // Seleciona o container do filtro "tipo" no HTML (certifique-se de ter um elemento com id "tipo-filter")
-    const tipoFiltroContainer = document.getElementById('tipo-filter');
-    if (!tipoFiltroContainer) return;
-    
-    // Coleta valores únicos da coluna "tipo" (neste exemplo, assume-se que é a coluna de índice 1)
-    const tableRows = document.querySelectorAll('table tbody tr');
-    const tipos = new Set();
-    tableRows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells[1]) {
-            const valor = cells[2].textContent.trim();
-            if (valor) {
-                tipos.add(valor);
-            }
-        }
-    });
-    
-    // Cria o select e insere a opção "Todos"
-    const select = document.createElement('select');
-    select.id = 'tipo-filter-select';
-    const defaultOption = document.createElement('option');
-    defaultOption.value = "";
-    defaultOption.textContent = "Todos";
-    select.appendChild(defaultOption);
-
-    // Adiciona as opções obtidas
-    tipos.forEach(tipo => {
-        const option = document.createElement('option');
-        option.value = tipo.toLowerCase();
-        option.textContent = tipo;
-        select.appendChild(option);
-    });
-    
-    // Insere o select no container, substituindo o input antigo (se houver)
-    tipoFiltroContainer.innerHTML = "";
-    tipoFiltroContainer.appendChild(select);
-    
-    // Adiciona o listener para o select (utiliza a mesma função de filtragem)
-    select.addEventListener('change', filterTable);
-}
-
-// Modificação da função filterTable para considerar inputs e selects
-function filterTable() {
-    // Seleciona todos os filtros de texto e selects
-    const filterElements = document.querySelectorAll('.filter-row input[type="text"], .filter-row select');
-    const filters = Array.from(filterElements).map(el => el.value.trim().toLowerCase());
-
-    // Seleciona todas as linhas do corpo da tabela
-    const tableRows = document.querySelectorAll('table tbody tr');
-
-    // Itera por cada linha da tabela
-    tableRows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        let showRow = true;
-
-        // Para cada filtro, verifica se a célula equivalente inclui o valor do filtro
-        filters.forEach((filterText, index) => {
-            // Se houver filtro, compara com o texto da célula correspondente
-            if (filterText !== "") {
-                const cellText = cells[index] ? cells[index].textContent.toLowerCase() : "";
-                if (!cellText.includes(filterText)) {
-                    showRow = false;
-                }
-            }
-        });
-        row.style.display = showRow ? "" : "none";
-    });
-}
-
-// Função para remover linhas após a última linha com conteúdo na coluna "Descrição do Objeto"
-function trimTableEnding() {
-  const tbody = document.querySelector('table tbody');
-  if (!tbody) return;
-
-  const rows = Array.from(tbody.querySelectorAll('tr'));
-  let lastIndex = -1;
-  
-  rows.forEach((row, index) => {
-      const cells = row.querySelectorAll('td');
-      // Coluna "Descrição do Objeto" é a 4ª coluna (índice 3)
-      if (cells[3] && cells[3].textContent.trim() !== "") {
-          lastIndex = index;
-      }
-  });
-  
-  // Remove todas as linhas após a última com conteúdo
-  rows.slice(lastIndex + 1).forEach(row => row.remove());
-}
-
-// Atualização do DOMContentLoaded para configurar os filtros e aplicar o trim da tabela
-document.addEventListener('DOMContentLoaded', () => {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) overlay.style.display = 'flex';
-
-    fetchAndPopulate()
-      .then(() => {
-        if (overlay) overlay.style.display = 'none';
-        // Configura filtros e trim como antes
-        populateTipoFiltro();
-        document.querySelectorAll('.filter-row input[type="text"]').forEach(input =>
-          input.addEventListener('keyup', filterTable)
-        );
-        assignStatusClasses();
-        trimTableEnding();
-        aplicarEstiloStatus();
-      })
-      .catch(err => {
-        if (overlay) overlay.style.display = 'none';
-        console.error('Erro ao carregar dados:', err);
-      });
-
-    // Modal de processo
-    const modalOverlay = document.getElementById('processo-modal-overlay');
-    const modalContent = modalOverlay.querySelector('.modal-content');
-    const modalIframe = document.getElementById('processo-iframe');
-    const tableBody = document.querySelector('#detalhes table tbody');
-
-    // NOVO: Elementos da caixa de mensagem
-    const infoOverlay = document.getElementById('info-message-overlay');
-    const infoOkBtn = document.getElementById('info-message-ok-btn');
-
-    if (tableBody && modalOverlay && modalIframe && infoOverlay && infoOkBtn) { // Verifica se os novos elementos existem
-        tableBody.addEventListener('click', function(event) {
-            if (event.target.classList.contains('processo-link-icon')) {
-                const td = event.target.closest('td');
-                let processo = td ? td.textContent.replace('🔗', '').trim() : '';
-                if (processo) {
-                    navigator.clipboard.writeText(processo)
-                        .then(() => {
-                            // Mostra a modal principal PRIMEIRO
-                            modalIframe.src = 'https://www.tce.ce.gov.br/contexto/#/processos-protocolos';
-                            modalOverlay.style.display = 'flex';
-                            modalContent.classList.remove('show');
-                            void modalContent.offsetWidth;
-                            modalContent.classList.add('show');
-
-                            // DEPOIS mostra a caixa de mensagem informativa
-                            infoOverlay.style.display = 'flex';
-
-                            // Atualiza o title (opcional, mas útil)
-                            td.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
-                        })
-                        .catch(err => {
-                            console.error('Falha ao copiar para a área de transferência:', err);
-                            // Mesmo se falhar ao copiar, abre a modal
-                            modalIframe.src = 'https://www.tce.ce.gov.br/contexto/#/processos-protocolos';
-                            modalOverlay.style.display = 'flex';
-                            modalContent.classList.remove('show');
-                            void modalContent.offsetWidth;
-                            modalContent.classList.add('show');
-                            // Poderia mostrar uma mensagem de erro aqui se desejado
-                        });
-                } else {
-                    // Se não houver número de processo, apenas abre a modal
-                    modalIframe.src = 'https://www.tce.ce.gov.br/contexto/#/processos-protocolos';
-                    modalOverlay.style.display = 'flex';
-                    modalContent.classList.remove('show');
-                    void modalContent.offsetWidth;
-                    modalContent.classList.add('show');
-                }
-            }
-        });
-
-        // Função para fechar ambas as modais
-        function closeModals() {
-            modalContent.classList.remove('show');
-            infoOverlay.style.display = 'none'; // Esconde a caixa de info
-            setTimeout(() => {
-                modalOverlay.style.display = 'none';
-                modalIframe.src = 'about:blank';
-            }, 400);
-        }
-
-        // Fecha a caixa de mensagem ao clicar em OK
-        infoOkBtn.addEventListener('click', () => {
-            infoOverlay.style.display = 'none';
-        });
-
-        // Fecha TUDO ao clicar fora da modal principal
-        modalOverlay.addEventListener('click', function(event) {
-            if (event.target === modalOverlay) {
-                closeModals();
-            }
-        });
-
-        // Fecha TUDO ao pressionar ESC
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && modalOverlay.style.display === 'flex') {
-                closeModals();
-            }
-        });
-    } else {
-        // Adiciona um log se algum elemento essencial não for encontrado
-        console.error("Erro: Um ou mais elementos da modal ou da caixa de mensagem não foram encontrados no DOM.");
+    // Listener para o filtro mobile "Projeto de Aquisição"
+    const mobileProjetoInput = document.getElementById('filtroProjeto');
+    if (mobileProjetoInput) {
+        mobileProjetoInput.addEventListener('keyup', filterTable);
     }
-});
 
-document.addEventListener('tabela-carregada', () => {
-    aplicarEstiloStatus();
-});
+    // Função para obter valores únicos de uma coluna
+    function getValoresUnicos(colIdx) {
+        const valores = new Set();
+        tabela.querySelectorAll('tbody tr').forEach(tr => {
+            const td = tr.children[colIdx];
+            if (td) valores.add(td.textContent.trim());
+        });
+        return Array.from(valores).sort();
+    }
 
-function aplicarEstiloStatus() {
-    const rows = document.querySelectorAll('#detalhes table tbody tr');
-    rows.forEach(row => {
-        if (row.textContent.includes('CONTRATAÇÃO ATRASADA❗')) {
-            row.classList.add('contratacao-atrasada');
+    // Preencher filtro Área (coluna 1) sem valores vazios
+    const selectArea = document.getElementById('filter-area');
+    if (selectArea) {
+        selectArea.innerHTML = '<option value="">Todas as Áreas</option>';
+        getValoresUnicos(1)
+            .filter(valor => valor.trim() !== '')
+            .forEach(valor => {
+                const opt = document.createElement('option');
+                opt.value = valor;
+                opt.textContent = valor;
+                selectArea.appendChild(opt);
+            });
+        selectArea.onchange = filterTable;
+    }
+
+    // Corrigindo o filtro Tipo (coluna 2) para se adequar ao novo HTML sem valores vazios
+    const selectTipo = document.querySelector('.filter-row th:nth-child(3) select');
+    if (selectTipo) {
+        selectTipo.innerHTML = '<option value="">Todos</option>';
+        getValoresUnicos(2)
+            .filter(valor => valor.trim() !== '')
+            .forEach(valor => {
+                const opt = document.createElement('option');
+                opt.value = valor;
+                opt.textContent = valor;
+                selectTipo.appendChild(opt);
+            });
+        selectTipo.onchange = filterTable;
+    }
+
+    // Preencher filtro Orçamento (coluna 8)
+    const selectOrcamento = document.getElementById('filter-orcamento');
+    if (selectOrcamento) {
+        selectOrcamento.innerHTML = '<option value="">Todos os Orçamentos</option>';
+        getValoresUnicos(8)
+            .filter(valor => valor.trim() !== '')
+            .forEach(valor => {
+                const opt = document.createElement('option');
+                opt.value = valor;
+                opt.textContent = valor;
+                selectOrcamento.appendChild(opt);
+            });
+        selectOrcamento.onchange = filterTable;
+    }
+
+    // Configurar o botão de limpar filtros
+    const limparBtn = document.getElementById("btnLimparFiltros");
+    if (limparBtn) {
+        limparBtn.onclick = function() {
+            // Limpar inputs de texto e selects existentes da filter-row
+            document.querySelectorAll(".filter-row input[type='text']").forEach(input => input.value = "");
+            document.querySelectorAll(".filter-row select").forEach(select => {
+                if (select) select.value = "";
+            });
+            // Limpar o filtro mobile "Projeto de Aquisição"
+            const mobileProjetoInput = document.getElementById('filtroProjeto');
+            if (mobileProjetoInput) {
+                mobileProjetoInput.value = "";
+            }
+            // Limpa o dropdown de status via a função auxiliar
+            clearStatusDropdown();
+            
+            // Reset do toggle "cancelados" para revelar todos
+            window.canceladosOcultos = false;
+            let btnToggle = document.getElementById('btnToggleCancelados');
+            if (btnToggle) {
+                btnToggle.textContent = 'Ocultar Cancelados ❌';
+            }
+            // Garante que todas as linhas com "CANCELADO ❌" sejam exibidas
+            document.querySelectorAll('table tbody tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells[5] && cells[5].textContent.includes('CANCELADO ❌')) {
+                    row.style.display = '';
+                }
+            });
+            
+            // Aplica os filtros atualizados (que agora estarão limpos)
+            filterTable();
+        };
+    }
+
+    // NOVO: Adiciona listener para inputs de texto (filtro de escrever)
+    document.querySelectorAll(".filter-row input[type='text']").forEach(input => {
+        input.addEventListener('keyup', filterTable);
+    });
+
+    // Chama filterTable para aplicar filtros combinados
+    filterTable();
+
+    // Ao final de initFiltros(), depois de confirmar que a tabela contém linhas:
+    criaDropdownMulti(5, 'status-filter');     // 5 = índice da coluna “Status do Processo”
+
+    /* =========  CONSTRUTOR DO DROPDOWN  =========== */
+    function criaDropdownMulti(colIdx, dropdownId) {
+        const root = document.getElementById(dropdownId); // ex.: "status-filter"
+        const lista  = root.querySelector('.options');
+        // Se já existir opções, não recria o dropdown para evitar duplicação
+        if (lista && lista.children.length > 0) return;
+        
+        const toggle = root.querySelector('.filter-toggle');
+        const painel = root.querySelector('.filter-panel');
+        const campoBusca = root.querySelector('.search');
+        const lblContador = root.querySelector('.count');
+        const linkSelTudo = root.querySelector('.select-all');
+        const linkLimpar  = root.querySelector('.clear');
+
+        // --- preenche opções ---
+        getValoresUnicos(colIdx).forEach(valor => {
+            const li = document.createElement('li');
+            li.innerHTML =
+              `<label><input type="checkbox" value="${valor}">
+                 <span>${valor}</span></label>`;
+            lista.appendChild(li);
+        });
+
+        // --- abre/fecha painel ---
+        toggle.addEventListener('click', () => {
+            painel.style.display = painel.style.display === 'block' ? 'none' : 'block';
+        });
+        // fecha se clicar fora
+        document.addEventListener('click', e => {
+            if (!root.contains(e.target)) painel.style.display = 'none';
+        });
+
+        // --- BUSCA instantânea ---
+        campoBusca.addEventListener('keyup', () => {
+            const termo = campoBusca.value.toLowerCase();
+            lista.querySelectorAll('li').forEach(li => {
+                li.style.display = li.textContent.toLowerCase().includes(termo) ? '' : 'none';
+            });
+        });
+
+        // --- selecionar / des-selecionar clique no item inteiro ---
+        lista.addEventListener('click', e => {
+            const li = e.target.closest('li');
+            if (!li) return;
+            const cb = li.querySelector('input[type="checkbox"]');
+            // Se o clique foi diretamente no checkbox, apenas atualiza a classe
+            if (e.target.tagName.toLowerCase() === 'input') {
+                li.classList.toggle('selected', cb.checked);
+                atualizar();
+                return;
+            }
+            // Previne o comportamento padrão (evita dupla alteração do estado)
+            e.preventDefault();
+            // Clique no li (fora do checkbox): inverte o estado
+            cb.checked = !cb.checked;
+            li.classList.toggle('selected', cb.checked);
+            atualizar();
+        });
+
+        // --- links “Selecionar tudo / Limpar” ---
+        linkSelTudo.addEventListener('click', e => {
+            e.preventDefault();
+            lista.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+            lista.querySelectorAll('li').forEach(li => {
+               const cb = li.querySelector('input');
+               li.classList.toggle('selected', cb.checked);
+            });
+            atualizar();
+        });
+
+        linkLimpar.addEventListener('click', e => {
+            e.preventDefault();
+            lista.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            lista.querySelectorAll('li').forEach(li => {
+               const cb = li.querySelector('input');
+               li.classList.toggle('selected', cb.checked);
+            });
+            atualizar();
+        });
+
+        // --- função que realmente filtra ---
+        function atualizar(){
+            // contador visível
+            const marcados = lista.querySelectorAll('input:checked');
+            lblContador.textContent = marcados.length ? `Mostrando ${marcados.length}` : '';
+
+            // Atualiza os filtros combinados
+            filterTable();
+        }
+    }
+
+    // Função auxiliar para limpar o dropdown de status
+    function clearStatusDropdown() {
+        const dropdown = document.getElementById('status-filter');
+        if (!dropdown) return;
+        const lista = dropdown.querySelector('.options');
+        if (!lista) return;
+        // Limpa os checkboxes e atualiza a classe 'selected' em cada li:
+        lista.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+        lista.querySelectorAll('li').forEach(li => {
+            const cb = li.querySelector('input');
+            li.classList.toggle('selected', cb.checked);
+        });
+        // Reinicia o contador do dropdown
+        const lblContador = dropdown.querySelector('.count');
+        if (lblContador) lblContador.textContent = '';
+        // Reinicia o filtro do painel de resumo
+        window.painelFilterStatus = 'TODOS';
+    }
+}
+
+// Filtragem combinada de Área, Tipo, Status e Texto
+function filterTable(){
+    const tabela = document.querySelector("#detalhes table");
+    if (!tabela) return;
+    
+    // Filtros dos selects já existentes
+    const selectArea = document.getElementById('filter-area');
+    const selectTipo = document.querySelector('.filter-row th:nth-child(3) select');
+    const selectOrcamento = document.getElementById('filter-orcamento');
+
+    const areaValue = selectArea ? selectArea.value : '';
+    const tipoValue = selectTipo ? selectTipo.value : '';
+    const orcamentoValue = selectOrcamento ? selectOrcamento.value : '';
+
+    // Filtro de texto dos inputs na filter-row
+    const textFilters = {};
+    document.querySelectorAll(".filter-row input[type='text'][data-col-index]").forEach(input => {
+         const col = input.getAttribute('data-col-index');
+         const val = input.value.trim().toLowerCase();
+         if (val) textFilters[col] = val;
+    });
+    
+    // Filtro mobile para "Projeto de Aquisição" (coluna 3)
+    const filtroProjeto = document.getElementById('filtroProjeto') ? 
+                            document.getElementById('filtroProjeto').value.trim().toLowerCase() : '';
+
+    tabela.querySelectorAll('tbody tr').forEach(tr => {
+         const areaText   = tr.children[1]?.textContent.trim() || '';
+         const tipoText   = tr.children[2]?.textContent.trim() || '';
+         const projetoText = tr.children[3]?.textContent.trim() || '';
+         const statusText = tr.children[5]?.textContent.trim() || '';
+         const orcamentoText = tr.children[8]?.textContent.trim() || '';
+         
+         let mostrar = true;
+         if (areaValue && areaText !== areaValue) mostrar = false;
+         if (tipoValue && tipoText !== tipoValue) mostrar = false;
+         if (filtroProjeto && !projetoText.toLowerCase().includes(filtroProjeto)) mostrar = false;
+         if (orcamentoValue && orcamentoText !== orcamentoValue) mostrar = false;
+         
+         // Aplica os demais filtros de texto
+         for (const col in textFilters) {
+             const cellText = tr.children[col]?.textContent.toLowerCase() || '';
+             if (!cellText.includes(textFilters[col])) {
+                 mostrar = false;
+                 break;
+             }
+         }
+         
+         // Filtragem para Status (dropdown ou painel)
+         const checkedStatus = Array.from(
+             document.querySelectorAll('#status-filter input[type="checkbox"]:checked')
+         ).map(cb => cb.value);
+    
+         if (checkedStatus.length > 0) {
+             window.painelFilterStatus = 'TODOS';
+             if (!checkedStatus.some(val => statusText.toLowerCase().includes(val.toLowerCase())))
+                 mostrar = false;
+         } else if (window.painelFilterStatus && window.painelFilterStatus !== 'TODOS') {
+             if (!statusText.toLowerCase().includes(window.painelFilterStatus.toLowerCase()))
+                 mostrar = false;
+         }
+         
+         tr.style.display = mostrar ? '' : 'none';
+    });
+
+    // Recalcular as linhas visíveis para aplicar o padrão de linhas alternadas
+    const visibleRows = Array.from(tabela.querySelectorAll('tbody tr'))
+                             .filter(tr => tr.style.display !== 'none');
+    visibleRows.forEach((tr, index) => {
+        tr.classList.remove('row-even', 'row-odd');
+        if (index % 2 === 0) {
+            tr.classList.add('row-even');
+        } else {
+            tr.classList.add('row-odd');
         }
     });
 }
