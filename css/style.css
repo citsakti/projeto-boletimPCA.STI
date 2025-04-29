@@ -644,3 +644,104 @@ input[type="checkbox"]:hover {
     padding: 0 1rem;
   }
 }
+
+/* Estilos para a Modal e Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo semi-transparente */
+    backdrop-filter: blur(5px); /* Efeito de desfoque */
+    display: none; /* Começa oculto */
+    align-items: center;
+    justify-content: center;
+    z-index: 1001; /* Acima de outros elementos */
+    cursor: pointer; /* Indica que clicar fora fecha */
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    width: 98vw;
+    height: 95vh;
+    max-width: 1600px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    cursor: default;
+    /* Animação inicial */
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.4s cubic-bezier(.4,0,.2,1), transform 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+.modal-content.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.modal-content iframe {
+    flex-grow: 1; /* Ocupa o espaço disponível */
+    border: none;
+    width: 100%;
+    height: 100%;
+}
+
+/* Estilo para o ícone de link na tabela */
+.processo-link-icon {
+    margin-left: 5px; /* Espaço entre o número e o ícone */
+    cursor: pointer;
+    display: inline-block; /* Para aplicar margem */
+}
+
+.processo-link-icon,
+.processo-link-icon:hover {
+    cursor: pointer !important;
+}
+
+/* Estilos para a Caixa de Mensagem Informativa */
+.info-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Fundo um pouco mais claro que o principal */
+    display: none; /* Começa oculto */
+    align-items: center;
+    justify-content: center;
+    z-index: 1002; /* Acima da modal principal */
+}
+
+.info-message-box {
+    background-color: white;
+    padding: 25px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.info-message-box p {
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.info-message-box button {
+    padding: 8px 20px;
+    background-color: var(--brand-primary-medium);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.info-message-box button:hover {
+    background-color: var(--brand-primary-dark);
+}
