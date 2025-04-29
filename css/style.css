@@ -9,6 +9,7 @@ body {
     background-color: var(--brand-neutral);
     color: #333;
     padding: 0 var(--space-3); /* Adicionado para afastar o conteúdo das bordas */
+    padding-top: 10px; /* Espaço superior para destacar o header */
 }
 
 /* Ajuste base para tipografia */
@@ -34,6 +35,9 @@ header {
     justify-content: space-between;
     top: 0;
     z-index: 11;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
 
 /* Linha decorativa do header */
@@ -377,6 +381,8 @@ table tbody tr.contratacao-atrasada {
     align-items: center;
     justify-content: center;
     text-align: center;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
   }
   header img.logo-tribunal {
     max-width: 300px; /* ajuste conforme necessário */
