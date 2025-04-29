@@ -77,10 +77,14 @@ function fetchAndPopulate() {
                                 value = '<Não Orçado>';
                             }
                         } else if (colIndex === 9) {
-                            // Coluna "Processo": se vazio, substitui por "*"
+                            // Coluna "Processo": se vazio, substitui por "*", senão adiciona emoji de link
                             if (value.trim() === '') {
-                                value = '*';
+                                td.textContent = '*';
+                            } else {
+                                td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
                             }
+                            tr.appendChild(td);
+                            return; // Já adicionou o td, pula para o próximo
                         }
                         
                         td.textContent = value;
@@ -218,6 +222,91 @@ document.addEventListener('DOMContentLoaded', () => {
         if (overlay) overlay.style.display = 'none';
         console.error('Erro ao carregar dados:', err);
       });
+
+    // Modal de processo
+    const modalOverlay = document.getElementById('processo-modal-overlay');
+    const modalContent = modalOverlay.querySelector('.modal-content');
+    const modalIframe = document.getElementById('processo-iframe');
+    const tableBody = document.querySelector('#detalhes table tbody');
+
+    // NOVO: Elementos da caixa de mensagem
+    const infoOverlay = document.getElementById('info-message-overlay');
+    const infoOkBtn = document.getElementById('info-message-ok-btn');
+
+    if (tableBody && modalOverlay && modalIframe && infoOverlay && infoOkBtn) { // Verifica se os novos elementos existem
+        tableBody.addEventListener('click', function(event) {
+            if (event.target.classList.contains('processo-link-icon')) {
+                const td = event.target.closest('td');
+                let processo = td ? td.textContent.replace('🔗', '').trim() : '';
+                if (processo) {
+                    navigator.clipboard.writeText(processo)
+                        .then(() => {
+                            // Mostra a modal principal PRIMEIRO
+                            modalIframe.src = 'https://www.tce.ce.gov.br/contexto/#/processos-protocolos';
+                            modalOverlay.style.display = 'flex';
+                            modalContent.classList.remove('show');
+                            void modalContent.offsetWidth;
+                            modalContent.classList.add('show');
+
+                            // DEPOIS mostra a caixa de mensagem informativa
+                            infoOverlay.style.display = 'flex';
+
+                            // Atualiza o title (opcional, mas útil)
+                            td.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
+                        })
+                        .catch(err => {
+                            console.error('Falha ao copiar para a área de transferência:', err);
+                            // Mesmo se falhar ao copiar, abre a modal
+                            modalIframe.src = 'https://www.tce.ce.gov.br/contexto/#/processos-protocolos';
+                            modalOverlay.style.display = 'flex';
+                            modalContent.classList.remove('show');
+                            void modalContent.offsetWidth;
+                            modalContent.classList.add('show');
+                            // Poderia mostrar uma mensagem de erro aqui se desejado
+                        });
+                } else {
+                    // Se não houver número de processo, apenas abre a modal
+                    modalIframe.src = 'https://www.tce.ce.gov.br/contexto/#/processos-protocolos';
+                    modalOverlay.style.display = 'flex';
+                    modalContent.classList.remove('show');
+                    void modalContent.offsetWidth;
+                    modalContent.classList.add('show');
+                }
+            }
+        });
+
+        // Função para fechar ambas as modais
+        function closeModals() {
+            modalContent.classList.remove('show');
+            infoOverlay.style.display = 'none'; // Esconde a caixa de info
+            setTimeout(() => {
+                modalOverlay.style.display = 'none';
+                modalIframe.src = 'about:blank';
+            }, 400);
+        }
+
+        // Fecha a caixa de mensagem ao clicar em OK
+        infoOkBtn.addEventListener('click', () => {
+            infoOverlay.style.display = 'none';
+        });
+
+        // Fecha TUDO ao clicar fora da modal principal
+        modalOverlay.addEventListener('click', function(event) {
+            if (event.target === modalOverlay) {
+                closeModals();
+            }
+        });
+
+        // Fecha TUDO ao pressionar ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modalOverlay.style.display === 'flex') {
+                closeModals();
+            }
+        });
+    } else {
+        // Adiciona um log se algum elemento essencial não for encontrado
+        console.error("Erro: Um ou mais elementos da modal ou da caixa de mensagem não foram encontrados no DOM.");
+    }
 });
 
 document.addEventListener('tabela-carregada', () => {
