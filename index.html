@@ -12,6 +12,10 @@
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>  
 </head>
 <body>
+    <!-- overlay de carregamento -->
+    <div id="loading-overlay">
+      <div class="loader"> ⏳ Carregando dados, por favor aguarde...</div>
+    </div>
 
     <header>
         <img src="./IMG/tribunal.png" alt="Tribunal" size="10" class="logo-tribunal">
@@ -23,9 +27,9 @@
 
     <!-- Toolbar para botões -->
     <div class="toolbar">
-        <button class="btn btn-limpar-filtros" id="btnToggleCancelados">Ocultar Cancelados ❌</button>
-        <button class="btn btn-limpar-filtros" id="btnLimparFiltros">🚮 Limpar Filtros</button>
-        <button class="btn btn-print" id="btnPrint">🖨️ Imprimir</button>
+        <button class="btn btn-limpar-filtros" id="btnToggleCancelados">Ocultar Cancelados <span class="emoji-icon">❌</span></button>
+        <button class="btn btn-limpar-filtros" id="btnLimparFiltros"><span class="emoji-icon">🚮</span> Limpar Filtros</button>
+        <button class="btn btn-print" id="btnPrint"><span class="emoji-icon">🖨️</span> Imprimir</button>
     </div>
 
     <!-- Filtros para dispositivos móveis -->
