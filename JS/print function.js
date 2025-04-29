@@ -52,10 +52,11 @@ function printPage() {
         * {
             animation: none !important;
         }
-        /* Oculta o botão "limpar filtros", a linha de filtros e o botão de imprimir */
+        /* Oculta o botão "limpar filtros", a linha de filtros, o botão de imprimir e o emoji de link */
         .btn-limpar-filtros,
         thead tr.filter-row,
-        #btnPrint {
+        #btnPrint,
+        .processo-link-icon { /* Adicionado para ocultar o emoji */
             display: none !important;
         }
         /* Garante que a coluna "Processos" (9ª coluna) não quebre linha durante a impressão */
