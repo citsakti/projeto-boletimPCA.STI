@@ -126,6 +126,40 @@ table thead.cabecalho tr.filter-row {
     background-color: #fff;
 }
 
+/* Estilização elegante e bordas arredondadas para todos os filtros */
+table thead.cabecalho tr.filter-row th input[type="text"],
+table thead.cabecalho tr.filter-row th select,
+table thead.cabecalho tr.filter-row th .filter-toggle {
+  width: 100% !important;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  height: auto !important;
+  border: 1px solid var(--brand-neutral);
+  border-radius: var(--radius-sm);
+  background-color: #fff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Se houver inputs com largura fixa inline, zera‑los */
+table thead.cabecalho tr.filter-row th input[style] {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* foco nos filtros */
+table thead.cabecalho tr.filter-row th input[type="text"]:focus,
+table thead.cabecalho tr.filter-row th select:focus,
+table thead.cabecalho tr.filter-row th .filter-toggle:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(0, 95, 184, 0.25);
+}
+
+/* Garantir que o filtro de "Projeto de Aquisição" (4ª coluna) ocupe todo o TH */
+table thead.cabecalho tr.filter-row th:nth-child(4) input {
+  /* width:100% e box-sizing garantem o ajuste automático ao TH */
+}
+
 /* Evitar quebra de linha nas colunas específicas */
 table th:nth-child(2),
 table td:nth-child(2),
