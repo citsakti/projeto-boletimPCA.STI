@@ -199,27 +199,25 @@ function trimTableEnding() {
 
 // Atualização do DOMContentLoaded para configurar os filtros e aplicar o trim da tabela
 document.addEventListener('DOMContentLoaded', () => {
-fetchAndPopulate()
-  .then(() => {
-    // Configura o filtro "tipo" como select
-    populateTipoFiltro();
-    
-    // Configura os demais filtros de texto
-    const filterInputs = document.querySelectorAll('.filter-row input[type="text"]');
-    filterInputs.forEach(input => {
-      input.addEventListener('keyup', filterTable);
-    });
-    
-    // Aplica as classes de status (definidas em funcoes2.js)
-    assignStatusClasses();
-    
-    // Remove as linhas após a última linha com conteúdo na coluna "Descrição do Objeto"
-    trimTableEnding();
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.style.display = 'flex';
 
-    // Aplica estilo para status
-    aplicarEstiloStatus();
-  })
-  .catch(err => console.error('Erro ao processar a tabela:', err));
+    fetchAndPopulate()
+      .then(() => {
+        if (overlay) overlay.style.display = 'none';
+        // Configura filtros e trim como antes
+        populateTipoFiltro();
+        document.querySelectorAll('.filter-row input[type="text"]').forEach(input =>
+          input.addEventListener('keyup', filterTable)
+        );
+        assignStatusClasses();
+        trimTableEnding();
+        aplicarEstiloStatus();
+      })
+      .catch(err => {
+        if (overlay) overlay.style.display = 'none';
+        console.error('Erro ao carregar dados:', err);
+      });
 });
 
 document.addEventListener('tabela-carregada', () => {
