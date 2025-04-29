@@ -150,13 +150,19 @@ table td:nth-child(9) {
     white-space: nowrap !important;
 }
 
-/* Centralizar os conteúdos das células das colunas 1 e 3 */
+/* Impede quebra de linha na coluna “Processo” */
+table th:nth-child(9),
+table td:nth-child(9) {
+  white-space: nowrap;
+}
+
+/* Centralizar os conteúdos das células das colunas 1 e 3 
 table th:nth-child(1),
 table td:nth-child(1),
 table th:nth-child(3),
 table td:nth-child(3) {
     text-align: center;
-}
+}*/
 
 /* Cabeçalho da tabela */
 th {
@@ -284,6 +290,10 @@ table tbody tr.contratacao-atrasada {
     .btn {
         width: 100%;
     }
+
+    .toolbar {
+        justify-content: center;
+    }
 }
 
 /* Smartphones: ≤ 575.98px */
@@ -305,13 +315,24 @@ table tbody tr.contratacao-atrasada {
   }
   tbody td {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: nowrap;
+    align-items: flex-start; /* Alinha itens ao topo em vez de no centro */
+    padding-top: 8px;
+    padding-bottom: 8px; /* Espaçamento vertical extra para células com conteúdo mais extenso */
   }
   tbody td::before {
     content: attr(data-label);
     font-weight: 600;
-    margin-right: var(--space-2);
     color: var(--brand-primary-medium);
+    min-width: 40%; /* Largura fixa para o rótulo */
+    max-width: 40%;
+    flex-shrink: 0;
+    padding-right: 8px;
+  }
+  tbody td > span,
+  tbody td > div {
+    text-align: right; /* Alinha o conteúdo à direita */
+    word-break: break-word; /* Permite quebras de palavras longas */
   }
   /* Ajuste na toolbar */
   .toolbar {
@@ -365,6 +386,9 @@ table tbody tr.contratacao-atrasada {
     font-size: clamp(1rem, 4vw, 1.5rem);
     margin: 0;
   }
+  tbody td[data-label="Processo"] {
+    white-space: nowrap;
+  }
 }
 
 /* Tablets: 576px a 991.98px */
@@ -391,6 +415,73 @@ table tbody tr.contratacao-atrasada {
     .status-badge:hover {
         transform: translateY(-1px);
     }
+}
+
+/* Ajuste para botões da toolbar em dispositivos móveis */
+@media (max-width: 767px) {
+  .toolbar {
+    padding: 10px 5px;
+    gap: 8px;
+  }
+  
+  .toolbar button,
+  .toolbar .btn,
+  .toolbar .btn-print,
+  .toolbar .btn-limpar-filtros {
+    padding: 4px 6px;
+    font-size: 0.75rem;
+    min-width: 0;
+    flex-basis: auto;
+    flex-shrink: 1;
+    white-space: nowrap;
+  }
+}
+
+/* Para telas muito pequenas, deixar ainda mais compacto */
+@media (max-width: 375px) {
+  .toolbar button,
+  .toolbar .btn,
+  .toolbar .btn-print,
+  .toolbar .btn-limpar-filtros {
+    font-size: 0.7rem;
+    padding: 3px 5px;
+  }
+  
+  /* Opcionalmente remover emojis em telas muito pequenas */
+  .toolbar button span.emoji-icon {
+    display: none;
+  }
+}
+
+/* Ajuste específico para iPhone 12 Pro e dispositivos similares */
+@media (min-width: 375px) and (max-width: 414px) {
+  .toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 5px;
+    gap: 8px;
+  }
+  
+  .toolbar button,
+  .toolbar .btn,
+  .toolbar .btn-print,
+  .toolbar .btn-limpar-filtros {
+    width: 70%;
+    margin: 0 !important;
+    padding: 8px 8px;
+    font-size: 0.75rem;
+  }
+  
+  /* Remover margens laterais que podem estar causando problemas */
+  .toolbar button + button {
+    margin-left: 0 !important;
+  }
+  
+  #btnPrint {
+    margin-right: 0 !important;
+  }
 }
 
 /* ---------- Dropdown multi-seleção ---------- */
@@ -484,4 +575,32 @@ input[type="checkbox"]:hover {
     0% { opacity: 1; }
     50% { opacity: 0; }
     100% { opacity: 1; }
+}
+
+/* Overlay de carregamento */
+#loading-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(5px);
+  display: none;       /* vai aparecer via JS */
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+#loading-overlay .loader {
+  font-size: 1.5rem;
+  color: var(--brand-primary);
+  font-weight: 600;
+}
+
+/* Ajuste para telas pequenas */
+@media (max-width: 600px) {
+  #loading-overlay .loader {
+    font-size: 1.1rem;
+    padding: 0 1rem;
+  }
 }
