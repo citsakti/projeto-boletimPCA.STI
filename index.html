@@ -62,14 +62,14 @@
                     <!-- Coluna 1 – Área (select já funciona) -->
                     <th>
                         <select id="filter-area" style="width:115px;height:21px;">
-                            <option value="">Todas as Áreas</option>
+                            <option value="">Áreas</option>
                         </select>
                     </th>
 
                     <!-- Coluna 2 – Tipo (select já funciona) -->
                     <th>
                         <select id="filter-tipo" style="width:70px;height:21px;">
-                            <option value="">Todos</option>
+                            <option value="">🛒/🔄</option>
                         </select>
                     </th>
 
@@ -106,7 +106,7 @@
 
                     <!-- Coluna 6 – Contratar Até -->
                     <th>
-                        <input data-col-index="6" type="text" placeholder="Contratar Até" style="width:100px;height:15px;">
+                        <input data-col-index="6" type="text" placeholder="Filtrar Contratar Até" style="width:100px;height:15px;">
                     </th>
 
                     <!-- Coluna 7 – Valor PCA -->
@@ -116,7 +116,9 @@
 
                     <!-- Coluna 8 – Orçamento -->
                     <th>
-                        <input data-col-index="8" type="text" placeholder="Filtrar Orçamento" style="width:105px;height:15px;">
+                        <select id="filter-orcamento" style="width:105px;height:21px;">
+                            <option value="">Orçamentos</option>
+                        </select>
                     </th>
 
                     <!-- Coluna 9 – Processo -->
@@ -144,5 +146,24 @@
     <script src="./JS/print function.js"></script>
     <script src="./JS/toggleCancelados.js"></script>
     <script src="./JS/updateStatus.js"></script>
+
+    <!-- Modal para exibir o iframe -->
+    <div id="processo-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <iframe id="processo-iframe" src="about:blank" frameborder="0"></iframe>
+            <!-- Opcional: Botão de fechar dentro da modal -->
+            <!-- <button id="close-modal-btn" class="close-button">&times;</button> -->
+        </div>
+    </div> <!-- Fim da .modal-content principal -->
+    </div> <!-- Fim da #processo-modal-overlay -->
+
+    <!-- Caixa de Mensagem Informativa -->
+    <div id="info-message-overlay" class="info-overlay">
+        <div class="info-message-box">
+            <p>O número do processo já foi copiado. Agora basta colá-lo (Ctrl+V) no campo de busca do TCE e clicar em Buscar.</p>
+            <button id="info-message-ok-btn">OK</button>
+        </div>
+    </div>
+
 </body>
 </html>
