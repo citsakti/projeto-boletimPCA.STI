@@ -96,7 +96,6 @@ function fetchAndPopulate() {
 
                 /* NOVO: avisa que a tabela já tem dados */
                 document.dispatchEvent(new Event('tabela-carregada'));
-                document.dispatchEvent(new Event('tabela-carregada'));
                 resolve();
             },
             error: function(err) {
