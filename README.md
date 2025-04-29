@@ -68,4 +68,4 @@ Projeto Boletim/
 
 ---
 
-Desenvolvido por STI - Tribunal Regional do Trabalho.
+Desenvolvido por Felipe Citsakti
