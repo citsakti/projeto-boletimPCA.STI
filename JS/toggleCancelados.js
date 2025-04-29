@@ -1,19 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
     const btnToggle = document.getElementById('btnToggleCancelados');
-    window.canceladosOcultos = false;
+    window.canceladosOcultos = true;
 
-    btnToggle.addEventListener('click', () => {
-        window.canceladosOcultos = !window.canceladosOcultos;
+    function updateCancelados() {
         const rows = document.querySelectorAll('table tbody tr');
-
         rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            // Considera que a coluna "Status do Processo" é a 6ª (índice 5)
-            if (cells[5] && cells[5].textContent.includes('CANCELADO ❌')) {
+            const statusCell = row.querySelectorAll('td')[5];
+            if (statusCell && statusCell.textContent.includes('CANCELADO ❌')) {
                 row.style.display = window.canceladosOcultos ? 'none' : '';
             }
         });
+        btnToggle.textContent = window.canceladosOcultos
+            ? 'Revelar Cancelados ❌'
+            : 'Ocultar Cancelados ❌';
+    }
 
-        btnToggle.textContent = window.canceladosOcultos ? 'Revelar Cancelados ❌' : 'Ocultar Cancelados ❌';
+    // Monitora quando a tabela for povoada pelo CSV
+    const tbody = document.querySelector('table tbody');
+    const observer = new MutationObserver((mutations, obs) => {
+        if (tbody.querySelector('tr')) {
+            updateCancelados();
+            obs.disconnect();
+        }
+    });
+    observer.observe(tbody, { childList: true });
+
+    btnToggle.addEventListener('click', () => {
+        window.canceladosOcultos = !window.canceladosOcultos;
+        updateCancelados();
     });
 });
