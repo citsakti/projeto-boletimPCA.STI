@@ -233,6 +233,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const infoOverlay = document.getElementById('info-message-overlay');
     const infoOkBtn = document.getElementById('info-message-ok-btn');
 
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    if (closeModalBtn && modalOverlay) {
+        closeModalBtn.addEventListener('click', function() {
+            modalContent.classList.remove('show');
+            setTimeout(() => {
+                modalOverlay.style.display = 'none';
+                modalIframe.src = 'about:blank';
+            }, 400);
+        });
+    }
+
     if (tableBody && modalOverlay && modalIframe && infoOverlay && infoOkBtn) { // Verifica se os novos elementos existem
         tableBody.addEventListener('click', function(event) {
             if (event.target.classList.contains('processo-link-icon')) {
