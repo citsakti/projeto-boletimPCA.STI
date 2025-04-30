@@ -30,6 +30,9 @@ function updatePainelResumo() {
             const statusSelecionado = el.getAttribute('data-status');
             window.painelFilterStatus = statusSelecionado;
             filterTable();
+            // 4) Recolhe o painel de Resumo no mobile após seleção
+            const detalhes = document.getElementById('painel-resumo-details');
+            if (detalhes) detalhes.removeAttribute('open');
         });
     });
 }
@@ -50,5 +53,14 @@ function filterTableByStatus(statusSelecionado) {
 }
 
 // Atualiza o painel quando o DOM carregar e quando a tabela for preenchida
-document.addEventListener('DOMContentLoaded', updatePainelResumo);
+document.addEventListener('DOMContentLoaded', () => {
+    // 0) Fecha o painel de resumo por default no mobile
+    if (window.innerWidth <= 768) {
+        const detalhes = document.getElementById('painel-resumo-details');
+        if (detalhes) detalhes.removeAttribute('open');
+    }
+    updatePainelResumo();
+});
+
+// Mantém este listener para quando a tabela for carregada dinamicamente
 document.addEventListener('tabela-carregada', updatePainelResumo);
