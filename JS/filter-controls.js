@@ -82,15 +82,114 @@ function initFiltros() {
                     row.style.display = '';
                 }
             });
-            
+
+            // Limpar filtros MOBILE
+            [
+                'filtroProjeto',
+                'filtroIdPcaMobile',
+                'filtroStatusInicioMobile',
+                'filtroContratarAteMobile',
+                'filtroValorPcaMobile',
+                'filtroProcessoMobile'
+            ].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = "";
+            });
+            [
+                'filter-area-mobile',
+                'filter-tipo-mobile',
+                'filter-status-processo-mobile',
+                'filter-orcamento-mobile'
+            ].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = "";
+            });
+
             // Aplica os filtros atualizados (que agora estarão limpos)
             filterTable();
+            filterTableMobile();
         };
     }
 
     // NOVO: Adiciona listener para inputs de texto (filtro de escrever)
     document.querySelectorAll(".filter-row input[type='text']").forEach(input => {
         input.addEventListener('keyup', filterTable);
+    });
+
+    // ====== Filtros MOBILE ======
+    // Preencher selects mobile com os mesmos valores dos selects desktop
+
+    // Área
+    const selectAreaMobile = document.getElementById('filter-area-mobile');
+    if (selectAreaMobile) {
+        selectAreaMobile.innerHTML = '<option value="">Todas as Áreas</option>';
+        getValoresUnicos(1)
+            .filter(valor => valor.trim() !== '')
+            .forEach(valor => {
+                const opt = document.createElement('option');
+                opt.value = valor;
+                opt.textContent = valor;
+                selectAreaMobile.appendChild(opt);
+            });
+        selectAreaMobile.onchange = filterTableMobile;
+    }
+
+    // Tipo
+    const selectTipoMobile = document.getElementById('filter-tipo-mobile');
+    if (selectTipoMobile) {
+        selectTipoMobile.innerHTML = '<option value="">Todos</option>';
+        getValoresUnicos(2)
+            .filter(valor => valor.trim() !== '')
+            .forEach(valor => {
+                const opt = document.createElement('option');
+                opt.value = valor;
+                opt.textContent = valor;
+                selectTipoMobile.appendChild(opt);
+            });
+        selectTipoMobile.onchange = filterTableMobile;
+    }
+
+    // Status do Processo
+    const selectStatusMobile = document.getElementById('filter-status-processo-mobile');
+    if (selectStatusMobile) {
+        selectStatusMobile.innerHTML = '<option value="">Status do Processo</option>';
+        getValoresUnicos(5)
+            .filter(valor => valor.trim() !== '')
+            .forEach(valor => {
+                const opt = document.createElement('option');
+                opt.value = valor;
+                opt.textContent = valor;
+                selectStatusMobile.appendChild(opt);
+            });
+        selectStatusMobile.onchange = filterTableMobile;
+    }
+
+    // Orçamento
+    const selectOrcamentoMobile = document.getElementById('filter-orcamento-mobile');
+    if (selectOrcamentoMobile) {
+        selectOrcamentoMobile.innerHTML = '<option value="">Orçamentos</option>';
+        getValoresUnicos(8)
+            .filter(valor => valor.trim() !== '')
+            .forEach(valor => {
+                const opt = document.createElement('option');
+                opt.value = valor;
+                opt.textContent = valor;
+                selectOrcamentoMobile.appendChild(opt);
+            });
+        selectOrcamentoMobile.onchange = filterTableMobile;
+    }
+
+    // Inputs de texto mobile
+    [
+        'filtroProjeto',
+        'filtroIdPcaMobile',
+        'filtroStatusInicioMobile',
+        'filtroContratarAteMobile',
+        'filtroValorPcaMobile',
+        'filtroProcessoMobile'
+    ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('keyup', filterTableMobile);
     });
 
     // Chama filterTable para aplicar filtros combinados
@@ -273,6 +372,52 @@ function filterTable(){
     // Recalcular as linhas visíveis para aplicar o padrão de linhas alternadas
     const visibleRows = Array.from(tabela.querySelectorAll('tbody tr'))
                              .filter(tr => tr.style.display !== 'none');
+    visibleRows.forEach((tr, index) => {
+        tr.classList.remove('row-even', 'row-odd');
+        if (index % 2 === 0) {
+            tr.classList.add('row-even');
+        } else {
+            tr.classList.add('row-odd');
+        }
+    });
+}
+
+// Função de filtro para mobile
+function filterTableMobile() {
+    const tabela = document.querySelector("#detalhes table");
+    if (!tabela) return;
+
+    // Coleta valores dos filtros mobile
+    const idPca = document.getElementById('filtroIdPcaMobile')?.value.trim().toLowerCase() || '';
+    const area = document.getElementById('filter-area-mobile')?.value || '';
+    const tipo = document.getElementById('filter-tipo-mobile')?.value || '';
+    const projeto = document.getElementById('filtroProjeto')?.value.trim().toLowerCase() || '';
+    const statusInicio = document.getElementById('filtroStatusInicioMobile')?.value.trim().toLowerCase() || '';
+    const statusProcesso = document.getElementById('filter-status-processo-mobile')?.value || '';
+    const contratarAte = document.getElementById('filtroContratarAteMobile')?.value.trim().toLowerCase() || '';
+    const valorPca = document.getElementById('filtroValorPcaMobile')?.value.trim().toLowerCase() || '';
+    const orcamento = document.getElementById('filter-orcamento-mobile')?.value || '';
+    const processo = document.getElementById('filtroProcessoMobile')?.value.trim().toLowerCase() || '';
+
+    tabela.querySelectorAll('tbody tr').forEach(tr => {
+        const cells = tr.children;
+        let mostrar = true;
+        if (idPca && !(cells[0]?.textContent.toLowerCase().includes(idPca))) mostrar = false;
+        if (area && cells[1]?.textContent !== area) mostrar = false;
+        if (tipo && cells[2]?.textContent !== tipo) mostrar = false;
+        if (projeto && !(cells[3]?.textContent.toLowerCase().includes(projeto))) mostrar = false;
+        if (statusInicio && !(cells[4]?.textContent.toLowerCase().includes(statusInicio))) mostrar = false;
+        if (statusProcesso && cells[5]?.textContent !== statusProcesso) mostrar = false;
+        if (contratarAte && !(cells[6]?.textContent.toLowerCase().includes(contratarAte))) mostrar = false;
+        if (valorPca && !(cells[7]?.textContent.toLowerCase().includes(valorPca))) mostrar = false;
+        if (orcamento && cells[8]?.textContent !== orcamento) mostrar = false;
+        if (processo && !(cells[9]?.textContent.toLowerCase().includes(processo))) mostrar = false;
+        tr.style.display = mostrar ? '' : 'none';
+    });
+
+    // Reaplica as classes de linhas alternadas
+    const visibleRows = Array.from(tabela.querySelectorAll('tbody tr'))
+        .filter(tr => tr.style.display !== 'none');
     visibleRows.forEach((tr, index) => {
         tr.classList.remove('row-even', 'row-odd');
         if (index % 2 === 0) {
