@@ -21,7 +21,10 @@
         <img src="./IMG/tribunal.png" alt="Tribunal" size="10" class="logo-tribunal">
         <h1>Boletim PCA 2025 - STI</h1>
     </header>
-    <div class="painel-resumo"> ... </div>
+    <details id="painel-resumo-details" class="painel-resumo-details" open>
+      <summary>Painel de Resumo</summary>
+      <div class="painel-resumo"> ... </div>
+    </details>
     <div class="linha-decorativa"></div>
 
     <!-- Toolbar para botões -->
@@ -33,8 +36,26 @@
 
     <!-- Filtros para dispositivos móveis -->
     <details id="mobile-filters">
-      <summary>Filtro: Projeto de Aquisição</summary>
+      <summary>Filtros</summary>
       <input type="text" id="filtroProjeto" placeholder="Filtrar Projeto de Aquisição">
+      <input type="text" id="filtroIdPcaMobile" placeholder="Filtrar ID PCA" style="width:55px;height:15px;" data-col-index="0">
+      <select id="filter-area-mobile" style="width:115px;height:21px;">
+          <option value="">Áreas</option>
+      </select>
+      <select id="filter-tipo-mobile" style="width:70px;height:21px;">
+          <option value="">🛒/🔄</option>
+      </select>
+      <input type="text" id="filtroStatusInicioMobile" placeholder="Filtrar Status Início" style="width:80px;height:15px;" data-col-index="4">
+      <!-- Filtro de Status do Processo (dropdown multi) pode ser simplificado para um select no mobile -->
+      <select id="filter-status-processo-mobile" style="width:100%;">
+          <option value="">Status do Processo</option>
+      </select>
+      <input type="text" id="filtroContratarAteMobile" placeholder="Filtrar Contratar Até" style="width:100px;height:15px;" data-col-index="6">
+      <input type="text" id="filtroValorPcaMobile" placeholder="Filtrar Valor PCA" style="width:110px;height:15px;" data-col-index="7">
+      <select id="filter-orcamento-mobile" style="width:105px;height:21px;">
+          <option value="">Orçamentos</option>
+      </select>
+      <input type="text" id="filtroProcessoMobile" placeholder="Filtrar Processo" style="width:105px;height:15px;" data-col-index="9">
     </details>
 
     <section id="detalhes">
@@ -149,9 +170,10 @@
     <!-- Modal para exibir o iframe -->
     <div id="processo-modal-overlay" class="modal-overlay">
         <div class="modal-content">
+            <button id="close-modal-btn" class="close-button" aria-label="Fechar">
+              <span>❌</span> Sair
+            </button>
             <iframe id="processo-iframe" src="about:blank" frameborder="0"></iframe>
-            <!-- Opcional: Botão de fechar dentro da modal -->
-            <!-- <button id="close-modal-btn" class="close-button">&times;</button> -->
         </div>
     </div> <!-- Fim da .modal-content principal -->
     </div> <!-- Fim da #processo-modal-overlay -->
