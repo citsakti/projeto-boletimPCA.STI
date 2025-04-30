@@ -403,7 +403,7 @@ header::after {
 }
 
 /* Apenas para Tablet: mantém visualização em tabela */
-@media (min-width: 576px) and (max-width: 1199px) {
+@media (min-width: 576px) and (max-width: 1200px) {
     /* Mantém exibição em tabela (não em cards) */
     #mobile-filters {
         margin-bottom: 1rem;
