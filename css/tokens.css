@@ -1,27 +1,26 @@
 /* css/tokens.css */
 :root {
     /* cores da marca */
-    --brand-primary: #002F6C;
+    --brand-primary: #2c417a;
     --brand-primary-medium: #003e8a;
     --brand-secondary: #FFC72C;
     --brand-neutral: #f5f6f7;
-  
+
     /* tipografia */
     --font-primary: 'Inter', Arial, sans-serif;
     --line-height-base: 1.5;
-  
+
     /* espaçamentos */
     --space-1: .25rem;
     --space-2: .5rem;
     --space-3: 1rem;
-  
+
     /* raios de borda */
     --radius-sm: 4px;
     --radius-md: 6px;
     --radius-lg: 12px;
-  
+
     /* sombras */
     --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
     --shadow-md: 0 4px 8px rgba(0,0,0,.12);
-  }
-  
+}
