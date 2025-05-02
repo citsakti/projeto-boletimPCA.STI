@@ -9,6 +9,21 @@ function createSpan(text) {
 }
 
 function aplicarAnimacaoBomba() {
+    // 1. Substitui em todas as células da coluna "Status do Processo"
+    document.querySelectorAll('table tbody tr td:nth-child(6)').forEach(cell => {
+        if (cell.innerHTML.includes('💣')) {
+            cell.innerHTML = cell.innerHTML.replace(/💣/g, '<span class="emoji-bomba">💣</span>');
+        }
+    });
+
+    // 1b. Substitui também dentro do span de destaque do status atrasado
+    document.querySelectorAll('.status-autuacao-atrasada-highlight').forEach(span => {
+        if (span.innerHTML.includes('💣')) {
+            span.innerHTML = span.innerHTML.replace(/💣/g, '<span class="emoji-bomba">💣</span>');
+        }
+    });
+
+    // 2. Substitui em qualquer outro texto puro do body (casos fora da tabela)
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const targets = [];
     let node;
