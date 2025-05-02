@@ -229,10 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalIframe = document.getElementById('processo-iframe');
     const tableBody = document.querySelector('#detalhes table tbody');
 
-    // NOVO: Elementos da caixa de mensagem
-    const infoOverlay = document.getElementById('info-message-overlay');
-    const infoOkBtn = document.getElementById('info-message-ok-btn');
-
     const closeModalBtn = document.getElementById('close-modal-btn');
     if (closeModalBtn && modalOverlay) {
         closeModalBtn.addEventListener('click', function() {
@@ -244,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (tableBody && modalOverlay && modalIframe && infoOverlay && infoOkBtn) { // Verifica se os novos elementos existem
+    if (tableBody && modalOverlay && modalIframe) {
         tableBody.addEventListener('click', function(event) {
             if (event.target.classList.contains('processo-link-icon')) {
                 const td = event.target.closest('td');
@@ -252,32 +248,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (processo) {
                     navigator.clipboard.writeText(processo)
                         .then(() => {
-                            // Mostra a modal principal PRIMEIRO
-                            modalIframe.src = 'https://www.tce.ce.gov.br/contexto/#/processos-protocolos';
+                            // Monta a URL dinâmica
+                            const url = `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`;
+                            modalIframe.src = url;
                             modalOverlay.style.display = 'flex';
                             modalContent.classList.remove('show');
                             void modalContent.offsetWidth;
                             modalContent.classList.add('show');
-
-                            // DEPOIS mostra a caixa de mensagem informativa
-                            infoOverlay.style.display = 'flex';
-
-                            // Atualiza o title (opcional, mas útil)
                             td.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
                         })
                         .catch(err => {
                             console.error('Falha ao copiar para a área de transferência:', err);
-                            // Mesmo se falhar ao copiar, abre a modal
-                            modalIframe.src = 'https://www.tce.ce.gov.br/contexto/#/processos-protocolos';
+                            // Mesmo se falhar ao copiar, abre a modal com o link dinâmico
+                            const url = `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`;
+                            modalIframe.src = url;
                             modalOverlay.style.display = 'flex';
                             modalContent.classList.remove('show');
                             void modalContent.offsetWidth;
                             modalContent.classList.add('show');
-                            // Poderia mostrar uma mensagem de erro aqui se desejado
                         });
                 } else {
-                    // Se não houver número de processo, apenas abre a modal
-                    modalIframe.src = 'https://www.tce.ce.gov.br/contexto/#/processos-protocolos';
+                    // Se não houver número de processo, pode abrir a página padrão ou mostrar aviso
+                    modalIframe.src = 'https://www.tce.ce.gov.br/contexto-consulta-geral?tipo=processos';
                     modalOverlay.style.display = 'flex';
                     modalContent.classList.remove('show');
                     void modalContent.offsetWidth;
@@ -286,20 +278,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Função para fechar ambas as modais
+        // Função para fechar a modal
         function closeModals() {
             modalContent.classList.remove('show');
-            infoOverlay.style.display = 'none'; // Esconde a caixa de info
             setTimeout(() => {
                 modalOverlay.style.display = 'none';
                 modalIframe.src = 'about:blank';
             }, 400);
         }
-
-        // Fecha a caixa de mensagem ao clicar em OK
-        infoOkBtn.addEventListener('click', () => {
-            infoOverlay.style.display = 'none';
-        });
 
         // Fecha TUDO ao clicar fora da modal principal
         modalOverlay.addEventListener('click', function(event) {
@@ -316,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         // Adiciona um log se algum elemento essencial não for encontrado
-        console.error("Erro: Um ou mais elementos da modal ou da caixa de mensagem não foram encontrados no DOM.");
+        console.error("Erro: Um ou mais elementos da modal não foram encontrados no DOM.");
     }
 });
 
