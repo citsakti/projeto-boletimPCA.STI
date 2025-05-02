@@ -1,5 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     attachSorting();
+    setTimeout(sortByContratarAteDesc, 0);
+});
+
+document.addEventListener('tabela-carregada', () => {
+    setTimeout(sortByContratarAteDesc, 0);
 });
 
 function attachSorting() {
@@ -59,6 +64,21 @@ function sortTableByColumn(table, columnIndex, direction) {
     const rowsArray = Array.from(tbody.querySelectorAll('tr'));
 
     rowsArray.sort((a, b) => {
+        // Pega o status (assumindo que está na 6ª coluna, índice 5)
+        const aStatus = a.children[5] ? a.children[5].textContent.trim() : '';
+        const bStatus = b.children[5] ? b.children[5].textContent.trim() : '';
+
+        // Se ambos são "CONTRATADO ✅" ou "RENOVADO ✅", mantém a ordem original
+        const isAContratadoOuRenovado = aStatus === 'CONTRATADO ✅' || aStatus === 'RENOVADO ✅';
+        const isBContratadoOuRenovado = bStatus === 'CONTRATADO ✅' || bStatus === 'RENOVADO ✅';
+
+        if (isAContratadoOuRenovado && isBContratadoOuRenovado) return 0;
+        // Se só a é "CONTRATADO ✅" ou "RENOVADO ✅", manda para o fim
+        if (isAContratadoOuRenovado) return 1;
+        // Se só b é "CONTRATADO ✅" ou "RENOVADO ✅", manda para o fim
+        if (isBContratadoOuRenovado) return -1;
+
+        // Ordenação normal por data, número ou string
         let aText = a.children[columnIndex] ? a.children[columnIndex].textContent.trim() : '';
         let bText = b.children[columnIndex] ? b.children[columnIndex].textContent.trim() : '';
 
@@ -68,12 +88,10 @@ function sortTableByColumn(table, columnIndex, direction) {
         const aTime = aDate.getTime();
         const bTime = bDate.getTime();
 
-        // Se ambos forem datas válidas, compara-as
         if (!isNaN(aTime) && !isNaN(bTime)) {
             return direction === 'asc' ? aTime - bTime : bTime - aTime;
         }
 
-        // Se não forem datas, tenta comparar como números (tratando vírgulas e pontos)
         const aNum = parseFloat(aText.replace(/\./g, '').replace(',', '.').replace(/[^\d.-]/g, ''));
         const bNum = parseFloat(bText.replace(/\./g, '').replace(',', '.').replace(/[^\d.-]/g, ''));
 
@@ -81,7 +99,6 @@ function sortTableByColumn(table, columnIndex, direction) {
             return direction === 'asc' ? aNum - bNum : bNum - aNum;
         }
 
-        // Caso contrário, usa comparação de strings considerando valores numéricos
         return direction === 'asc'
             ? aText.localeCompare(bText, undefined, {numeric: true, sensitivity: 'base'})
             : bText.localeCompare(aText, undefined, {numeric: true, sensitivity: 'base'});
@@ -91,4 +108,20 @@ function sortTableByColumn(table, columnIndex, direction) {
     rowsArray.forEach(row => {
         tbody.appendChild(row);
     });
+}
+
+// Função para ordenar automaticamente pela coluna "Contratar Até" (do mais antigo ao mais novo)
+function sortByContratarAteDesc() {
+    const table = document.querySelector('#detalhes table');
+    if (!table) return;
+    const headers = table.querySelectorAll('thead tr:first-child th');
+    let columnIndex = -1;
+    headers.forEach((header, idx) => {
+        if (header.textContent.trim().toLowerCase() === 'contratar até') {
+            columnIndex = idx;
+        }
+    });
+    if (columnIndex !== -1) {
+        sortTableByColumn(table, columnIndex, 'asc'); // 'asc' = mais antigo ao mais novo
+    }
 }
