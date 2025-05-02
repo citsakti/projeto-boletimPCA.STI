@@ -5,7 +5,8 @@
 
 .emoji-hourglass {
     display: inline-block;
-    animation: spin 2s infinite linear;
+    /* gira em 2s, pausa 1s, em loop */
+    animation: spin-pause 3s infinite linear;
 }
 
 .emoji-exclamation {
@@ -22,8 +23,9 @@
     }
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
+@keyframes spin-pause {
+    0%   { transform: rotate(0deg); }
+    66.666% { transform: rotate(360deg); }
     100% { transform: rotate(360deg); }
 }
 
@@ -41,4 +43,3 @@
         opacity: 0;
     }
 }
-
