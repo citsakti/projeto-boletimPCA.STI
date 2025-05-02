@@ -32,7 +32,10 @@ function updatePainelResumo() {
             filterTable();
             // 4) Recolhe o painel de Resumo no mobile após seleção
             const detalhes = document.getElementById('painel-resumo-details');
-            if (detalhes) detalhes.removeAttribute('open');
+            // Fecha o painel apenas em telas até 1024px (inclui iPad Pro)
+            if (detalhes && window.matchMedia('(max-width: 1024px)').matches) {
+                detalhes.removeAttribute('open');
+            }
         });
     });
 }
@@ -55,9 +58,10 @@ function filterTableByStatus(statusSelecionado) {
 // Atualiza o painel quando o DOM carregar e quando a tabela for preenchida
 document.addEventListener('DOMContentLoaded', () => {
     // 0) Fecha o painel de resumo por default no mobile
-    if (window.innerWidth <= 768) {
-        const detalhes = document.getElementById('painel-resumo-details');
-        if (detalhes) detalhes.removeAttribute('open');
+    const detalhes = document.getElementById('painel-resumo-details');
+    // Fecha o painel apenas em telas até 1024px (inclui iPad Pro)
+    if (detalhes && window.matchMedia('(max-width: 1024px)').matches) {
+        detalhes.removeAttribute('open');
     }
     updatePainelResumo();
 });
