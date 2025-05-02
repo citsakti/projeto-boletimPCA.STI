@@ -6,6 +6,7 @@ const statusMapping = {
     'CANCELADO ❌': 'status-cancelado',
     'EM CONTRATAÇÃO 🤝': 'status-em-contratacao',
     'AGUARDANDO ETP ⏳': 'status-aguardando-etp',
+    'AGUARDANDO DFD ⏳': 'status-aguardando-dfd',
     'A INICIAR ⏰': 'status-a-iniciar',
     'RENOVADO ✅': 'status-renovado',
     'CONTRATADO ✅': 'status-contratado',
@@ -26,7 +27,10 @@ function assignStatusClasses() {
         if (!base) return;
 
         // monta conteúdo (já com <span class="emoji-bomba">💣</span> quando houver)
-        const content = txt.replace(/💣/g, '<span class="emoji-bomba">💣</span>');
+        const content = txt
+            .replace(/💣/g, '<span class="emoji-bomba">💣</span>')
+            .replace(/⏳/g, '<span class="emoji-hourglass">⏳</span>')
+            .replace(/❗/g, '<span class="emoji-exclamation">❗</span>');
 
         // envolve tudo num highlight específico
         cell.innerHTML = `<span class="${base}-highlight">${content}</span>`;
