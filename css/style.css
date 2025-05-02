@@ -547,13 +547,12 @@ table td:nth-child(9) {
   white-space: nowrap;
 }
 
-/* Centralizar os conteúdos das células das colunas 1 e 3 
-table th:nth-child(1),
-table td:nth-child(1),
-table th:nth-child(3),
-table td:nth-child(3) {
-    text-align: center;
-}*/
+/* Negrito para coluna "Projeto de Aquisição" (4ª coluna) */
+table th:nth-child(4),
+table td:nth-child(4) {
+    font-weight: bold;
+
+}
 
 /* Cabeçalho da tabela */
 th {
@@ -597,8 +596,38 @@ tbody tr:hover {
 /* Linha para estilizar as linhas com status "CONTRATAÇÃO ATRASADA❗" */
 table tbody tr.contratacao-atrasada {
     color: red;
+    /* animation: blink 1s linear infinite;  Removido o piscar da linha inteira */
+}
+
+/* Destaca apenas a frase do status AUTUAÇÃO ATRASADA 💣 */
+.status-autuacao-atrasada-highlight {
+    background: #e6cff2;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
+}
+
+/* highlights de status */
+.status-autuacao-atrasada-highlight { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-contratacao-atrasada-highlight {
+    background: #b10202;
+    color: #fff;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
     animation: blink 1s linear infinite;
 }
+.status-aguardando-dfd-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-etp-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-elaborando-tr-highlight         { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-aguardando-definicao-highlight  { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-analise-de-viabilidade-highlight{ background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; }
+.status-em-contratacao-highlight        { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; }
+.status-renovado-highlight              { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-contratado-highlight            { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
 
 /* Badges de status */
 .status-badge {
