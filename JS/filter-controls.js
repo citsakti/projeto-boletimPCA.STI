@@ -52,6 +52,21 @@ function initFiltros() {
         selectTipo.onchange = filterTable;
     }
 
+    // Preencher filtro Orçamento (coluna 8) sem valores vazios
+    const selectOrcamento = document.getElementById('filter-orcamento');
+    if (selectOrcamento) {
+        selectOrcamento.innerHTML = '<option value="">Orçamentos</option>';
+        getValoresUnicos(8)
+            .filter(valor => valor.trim() !== '')
+            .forEach(valor => {
+                const opt = document.createElement('option');
+                opt.value = valor;
+                opt.textContent = valor;
+                selectOrcamento.appendChild(opt);
+            });
+        selectOrcamento.onchange = filterTable;
+    }
+
     // Configurar o botão de limpar filtros
     const limparBtn = document.getElementById("btnLimparFiltros");
     if (limparBtn) {
