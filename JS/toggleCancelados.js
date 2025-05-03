@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnToggle.textContent = window.canceladosOcultos
             ? 'Revelar Cancelados ❌'
             : 'Ocultar Cancelados ❌';
+        // Reaplica alternância de cores após ocultar/exibir linhas
+        if (typeof alternaCoresLinhas === 'function') alternaCoresLinhas();
     }
 
     // Monitora quando a tabela for povoada pelo CSV
