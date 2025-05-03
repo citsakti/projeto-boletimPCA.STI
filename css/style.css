@@ -569,23 +569,6 @@ td {
     border-bottom: 1px solid var(--brand-neutral);
 }
 
-/* Linhas alternadas */
-tbody tr:nth-child(even) {
-    background-color: var(--brand-neutral);
-}
-
-tbody tr:nth-child(odd) {
-    background-color: #fff;
-}
-
-tbody tr.row-even {
-    background-color: var(--brand-neutral);
-}
-
-tbody tr.row-odd {
-    background-color: #fff;
-}
-
 /* Hover na linha */
 tbody tr:hover {
     box-shadow: var(--shadow-md);
@@ -641,7 +624,6 @@ table tbody tr.contratacao-atrasada {
 
 /* Toolbar fixa */
 .toolbar {
-    position:;
     top: 0;
     right: 0; /* Alinha a toolbar à direita */
     z-index: 100;
@@ -1271,4 +1253,13 @@ input[type="checkbox"]:hover {
     .close-button span {
         font-size: 1.1em;
     }
+}
+
+/* Estilo para linhas pares e ímpares */
+tbody tr.row-even {
+    background-color: var(--brand-neutral);
+}
+
+tbody tr.row-odd {
+    background-color: #fff;
 }
