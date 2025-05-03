@@ -384,17 +384,8 @@ function filterTable(){
          tr.style.display = mostrar ? '' : 'none';
     });
 
-    // Recalcular as linhas visíveis para aplicar o padrão de linhas alternadas
-    const visibleRows = Array.from(tabela.querySelectorAll('tbody tr'))
-                             .filter(tr => tr.style.display !== 'none');
-    visibleRows.forEach((tr, index) => {
-        tr.classList.remove('row-even', 'row-odd');
-        if (index % 2 === 0) {
-            tr.classList.add('row-even');
-        } else {
-            tr.classList.add('row-odd');
-        }
-    });
+    // Após filtrar e exibir/ocultar as linhas:
+    alternaCoresLinhas();
 }
 
 // Função de filtro para mobile
@@ -431,14 +422,16 @@ function filterTableMobile() {
     });
 
     // Reaplica as classes de linhas alternadas
-    const visibleRows = Array.from(tabela.querySelectorAll('tbody tr'))
+    alternaCoresLinhas();
+}
+
+function alternaCoresLinhas() {
+    const tabela = document.querySelector("#detalhes table");
+    if (!tabela) return;
+    const linhasVisiveis = Array.from(tabela.querySelectorAll('tbody tr'))
         .filter(tr => tr.style.display !== 'none');
-    visibleRows.forEach((tr, index) => {
+    linhasVisiveis.forEach((tr, idx) => {
         tr.classList.remove('row-even', 'row-odd');
-        if (index % 2 === 0) {
-            tr.classList.add('row-even');
-        } else {
-            tr.classList.add('row-odd');
-        }
+        tr.classList.add(idx % 2 === 0 ? 'row-even' : 'row-odd');
     });
 }
