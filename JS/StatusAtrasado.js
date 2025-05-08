@@ -82,10 +82,18 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Status: EM CONTRATAÇÃO/RENOVAÇÃO (tentando data-detalhe-contratacao-renovacao)');
             const detalhe = cell.dataset.detalheContratacaoRenovacao; 
             if (detalhe) {
-                if (/^\d+$/.test(detalhe)) {
-                    tooltipText = `Faltam ${detalhe} dias para a Contratação.`;
-                } else {
-                    tooltipText = detalhe;
+                if (statusText.includes('EM RENOVAÇÃO 🔄')) {
+                    if (/^\d+$/.test(detalhe)) {
+                        tooltipText = `Faltam ${detalhe} dias para o Vencimento da Renovação.`;
+                    } else {
+                        tooltipText = detalhe; // Caso o detalhe não seja um número, exibe o texto como está
+                    }
+                } else if (statusText.includes('EM CONTRATAÇÃO 🤝')) {
+                    if (/^\d+$/.test(detalhe)) {
+                        tooltipText = `Faltam ${detalhe} dias para a Contratação.`;
+                    } else {
+                        tooltipText = detalhe;
+                    }
                 }
             } else {
                 tooltipText = 'Informação adicional não disponível (detalheContratacaoRenovacao ausente).';
