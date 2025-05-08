@@ -56,7 +56,11 @@ function printPage() {
         .btn-limpar-filtros,
         thead tr.filter-row,
         #btnPrint,
-        .processo-link-icon { /* Adicionado para ocultar o emoji */
+        .processo-link-icon { /* Emoji de link removido da lista original e #btnPCAPublicada movido */
+            display: none !important;
+        }
+        /* Oculta especificamente o botão PCA Publicada */
+        #btnPCAPublicada {
             display: none !important;
         }
         /* Garante que a coluna "Processos" (9ª coluna) não quebre linha durante a impressão */
