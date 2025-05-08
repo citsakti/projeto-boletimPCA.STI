@@ -85,8 +85,54 @@ function fetchAndPopulate() {
                             }
                             tr.appendChild(td);
                             return; // Já adicionou o td, pula para o próximo
+                        } else if (colIndex === 5) {
+                            // Coluna "Status do Processo"
+                            const statusProcessoTexto = row[6]; // Coluna F - Status do Processo
+                            td.textContent = statusProcessoTexto;
+
+                            if (statusProcessoTexto.includes('AUTUAÇÃO ATRASADA 💣')) {
+                                const detalheAutuacao = row[11]; // Coluna L do CSV
+                                if (detalheAutuacao) {
+                                    td.dataset.detalheAutuacao = detalheAutuacao;
+                                }
+                            }
+
+                            if (statusProcessoTexto.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
+                                const detalheContratacao = row[12]; // Coluna M do CSV
+                                if (detalheContratacao) {
+                                    td.dataset.detalheContratacao = detalheContratacao;
+                                }
+                            }
+
+                            // Adicionar detalhe da coluna L do CSV para outros status relevantes
+                            const outrosStatusRelevantes = [
+                                'AGUARDANDO DFD ⏳',
+                                'AGUARDANDO ETP ⏳',
+                                'DFD ATRASADO❗',
+                                'ETP ATRASADO❗',
+                                'ELABORANDO TR📝',
+                                'ANÁLISE DE VIABILIDADE 📝'
+                            ];
+                            if (outrosStatusRelevantes.some(s => statusProcessoTexto.includes(s))) {
+                                const detalheStatusGeral = row[11]; // Coluna L do CSV (índice 11)
+                                if (detalheStatusGeral) {
+                                    td.dataset.detalheStatusGeral = detalheStatusGeral;
+                                }
+                            }
+
+                            // Adicionar detalhe da coluna M do CSV para status de Contratação/Renovação
+                            const statusContratacaoRenovacao = [
+                                'EM CONTRATAÇÃO 🤝',
+                                'EM RENOVAÇÃO 🔄'
+                            ];
+                            if (statusContratacaoRenovacao.some(s => statusProcessoTexto.includes(s))) {
+                                const detalheColunaM = row[12]; // Coluna M do CSV (índice 12)
+                                if (detalheColunaM) {
+                                    td.dataset.detalheContratacaoRenovacao = detalheColunaM;
+                                }
+                            }
                         }
-                        
+// ...existing code...                        
                         td.textContent = value;
                         tr.appendChild(td);
                     });
