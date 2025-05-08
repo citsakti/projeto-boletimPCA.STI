@@ -1,0 +1,50 @@
+.status-tooltip {
+    position: absolute;
+    background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+    color: #222;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 16px;
+    z-index: 9999;
+    max-width: 350px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    text-align: left;
+    border: 3px solid #ff9800;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #fff8e1;
+}
+
+.status-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 12px;
+    border-style: solid;
+    border-color: #ff9800 transparent transparent transparent;
+}
+
+.status-atrasado {
+    position: relative;
+    cursor: pointer; /* Alterado para remover o símbolo "?" */
+    text-decoration: underline dotted;
+}
+
+/* Estilos para telas menores (ex: mobile) */
+@media (max-width: 600px) {
+    .status-tooltip {
+        padding: 8px 12px; /* Diminui o padding */
+        font-size: 14px; /* Diminui o tamanho da fonte */
+        max-width: 80vw; /* Define a largura máxima como 80% da largura da viewport */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* Ajusta a sombra */
+    }
+
+    .status-tooltip::before {
+        bottom: -10px; /* Ajusta a posição da seta */
+        border-width: 10px; /* Diminui o tamanho da seta */
+    }
+}
