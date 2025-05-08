@@ -144,6 +144,7 @@ header::after {
         color: #fff;
         border-radius: var(--radius-md);
         margin-bottom: 1em;
+        margin-top: 1em;
         outline: none;
         text-align: left;
         position: relative;
@@ -346,6 +347,28 @@ header::after {
     text-align: right;
     word-break: break-word;
   }
+  tbody td[data-label="Tipo"],
+  tbody td[data-label="Processo"] {
+    white-space: nowrap !important;
+  }
+
+  /* Adicionado para garantir que o conteúdo DENTRO de span/div também não quebre em "Tipo" e "Processo" nos cards */
+  tbody td[data-label="Tipo"] > span,
+  tbody td[data-label="Tipo"] > div,
+  tbody td[data-label="Processo"] > span,
+  tbody td[data-label="Processo"] > div {
+    white-space: nowrap !important; /* Reforça a não quebra de linha */
+    word-break: normal !important;   /* Sobrescreve o 'break-word' que pode estar causando a quebra */
+    display: inline; /* Garante que o elemento flua como texto e respeite o nowrap */
+  }
+
+  /* Estiliza o conteúdo de "Projeto de Aquisição" no mobile */
+  tbody td[data-label="Projeto de Aquisição"] > span,
+  tbody td[data-label="Projeto de Aquisição"] > div {
+    font-size: 1.3em; /* Aumenta o tamanho da fonte */
+    font-weight: 600;  /* Torna o texto mais negrito */
+  }
+
   .toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -399,6 +422,10 @@ header::after {
   }
   tbody td[data-label="Processo"] {
     white-space: nowrap;
+  }
+  tbody td[data-label="Tipo"],
+  tbody td[data-label="Processo"] {
+    white-space: nowrap !important;
   }
 }
 
@@ -541,10 +568,20 @@ table td:nth-child(9) {
     white-space: nowrap !important;
 }
 
-/* Impede quebra de linha na coluna “Processo” */
+/* Impede quebra de linha nas colunas "Tipo" (3ª) e "Processo" (10ª) em todas as telas */
+table th:nth-child(3), /* Coluna "Tipo" */
+table td:nth-child(3), /* Coluna "Tipo" */
+table th:nth-child(10), /* Coluna "Processo" */
+table td:nth-child(10) { /* Coluna "Processo" */
+    white-space: nowrap !important;
+}
+
+/* Impede quebra de linha nas colunas “Tipo” (2ª) e “Processo” (9ª) em todas as telas */
+table th:nth-child(2),
+table td:nth-child(2),
 table th:nth-child(9),
 table td:nth-child(9) {
-  white-space: nowrap;
+    white-space: nowrap !important;
 }
 
 /* Negrito para coluna "Projeto de Aquisição" (4ª coluna) */
