@@ -31,7 +31,7 @@
 .status-atrasado {
     position: relative;
     cursor: pointer; /* Alterado para remover o símbolo "?" */
-    text-decoration: underline dotted;
+    /* text-decoration: underline dotted; */
 }
 
 /* Estilos para telas menores (ex: mobile) */
