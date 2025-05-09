@@ -1,5 +1,5 @@
 (function() {
-    const UPDATE_INTERVAL = 60 * 1000; // 60 segundos
+    const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutos
     let currentProcessedData = null;
     let isFirstLoad = true;
 
