@@ -296,15 +296,19 @@ table tbody tr.contratacao-atrasada {
     background-color: #f5f6f7;
     padding: 20px 10px; /* Aumenta o espaçamento vertical (acima e abaixo) */
     display: flex;
-    justify-content: flex-end; /* Garante que os botões fiquem alinhados à direita */
+    /*justify-content: flex-end; /* Garante que os botões fiquem alinhados à direita */
 }
 
 .toolbar button + button {
     margin-left: 20px;
 }
 
+#btnPCAPublicada {
+    margin-right: auto; /* Move o botão PCA Publicada para a esquerda */
+}
+
 #btnPrint {
-    margin-right: 20px;
+   /* margin-right: 20px; */
 }
 
 /* Botões modernos */
