@@ -54,7 +54,7 @@ function verificarRenovacoesProximas() {
                         if (diffTempo >= 0 && diffTempo <= trintaDiasEmMs) {
                             // Verifica se o emoji já não está no início do innerHTML da célula
                             if (!celulaStatus.innerHTML.startsWith('🙋‍♂️ ')) {
-                                celulaStatus.innerHTML = '🙋‍♂️ ' + celulaStatus.innerHTML;
+                                celulaStatus.innerHTML = '🙋‍♂️   ' + celulaStatus.innerHTML;
                             }
                         }
 
