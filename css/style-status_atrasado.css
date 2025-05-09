@@ -41,7 +41,7 @@
 @media (max-width: 600px) {
     .status-tooltip {
         padding: 8px 12px; /* Diminui o padding */
-        font-size: 12px; /* Diminui o tamanho da fonte - ajuste conforme necessário */
+        font-size: 11.5px; /* Diminui o tamanho da fonte - ajuste conforme necessário */
         max-width: 80vw; /* Define a largura máxima como 80% da largura da viewport. width: fit-content ainda se aplica, mas será limitado por este max-width. */
         box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* Ajusta a sombra */
     }
