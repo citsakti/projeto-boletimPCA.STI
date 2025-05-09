@@ -358,7 +358,7 @@ document.addEventListener('tabela-carregada', () => {
 function aplicarEstiloStatus() {
     const rows = document.querySelectorAll('#detalhes table tbody tr');
     rows.forEach(row => {
-        if (row.textContent.includes('CONTRATAÇÃO ATRASADA❗')) {
+        if (row.textContent.includes('CONTRATAÇÃO ATRASADA')) {
             row.classList.add('contratacao-atrasada');
         }
     });
