@@ -6,7 +6,10 @@
     border-radius: 8px;
     font-size: 16px;
     z-index: 9999;
-    max-width: 350px;
+    max-width: 750px; /* Considere aumentar este valor se "Renovação" ainda quebrar ou se quiser permitir tooltips mais largos */
+    width: -moz-fit-content; /* Para compatibilidade com Firefox mais antigo */
+    width: fit-content;    /* Faz a largura se ajustar ao conteúdo */
+    box-sizing: border-box; /* Garante que padding e border não causem estouro inesperado da largura */
     box-shadow: 0 6px 18px rgba(0,0,0,0.25);
     opacity: 0;
     pointer-events: none;
@@ -38,8 +41,8 @@
 @media (max-width: 600px) {
     .status-tooltip {
         padding: 8px 12px; /* Diminui o padding */
-        font-size: 14px; /* Diminui o tamanho da fonte */
-        max-width: 80vw; /* Define a largura máxima como 80% da largura da viewport */
+        font-size: 12px; /* Diminui o tamanho da fonte - ajuste conforme necessário */
+        max-width: 80vw; /* Define a largura máxima como 80% da largura da viewport. width: fit-content ainda se aplica, mas será limitado por este max-width. */
         box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* Ajusta a sombra */
     }
 
