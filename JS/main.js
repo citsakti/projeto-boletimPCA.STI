@@ -132,7 +132,6 @@ function fetchAndPopulate() {
                                 }
                             }
                         }
-// ...existing code...                        
                         td.textContent = value;
                         tr.appendChild(td);
                     });
@@ -364,3 +363,101 @@ function aplicarEstiloStatus() {
         }
     });
 }
+
+// ------ Atualização Automática ------
+// No final do arquivo main.js, adicione estas linhas:
+window.SHEET_CSV_URL_GLOBAL = SHEET_CSV_URL;
+window.globalFetchAndPopulate = fetchAndPopulate;
+
+// Opcional, mas recomendado para melhor performance na atualização:
+// Se você refatorar main.js para ter uma função que apenas popula o DOM com dados já processados:
+function populateTableDOMWithData(processedDataRows) {
+    const tbody = document.querySelector('table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = ''; // Limpa a tabela
+
+    const headers = [
+        "ID PCA", "Área", "Tipo", "Projeto de Aquisição", 
+        "Status Início", "Status do Processo", "Contratar Até", 
+        "Valor PCA", "Orçamento", "Processo"
+    ];
+
+    processedDataRows.forEach(row => {
+        const tr = document.createElement('tr');
+        // Mapeamento dos índices do CSV para as colunas da tabela
+        // CSV[2] -> ID PCA (0)
+        // CSV[3] -> Área (1)
+        // CSV[4] -> Tipo (2)
+        // CSV[5] -> Projeto de Aquisição (3)
+        // CSV[10] -> Status Início (4)
+        // CSV[6] -> Status do Processo (5)
+        // CSV[9] -> Contratar Até (6)
+        // CSV[15] -> Valor PCA (7)
+        // CSV[14] -> Orçamento (8)
+        // CSV[13] -> Processo (9)
+        const csvIndices = [2, 3, 4, 5, 10, 6, 9, 15, 14, 13]; 
+
+        csvIndices.forEach((csvIndex, tableColIndex) => {
+            const td = document.createElement('td');
+            td.dataset.label = headers[tableColIndex];
+            let value = row[csvIndex] || '';
+            
+            // Aplica a mesma lógica de formatação e manipulação de 'value' e 'td'
+            // que existe dentro do loop de fetchAndPopulate em main.js
+            // Exemplo para Status Início:
+            if (tableColIndex === 4) { // Status Início
+                value = formatStatusInicio(value); // Supondo que formatStatusInicio está acessível
+            } else if (tableColIndex === 6) { // Contratar Até
+                value = formatContratarAte(value); // Supondo que formatContratarAte está acessível
+            } else if (tableColIndex === 8) { // Orçamento
+                if (value === '') value = '<Não Orçado>';
+            } else if (tableColIndex === 9) { // Processo
+                if (value.trim() === '') {
+                    td.textContent = '*';
+                } else {
+                    td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+                }
+                tr.appendChild(td);
+                return; 
+            } else if (tableColIndex === 5) { // Status do Processo
+                const statusProcessoTexto = row[6]; // Coluna F do CSV original
+                td.textContent = statusProcessoTexto;
+                // Adicionar datasets conforme lógica em main.js
+                if (statusProcessoTexto.includes('AUTUAÇÃO ATRASADA 💣')) {
+                    if (row[11]) td.dataset.detalheAutuacao = row[11];
+                }
+                if (statusProcessoTexto.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
+                    if (row[12]) td.dataset.detalheContratacao = row[12];
+                }
+                const outrosStatusRelevantes = ['AGUARDANDO DFD ⏳', 'AGUARDANDO ETP ⏳', 'DFD ATRASADO❗', 'ETP ATRASADO❗', 'ELABORANDO TR📝', 'ANÁLISE DE VIABILIDADE 📝'];
+                if (outrosStatusRelevantes.some(s => statusProcessoTexto.includes(s))) {
+                    if (row[11]) td.dataset.detalheStatusGeral = row[11];
+                }
+                const statusContratacaoRenovacao = ['EM CONTRATAÇÃO 🤝', 'EM RENOVAÇÃO 🔄'];
+                if (statusContratacaoRenovacao.some(s => statusProcessoTexto.includes(s))) {
+                    if (row[12]) td.dataset.detalheContratacaoRenovacao = row[12];
+                }
+                tr.appendChild(td);
+                return;
+            }
+            
+            td.textContent = value;
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+
+    // Disparar eventos e funções pós-carga que estavam no final de fetchAndPopulate
+    if (window.aplicarAnimacaoBomba) aplicarAnimacaoBomba();
+    if (window.aplicarAnimacaoHourglass) aplicarAnimacaoHourglass();
+    if (window.aplicarAnimacaoExclamation) aplicarAnimacaoExclamation();
+    
+    document.dispatchEvent(new Event('tabela-carregada')); // Crucial para outros scripts
+
+    // Chamar funções que são configuradas no DOMContentLoaded após fetchAndPopulate
+    if (typeof populateTipoFiltro === 'function') populateTipoFiltro();
+    if (typeof assignStatusClasses === 'function') assignStatusClasses();
+    if (typeof trimTableEnding === 'function') trimTableEnding();
+    if (typeof aplicarEstiloStatus === 'function') aplicarEstiloStatus();
+}
+window.populateTableDOMWithData = populateTableDOMWithData;
