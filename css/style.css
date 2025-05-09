@@ -272,9 +272,9 @@ table tbody tr.contratacao-atrasada {
 .status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-elaborando-tr-highlight         { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-aguardando-definicao-highlight  { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-analise-de-viabilidade-highlight{ background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; }
+.status-analise-viabilidade-highlight   { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-em-contratacao-highlight        { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; }
+.status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; }
 .status-renovado-highlight              { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-contratado-highlight            { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
 
