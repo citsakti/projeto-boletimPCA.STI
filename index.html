@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="./css/style-orcamento.css">
     <link rel="stylesheet" href="./css/style-status_atrasado.css">
     <link rel="stylesheet" href="css/style-mobile.css">
+    <link rel="stylesheet" href="css/style-atualizacao_automatica.css">
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>  
 </head>
@@ -178,7 +179,8 @@
     <script src="./JS/btnPCAPublicada.js"></script>
     <script src="./JS/StatusAtrasado.js"></script>
     <script src="./JS/btnFonteDeDados.js"></script>
-    <script src="./JS/RenovacaoAtrasada.js"></script>
+    <script src="./JS/renovacaoAtrasada.js"></script>
+    <script src="./JS/AtualizacaoAutomatica.js"></script>
 
     <!-- Modal para exibir o iframe -->
     <div id="processo-modal-overlay" class="modal-overlay">
@@ -190,6 +192,17 @@
         </div>
     </div> <!-- Fim da .modal-content principal -->
     </div> <!-- Fim da #processo-modal-overlay -->
+
+    <!-- Nova Modal para Notificação de Atualização -->
+    <div id="update-notification-overlay" class="update-notification-overlay">
+        <div class="update-notification-content">
+            <h3 id="update-notification-title">Atualizações Detectadas</h3>
+            <div id="update-notification-details">
+                <!-- Detalhes das atualizações serão inseridos aqui pelo JS -->
+            </div>
+            <button id="update-notification-close-btn">Fechar</button>
+        </div>
+    </div>
 
 </body>
 </html>
