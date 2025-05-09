@@ -25,14 +25,14 @@ function verificarRenovacoesProximas() {
             const highlightSpan = celulaStatus.querySelector('span[class*="-highlight"]');
             if (highlightSpan) {
                 // 1. Limpa o emoji 🙋‍♂️ do início do conteúdo INTERNO do span
-                highlightSpan.innerHTML = highlightSpan.innerHTML.replace(/^🚨\s*/, '').trim();
+                highlightSpan.innerHTML = highlightSpan.innerHTML.replace(/^🙋‍♂️\s*/, '').trim();
                 // 2. Restaura o conteúdo da célula para APENAS o span (já limpo internamente).
                 // Isso remove qualquer emoji 🙋‍♂️ que estava FORA do span (antes ou depois).
                 celulaStatus.innerHTML = highlightSpan.outerHTML;
             } else {
                 // Fallback se não houver span de highlight:
                 // Remove todos os emojis 🙋‍♂️ do texto da célula.
-                celulaStatus.innerHTML = celulaStatus.innerHTML.replace(/🚨\s*/g, '').trim();
+                celulaStatus.innerHTML = celulaStatus.innerHTML.replace(/🙋‍♂️\s*/g, '').trim();
             }
 
             const statusTextoVisivel = celulaStatus.textContent.trim(); // Recalcula após a limpeza
