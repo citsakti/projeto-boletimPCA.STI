@@ -14,35 +14,37 @@ const statusMapping = {
     'ETP ATRASADO❗': 'status-etp-atrasado',
     'DFD ATRASADO❗': 'status-dfd-atrasado',
     'CONTRATAÇÃO ATRASADA ⚠️': 'status-contratacao-atrasada',
+    'ELABORANDO TR📝': 'status-elaborando-tr',
+    'ANÁLISE DE VIABILIDADE 📝': 'status-analise-viabilidade',
+
 };
 
 function assignStatusClasses() {
     const rows = document.querySelectorAll('table tbody tr');
     rows.forEach(row => {
-        const cell = row.querySelectorAll('td')[5];
+        const cell = row.querySelectorAll('td')[5]; // Certifique-se que este é o índice correto da coluna de status
         if (!cell) return;
 
         const txt = cell.textContent.trim();
-        const base = statusMapping[txt];
-        if (!base) return;
+        // Adicione este log para verificar o texto exato:
+        if (txt.includes('ELABORANDO TR') || txt.includes('ANÁLISE DE VIABILIDADE')) {
+            console.log('Texto da célula para mapeamento:', `"${txt}"`);
+        }
 
-        // monta conteúdo (já com <span class="emoji-bomba">💣</span> quando houver)
+        const base = statusMapping[txt];
+        if (!base) {
+            if (txt.includes('ELABORANDO TR') || txt.includes('ANÁLISE DE VIABILIDADE')) {
+                console.log('Nenhuma classe base encontrada para:', `"${txt}"`);
+            }
+            return;
+        }
+
         const content = txt
             .replace(/💣/g, '<span class="emoji-bomba">💣</span>')
             .replace(/⏳/g, '<span class="emoji-hourglass">⏳</span>')
             .replace(/❗/g, '<span class="emoji-exclamation">❗</span>');
 
-        // envolve tudo num highlight específico
         cell.innerHTML = `<span class="${base}-highlight">${content}</span>`;
-    });
-}
-
-function aplicarEstiloStatus() {
-    const rows = document.querySelectorAll('#detalhes table tbody tr');
-    rows.forEach(row => {
-        if (row.textContent.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
-            row.classList.add('contratacao-atrasada');
-        }
     });
 }
 
