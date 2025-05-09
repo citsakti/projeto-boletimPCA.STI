@@ -1,0 +1,93 @@
+/* filepath: c:\Users\felipe.bonfim\Downloads\projeto-boletimPCA.STI.2025-main\projeto-boletimPCA.STI.2025-main\css\style-atualizacao_automatica.css */
+.update-notification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65); /* Fundo semi-transparente escuro */
+    backdrop-filter: blur(5px); /* Efeito de desfoque */
+    display: none; /* Começa oculto */
+    align-items: center;
+    justify-content: center;
+    z-index: 1005; /* Acima de outras modais */
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.update-notification-content {
+    background-color: #ffffff; /* Fundo branco */
+    padding: 25px 30px;
+    border-radius: 8px; /* Bordas arredondadas */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2); /* Sombra suave */
+    max-width: 650px; /* Largura máxima */
+    width: 95%;
+    max-height: 85vh; /* Altura máxima, permitindo rolagem */
+    overflow-y: auto; /* Rolagem vertical se o conteúdo for grande */
+    text-align: left;
+    color: #333333; /* Cor do texto principal */
+    font-family: 'Inter', sans-serif; /* Fonte padrão do projeto */
+}
+
+.update-notification-content h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #2c417a; /* Azul primário do projeto */
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.update-notification-content #update-notification-details p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.update-notification-content #update-notification-details strong {
+    color: #2c417a; /* Azul primário */
+    font-weight: 600;
+}
+
+.update-notification-content #update-notification-details em {
+    color: #555; /* Cinza escuro para ênfase sutil */
+    font-style: italic;
+}
+
+.update-notification-content #update-notification-details ul {
+    list-style-type: none; /* Remove marcadores padrão */
+    padding-left: 0;
+    margin-bottom: 15px;
+}
+
+.update-notification-content #update-notification-details ul li {
+    background-color: #f8f9fa; /* Fundo leve para itens da lista */
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border-left: 3px solid #2c417a; /* Destaque lateral */
+    font-size: 0.9rem;
+}
+
+.update-notification-content button#update-notification-close-btn {
+    background: #2c417a; /* Azul primário */
+    color: #ffffff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: block;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 120px;
+}
+
+.update-notification-content button#update-notification-close-btn:hover {
+    background-color: #1e2d52; /* Azul primário mais escuro */
+    transform: translateY(-1px);
+}
