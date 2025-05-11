@@ -15,4 +15,4 @@ function updateStatus() {
     footerParagraph.textContent = `Status atualizado em: ${date} ${time}`;
 }
 
-updateStatus();
+document.addEventListener('DOMContentLoaded', updateStatus);
