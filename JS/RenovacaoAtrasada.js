@@ -55,16 +55,13 @@ function verificarRenovacoesProximas() {
                     if (!isNaN(dataContratarAte.getTime())) { // Verifica se a data é válida
                         const diffTempo = dataContratarAte.getTime() - hoje.getTime();
 
-                        // Adiciona emoji 🙋‍♂️ se faltar 30 dias ou menos, à ESQUERDA e FORA do span de highlight
+                        // Muda a cor da linha para laranja se faltar 30 dias ou menos
                         if (diffTempo >= 0 && diffTempo <= trintaDiasEmMs) {
-                            // Para garantir dois espaços visíveis, usamos &nbsp; (non-breaking space).
-                            // A limpeza do emoji e espaços antigos já ocorreu nas linhas anteriores.
-                            const doisEspacosVisiveis = '&nbsp;&nbsp;';
-                            celulaStatus.innerHTML = '🙋‍♂️' + doisEspacosVisiveis + celulaStatus.innerHTML;
+                            linha.style.color = 'orange';
                         }
 
-                        // Muda a cor da linha para vermelho se faltar 20 dias ou menos
-                        if (diffTempo >= 0 && diffTempo <= vinteDiasEmMs) {
+                        // Muda a cor da linha para vermelho se faltar 20 dias ou menos ou se já venceu
+                        if (diffTempo <= vinteDiasEmMs) {
                             linha.style.color = 'red';
                         }
                     }
