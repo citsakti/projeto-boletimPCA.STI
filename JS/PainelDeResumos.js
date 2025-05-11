@@ -1,3 +1,19 @@
+/**
+ * Script responsável por atualizar e gerenciar o painel de resumo de status dos processos.
+ * 
+ * Funcionalidades:
+ * - Conta quantos processos existem para cada status na tabela.
+ * - Exibe um painel lateral com a quantidade total e por status, permitindo filtrar a tabela ao clicar em cada status.
+ * - O painel é responsivo: em telas menores (até 1024px), ele é recolhido automaticamente após a seleção.
+ * - Atualiza o painel automaticamente ao carregar a página ou quando a tabela é atualizada dinamicamente.
+ * 
+ * Observações:
+ * - Considera que a coluna "Status do Processo" está na 6ª posição (índice 5).
+ * - O painel de resumo deve ter a classe CSS 'painel-resumo'.
+ * - O painel pode ser fechado automaticamente em dispositivos móveis/tablets.
+ * - O filtro selecionado é armazenado em window.painelFilterStatus.
+ */
+
 function updatePainelResumo() {
     const resumoContainer = document.querySelector('.painel-resumo');
     if (!resumoContainer) return;

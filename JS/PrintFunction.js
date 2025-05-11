@@ -1,9 +1,19 @@
-// Este script gerencia a funcionalidade de impressão da página, ocultando elementos indesejados durante a impressão.
-
-/*
- * Ao carregar o DOM, adiciona listeners para o botão de imprimir e para o atalho de teclado Ctrl+P (ou ⌘+P no Mac).
- * Quando acionados, executam a função printPage().
+/**
+ * Script responsável por gerenciar a impressão da página, ocultando elementos desnecessários e aplicando estilos específicos para o modo de impressão.
+ * 
+ * Funcionalidades:
+ * - Adiciona listeners para o botão de imprimir e para o atalho de teclado Ctrl+P (ou ⌘+P no Mac).
+ * - Ao acionar a impressão, oculta botões, filtros e outros elementos que não devem aparecer no papel.
+ * - Remove animações e impede quebra de linha na coluna de processos.
+ * - Se houver filtros aplicados, oculta também o painel de resumo.
+ * - Após a impressão ou cancelamento, restaura o estado original da página.
+ * 
+ * Observações:
+ * - O botão de impressão deve ter o ID 'btnPrint'.
+ * - O painel de resumo é ocultado apenas se houver filtros ativos.
+ * - O script utiliza um elemento <style> dinâmico para sobrescrever estilos durante a impressão.
  */
+
 document.addEventListener('DOMContentLoaded', () => {
     // Obtém o botão de imprimir pelo ID
     let btnPrint = document.getElementById('btnPrint');

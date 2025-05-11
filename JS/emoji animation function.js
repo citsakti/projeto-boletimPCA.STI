@@ -1,4 +1,16 @@
-/*  JS/emoji animation function.js  */
+/**
+ * Script responsável por aplicar animações e destacar emojis específicos (💣, ⏳, ❗) no conteúdo da página.
+ * 
+ * Funcionalidades:
+ * - Substitui os emojis 💣, ⏳ e ❗ por spans com classes específicas para permitir animação via CSS.
+ * - Aplica a substituição em células da tabela, spans de destaque e em qualquer texto puro do body.
+ * - Expõe funções globais para reaplicar as animações dinamicamente, caso o conteúdo da página seja atualizado.
+ * 
+ * Observações:
+ * - As classes CSS esperadas são: .emoji-bomba, .emoji-hourglass e .emoji-exclamation.
+ * - As funções são executadas automaticamente ao carregar o DOM, mas também podem ser chamadas manualmente.
+ * - O script é compatível com atualizações dinâmicas do conteúdo da página.
+ */
 
 /* Função para o emoji 💣 */
 function createSpan(text) {

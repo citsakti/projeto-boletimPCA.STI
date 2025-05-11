@@ -1,66 +1,81 @@
+/**
+ * Script para destacar visualmente linhas de uma tabela conforme a proximidade do vencimento do contrato.
+ * 
+ * Funcionalidade:
+ * - Colore as linhas de laranja escuro quando faltam até 30 dias para o vencimento.
+ * - Colore as linhas de vermelho quando faltam 20 dias ou menos, ou se o contrato já está vencido.
+ * 
+ * Como funciona:
+ * - Aguarda o evento personalizado 'tabela-carregada' para iniciar a verificação.
+ * - Após um pequeno atraso, percorre todas as linhas da tabela.
+ * - Para cada linha, verifica se o status é "EM RENOVAÇÃO".
+ * - Se for, analisa a data da coluna "Contratar Até".
+ * - Calcula a diferença entre a data de vencimento e a data atual.
+ * - Aplica a cor conforme a proximidade do vencimento.
+ * 
+ * Observações:
+ * - As colunas são acessadas pelos índices: status (5) e data de contratação (6).
+ * - O formato de data esperado é DD/MM/AAAA.
+ * - O script não altera linhas cujo status não seja "EM RENOVAÇÃO".
+ */
+
+// Aguarda o evento personalizado 'tabela-carregada' para iniciar a verificação das renovações.
 document.addEventListener('tabela-carregada', () => {
-    // Adiciona um pequeno atraso para permitir que outras manipulações do DOM,
-    // como a formatação de status, sejam concluídas primeiro.
+    // Pequeno atraso para garantir que outras manipulações do DOM sejam concluídas antes.
     setTimeout(verificarRenovacoesProximas, 150);
 });
 
+/**
+ * Função principal que percorre as linhas da tabela e aplica a coloração conforme as regras de vencimento.
+ */
 function verificarRenovacoesProximas() {
+    // Obtém a data atual e normaliza para o início do dia.
     const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0); // Normaliza a data atual para ignorar o horário
+    hoje.setHours(0, 0, 0, 0);
 
-    const trintaDiasEmMs = 30 * 24 * 60 * 60 * 1000; // 30 dias em milissegundos
-    const vinteDiasEmMs = 20 * 24 * 60 * 60 * 1000; // 20 dias em milissegundos
+    // Define os intervalos de 30 e 20 dias em milissegundos.
+    const trintaDiasEmMs = 30 * 24 * 60 * 60 * 1000;
+    const vinteDiasEmMs = 20 * 24 * 60 * 60 * 1000;
 
+    // Seleciona todas as linhas do corpo da tabela.
     const linhasTabela = document.querySelectorAll('table tbody tr');
 
+    // Percorre cada linha da tabela.
     linhasTabela.forEach(linha => {
-        const celulaStatus = linha.cells[5]; // Coluna "Status do Processo" (índice 5)
-        const celulaContratarAte = linha.cells[6]; // Coluna "Contratar Até" (índice 6)
+        // Obtém as células de status e de data de contratação.
+        const celulaStatus = linha.cells[5]; // Coluna "Status do Processo"
+        const celulaContratarAte = linha.cells[6]; // Coluna "Contratar Até"
 
-        // Reseta a cor da linha para o padrão
-        linha.style.color = ''; // Ou a cor padrão do seu CSS, se houver
+        // Reseta a cor da linha para o padrão.
+        linha.style.color = '';
 
+        // Verifica se ambas as células existem.
         if (celulaStatus && celulaContratarAte) {
-            // Limpeza do emoji 🙋‍♂️ e seus espaços (literais ou &nbsp;)
-            const emojiPrefixoPattern = /^🙋‍♂️(?:&nbsp;|\s)*/; // Regex para emoji no início seguido por &nbsp; ou espaços
-            const emojiGlobalPattern = /🙋‍♂️(?:&nbsp;|\s)*/g;    // Regex para todas as ocorrências de emoji seguido por &nbsp; ou espaços
-
-            const highlightSpan = celulaStatus.querySelector('span[class*="-highlight"]');
-            if (highlightSpan) {
-                // 1. Limpa o emoji 🙋‍♂️ e espaços do início do conteúdo INTERNO do span
-                highlightSpan.innerHTML = highlightSpan.innerHTML.replace(emojiPrefixoPattern, '').trim();
-                // 2. Restaura o conteúdo da célula para APENAS o span (já limpo internamente).
-                // Isso remove qualquer emoji 🙋‍♂️ que estava FORA do span.
-                celulaStatus.innerHTML = highlightSpan.outerHTML;
-            } else {
-                // Fallback se não houver span de highlight:
-                // Remove todos os emojis 🙋‍♂️ e seus espaços do texto da célula.
-                // Se o emoji só é esperado no início, emojiPrefixoPattern seria suficiente.
-                // emojiGlobalPattern é mais robusto se o emoji puder aparecer em outros lugares por engano.
-                celulaStatus.innerHTML = celulaStatus.innerHTML.replace(emojiGlobalPattern, '').trim();
-            }
-
-            const statusTextoVisivel = celulaStatus.textContent.trim(); // Recalcula após a limpeza
+            const statusTextoVisivel = celulaStatus.textContent.trim();
             const contratarAteTexto = celulaContratarAte.textContent.trim();
 
+            // Só aplica a lógica se o status for "EM RENOVAÇÃO".
             if (statusTextoVisivel.includes('EM RENOVAÇÃO 🔄')) {
-                const partesData = contratarAteTexto.split('/'); // Formato esperado: DD/MM/AAAA
+                // Divide a data no formato DD/MM/AAAA.
+                const partesData = contratarAteTexto.split('/');
                 if (partesData.length === 3) {
                     const dia = parseInt(partesData[0], 10);
-                    const mes = parseInt(partesData[1], 10) - 1; // Meses em JavaScript são 0-indexados
+                    const mes = parseInt(partesData[1], 10) - 1; // Meses em JS começam do zero.
                     const ano = parseInt(partesData[2], 10);
                     const dataContratarAte = new Date(ano, mes, dia);
-                    dataContratarAte.setHours(0, 0, 0, 0); // Normaliza a data do contrato
+                    dataContratarAte.setHours(0, 0, 0, 0);
 
-                    if (!isNaN(dataContratarAte.getTime())) { // Verifica se a data é válida
+                    // Verifica se a data é válida.
+                    if (!isNaN(dataContratarAte.getTime())) {
+                        // Calcula a diferença em milissegundos entre a data de contratação e hoje.
                         const diffTempo = dataContratarAte.getTime() - hoje.getTime();
 
-                        // Muda a cor da linha para laranja se faltar 30 dias ou menos
+                        // Se faltar até 30 dias, pinta de laranja escuro.
                         if (diffTempo >= 0 && diffTempo <= trintaDiasEmMs) {
-                            linha.style.color = 'orange';
+                            linha.style.color = 'darkorange';
                         }
 
-                        // Muda a cor da linha para vermelho se faltar 20 dias ou menos ou se já venceu
+                        // Se faltar 20 dias ou menos, ou já venceu, pinta de vermelho.
                         if (diffTempo <= vinteDiasEmMs) {
                             linha.style.color = 'red';
                         }

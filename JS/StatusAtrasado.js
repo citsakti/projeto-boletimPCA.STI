@@ -1,6 +1,34 @@
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('StatusAtrasado.js carregado'); // Log para debug
+/**
+ * StatusAtrasado.js
+ * 
+ * Este script adiciona tooltips (dicas de contexto) e destaque visual para células da tabela
+ * que possuem determinados status de processo, facilitando a visualização de atrasos e etapas importantes.
+ * 
+ * Funcionamento:
+ * - Destaca células da coluna "Status do Processo" (6ª coluna) que contenham status definidos na lista.
+ * - Exibe um tooltip ao passar o mouse sobre a célula, mostrando detalhes adicionais (quando disponíveis).
+ * - Observa alterações dinâmicas na tabela para manter o comportamento mesmo após atualizações via JavaScript.
+ * 
+ * Como funciona:
+ * 1. Define uma lista de status especiais a serem destacados.
+ * 2. Cria um observer para monitorar mudanças na tabela e reaplicar tooltips quando necessário.
+ * 3. Cria dinamicamente um elemento de tooltip no body da página.
+ * 4. Para cada célula da coluna de status, verifica se o texto corresponde a algum status da lista:
+ *    - Se sim, adiciona classe de destaque e listeners para mostrar/ocultar o tooltip.
+ *    - Se não, remove destaque e listeners.
+ * 5. O conteúdo do tooltip é definido conforme o status e os atributos data-* presentes na célula.
+ * 6. O script escuta o evento customizado 'tabela-carregada' para reaplicar tooltips após carregamento dinâmico.
+ * 
+ * Observações:
+ * - Os detalhes exibidos nos tooltips dependem dos atributos data-* presentes nas células.
+ * - O script é executado automaticamente ao carregar o DOM.
+ * 
+ * Dependências:
+ * - A tabela deve possuir um <tbody> e a coluna de status deve ser a sexta (índice 5).
+ * - As células podem conter atributos data-detalhe-autuacao, data-detalhe-contratacao, data-detalhe-contratacao-renovacao ou data-detalhe-status-geral.
+ */
 
+document.addEventListener('DOMContentLoaded', function() {
     // Lista de status a serem destacados
     const statusList = [
         'AUTUAÇÃO ATRASADA 💣',
@@ -18,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar observer para detectar mudanças na tabela
     const observer = new MutationObserver(function(mutations) {
         setupTooltips();
-        console.log('Tabela atualizada, aplicando tooltips'); // Log para debug
     });
 
     // Configuração inicial do tooltip
@@ -30,14 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupTooltips() {
         // Selecionar todas as células da coluna "Status do Processo" (coluna 6, índice 5 na tabela HTML)
         const statusCells = document.querySelectorAll('table tbody tr td:nth-child(6)');
-        console.log('Células de status encontradas:', statusCells.length); // Log para debug
 
         statusCells.forEach(cell => {
             // Verificar se contém algum dos status definidos
             const foundStatus = statusList.find(status => cell.textContent.includes(status));
             if (foundStatus) {
-                console.log('Status especial encontrado:', cell.textContent); // Log para debug
-
                 // Adicionar classe para marcação visual
                 cell.classList.add('status-atrasado');
 
@@ -62,31 +86,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const cell = this; // Esta é a célula <td> da coluna "Status do Processo"
         let tooltipText = '';
         const statusText = cell.textContent.trim();
-        console.log('--- handleMouseEnter ---');
-        console.log('Célula atual:', statusText);
 
         if (statusText.includes('AUTUAÇÃO ATRASADA 💣')) {
-            console.log('Status: AUTUAÇÃO ATRASADA 💣');
             const detalhe = cell.dataset.detalheAutuacao;
             tooltipText = detalhe ? detalhe : 'Autuação Atrasada (informação adicional não disponível)';
-            console.log('Detalhe Autuação:', detalhe, 'Tooltip:', tooltipText);
         } 
         else if (statusText.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
-            console.log('Status: CONTRATAÇÃO ATRASADA ⚠️');
             const detalhe = cell.dataset.detalheContratacao;
             tooltipText = detalhe ? detalhe : 'Contratação Atrasada (informação adicional não disponível)';
-            console.log('Detalhe Contratação:', detalhe, 'Tooltip:', tooltipText);
         }
         // Trata os novos status 'EM CONTRATAÇÃO' e 'EM RENOVAÇÃO'
         else if (statusText.includes('EM CONTRATAÇÃO 🤝') || statusText.includes('EM RENOVAÇÃO 🔄')) {
-            console.log('Status: EM CONTRATAÇÃO/RENOVAÇÃO (tentando data-detalhe-contratacao-renovacao)');
             const detalhe = cell.dataset.detalheContratacaoRenovacao; 
             if (detalhe) {
                 if (statusText.includes('EM RENOVAÇÃO 🔄')) {
                     if (/^\d+$/.test(detalhe)) {
                         tooltipText = `Faltam ${detalhe} dias para o Vencimento da Renovação.`;
                     } else {
-                        tooltipText = detalhe; // Caso o detalhe não seja um número, exibe o texto como está
+                        tooltipText = detalhe;
                     }
                 } else if (statusText.includes('EM CONTRATAÇÃO 🤝')) {
                     if (/^\d+$/.test(detalhe)) {
@@ -98,12 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 tooltipText = 'Informação adicional não disponível (detalheContratacaoRenovacao ausente).';
             }
-            console.log('Detalhe Contratação/Renovação:', detalhe, 'Tooltip:', tooltipText);
         }
         // Para os outros status da lista (que usam coluna L), usar o data-detalhe-status-geral
-        // Ajustado o slice para pegar os status de índice 2 a 7 da statusList
         else if (statusList.slice(2, 8).some(s => statusText.includes(s))) { 
-            console.log('Status: Outro relevante (tentando data-detalhe-status-geral)');
             const detalhe = cell.dataset.detalheStatusGeral; 
             if (detalhe) {
                 if (/^\d+$/.test(detalhe)) {
@@ -114,12 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 tooltipText = 'Informação adicional não disponível (detalheStatusGeral ausente).';
             }
-            console.log('Detalhe Status Geral:', detalhe, 'Tooltip:', tooltipText);
-        }
-        else {
-            // Para status não mapeados na statusList, não mostrar tooltip específico
-            console.log('Status não especial ou não mapeado para tooltip detalhado.');
-            // tooltipText = ''; // Garante que nenhum tooltip seja mostrado
         }
 
         if (tooltipText) {
@@ -135,7 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             tooltip.style.opacity = '0';
         }
-        console.log('--- Fim handleMouseEnter ---');
     }
 
     function handleMouseLeave() {
@@ -146,12 +153,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const tbody = document.querySelector('table tbody');
     if (tbody) {
         observer.observe(tbody, { childList: true, subtree: true });
-        console.log('Observer configurado para a tabela'); // Log para debug
     }
 
     // Escutar o evento customizado 'tabela-carregada' disparado por main.js
     document.addEventListener('tabela-carregada', () => {
-        console.log('Evento tabela-carregada recebido, aplicando tooltips em StatusAtrasado.js');
         setupTooltips();
     });
 

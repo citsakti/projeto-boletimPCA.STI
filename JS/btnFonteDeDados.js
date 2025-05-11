@@ -1,3 +1,17 @@
+/**
+ * Script responsável por exibir um modal com a fonte de dados (planilha Google) ao clicar no botão "Fonte de Dados".
+ * 
+ * Funcionalidades:
+ * - Ao clicar no botão com ID 'btnFonteDeDados', abre um modal exibindo a planilha de dados em um iframe.
+ * - Reutiliza os elementos do modal já existentes na página (compartilhados com btnPCAPublicada.js).
+ * - Aplica animação de entrada ao modal e impede a rolagem da página de fundo enquanto o modal está aberto.
+ * 
+ * Observações:
+ * - Os elementos do modal (overlay, iframe, conteúdo) devem existir no HTML com os IDs corretos.
+ * - A lógica de fechamento do modal (botão fechar, clique fora, tecla ESC) é gerenciada pelo script btnPCAPublicada.js.
+ * - Caso utilize um modal separado, será necessário replicar os event listeners de fechamento neste script.
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
     const btnFonteDeDados = document.getElementById('btnFonteDeDados');
 

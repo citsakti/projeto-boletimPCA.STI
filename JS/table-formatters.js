@@ -1,13 +1,16 @@
 /**
- * Retorna a data de entrada sem aplicar formatação.
- *
- * Esta função simplesmente retorna o dateInput fornecido conforme está. 
- * A lógica para formatação da data (incluindo a conversão de "AAAA-MM-DD" ou "DD/MM/AAAA" 
- * para uma string formatada com nomes dos meses) encontra-se atualmente comentada.
- *
- * @param {string} dateInput - A string de data sem formatação.
- * @returns {string} A data original fornecida.
+ * Script utilitário para formatação de dados e aplicação de estilos em linhas da tabela.
+ * 
+ * Funcionalidades:
+ * - formatContratarAte: Retorna a data de entrada sem aplicar formatação.
+ * - formatStatusInicio: Formata o valor do status de início, exibindo "Faltam X dias" se for numérico.
+ * - strikeCancelledRows: Aplica o estilo de texto riscado às linhas cujo status contenha "CANCELADO".
+ * 
+ * Observações:
+ * - A função strikeCancelledRows considera que o status está na 5ª coluna (índice 4).
+ * - strikeCancelledRows é executada tanto ao carregar o DOM quanto após o evento customizado "tabela-carregada".
  */
+
 function formatContratarAte(dateInput) {
     // Simplesmente retorna o valor original sem aplicar formatação
     return dateInput; 
