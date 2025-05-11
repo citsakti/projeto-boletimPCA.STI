@@ -11,37 +11,6 @@
 function formatContratarAte(dateInput) {
     // Simplesmente retorna o valor original sem aplicar formatação
     return dateInput; 
-
-    /* Código de formatação original comentado ou removido
-    if (!dateInput || typeof dateInput !== 'string') return '';
-
-    // Tenta converter para formato Date
-    const parts = dateInput.split(/[-\/]/); // Aceita formatos com - ou /
-    
-    let year, month, day;
-
-    if (parts.length === 3) {
-        if (parts[0].length === 4) {
-            // Formato AAAA-MM-DD
-            [year, month, day] = parts;
-        } else {
-            // Formato DD/MM/AAAA
-            [day, month, year] = parts;
-        }
-
-        const date = new Date(`${year}-${month}-${day}`);
-        if (!isNaN(date)) {
-            const mesesPt = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-                            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            const dia = ("0" + date.getDate()).slice(-2);
-            const nomeMes = mesesPt[date.getMonth()];
-            const ano = date.getFullYear().toString().slice(-2);
-            return `${dia}/${nomeMes}/${ano}`;
-        }
-    }
-
-    return dateInput; // Se falhar, retorna o valor original sem formatar
-    */
 }
 
 /**

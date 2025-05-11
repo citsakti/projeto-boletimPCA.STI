@@ -1,6 +1,29 @@
+/**
+ * Este arquivo controla todos os filtros da tabela principal do boletim PCA.
+ * Ele lida tanto com filtros para desktop quanto para dispositivos móveis,
+ * preenchendo selects dinamicamente, aplicando filtros combinados e
+ * gerenciando o dropdown multi-seleção para "Status do Processo".
+ * 
+ * Principais funções:
+ * - initFiltros: Inicializa e configura todos os filtros ao carregar a tabela.
+ * - filterTable: Aplica os filtros combinados para desktop.
+ * - filterTableMobile: Aplica os filtros combinados para mobile.
+ * - alternaCoresLinhas: Alterna as cores das linhas visíveis para melhor visualização.
+ * - clearStatusDropdown: Limpa o dropdown multi-seleção de status.
+ * 
+ * Eventos:
+ * - DOMContentLoaded: Inicializa filtros ao carregar a página.
+ * - tabela-carregada: Inicializa filtros após a tabela ser preenchida via JS.
+ */
+
+// Inicializa os filtros ao carregar o DOM e ao evento customizado "tabela-carregada"
 document.addEventListener('DOMContentLoaded', initFiltros);
 document.addEventListener('tabela-carregada', initFiltros); // NOVO
 
+/**
+ * Função principal de inicialização dos filtros.
+ * Preenche selects, adiciona listeners e configura o dropdown multi-seleção.
+ */
 function initFiltros() {
     const tabela = document.querySelector("#detalhes table");
     if (!tabela) return; // segurança
@@ -324,7 +347,10 @@ function initFiltros() {
     }
 }
 
-// Filtragem combinada de Área, Tipo, Status e Texto
+/**
+ * Aplica os filtros combinados da tabela (desktop).
+ * Considera selects, inputs de texto e o dropdown multi-seleção de status.
+ */
 function filterTable(){
     const tabela = document.querySelector("#detalhes table");
     if (!tabela) return;
@@ -388,7 +414,10 @@ function filterTable(){
     alternaCoresLinhas();
 }
 
-// Função de filtro para mobile
+/**
+ * Aplica os filtros combinados da tabela para dispositivos móveis.
+ * Considera selects e inputs de texto específicos do mobile.
+ */
 function filterTableMobile() {
     const tabela = document.querySelector("#detalhes table");
     if (!tabela) return;
@@ -425,6 +454,9 @@ function filterTableMobile() {
     alternaCoresLinhas();
 }
 
+/**
+ * Alterna as classes de cor das linhas visíveis da tabela para facilitar a leitura.
+ */
 function alternaCoresLinhas() {
     const tabela = document.querySelector("#detalhes table");
     if (!tabela) return;
