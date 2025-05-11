@@ -317,6 +317,7 @@ table tbody tr.contratacao-atrasada {
 .btn-limpar-filtros {
     background: var(--brand-primary) !important;
     color: #fff;
+    height: 35px;
     border: none;
     padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-sm);
