@@ -1,3 +1,39 @@
+/**
+ * -----------------------------------------------------------------------------
+ * AtualizacaoAutomatica.js - Atualização automática da tabela do Boletim PCA STI 2025
+ * -----------------------------------------------------------------------------
+ * Este script é responsável por:
+ *  - Verificar periodicamente (a cada 5 minutos) se houve atualização nos dados da planilha Google Sheets (CSV).
+ *  - Comparar os dados atuais da tabela com os dados mais recentes do CSV.
+ *  - Exibir uma notificação modal ao usuário caso sejam detectadas alterações nos projetos ou na estrutura da tabela.
+ *  - Atualizar a tabela automaticamente no DOM, sem recarregar a página, caso haja mudanças.
+ *
+ * Principais funções e responsabilidades:
+ *
+ * - fetchRawData:
+ *      Busca os dados brutos do CSV, identifica o cabeçalho correto e retorna apenas as linhas válidas.
+ *
+ * - compareData:
+ *      Compara os dados antigos e novos, detectando mudanças em projetos, colunas e estrutura da tabela.
+ *
+ * - showUpdateNotificationModal / hideUpdateNotificationModal:
+ *      Exibe ou oculta o modal de notificação de atualização para o usuário.
+ *
+ * - checkForUpdates:
+ *      Função principal chamada periodicamente. Busca os dados, compara com os atuais e, se houver mudanças,
+ *      exibe notificação e atualiza a tabela.
+ *
+ * - DOMContentLoaded:
+ *      Inicializa o serviço de atualização automática após o carregamento da página e dependências.
+ *
+ * Observações:
+ * - O script depende das variáveis globais SHEET_CSV_URL_GLOBAL e Papa (biblioteca PapaParse).
+ * - A função window.populateTableDOMWithData deve estar disponível para repopular a tabela no DOM.
+ * - O modal de notificação deve estar presente no HTML com os IDs esperados.
+ * - O serviço só inicia se todas as dependências estiverem carregadas corretamente.
+ * -----------------------------------------------------------------------------
+ */
+
 (function() {
     const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutos
     let currentProcessedData = null;

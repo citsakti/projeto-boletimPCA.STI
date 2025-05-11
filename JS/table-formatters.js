@@ -1,3 +1,13 @@
+/**
+ * Retorna a data de entrada sem aplicar formatação.
+ *
+ * Esta função simplesmente retorna o dateInput fornecido conforme está. 
+ * A lógica para formatação da data (incluindo a conversão de "AAAA-MM-DD" ou "DD/MM/AAAA" 
+ * para uma string formatada com nomes dos meses) encontra-se atualmente comentada.
+ *
+ * @param {string} dateInput - A string de data sem formatação.
+ * @returns {string} A data original fornecida.
+ */
 function formatContratarAte(dateInput) {
     // Simplesmente retorna o valor original sem aplicar formatação
     return dateInput; 
@@ -34,6 +44,15 @@ function formatContratarAte(dateInput) {
     */
 }
 
+/**
+ * Formata o valor do status de início.
+ *
+ * Se o valor for numérico, retorna a string "Faltam X dias".
+ * Caso contrário, retorna o valor original.
+ *
+ * @param {string|number} statusValue - Valor do status.
+ * @returns {string} Status formatado.
+ */
 function formatStatusInicio(statusValue) {
     // Se o valor for numérico, formata a string conforme o exemplo
     if (!isNaN(statusValue)) {
@@ -42,6 +61,12 @@ function formatStatusInicio(statusValue) {
     return statusValue;
 }
 
+/**
+ * Aplica o estilo de texto riscado às linhas da tabela cujo status contenha "CANCELADO".
+ *
+ * Percorre todas as linhas do corpo da tabela e verifica se a quinta célula (índice 4)
+ * contém a palavra "CANCELADO". Se sim, aplica o estilo riscado à linha.
+ */
 function strikeCancelledRows() {
     const tableRows = document.querySelectorAll('table tbody tr');
     tableRows.forEach(row => {
@@ -53,10 +78,11 @@ function strikeCancelledRows() {
     });
 }
 
-// Se você disparar um evento customizado "tabela-carregada" após popular a tabela:
+// Dispara a função strikeCancelledRows após o evento customizado "tabela-carregada"
 document.addEventListener('tabela-carregada', strikeCancelledRows);
 
-// Caso contrário, se as linhas da tabela já estiverem prontas no momento do carregamento completo:
+// Também executa strikeCancelledRows ao carregar completamente o DOM,
+// caso as linhas da tabela já estejam prontas nesse momento.
 document.addEventListener('DOMContentLoaded', () => { 
     strikeCancelledRows();
 });

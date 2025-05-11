@@ -1,3 +1,51 @@
+/**
+ * -----------------------------------------------------------------------------
+ * main.js - Script principal do Boletim PCA STI 2025
+ * -----------------------------------------------------------------------------
+ * Este arquivo é responsável por:
+ *  - Buscar os dados da planilha Google Sheets (CSV público)
+ *  - Processar e montar a tabela HTML principal do boletim
+ *  - Aplicar filtros dinâmicos, animações, estilos e funcionalidades de modal
+ *  - Gerenciar eventos de carregamento, atualização e interação do usuário
+ *  - Expor funções globais para atualização automática dos dados
+ *
+ * Principais funções e responsabilidades:
+ *
+ * - fetchAndPopulate:
+ *      Busca os dados do CSV, identifica o cabeçalho correto, filtra apenas as linhas válidas,
+ *      monta as linhas da tabela na ordem correta e aplica formatações específicas para cada coluna.
+ *      Também dispara o evento "tabela-carregada" ao final.
+ *
+ * - populateTipoFiltro:
+ *      Preenche dinamicamente o filtro "Tipo" com as opções únicas encontradas na tabela.
+ *
+ * - filterTable:
+ *      Filtra as linhas da tabela conforme os valores digitados ou selecionados nos filtros.
+ *
+ * - trimTableEnding:
+ *      Remove linhas em branco após a última linha válida na coluna "Projeto de Aquisição".
+ *
+ * - aplicarEstiloStatus:
+ *      Aplica classes CSS especiais para destacar linhas com status de contratação atrasada.
+ *
+ * - Manipulação de modal:
+ *      Permite abrir um modal ao clicar no ícone de processo, copiando o número do processo
+ *      e abrindo o iframe com a consulta correspondente.
+ *
+ * - Eventos DOMContentLoaded:
+ *      Inicializa o carregamento dos dados, filtros, listeners e modais ao carregar a página.
+ *
+ * - Atualização automática:
+ *      Expõe funções globais para permitir atualização automática dos dados sem recarregar a página.
+ *
+ * Observações:
+ * - O mapeamento das colunas do CSV para a tabela HTML é feito explicitamente, garantindo a ordem correta.
+ * - Funções auxiliares como formatStatusInicio e formatContratarAte são usadas para formatação de valores específicos.
+ * - O evento customizado "tabela-carregada" é disparado para integração com outros scripts.
+ * - O código está preparado para lidar com animações e detalhes extras em status específicos.
+ * -----------------------------------------------------------------------------
+ */
+
 // Renomeou a URL da planilha
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1123542137&single=true&output=csv';
 

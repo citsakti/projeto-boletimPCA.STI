@@ -1,11 +1,17 @@
+// Este script gerencia a funcionalidade de impressão da página, ocultando elementos indesejados durante a impressão.
+
+/*
+ * Ao carregar o DOM, adiciona listeners para o botão de imprimir e para o atalho de teclado Ctrl+P (ou ⌘+P no Mac).
+ * Quando acionados, executam a função printPage().
+ */
 document.addEventListener('DOMContentLoaded', () => {
-    // Usa o botão de imprimir já presente no HTML
+    // Obtém o botão de imprimir pelo ID
     let btnPrint = document.getElementById('btnPrint');
     if (btnPrint) {
         btnPrint.addEventListener('click', printPage);
     }
 
-    // Escuta o atalho de teclado Ctrl+P (ou ⌘+P) para acionar também a impressão
+    // Adiciona suporte ao atalho de teclado Ctrl+P ou ⌘+P
     document.addEventListener('keydown', (event) => {
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p') {
             event.preventDefault();
@@ -14,6 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+/*
+ * Função principal de impressão.
+ * Oculta elementos desnecessários, aplica estilos específicos para impressão e restaura o estado original após imprimir.
+ */
 function printPage() {
     // Esconde o botão de imprimir, caso esteja visível
     let btnPrint = document.getElementById('btnPrint');
@@ -21,7 +31,7 @@ function printPage() {
         btnPrint.style.display = 'none';
     }
 
-    // Verifica se há algum filtro aplicado
+    // Verifica se algum filtro está aplicado na tabela ou no painel de resumo
     let filtroAplicado = false;
     document.querySelectorAll('.filter-row input[type="text"]').forEach(input => {
         if (input.value.trim() !== '') {
@@ -33,18 +43,24 @@ function printPage() {
             filtroAplicado = true;
         }
     });
-    // Verifica os checkboxes do dropdown de status
+    // Verifica checkboxes do filtro de status
     document.querySelectorAll('#status-filter input[type="checkbox"]').forEach(checkbox => {
         if (checkbox.checked) {
             filtroAplicado = true;
         }
     });
-    // Verifica se há algum filtro aplicado no painel de resumo
+    // Verifica filtro aplicado no painel de resumo
     if (window.painelFilterStatus && window.painelFilterStatus !== 'TODOS') {
         filtroAplicado = true;
     }
 
-    // Cria o elemento de estilo para sobrescrever animações e ocultar elementos indesejados na impressão
+    /*
+     * Cria um elemento <style> para sobrescrever estilos durante a impressão:
+     * - Remove animações
+     * - Oculta botões e elementos de filtro
+     * - Garante que a coluna de processos não quebre linha
+     * - Oculta o painel de resumo se houver filtro aplicado
+     */
     const printStyle = document.createElement('style');
     printStyle.id = 'printOverrides';
     printStyle.innerHTML = `
@@ -52,18 +68,19 @@ function printPage() {
         * {
             animation: none !important;
         }
-        /* Oculta o botão "limpar filtros", a linha de filtros, o botão de imprimir e o emoji de link */
+        /* Oculta botões e filtros */
         .btn-limpar-filtros,
         thead tr.filter-row,
         #btnPrint,
-        .processo-link-icon { /* Emoji de link removido da lista original e #btnPCAPublicada movido */
+        #btnFonteDeDados,
+        .processo-link-icon {
             display: none !important;
         }
-        /* Oculta especificamente o botão PCA Publicada */
+        /* Oculta o botão PCA Publicada */
         #btnPCAPublicada {
             display: none !important;
         }
-        /* Garante que a coluna "Processos" (9ª coluna) não quebre linha durante a impressão */
+        /* Impede quebra de linha na coluna Processos */
         table th:nth-child(9),
         table td:nth-child(9) {
             white-space: nowrap !important;
@@ -72,7 +89,12 @@ function printPage() {
     `;
     document.head.appendChild(printStyle);
 
-    // Função para restaurar o estado original da página
+    /*
+     * Função para restaurar o estado original da página após a impressão ou cancelamento:
+     * - Remove o estilo de impressão
+     * - Restaura a exibição do botão de imprimir
+     * - Remove os listeners de restauração
+     */
     function restorePage() {
         const style = document.getElementById('printOverrides');
         if (style) {
@@ -81,12 +103,11 @@ function printPage() {
         if (btnPrint) {
             btnPrint.style.display = '';
         }
-        // Remove os listeners para evitar múltiplas execuções
         window.removeEventListener('afterprint', restorePage);
         window.removeEventListener('focus', restorePage);
     }
 
-    // Adiciona os eventos para restaurar a página depois da impressão/cancelamento
+    // Adiciona eventos para restaurar a página após imprimir ou cancelar
     window.addEventListener('afterprint', restorePage);
     window.addEventListener('focus', restorePage);
 
