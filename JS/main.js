@@ -113,6 +113,14 @@ function fetchAndPopulate() {
                         td.dataset.label = headers[colIndex];
                         let value = row[i] || '';
                         
+                        // Adicionar atributo data-contrato para coluna "Projeto de Aquisição"
+                        if (colIndex === 3) { // Coluna "Projeto de Aquisição"
+                            const numeroContrato = row[21]; // Coluna V do CSV (índice 21)
+                            if (numeroContrato && numeroContrato.trim() !== '') {
+                                td.setAttribute('data-contrato', numeroContrato.trim());
+                            }
+                        }
+                        
                         if (colIndex === 4) {
                             // Coluna "Status Início"
                             value = formatStatusInicio(value);
