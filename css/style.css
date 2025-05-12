@@ -164,11 +164,6 @@ table thead.cabecalho tr.filter-row th .filter-toggle:focus {
   box-shadow: 0 0 0 3px rgba(0, 95, 184, 0.25);
 }
 
-/* Garantir que o filtro de "Projeto de Aquisição" (4ª coluna) ocupe todo o TH */
-table thead.cabecalho tr.filter-row th:nth-child(4) input {
-  /* width:100% e box-sizing garantem o ajuste automático ao TH */
-}
-
 /* Evitar quebra de linha nas colunas específicas */
 table th:nth-child(2),
 table td:nth-child(2),
@@ -305,10 +300,6 @@ table tbody tr.contratacao-atrasada {
 
 #btnPCAPublicada {
     margin-right: auto; /* Move o botão PCA Publicada para a esquerda */
-}
-
-#btnPrint {
-   /* margin-right: 20px; */
 }
 
 /* Botões modernos */
