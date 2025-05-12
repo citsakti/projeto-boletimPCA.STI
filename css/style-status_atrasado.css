@@ -33,7 +33,7 @@
 
 .status-atrasado {
     position: relative;
-    cursor: pointer; /* Alterado para remover o símbolo "?" */
+    cursor: default; /* Alterado para remover o símbolo "?" */
     /* text-decoration: underline dotted; */
 }
 

@@ -553,6 +553,28 @@ input[type="checkbox"]:hover {
     cursor: pointer !important;
 }
 
+/* Estilo para o ícone de contrato na tabela */
+.contract-link-icon {
+    margin-left: 5px; /* Espaço entre o texto e o ícone */
+    cursor: pointer;
+    display: inline-block; /* Para aplicar margem */
+    color: #005fb8; /* Cor do ícone - usando a mesma cor primária do projeto */
+}
+
+.contract-link-icon:hover {
+    color: #003e7a; /* Cor mais escura ao passar o mouse */
+}
+
+/* Estilo para células de projeto clicáveis */
+td[data-contrato] {
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+td[data-contrato]:hover {
+    background-color: rgba(0, 95, 184, 0.1); /* Cor de destaque ao passar o mouse */
+}
+
 /* Estilos para a Caixa de Mensagem Informativa */
 .info-overlay {
     position: fixed;
