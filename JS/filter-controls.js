@@ -358,8 +358,10 @@ function filterTable(){
     // Filtros dos selects já existentes
     const selectArea = document.getElementById('filter-area');
     const selectTipo = document.querySelector('.filter-row th:nth-child(3) select');
+    const selectOrcamento = document.getElementById('filter-orcamento'); // Adicionado filtro de orçamento
     const areaValue = selectArea ? selectArea.value : '';
     const tipoValue = selectTipo ? selectTipo.value : '';
+    const orcamentoValue = selectOrcamento ? selectOrcamento.value : ''; // Adicionado valor do orçamento
 
     // Filtro de texto dos inputs na filter-row
     const textFilters = {};
@@ -374,15 +376,17 @@ function filterTable(){
                             document.getElementById('filtroProjeto').value.trim().toLowerCase() : '';
 
     tabela.querySelectorAll('tbody tr').forEach(tr => {
-         const areaText   = tr.children[1]?.textContent.trim() || '';
-         const tipoText   = tr.children[2]?.textContent.trim() || '';
-         const projetoText = tr.children[3]?.textContent.trim() || '';
-         const statusText = tr.children[5]?.textContent.trim() || '';
+         const areaText     = tr.children[1]?.textContent.trim() || '';
+         const tipoText     = tr.children[2]?.textContent.trim() || '';
+         const projetoText  = tr.children[3]?.textContent.trim() || '';
+         const statusText   = tr.children[5]?.textContent.trim() || '';
+         const orcamentoText = tr.children[8]?.textContent.trim() || ''; // Adicionado texto de orçamento
          
          let mostrar = true;
          if (areaValue && areaText !== areaValue) mostrar = false;
          if (tipoValue && tipoText !== tipoValue) mostrar = false;
          if (filtroProjeto && !projetoText.toLowerCase().includes(filtroProjeto)) mostrar = false;
+         if (orcamentoValue && orcamentoText !== orcamentoValue) mostrar = false; // Verifica o filtro de orçamento
          
          // Aplica os demais filtros de texto
          for (const col in textFilters) {
