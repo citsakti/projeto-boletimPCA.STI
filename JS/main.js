@@ -466,15 +466,26 @@ function populateTableDOMWithData(processedDataRows) {
             
             // Aplica a mesma lógica de formatação e manipulação de 'value' e 'td'
             // que existe dentro do loop de fetchAndPopulate em main.js
-            // Exemplo para Status Início:
-            if (tableColIndex === 4) { // Status Início
+            if (tableColIndex === 3) { // Coluna "Projeto de Aquisição"
+                const numeroContrato = row[21]; // Coluna V do CSV (índice 21 no raw data)
+                const numeroRegistro = row[22]; // Coluna W do CSV (índice 22 no raw data)
+                
+                if (numeroContrato && String(numeroContrato).trim() !== '') {
+                    td.setAttribute('data-contrato', String(numeroContrato).trim());
+                }
+                
+                if (numeroRegistro && String(numeroRegistro).trim() !== '') {
+                    td.setAttribute('data-registro', String(numeroRegistro).trim());
+                }
+                // O 'value' (nome do projeto) será definido por td.textContent abaixo
+            } else if (tableColIndex === 4) { // Status Início
                 value = formatStatusInicio(value); // Supondo que formatStatusInicio está acessível
             } else if (tableColIndex === 6) { // Contratar Até
                 value = formatContratarAte(value); // Supondo que formatContratarAte está acessível
             } else if (tableColIndex === 8) { // Orçamento
-                if (value === '') value = '<Não Orçado>';
+                if (String(value).trim() === '') value = '<Não Orçado>'; // Convertido para String para o trim
             } else if (tableColIndex === 9) { // Processo
-                if (value.trim() === '') {
+                if (String(value).trim() === '') {
                     td.textContent = '*';
                 } else {
                     td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
@@ -482,22 +493,22 @@ function populateTableDOMWithData(processedDataRows) {
                 tr.appendChild(td);
                 return; 
             } else if (tableColIndex === 5) { // Status do Processo
-                const statusProcessoTexto = row[6]; // Coluna F do CSV original
+                const statusProcessoTexto = String(row[6]); // Coluna F do CSV original (índice 6 no raw data)
                 td.textContent = statusProcessoTexto;
-                // Adicionar datasets conforme lógica em main.js
+                // Adicionar datasets conforme lógica em main.js (replicado de fetchAndPopulate)
                 if (statusProcessoTexto.includes('AUTUAÇÃO ATRASADA 💣')) {
-                    if (row[11]) td.dataset.detalheAutuacao = row[11];
+                    if (row[11]) td.dataset.detalheAutuacao = row[11]; // Coluna L (índice 11)
                 }
                 if (statusProcessoTexto.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
-                    if (row[12]) td.dataset.detalheContratacao = row[12];
+                    if (row[12]) td.dataset.detalheContratacao = row[12]; // Coluna M (índice 12)
                 }
                 const outrosStatusRelevantes = ['AGUARDANDO DFD ⏳', 'AGUARDANDO ETP ⏳', 'DFD ATRASADO❗', 'ETP ATRASADO❗', 'ELABORANDO TR📝', 'ANÁLISE DE VIABILIDADE 📝'];
                 if (outrosStatusRelevantes.some(s => statusProcessoTexto.includes(s))) {
-                    if (row[11]) td.dataset.detalheStatusGeral = row[11];
+                    if (row[11]) td.dataset.detalheStatusGeral = row[11]; // Coluna L (índice 11)
                 }
                 const statusContratacaoRenovacao = ['EM CONTRATAÇÃO 🤝', 'EM RENOVAÇÃO 🔄'];
                 if (statusContratacaoRenovacao.some(s => statusProcessoTexto.includes(s))) {
-                    if (row[12]) td.dataset.detalheContratacaoRenovacao = row[12];
+                    if (row[12]) td.dataset.detalheContratacaoRenovacao = row[12]; // Coluna M (índice 12)
                 }
                 tr.appendChild(td);
                 return;
