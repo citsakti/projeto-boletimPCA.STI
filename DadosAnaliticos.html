@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./IMG/favicon.ico" type="image/x-icon" />
+    <title>Dados Analíticos - Boletim PCA 2025 - STI</title>
+    <link rel="stylesheet" href="./css/tokens.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style-emojis.css">
+    <link rel="stylesheet" href="./css/style-areas.css">
+    <link rel="stylesheet" href="./css/style-orcamento.css">
+    <link rel="stylesheet" href="./css/style-status_atrasado.css">
+    <link rel="stylesheet" href="css/style-mobile.css">
+    <link rel="stylesheet" href="css/style-atualizacao_automatica.css">
+    <link rel="stylesheet" href="css/style-analytics.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="./JS/table-formatters.js"></script>
+    <script src="./JS/filter-controls.js"></script>
+    <script src="./JS/btnAnalytics.js"></script>
+    <script src="./JS/Analytics.js"></script>
+    <script src="./JS/AnalyticsDetails.js"></script>
+    <script src="./JS/AnalyticsRender.js"></script>
+
+</head>
+<body>
+    <!-- overlay de carregamento -->
+    <div id="loading-overlay">
+      <div class="loader">⏳ Carregando dados analíticos, por favor aguarde...</div>
+    </div>
+
+    <header>
+        <img src="./IMG/tribunal.png" alt="Tribunal" size="10" class="logo-tribunal">
+        <h1>Relatório Analítico - Boletim PCA 2025 - STI</h1>
+    </header>
+
+    <!-- Toolbar para botões -->
+    <div class="toolbar">
+        <button class="btn" id="btnVoltar" onclick="window.location.href='index.html'">Voltar ao Boletim <span class="emoji-icon">📊</span></button>
+        <button class="btn btn-print" id="btnPrint"><span class="emoji-icon">🖨️</span> Imprimir</button>
+    </div>
+
+    <!-- Conteúdo específico dos dados analíticos -->
+    <div class="container">
+        <section id="analytics-dashboard">
+            <!-- O conteúdo será gerado dinamicamente pelo Analytics.js -->
+        </section>
+    </div>
+
+    <footer>
+        <p>Dados atualizados em: <span id="data-atualizacao">--/--/----</span></p>
+    </footer>
+
+    <script src="./JS/PrintFunction.js"></script>
+</body>
+</html>
