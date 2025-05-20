@@ -83,6 +83,10 @@ function initAnalytics() {
             addExpandListeners();
             // Adicionar os event listeners para a seção situacional
             addSituacionalExpandListeners();
+            // Adicionar os event listeners para os botões de produtividade
+            if (typeof addProdutividadeExpandListeners === 'function') {
+                addProdutividadeExpandListeners();
+            }
         })
         .catch(err => {
             console.error('Erro ao processar dados analíticos:', err);

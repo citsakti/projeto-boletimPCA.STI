@@ -80,16 +80,16 @@
    SEÇÃO: Tipo Grid/Box
    ======================= */
 .tipo-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    display: ruby;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem; /* Reduzido de 1rem para 0.5rem */
     margin-top: 1rem;
 }
 
 .tipo-box {
     background-color: var(--brand-subtle-bg);
     border-radius: var(--border-radius);
-    padding: 1.5rem;
+    padding: 0.75rem; /* Reduzido de 1rem para 0.75rem */
     text-align: center;
     box-shadow: var(--shadow-xs);
 }
@@ -282,7 +282,7 @@
     background-color: var(--brand-subtle-bg);
     border-radius: var(--border-radius);
     padding: 1.5rem;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 6px 6px 2px 0px rgba(0, 0, 0, .08);
     margin-bottom: 1rem;
 }
 
@@ -316,7 +316,6 @@
     display: flex;
     justify-content: space-between;
     padding: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.5);
     border-radius: var(--border-radius);
 }
 
@@ -331,7 +330,6 @@
 }
 
 .produtividade-percentual {
-    background-color: rgba(255, 255, 255, 0.7);
     padding: 1rem;
     border-radius: var(--border-radius);
 }
@@ -382,6 +380,81 @@
     .percentual-progress {
         width: 100%;
     }
+}
+
+/* Estilos para os botões de produtividade */
+.produtividade-botoes {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.prod-expand-btn {
+    padding: 8px 12px;
+    background-color: var(--brand-primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    flex: 1;
+    min-width: 160px;
+    transition: background-color 0.2s;
+}
+
+.prod-expand-btn:hover {
+    background-color: #1565c0;
+}
+
+.detalhes-produtividade {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f5f5f5;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--brand-primary);
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+.detalhes-produtividade .project-details {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.detalhes-produtividade .project-details-table {
+    min-width: 100%;
+    table-layout: auto;
+}
+
+@media (max-width: 768px) {
+    .detalhes-produtividade {
+        margin-left: 0;
+        margin-right: 0;
+        padding: 0.75rem;
+    }
+}
+
+/* Estilo para o botão de mostrar ambos os períodos */
+.show-both-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.show-both-btn:hover {
+    background-color: #f57c00;
 }
 
 /* ====== FIM DO CSS DAS SEÇÕES ANALÍTICAS ====== */

@@ -183,123 +183,126 @@ function renderSituacionalSection() {
     let html = `
         <div class="analytics-section">
             <h2>2. Análise Situacional</h2>
-            <div class="situacional-table">
-                <table class="analytics-table">
-                    <thead>
-                        <tr>
-                            <th>Categoria</th>
-                            <th style="white-space:normal; word-break:break-word;">Critério (STATUS DO PROCESSO)</th>
-                            <th>Contagem</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="expandable-row" data-category="contratacaoForaSTI">
-                            <td>Fase de contratação fora da STI</td>
-                            <td style="white-space:normal; word-break:break-word;">EM CONTRATAÇÃO 🤝 ou EM RENOVAÇÃO 🔄<br>(ÁREA ≠ STI)</td>
-                            <td>${analyticData.situacional.contratacaoForaSTI}</td>
-                            <td><button class="situacional-expand-btn" data-category="contratacaoForaSTI">Expandir</button></td>
-                        </tr>
-                        <tr class="details-row" id="situacional-details-contratacaoForaSTI" style="display:none;">
-                            <td colspan="4">
-                                <div class="project-details">
-                                    ${renderSituacionalDetails('contratacaoForaSTI')}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="expandable-row" data-category="autuacaoAtrasada">
-                            <td>Autuação atrasada > 90 dias</td>
-                            <td style="white-space:normal; word-break:break-word;">AUTUAÇÃO ATRASADA 💣</td>
-                            <td>${analyticData.situacional.autuacaoAtrasada}</td>
-                            <td><button class="situacional-expand-btn" data-category="autuacaoAtrasada">Expandir</button></td>
-                        </tr>
-                        <tr class="details-row" id="situacional-details-autuacaoAtrasada" style="display:none;">
-                            <td colspan="4">
-                                <div class="project-details">
-                                    ${renderSituacionalDetails('autuacaoAtrasada')}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="expandable-row" data-category="elaboracaoInterna">
-                            <td>Elaboração interna de artefatos</td>
-                            <td style="white-space:normal; word-break:break-word;">
-                                AGUARDANDO DFD ⏳<br>
-                                AGUARDANDO ETP ⏳<br>
-                                ELABORANDO TR📝<br>
-                                ANÁLISE DE VIABILIDADE 📝<br>
-                                DFD ATRASADO❗<br>
-                                ETP ATRASADO❗
-                            </td>
-                            <td>${analyticData.situacional.elaboracaoInterna}</td>
-                            <td><button class="situacional-expand-btn" data-category="elaboracaoInterna">Expandir</button></td>
-                        </tr>
-                        <tr class="details-row" id="situacional-details-elaboracaoInterna" style="display:none;">
-                            <td colspan="4">
-                                <div class="project-details">
-                                    ${renderSituacionalDetails('elaboracaoInterna')}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="expandable-row" data-category="contratacaoAtrasadaForaSTI">
-                            <td>Contratação atrasada fora da STI</td>
-                            <td style="white-space:normal; word-break:break-word;">CONTRATAÇÃO ATRASADA ⚠️<br>(ÁREA ≠ STI)</td>
-                            <td>${analyticData.situacional.contratacaoAtrasadaForaSTI}</td>
-                            <td><button class="situacional-expand-btn" data-category="contratacaoAtrasadaForaSTI">Expandir</button></td>
-                        </tr>
-                        <tr class="details-row" id="situacional-details-contratacaoAtrasadaForaSTI" style="display:none;">
-                            <td colspan="4">
-                                <div class="project-details">
-                                    ${renderSituacionalDetails('contratacaoAtrasadaForaSTI')}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="expandable-row" data-category="processosConcluidos">
-                            <td>Processos concluídos</td>
-                            <td style="white-space:normal; word-break:break-word;">CONTRATADO ✅ ou RENOVADO ✅</td>
-                            <td>${analyticData.situacional.processosConcluidos}</td>
-                            <td><button class="situacional-expand-btn" data-category="processosConcluidos">Expandir</button></td>
-                        </tr>
-                        <tr class="details-row" id="situacional-details-processosConcluidos" style="display:none;">
-                            <td colspan="4">
-                                <div class="project-details">
-                                    ${renderSituacionalDetails('processosConcluidos')}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="expandable-row" data-category="processosSuspensos">
-                            <td>Processos Suspensos</td>
-                            <td style="white-space:normal; word-break:break-word;">REVISÃO PCA 🚧</td>
-                            <td>${analyticData.situacional.processosSuspensos}</td>
-                            <td><button class="situacional-expand-btn" data-category="processosSuspensos">Expandir</button></td>
-                        </tr>
-                        <tr class="details-row" id="situacional-details-processosSuspensos" style="display:none;">
-                            <td colspan="4">
-                                <div class="project-details">
-                                    ${renderSituacionalDetails('processosSuspensos')}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="expandable-row" data-category="processosAIniciar">
-                            <td>Processos a iniciar</td>
-                            <td style="white-space:normal; word-break:break-word;">A INICIAR ⏰</td>
-                            <td>${analyticData.situacional.processosAIniciar}</td>
-                            <td><button class="situacional-expand-btn" data-category="processosAIniciar">Expandir</button></td>
-                        </tr>
-                        <tr class="details-row" id="situacional-details-processosAIniciar" style="display:none;">
-                            <td colspan="4">
-                                <div class="project-details">
-                                    ${renderSituacionalDetails('processosAIniciar')}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="total-row">
-                            <td>Total</td>
-                            <td></td>
-                            <td>${totalSituacional}</td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="analytics-subsection">
+                <h3>Análise Interna</h3>
+                <div class="situacional-table">
+                    <table class="analytics-table">
+                        <thead>
+                            <tr>
+                                <th>Categoria</th>
+                                <th style="white-space:normal; word-break:break-word;">Critério (STATUS DO PROCESSO)</th>
+                                <th>Contagem</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="expandable-row" data-category="contratacaoForaSTI">
+                                <td>Fase de contratação fora da STI</td>
+                                <td style="white-space:normal; word-break:break-word;">EM CONTRATAÇÃO 🤝 ou EM RENOVAÇÃO 🔄<br>(ÁREA ≠ STI)</td>
+                                <td>${analyticData.situacional.contratacaoForaSTI}</td>
+                                <td><button class="situacional-expand-btn" data-category="contratacaoForaSTI">Expandir</button></td>
+                            </tr>
+                            <tr class="details-row" id="situacional-details-contratacaoForaSTI" style="display:none;">
+                                <td colspan="4">
+                                    <div class="project-details">
+                                        ${renderSituacionalDetails('contratacaoForaSTI')}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="expandable-row" data-category="autuacaoAtrasada">
+                                <td>Autuação atrasada > 90 dias</td>
+                                <td style="white-space:normal; word-break:break-word;">AUTUAÇÃO ATRASADA 💣</td>
+                                <td>${analyticData.situacional.autuacaoAtrasada}</td>
+                                <td><button class="situacional-expand-btn" data-category="autuacaoAtrasada">Expandir</button></td>
+                            </tr>
+                            <tr class="details-row" id="situacional-details-autuacaoAtrasada" style="display:none;">
+                                <td colspan="4">
+                                    <div class="project-details">
+                                        ${renderSituacionalDetails('autuacaoAtrasada')}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="expandable-row" data-category="elaboracaoInterna">
+                                <td>Elaboração interna de artefatos</td>
+                                <td style="white-space:normal; word-break:break-word;">
+                                    AGUARDANDO DFD ⏳<br>
+                                    AGUARDANDO ETP ⏳<br>
+                                    ELABORANDO TR📝<br>
+                                    ANÁLISE DE VIABILIDADE 📝<br>
+                                    DFD ATRASADO❗<br>
+                                    ETP ATRASADO❗
+                                </td>
+                                <td>${analyticData.situacional.elaboracaoInterna}</td>
+                                <td><button class="situacional-expand-btn" data-category="elaboracaoInterna">Expandir</button></td>
+                            </tr>
+                            <tr class="details-row" id="situacional-details-elaboracaoInterna" style="display:none;">
+                                <td colspan="4">
+                                    <div class="project-details">
+                                        ${renderSituacionalDetails('elaboracaoInterna')}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="expandable-row" data-category="contratacaoAtrasadaForaSTI">
+                                <td>Contratação atrasada fora da STI</td>
+                                <td style="white-space:normal; word-break:break-word;">CONTRATAÇÃO ATRASADA ⚠️<br>(ÁREA ≠ STI)</td>
+                                <td>${analyticData.situacional.contratacaoAtrasadaForaSTI}</td>
+                                <td><button class="situacional-expand-btn" data-category="contratacaoAtrasadaForaSTI">Expandir</button></td>
+                            </tr>
+                            <tr class="details-row" id="situacional-details-contratacaoAtrasadaForaSTI" style="display:none;">
+                                <td colspan="4">
+                                    <div class="project-details">
+                                        ${renderSituacionalDetails('contratacaoAtrasadaForaSTI')}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="expandable-row" data-category="processosConcluidos">
+                                <td>Processos concluídos</td>
+                                <td style="white-space:normal; word-break:break-word;">CONTRATADO ✅ ou RENOVADO ✅</td>
+                                <td>${analyticData.situacional.processosConcluidos}</td>
+                                <td><button class="situacional-expand-btn" data-category="processosConcluidos">Expandir</button></td>
+                            </tr>
+                            <tr class="details-row" id="situacional-details-processosConcluidos" style="display:none;">
+                                <td colspan="4">
+                                    <div class="project-details">
+                                        ${renderSituacionalDetails('processosConcluidos')}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="expandable-row" data-category="processosSuspensos">
+                                <td>Processos Suspensos</td>
+                                <td style="white-space:normal; word-break:break-word;">REVISÃO PCA 🚧</td>
+                                <td>${analyticData.situacional.processosSuspensos}</td>
+                                <td><button class="situacional-expand-btn" data-category="processosSuspensos">Expandir</button></td>
+                            </tr>
+                            <tr class="details-row" id="situacional-details-processosSuspensos" style="display:none;">
+                                <td colspan="4">
+                                    <div class="project-details">
+                                        ${renderSituacionalDetails('processosSuspensos')}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="expandable-row" data-category="processosAIniciar">
+                                <td>Processos a iniciar</td>
+                                <td style="white-space:normal; word-break:break-word;">A INICIAR ⏰</td>
+                                <td>${analyticData.situacional.processosAIniciar}</td>
+                                <td><button class="situacional-expand-btn" data-category="processosAIniciar">Expandir</button></td>
+                            </tr>
+                            <tr class="details-row" id="situacional-details-processosAIniciar" style="display:none;">
+                                <td colspan="4">
+                                    <div class="project-details">
+                                        ${renderSituacionalDetails('processosAIniciar')}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="total-row">
+                                <td>Total</td>
+                                <td></td>
+                                <td>${totalSituacional}</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         
@@ -314,30 +317,36 @@ function renderSituacionalSection() {
 }
 
 /**
- * Função para renderizar quadro de projetos por área
+ * Função para renderizar a seção de Projetos de Aquisição por Área
+ * @returns {string} HTML da seção
  */
 function renderAreaProjectsSection() {
-    let html = `
-        <div class="analytics-subsection">
-            <h3>Projetos de Aquisição por Área</h3>
-            <div class="area-projects-grid">
-    `;
-    for (const [area, counts] of Object.entries(analyticData.areaCounts)) {
-        html += `
+    const areas = Object.keys(analyticData.areaCounts).sort();
+    
+    let boxesHtml = '';
+    areas.forEach(area => {
+        const areaCount = analyticData.areaCounts[area];
+        boxesHtml += `
             <div class="area-box">
                 <div class="area-name">${area}</div>
                 <div class="area-tipo">
-                    <span>🛒 Aquisição: <strong>${counts["🛒 Aquisição"]}</strong></span><br>
-                    <span>🔄 Renovação: <strong>${counts["🔄 Renovação"]}</strong></span><br>
-                    <span>Total: <strong>${counts.total}</strong></span>
+                    <span>🛒 Aquisição: ${areaCount['🛒 Aquisição']}</span>
+                    <span>🔄 Renovação: ${areaCount['🔄 Renovação']}</span>
+                    <span><strong>Total: ${areaCount.total}</strong></span>
                 </div>
             </div>
         `;
-    }
-    html += `
-            </div>
+    });
+    
+    let html = `
+    <div class="analytics-section">
+        <h2>4. Projetos de Aquisição por Área</h2>
+        <div class="area-projects-grid">
+            ${boxesHtml}
         </div>
+    </div>
     `;
+    
     return html;
 }
 
