@@ -289,6 +289,11 @@
                 acompanhamentoCell.removeEventListener('mouseleave', hideAcompanhamentoTooltip);
             }
         });
+        
+        // Após modificar o DOM, reaplica a alternância de cores
+        if (typeof window.alternaCoresLinhas === 'function') {
+            window.alternaCoresLinhas();
+        }
     }
     
     /**
