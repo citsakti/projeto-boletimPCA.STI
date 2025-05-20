@@ -225,6 +225,10 @@
         // e a coluna "Acompanhamento" (coluna 5) para cada linha
         const rows = document.querySelectorAll('table tbody tr');
         
+        // Data atual para comparação
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0); // Normaliza para início do dia
+        
         rows.forEach(row => {
             const statusCell = row.querySelector('td:nth-child(6)'); // Coluna de status (coluna 6)
             const projetoCell = row.querySelector('td:nth-child(4)'); // Coluna de projeto
@@ -260,25 +264,43 @@
             if (projetosComAcompanhamento.has(projetoLimpo)) {
                 const acompanhamento = projetosComAcompanhamento.get(projetoLimpo);
                 
-                // Adicionar emoji ao acompanhamento se ainda não tiver
-                if (!acompanhamentoCell.textContent.includes('📩')) {
-                    acompanhamentoCell.innerHTML += ' 📩';
+                // Verificar se o acompanhamento é de até 6 dias atrás
+                const dataAcompanhamento = parseDataBrasileira(acompanhamento.data);
+                dataAcompanhamento.setHours(0, 0, 0, 0); // Normaliza para início do dia
+                
+                // Calcular a diferença em dias
+                const diferencaDias = Math.floor((hoje - dataAcompanhamento) / (1000 * 60 * 60 * 24));
+                
+                // Só mostrar se for até 6 dias atrás
+                if (diferencaDias <= 6) {
+                    // Adicionar emoji ao acompanhamento se ainda não tiver
+                    if (!acompanhamentoCell.textContent.includes('📩')) {
+                        acompanhamentoCell.innerHTML += ' 📩';
+                    }
+                    
+                    // Configurar atributos data para usar no tooltip
+                    acompanhamentoCell.dataset.acompanhamentoData = acompanhamento.data;
+                    acompanhamentoCell.dataset.acompanhamentoDetalhes = acompanhamento.detalhes;
+                    
+                    // Adicionar classe para indicar que tem tooltip
+                    acompanhamentoCell.classList.add('has-acompanhamento');
+                    
+                    // Remover event listeners antigos (para evitar duplicação)
+                    acompanhamentoCell.removeEventListener('mouseenter', showAcompanhamentoTooltip);
+                    acompanhamentoCell.removeEventListener('mouseleave', hideAcompanhamentoTooltip);
+                    
+                    // Adicionar novos event listeners
+                    acompanhamentoCell.addEventListener('mouseenter', showAcompanhamentoTooltip);
+                    acompanhamentoCell.addEventListener('mouseleave', hideAcompanhamentoTooltip);
+                } else {
+                    // Acompanhamento tem mais de 6 dias, remover o emoji e listeners
+                    if (acompanhamentoCell.textContent.includes('📩')) {
+                        acompanhamentoCell.innerHTML = acompanhamentoCell.innerHTML.replace('📩', '').trim();
+                    }
+                    acompanhamentoCell.classList.remove('has-acompanhamento');
+                    acompanhamentoCell.removeEventListener('mouseenter', showAcompanhamentoTooltip);
+                    acompanhamentoCell.removeEventListener('mouseleave', hideAcompanhamentoTooltip);
                 }
-                
-                // Configurar atributos data para usar no tooltip
-                acompanhamentoCell.dataset.acompanhamentoData = acompanhamento.data;
-                acompanhamentoCell.dataset.acompanhamentoDetalhes = acompanhamento.detalhes;
-                
-                // Adicionar classe para indicar que tem tooltip
-                acompanhamentoCell.classList.add('has-acompanhamento');
-                
-                // Remover event listeners antigos (para evitar duplicação)
-                acompanhamentoCell.removeEventListener('mouseenter', showAcompanhamentoTooltip);
-                acompanhamentoCell.removeEventListener('mouseleave', hideAcompanhamentoTooltip);
-                
-                // Adicionar novos event listeners
-                acompanhamentoCell.addEventListener('mouseenter', showAcompanhamentoTooltip);
-                acompanhamentoCell.addEventListener('mouseleave', hideAcompanhamentoTooltip);
             } else {
                 // Se não tem acompanhamento, garantir que não tem emoji ou classe
                 if (acompanhamentoCell.textContent.includes('📩')) {
