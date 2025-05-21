@@ -275,6 +275,32 @@
     font-size: 0.9em;
 }
 
+/* Melhorar animação para linhas de detalhes */
+.details-row {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.details-row.expanded {
+    max-height: 2000px; /* Altura máxima suficiente para conteúdos grandes */
+    opacity: 1;
+}
+
+/* Corrigir estilo do ícone de expansão */
+.expand-icon {
+    display: inline-block;
+    margin-left: 5px;
+    transition: transform 0.3s ease;
+    font-size: 10px;
+    vertical-align: middle;
+}
+
+.expand-icon.rotate {
+    transform: rotate(180deg);
+}
+
 /* =======================
    SEÇÃO: Produtividade
    ======================= */
@@ -467,6 +493,143 @@
 
 .show-both-btn:hover {
     background-color: #f57c00;
+}
+
+/* =======================
+   SEÇÃO: Botões de Expansão
+   ======================= */
+/* Estilos e animações para todos os botões de expandir/recolher */
+.expand-btn,
+.situacional-expand-btn,
+.prod-expand-btn {
+    position: relative;
+    padding: 6px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    overflow: hidden;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito hover para todos os botões de expandir */
+.expand-btn:hover,
+.situacional-expand-btn:hover,
+.prod-expand-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Efeito ao clicar para todos os botões */
+.expand-btn:active,
+.situacional-expand-btn:active,
+.prod-expand-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito de onda ao clicar */
+.expand-btn::after,
+.situacional-expand-btn::after,
+.prod-expand-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%, -50%);
+    transform-origin: 50% 50%;
+}
+
+.expand-btn:focus:not(:active)::after,
+.situacional-expand-btn:focus:not(:active)::after,
+.prod-expand-btn:focus:not(:active)::after {
+    animation: ripple 0.6s ease-out;
+}
+
+/* Animação de onda */
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    20% {
+        transform: scale(8, 8);
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(30, 30);
+    }
+}
+
+/* Estilos específicos para os botões quando estão no estado "recolher" */
+.expand-btn.active,
+.situacional-expand-btn.active,
+.prod-expand-btn.active {
+    background-color: #ff5722;
+}
+
+/* Animação para as linhas de detalhes ao expandir/recolher */
+.details-row,
+.detalhes-produtividade {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    opacity: 0;
+}
+
+.details-row.expanded,
+.detalhes-produtividade.expanded {
+    max-height: 1500px; /* Altura máxima suficiente para a maioria dos conteúdos */
+    opacity: 1;
+}
+
+/* Animação de rotação para ícone de seta (podemos adicionar via JavaScript) */
+.expand-icon {
+    display: inline-block;
+    margin-left: 5px;
+    transition: transform 0.3s ease;
+}
+
+.expand-icon.rotate {
+    transform: rotate(180deg);
+}
+
+/* Estilização para transição de fundo ao alternar estados */
+tr.expandable-row {
+    transition: background-color 0.3s ease;
+}
+
+tr.expandable-row.active {
+    background-color: rgba(76, 175, 80, 0.1) !important;
+}
+
+/* Adicionar destacamento de borda animado para os botões expandidos */
+.expand-btn.active,
+.situacional-expand-btn.active,
+.prod-expand-btn.active {
+    animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(255, 87, 34, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);
+    }
 }
 
 /* ====== FIM DO CSS DAS SEÇÕES ANALÍTICAS ====== */
