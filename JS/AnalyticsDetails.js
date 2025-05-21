@@ -159,11 +159,11 @@ function calcularProdutividade(dataInicio, dataFim) {
     
     // Filtra os projetos para considerar apenas aqueles dentro do período especificado (dataInicio a dataFim).
     const projetosNoPeriodo = todosProjetos.filter(projeto => {
-        // Verificar se projeto.j existe e não está vazio
-        if (!projeto.j) return false;
+        // Verificar se projeto.i existe e não está vazio
+        if (!projeto.i) return false;
         
         // Converter a data do formato brasileiro (DD/MM/YYYY) para objeto Date
-        const dataParts = projeto.j.split('/');
+        const dataParts = projeto.i.split('/');
         if (dataParts.length !== 3) return false;
         
         // No formato brasileiro: dataParts[0] = dia, dataParts[1] = mês, dataParts[2] = ano
@@ -279,7 +279,7 @@ function renderProdutividadeProjetosTable(projetos) {
 function renderProdutividadeDetalhada() {
     // Calcular produtividade para 2025.1 (Janeiro a Junho)
     const produtividade2025_1 = calcularProdutividade(
-        new Date(2025, 0, 1), // 01/01/2025 (mês é base 0: janeiro = 0)
+        new Date(2024, 10, 1), // 01/11/2024 (mês é base 0: novembro = 10)
         new Date(2025, 5, 30)  // 30/06/2025
     );
     

@@ -160,7 +160,8 @@ function processData(rawData) {
         numProcesso: 13, // Coluna M - Número do Processo
         orcamento: 14,   // Coluna O - Orçamento
         valorPca: 15,    // Coluna P - Valor PCA
-        dataProcesso: 9  // Coluna J - Data do processo
+        dataProcesso: 9,  // Coluna J - Data do processo
+        dataInicio: 8    // Coluna I - Data de início (AUTUAR EM:)
     };
     
     // Resetar contadores e arrays
@@ -184,6 +185,7 @@ function processData(rawData) {
             .trim();
         const valor = parseFloat(valorStr) || 0;
         const dataProcesso = row[columnIndices.dataProcesso] || '';
+        const dataInicio = row[columnIndices.dataInicio] || ''; // Capturando a data de início
         
         // Criar objeto de projeto para uso em detalhamentos
         const projetoObj = {
@@ -194,7 +196,7 @@ function processData(rawData) {
             numProcesso,
             tipo,      // Adicionando o tipo ao objeto
             status: statusProcesso, // Adicionando o status ao objeto
-            j: dataProcesso // Adicionando a data do processo (coluna J)
+            i: dataInicio   // Apenas armazenando a data de início (coluna I - AUTUAR EM)
         };
         
         // Processar contadores e categorias
