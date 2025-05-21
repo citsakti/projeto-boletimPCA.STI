@@ -52,7 +52,12 @@ function renderGeneralSection() {
                 </div>
             </div>
             
-            ${renderAreaProjectsSection()}
+            <div class="analytics-subsection">
+                <h3>Projetos de Aquisição por Área</h3>
+                <div class="area-projects-grid">
+                    ${renderAreaProjectsHtml()}
+                </div>
+            </div>
             
             <div class="analytics-subsection">
                 <h3>Valores por Orçamento e Tipo</h3>
@@ -197,7 +202,7 @@ function renderSituacionalSection() {
                         </thead>
                         <tbody>
                             <tr class="expandable-row" data-category="contratacaoForaSTI">
-                                <td>Fase de contratação fora da STI</td>
+                                <td style="font-weight: bold;">Fase de Contratação Fora da STI</td>
                                 <td style="white-space:normal; word-break:break-word;">
                                     ${formatStatusWithClasses('EM CONTRATAÇÃO 🤝')} ou ${formatStatusWithClasses('EM RENOVAÇÃO 🔄')}<br>(ÁREA ≠ STI)
                                 </td>
@@ -212,7 +217,7 @@ function renderSituacionalSection() {
                                 </td>
                             </tr>
                             <tr class="expandable-row" data-category="autuacaoAtrasada">
-                                <td>Autuação atrasada > 90 dias</td>
+                                <td style="font-weight: bold;">Autuação Atrasada > 90 dias</td>
                                 <td style="white-space:normal; word-break:break-word;">
                                     ${formatStatusWithClasses('AUTUAÇÃO ATRASADA 💣')}
                                 </td>
@@ -227,7 +232,7 @@ function renderSituacionalSection() {
                                 </td>
                             </tr>
                             <tr class="expandable-row" data-category="elaboracaoInterna">
-                                <td>Elaboração interna de artefatos</td>
+                                <td style="font-weight: bold;">Elaboração Interna de Artefatos</td>
                                 <td style="white-space:normal; word-break:break-word;">
                                     ${formatStatusWithClasses('AGUARDANDO DFD ⏳')}<br>
                                     ${formatStatusWithClasses('AGUARDANDO ETP ⏳')}<br>
@@ -247,7 +252,7 @@ function renderSituacionalSection() {
                                 </td>
                             </tr>
                             <tr class="expandable-row" data-category="contratacaoAtrasadaForaSTI">
-                                <td>Contratação atrasada fora da STI</td>
+                                <td style="font-weight: bold;">Contratação Atrasada Fora da STI</td>
                                 <td style="white-space:normal; word-break:break-word;">
                                     ${formatStatusWithClasses('CONTRATAÇÃO ATRASADA ⚠️')}<br>(ÁREA ≠ STI)
                                 </td>
@@ -262,7 +267,7 @@ function renderSituacionalSection() {
                                 </td>
                             </tr>
                             <tr class="expandable-row" data-category="processosConcluidos">
-                                <td>Processos concluídos</td>
+                                <td style="font-weight: bold;">Processos Concluídos</td>
                                 <td style="white-space:normal; word-break:break-word;">
                                     ${formatStatusWithClasses('CONTRATADO ✅')} ou ${formatStatusWithClasses('RENOVADO ✅')}
                                 </td>
@@ -277,7 +282,7 @@ function renderSituacionalSection() {
                                 </td>
                             </tr>
                             <tr class="expandable-row" data-category="processosSuspensos">
-                                <td>Processos Suspensos</td>
+                                <td style="font-weight: bold;">Processos Suspensos</td>
                                 <td style="white-space:normal; word-break:break-word;">REVISÃO PCA 🚧</td>
                                 <td>${analyticData.situacional.processosSuspensos}</td>
                                 <td><button class="situacional-expand-btn" data-category="processosSuspensos">Expandir</button></td>
@@ -290,7 +295,7 @@ function renderSituacionalSection() {
                                 </td>
                             </tr>
                             <tr class="expandable-row" data-category="processosAIniciar">
-                                <td>Processos a iniciar</td>
+                                <td style="font-weight: bold;">Processos a Iniciar</td>
                                 <td style="white-space:normal; word-break:break-word;">A INICIAR ⏰</td>
                                 <td>${analyticData.situacional.processosAIniciar}</td>
                                 <td><button class="situacional-expand-btn" data-category="processosAIniciar">Expandir</button></td>
@@ -303,7 +308,7 @@ function renderSituacionalSection() {
                                 </td>
                             </tr>
                             <tr class="total-row">
-                                <td>Total</td>
+                                <td style="font-weight: bold;">TOTAL</td>
                                 <td></td>
                                 <td>${totalSituacional}</td>
                                 <td></td>
@@ -325,10 +330,28 @@ function renderSituacionalSection() {
 }
 
 /**
- * Função para renderizar a seção de Projetos de Aquisição por Área
- * @returns {string} HTML da seção
+ * Função para renderizar a seção de produtividade
  */
-function renderAreaProjectsSection() {
+function renderProdutividadeSection() {
+    // Aqui chamamos a implementação detalhada que está em AnalyticsDetails.js
+    if (typeof renderProdutividadeDetalhada === 'function') {
+        return renderProdutividadeDetalhada();
+    }
+    
+    // Fallback caso a função não esteja disponível
+    return `
+    <div class="analytics-section">
+        <h2>3. Produtividade Aquisições T.I.</h2>
+        <p>Dados de produtividade não disponíveis.</p>
+    </div>
+    `;
+}
+
+/**
+ * Função para gerar apenas o HTML para os projetos por área
+ * @returns {string} HTML para os boxes de área
+ */
+function renderAreaProjectsHtml() {
     const areas = Object.keys(analyticData.areaCounts).sort();
     
     let boxesHtml = '';
@@ -346,34 +369,7 @@ function renderAreaProjectsSection() {
         `;
     });
     
-    let html = `
-    <div class="analytics-section">
-        <h2>4. Projetos de Aquisição por Área</h2>
-        <div class="area-projects-grid">
-            ${boxesHtml}
-        </div>
-    </div>
-    `;
-    
-    return html;
-}
-
-/**
- * Função para renderizar a seção de produtividade
- */
-function renderProdutividadeSection() {
-    // Aqui chamamos a implementação detalhada que está em AnalyticsDetails.js
-    if (typeof renderProdutividadeDetalhada === 'function') {
-        return renderProdutividadeDetalhada();
-    }
-    
-    // Fallback caso a função não esteja disponível
-    return `
-    <div class="analytics-section">
-        <h2>3. Produtividade Aquisições T.I.</h2>
-        <p>Dados de produtividade não disponíveis.</p>
-    </div>
-    `;
+    return boxesHtml;
 }
 
 /**
