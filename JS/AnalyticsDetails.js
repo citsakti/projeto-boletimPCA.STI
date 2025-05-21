@@ -482,13 +482,13 @@ function formatStatusWithClasses(statusText) {
 
     // Procurar correspondência exata
     if (statusMapping[statusText]) {
-        return `<span class="${statusMapping[statusText]}">${statusText}</span>`;
+        return `<span class="${statusMapping[statusText]}" style="display:inline-block; vertical-align:middle;">${statusText}</span>`;
     }
     
     // Procurar correspondência parcial
     for (const [key, className] of Object.entries(statusMapping)) {
         if (statusText.includes(key)) {
-            return `<span class="${className}">${statusText}</span>`;
+            return `<span class="${className}" style="display:inline-block; vertical-align:middle;">${statusText}</span>`;
         }
     }
     

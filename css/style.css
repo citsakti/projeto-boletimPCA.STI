@@ -211,7 +211,6 @@ table td:nth-child(9) {
 table th:nth-child(4),
 table td:nth-child(4) {
     font-weight: bold;
-    font-size: initial;
 }
 
 /* Cabeçalho da tabela */
@@ -247,11 +246,14 @@ table tbody tr.contratacao-atrasada {
     background: #e6cff2;
     border-radius: 6px;
     padding: 2px 6px;
-    display: inline-block;
+    display: inline-flex; /* Alterado de ruby-text para inline-flex */
+    align-items: center; /* Centraliza verticalmente o conteúdo */
+    vertical-align: middle; /* Alinha ao meio da linha */
+    white-space: nowrap; /* Impede quebra de linha */
 }
 
 /* highlights de status */
-.status-autuacao-atrasada-highlight { background: #e6cff2; border-radius:6px; padding:2px 6px; display:ruby-text; }
+.status-autuacao-atrasada-highlight { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-flex; align-items:center; vertical-align:middle; }
 .status-contratacao-atrasada-highlight {
     background: #b10202;
     color: #fff;
