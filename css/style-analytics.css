@@ -23,6 +23,11 @@
     box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
 }
 
+/* Remover o negrito da 4ª coluna nas tabelas de Análise Interna */
+.analytics-section .analytics-subsection table td:nth-child(4) {
+    font-weight: normal !important;
+}
+
 /* ===========================
    SEÇÃO: Analytics Subsection
    =========================== */
@@ -86,6 +91,11 @@
     font-size: 1.5rem;
     font-weight: bold;
     color: var(--brand-primary);
+}
+
+/* Remover a animação de piscar (blink) da classe status-contratacao-atrasada-highlight na página de analytics */
+.status-contratacao-atrasada-highlight {
+    animation: none !important; /* Remove qualquer animação e sobrescreve configurações anteriores */
 }
 
 /* =======================
@@ -160,6 +170,16 @@
     background-color: var(--brand-subtle) !important;
 }
 
+/* Remover o negrito da coluna de INVESTIMENTO na tabela de valores por área */
+.valor-area-table table td:nth-child(4) {
+    font-weight: normal !important;
+}
+
+/* Se necessário, também garantir que os valores de Custeio (2ª coluna) mantenham formatação normal */
+.valor-area-table table td:nth-child(2) {
+    font-weight: normal !important;
+}
+
 /* =======================
    SEÇÃO: Placeholder
    ======================= */
@@ -179,7 +199,6 @@
     display: inline-flex;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 2.5rem; /* Aumentado para 2.5rem para um espaçamento bem definido */
-    margin-top: 1.5rem; /* Também aumentei um pouco a margem superior */
 }
 
 .area-box {
@@ -650,6 +669,23 @@
     table-layout: auto;
 }
 
+/* Evitar quebra de linha para células com "🔄 Renovação" nas tabelas de detalhes de produtividade */
+.detalhes-produtividade .project-details-table td:nth-child(2) {
+    white-space: nowrap !important;
+}
+
+/* Caso seja necessário também para outras tabelas, adicionar regra geral */
+.project-details-table td:contains("🔄 Renovação"),
+.project-details-table td:contains("🛒 Aquisição") {
+    white-space: nowrap !important;
+}
+
+/* Seletor alternativo mais abrangente para garantir que não haja quebra de linha */
+table td:has(span:contains("🔄")),
+table td:has(span:contains("🛒")) {
+    white-space: nowrap !important;
+}
+
 @media (max-width: 768px) {
     .detalhes-produtividade {
         margin-left: 0;
@@ -685,6 +721,7 @@
 .expand-btn,
 .situacional-expand-btn,
 .area-expand-btn,
+.area-valor-expand-btn,
 .prod-expand-btn {
     position: relative;
     padding: 6px 12px;
@@ -759,6 +796,7 @@
 .expand-btn.active,
 .area-expand-btn.active,
 .situacional-expand-btn.active,
+.area-valor-expand-btn.active,
 .prod-expand-btn.active {
     background-color: #ff5722;
 }
@@ -802,6 +840,7 @@ tr.expandable-row.active {
 .expand-btn.active,
 .situacional-expand-btn.active,
 .area-expand-btn.active,
+.area-valor-expand-btn.active,
 .prod-expand-btn.active {
     animation: pulse-border 2s infinite;
 }
@@ -816,6 +855,13 @@ tr.expandable-row.active {
     100% {
         box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);
     }
+}
+
+/* =======================
+   SEÇÃO: No Wrap Cell
+   ======================= */
+.no-wrap-cell {
+    white-space: nowrap !important;
 }
 
 /* ====== FIM DO CSS DAS SEÇÕES ANALÍTICAS ====== */

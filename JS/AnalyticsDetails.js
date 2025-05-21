@@ -515,11 +515,18 @@ function renderProdutividadeProjetosTable(projetos) {
     `;
     
     projetos.forEach(projeto => {
+        let tipoCellContent = projeto.tipo;
+        let tdTipoClass = '';
+
+        if (tipoCellContent && (tipoCellContent.includes('🔄 Renovação') || tipoCellContent.includes('🛒 Aquisição'))) {
+            tdTipoClass = 'no-wrap-cell';
+        }
+
         html += `
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${formatAreaWithClasses(projeto.area)}</td>
-                <td>${projeto.tipo}</td>
+                <td class="${tdTipoClass}">${tipoCellContent}</td>
                 <td>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>

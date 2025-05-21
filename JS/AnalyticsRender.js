@@ -158,6 +158,13 @@ function renderGeneralSection() {
                     </table>
                 </div>
             </div>
+            
+            <div class="analytics-subsection">
+                <h3>Valores por Área e Tipo</h3>
+                <div class="valor-area-table">
+                    ${renderValoresPorAreaETipo()}
+                </div>
+            </div>
         </div>
     `;
 
@@ -341,6 +348,216 @@ function renderProdutividadeSection() {
         <p>Dados de produtividade não disponíveis.</p>
     </div>
     `;
+}
+
+/**
+ * Função para renderizar a seção de valores por área e tipo
+ * @returns {string} HTML da seção
+ */
+function renderValoresPorAreaETipo() {
+    // Estrutura para armazenar valores por área e orçamento
+    const valoresPorArea = {};
+    
+    // Inicializar a estrutura para cada área
+    const areas = Object.keys(analyticData.areaCounts).sort();
+    areas.forEach(area => {
+        valoresPorArea[area] = {
+            custeio: {
+                total: 0,
+                projetos: []
+            },
+            investimento: {
+                total: 0,
+                projetos: []
+            }
+        };
+    });
+    
+    // Processar projetos de CUSTEIO por área
+    analyticData.projetosPorCategoria.custeio.forEach(projeto => {
+        if (valoresPorArea[projeto.area]) {
+            valoresPorArea[projeto.area].custeio.total += projeto.valor;
+            valoresPorArea[projeto.area].custeio.projetos.push(projeto);
+        }
+    });
+    
+    // Processar projetos de INVESTIMENTO por área
+    analyticData.projetosPorCategoria.investimento.forEach(projeto => {
+        if (valoresPorArea[projeto.area]) {
+            valoresPorArea[projeto.area].investimento.total += projeto.valor;
+            valoresPorArea[projeto.area].investimento.projetos.push(projeto);
+        }
+    });
+    
+    // Gerar HTML da tabela
+    let html = `
+        <table class="analytics-table">
+            <thead>
+                <tr>
+                    <th>Área</th>
+                    <th>CUSTEIO 💳</th>
+                    <th>Ações</th>
+                    <th>INVESTIMENTO 💵</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Gerar linhas da tabela para cada área
+    areas.forEach(area => {
+        const areaData = valoresPorArea[area];
+        const areaId = area.replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+        
+        html += `
+            <tr>
+                <td>${formatAreaWithClasses(area)}</td>
+                <td>R$ ${formatCurrency(areaData.custeio.total)}</td>
+                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="custeio">Expandir</button></td>
+                <td>R$ ${formatCurrency(areaData.investimento.total)}</td>
+                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="investimento">Expandir</button></td>
+            </tr>
+            <tr class="details-row" id="details-area-custeio-${areaId}" style="display:none;">
+                <td colspan="5">
+                    <div class="project-details">
+                        ${renderAreaValorDetails(areaData.custeio.projetos)}
+                    </div>
+                </td>
+            </tr>
+            <tr class="details-row" id="details-area-investimento-${areaId}" style="display:none;">
+                <td colspan="5">
+                    <div class="project-details">
+                        ${renderAreaValorDetails(areaData.investimento.projetos)}
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                </tbody>
+            </table>
+    `;
+    
+    return html;
+}
+
+/**
+ * Função para renderizar os detalhes dos projetos por área e tipo de orçamento
+ * @param {Array} projetos Lista de projetos a renderizar
+ * @returns {string} HTML dos detalhes
+ */
+function renderAreaValorDetails(projetos) {
+    if (projetos.length === 0) {
+        return '<p>Nenhum projeto encontrado nesta categoria.</p>';
+    }
+    
+    let html = `
+        <table class="project-details-table">
+            <thead>
+                <tr>
+                    <th>ID PCA</th>
+                    <th>Tipo</th>
+                    <th>Projeto</th>
+                    <th>Status</th>
+                    <th>Contratar Até</th>
+                    <th>Valor (R$)</th>
+                    <th>Número do Processo</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    projetos.forEach(projeto => {
+        html += `
+            <tr>
+                <td>${projeto.idPca}</td>
+                <td>${projeto.tipo}</td>
+                <td>${projeto.projeto}</td>
+                <td>${formatStatusWithClasses(projeto.status)}</td>
+                <td>${projeto.dataProcesso || '-'}</td>
+                <td>R$ ${formatCurrency(projeto.valor)}</td>
+                <td>${projeto.numProcesso}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+    `;
+    
+    return html;
+}
+
+/**
+ * Função para adicionar listeners nos botões de expandir/contrair valores por área
+ */
+function addAreaValorExpandListeners() {
+    const areaValorExpandButtons = document.querySelectorAll('.area-valor-expand-btn');
+    
+    areaValorExpandButtons.forEach(button => {
+        // Remover qualquer ícone existente primeiro para evitar duplicação
+        const existingIcon = button.querySelector('.expand-icon');
+        if (existingIcon) {
+            existingIcon.remove();
+        }
+        
+        // Guardar o texto original e adicionar ícone de seta
+        const originalText = button.textContent;
+        button.innerHTML = originalText + '<span class="expand-icon">▼</span>';
+        
+        button.addEventListener('click', function(e) {
+            e.stopPropagation(); // Evitar que o clique propague para a linha
+            
+            const area = this.getAttribute('data-area');
+            const tipo = this.getAttribute('data-tipo');
+            const detailsRow = document.getElementById(`details-area-${tipo}-${area}`);
+            
+            if (!detailsRow) {
+                console.error(`Elemento #details-area-${tipo}-${area} não encontrado!`);
+                return;
+            }
+            
+            // Verificar se já está expandido por display ou classe
+            const isExpanded = detailsRow.style.display !== 'none' && 
+                              detailsRow.style.display !== '';
+            
+            if (!isExpanded) {
+                // Primeiro garantir que está visível, depois animar
+                detailsRow.style.display = 'table-row';
+                
+                // Usar setTimeout para garantir que o browser renderize o display antes de adicionar a classe
+                setTimeout(() => {
+                    detailsRow.classList.add('expanded');
+                }, 10);
+                
+                // Atualizar texto e ícone do botão
+                this.innerHTML = 'Recolher <span class="expand-icon rotate">▼</span>';
+                this.classList.add('active');
+                
+                // Destacar a linha pai
+                const parentRow = this.closest('tr');
+                if (parentRow) parentRow.classList.add('active');
+            } else {
+                // Remover a classe para iniciar a animação de saída
+                detailsRow.classList.remove('expanded');
+                
+                // Aguardar a animação terminar antes de esconder
+                setTimeout(() => {
+                    detailsRow.style.display = 'none';
+                }, 300);
+                
+                // Restaurar o botão
+                this.innerHTML = 'Expandir <span class="expand-icon">▼</span>';
+                this.classList.remove('active');
+                
+                // Remover destaque da linha pai
+                const parentRow = this.closest('tr');
+                if (parentRow) parentRow.classList.remove('active');
+            }
+        });
+    });
 }
 
 /**

@@ -208,7 +208,6 @@ table td:nth-child(9) {
 }
 
 /* Negrito para coluna "Projeto de Aquisição" (4ª coluna) */
-table th:nth-child(4),
 table td:nth-child(4) {
     font-weight: bold;
 }

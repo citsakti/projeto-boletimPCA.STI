@@ -86,6 +86,8 @@ function initAnalytics() {
             addSituacionalExpandListeners();
             // Adicionar os event listeners para os botões de área
             addAreaExpandListeners();
+            // Adicionar os event listeners para os botões de área e valor
+            addAreaValorExpandListeners();
             // Adicionar os event listeners para os botões de produtividade
             if (typeof addProdutividadeExpandListeners === 'function') {
                 addProdutividadeExpandListeners();
