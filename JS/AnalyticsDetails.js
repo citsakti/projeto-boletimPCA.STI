@@ -294,17 +294,18 @@ function addSituacionalExpandListeners() {
 
 /**
  * Função para adicionar listeners nos botões de expandir/contrair áreas
+ * com animações suaves para aparecer e desaparecer
  */
 function addAreaExpandListeners() {
     const areaExpandButtons = document.querySelectorAll('.area-expand-btn');
     
     areaExpandButtons.forEach(button => {
         button.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
             
             const area = this.getAttribute('data-area');
             const detailsDiv = document.getElementById(`area-details-${area.replace(/\s+/g, '-')}`);
-            const expandIcon = this.querySelector('.expand-icon');
             const areaBox = this.closest('.area-box');
             
             if (!detailsDiv) {
@@ -313,46 +314,65 @@ function addAreaExpandListeners() {
             }
             
             // Verificar se já está expandido
-            const isExpanded = detailsDiv.style.display !== 'none' && detailsDiv.style.display !== '';
-            
-            // Obter todas as áreas
-            const allAreaBoxes = document.querySelectorAll('.area-box');
+            const isExpanded = detailsDiv.classList.contains('expanded');
             
             if (!isExpanded) {
-                // Esconder todas as outras áreas
+                // PRIMEIRO: Esconder todos os outros boxes IMEDIATAMENTE
+                const allAreaBoxes = document.querySelectorAll('.area-box');
                 allAreaBoxes.forEach(box => {
                     if (box !== areaBox) {
-                        box.style.display = 'none';
+                        box.style.display = 'none'; // Esconde imediatamente
                     }
                 });
                 
-                // Primeiro garantir que está visível, depois animar
-                detailsDiv.style.display = 'block';
+                // SEGUNDO: Preparar o box selecionado para expandir
+                areaBox.classList.add('area-box-expanded');
                 
-                // Usar setTimeout para garantir que o browser renderize o display antes de adicionar a classe
+                // TERCEIRO: Aguardar um pequeno intervalo para garantir que o DOM atualizou
+                // antes de iniciar a animação de expansão
                 setTimeout(() => {
-                    detailsDiv.classList.add('expanded');
-                }, 10);
-                
-                // Atualizar texto e ícone do botão
-                this.innerHTML = 'Recolher <span class="expand-icon rotate">▼</span>';
-                this.classList.add('active');
-            } else {
-                // Remover a classe para iniciar a animação de saída
-                detailsDiv.classList.remove('expanded');
-                
-                // Aguardar a animação terminar antes de esconder
-                setTimeout(() => {
-                    detailsDiv.style.display = 'none';
+                    // Mostrar e animar os detalhes
+                    detailsDiv.style.display = 'block';
                     
-                    // Mostrar todas as áreas novamente
-                    allAreaBoxes.forEach(box => {
-                        box.style.display = '';
-                    });
-                }, 300);
+                    // Força reflow para garantir que a transição seja aplicada
+                    void detailsDiv.offsetWidth;
+                    
+                    // Inicia a animação de expansão
+                    detailsDiv.classList.add('expanded');
+                    
+                    // Atualiza o botão
+                    this.textContent = 'Recolher';
+                    this.classList.add('active');
+                }, 50); // Um pequeno delay é suficiente
+            } else {
+                // Recolher: primeiro remove a classe expanded para iniciar a animação de fechamento
+                detailsDiv.classList.remove('expanded');
+                areaBox.classList.remove('area-box-expanded');
                 
-                // Restaurar o botão
-                this.innerHTML = 'Expandir <span class="expand-icon">▼</span>';
+                // Aguardar o término da animação antes de mostrar os outros boxes
+                detailsDiv.addEventListener('transitionend', function handler(e) {
+                    if (e.propertyName === 'max-height' || e.propertyName === 'opacity') {
+                        // Esconder os detalhes
+                        detailsDiv.style.display = 'none';
+                        
+                        // Mostrar todos os boxes novamente com animação
+                        const allAreaBoxes = document.querySelectorAll('.area-box');
+                        allAreaBoxes.forEach(box => {
+                            box.style.display = ''; // Mostra todos os boxes
+                            
+                            if (box !== areaBox) {
+                                box.classList.add('area-box-fade-in'); // Aplica a animação de entrada
+                                setTimeout(() => box.classList.remove('area-box-fade-in'), 600);
+                            }
+                        });
+                        
+                        // Remover o listener para evitar múltiplas chamadas
+                        detailsDiv.removeEventListener('transitionend', handler);
+                    }
+                });
+                
+                // Atualizar o botão imediatamente 
+                this.textContent = 'Expandir';
                 this.classList.remove('active');
             }
         });
@@ -768,4 +788,26 @@ function formatStatusWithClasses(statusText) {
     
     // Sem formatação especial
     return statusText;
+}
+
+/**
+ * Função para alternar a exibição de detalhes de uma área
+ * @param {HTMLElement} detailsDiv - Elemento de detalhes a ser alternado
+ */
+function toggleAreaDetails(detailsDiv) {
+    if (!detailsDiv.classList.contains('expanded')) {
+        detailsDiv.style.display = 'block'; // Mostra antes de animar
+        // Força reflow
+        void detailsDiv.offsetWidth;
+        detailsDiv.classList.add('expanded');
+    } else {
+        detailsDiv.classList.remove('expanded');
+        // Só esconde após a transição
+        detailsDiv.addEventListener('transitionend', function handler(e) {
+            if (e.propertyName === 'max-height' && !detailsDiv.classList.contains('expanded')) {
+                detailsDiv.style.display = 'none';
+                detailsDiv.removeEventListener('transitionend', handler);
+            }
+        });
+    }
 }

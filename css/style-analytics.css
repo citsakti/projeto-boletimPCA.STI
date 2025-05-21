@@ -180,7 +180,39 @@
     padding: 1rem;
     box-shadow: var(--shadow-xs);
     position: relative; /* Adicionado para posicionamento */
-    transition: margin-bottom 0.5s ease; /* Transição suave para margin */
+    transition: transform 0.3s ease, 
+                box-shadow 0.3s ease,
+                opacity 0.3s ease; /* Transições suaves para múltiplas propriedades */
+}
+
+.area-box-fade-out {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.area-box-fade-in {
+    animation: fadeInBox 0.6s ease-out forwards;
+}
+
+.area-box-expanded {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+@keyframes fadeInBox {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    70% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .area-box.expanded {
@@ -209,28 +241,26 @@
 
 .area-details {
     max-height: 0;
-    overflow: hidden;
-    width: 100%;
-    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
-                opacity 0.3s ease, 
-                margin 0.3s ease,
-                padding 0.3s ease;
     opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
     margin-top: 0;
     padding-top: 0;
+    /* Remova display: none daqui! */
 }
 
 .area-details.expanded {
-    max-height: 2000px; /* Aumentado para acomodar mais conteúdo */
+    max-height: 1500px; /* ou um valor suficiente para o conteúdo */
     opacity: 1;
     margin-top: 1rem;
     padding-top: 0.5rem;
-    padding-bottom: 1rem; /* Adicionado espaço inferior */
+    padding-bottom: 1rem;
     border-top: 1px solid #e0e0e0;
     position: relative;
     width: 100%;
     overflow: visible;
-    z-index: 10; /* Para garantir que fique acima de elementos próximos */
+    z-index: 10;
+    /* Não use display: block aqui, deixe o padrão */
 }
 
 .area-box .project-details {
