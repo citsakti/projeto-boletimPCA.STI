@@ -62,6 +62,14 @@
     padding: 1rem;
     box-shadow: var(--shadow-xs);
     transition: transform 0.2s ease-in-out;
+    max-height: 3em; /* Limita a altura para aproximadamente duas linhas */
+    overflow: hidden; /* Esconde o excesso de conteúdo */
+    text-overflow: ellipsis; /* Adiciona reticências se o conteúdo exceder */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limita a duas linhas no WebKit */
+    -webkit-box-orient: vertical;
+    line-height: 1.5em; /* Ajuste para altura de linha */
+    word-break: break-word; /* Quebra palavras longas */
 }
 
 .status-box:hover {
