@@ -198,7 +198,9 @@ function renderSituacionalSection() {
                         <tbody>
                             <tr class="expandable-row" data-category="contratacaoForaSTI">
                                 <td>Fase de contratação fora da STI</td>
-                                <td style="white-space:normal; word-break:break-word;">EM CONTRATAÇÃO 🤝 ou EM RENOVAÇÃO 🔄<br>(ÁREA ≠ STI)</td>
+                                <td style="white-space:normal; word-break:break-word;">
+                                    ${formatStatusWithClasses('EM CONTRATAÇÃO 🤝')} ou ${formatStatusWithClasses('EM RENOVAÇÃO 🔄')}<br>(ÁREA ≠ STI)
+                                </td>
                                 <td>${analyticData.situacional.contratacaoForaSTI}</td>
                                 <td><button class="situacional-expand-btn" data-category="contratacaoForaSTI">Expandir</button></td>
                             </tr>
@@ -211,7 +213,9 @@ function renderSituacionalSection() {
                             </tr>
                             <tr class="expandable-row" data-category="autuacaoAtrasada">
                                 <td>Autuação atrasada > 90 dias</td>
-                                <td style="white-space:normal; word-break:break-word;">AUTUAÇÃO ATRASADA 💣</td>
+                                <td style="white-space:normal; word-break:break-word;">
+                                    ${formatStatusWithClasses('AUTUAÇÃO ATRASADA 💣')}
+                                </td>
                                 <td>${analyticData.situacional.autuacaoAtrasada}</td>
                                 <td><button class="situacional-expand-btn" data-category="autuacaoAtrasada">Expandir</button></td>
                             </tr>
@@ -225,12 +229,12 @@ function renderSituacionalSection() {
                             <tr class="expandable-row" data-category="elaboracaoInterna">
                                 <td>Elaboração interna de artefatos</td>
                                 <td style="white-space:normal; word-break:break-word;">
-                                    AGUARDANDO DFD ⏳<br>
-                                    AGUARDANDO ETP ⏳<br>
-                                    ELABORANDO TR📝<br>
-                                    ANÁLISE DE VIABILIDADE 📝<br>
-                                    DFD ATRASADO❗<br>
-                                    ETP ATRASADO❗
+                                    ${formatStatusWithClasses('AGUARDANDO DFD ⏳')}<br>
+                                    ${formatStatusWithClasses('AGUARDANDO ETP ⏳')}<br>
+                                    ${formatStatusWithClasses('ELABORANDO TR📝')}<br>
+                                    ${formatStatusWithClasses('ANÁLISE DE VIABILIDADE 📝')}<br>
+                                    ${formatStatusWithClasses('DFD ATRASADO❗')}<br>
+                                    ${formatStatusWithClasses('ETP ATRASADO❗')}
                                 </td>
                                 <td>${analyticData.situacional.elaboracaoInterna}</td>
                                 <td><button class="situacional-expand-btn" data-category="elaboracaoInterna">Expandir</button></td>
@@ -244,7 +248,9 @@ function renderSituacionalSection() {
                             </tr>
                             <tr class="expandable-row" data-category="contratacaoAtrasadaForaSTI">
                                 <td>Contratação atrasada fora da STI</td>
-                                <td style="white-space:normal; word-break:break-word;">CONTRATAÇÃO ATRASADA ⚠️<br>(ÁREA ≠ STI)</td>
+                                <td style="white-space:normal; word-break:break-word;">
+                                    ${formatStatusWithClasses('CONTRATAÇÃO ATRASADA ⚠️')}<br>(ÁREA ≠ STI)
+                                </td>
                                 <td>${analyticData.situacional.contratacaoAtrasadaForaSTI}</td>
                                 <td><button class="situacional-expand-btn" data-category="contratacaoAtrasadaForaSTI">Expandir</button></td>
                             </tr>
@@ -257,7 +263,9 @@ function renderSituacionalSection() {
                             </tr>
                             <tr class="expandable-row" data-category="processosConcluidos">
                                 <td>Processos concluídos</td>
-                                <td style="white-space:normal; word-break:break-word;">CONTRATADO ✅ ou RENOVADO ✅</td>
+                                <td style="white-space:normal; word-break:break-word;">
+                                    ${formatStatusWithClasses('CONTRATADO ✅')} ou ${formatStatusWithClasses('RENOVADO ✅')}
+                                </td>
                                 <td>${analyticData.situacional.processosConcluidos}</td>
                                 <td><button class="situacional-expand-btn" data-category="processosConcluidos">Expandir</button></td>
                             </tr>
@@ -366,4 +374,42 @@ function renderProdutividadeSection() {
         <p>Dados de produtividade não disponíveis.</p>
     </div>
     `;
+}
+
+/**
+ * Função para formatar o texto de status com as classes corretas
+ * Duplicamos aqui para manter a coesão do módulo
+ */
+function formatStatusWithClasses(statusText) {
+    // Mapeamento de status para classes CSS
+    const statusMapping = {
+        'AUTUAÇÃO ATRASADA 💣': 'status-autuacao-atrasada-highlight',
+        'CONTRATAÇÃO ATRASADA ⚠️': 'status-contratacao-atrasada-highlight',
+        'AGUARDANDO DFD ⏳': 'status-aguardando-dfd-highlight',
+        'AGUARDANDO ETP ⏳': 'status-aguardando-etp-highlight',
+        'ETP ATRASADO❗': 'status-etp-atrasado-highlight',
+        'DFD ATRASADO❗': 'status-dfd-atrasado-highlight',
+        'ELABORANDO TR📝': 'status-elaborando-tr-highlight',
+        'AGUARDANDO DEFINIÇÃO': 'status-aguardando-definicao-highlight',
+        'ANÁLISE DE VIABILIDADE 📝': 'status-analise-viabilidade-highlight',
+        'EM CONTRATAÇÃO 🤝': 'status-em-contratacao-highlight',
+        'EM RENOVAÇÃO 🔄': 'status-em-renovacao-highlight',
+        'RENOVADO ✅': 'status-renovado-highlight',
+        'CONTRATADO ✅': 'status-contratado-highlight'
+    };
+
+    // Procurar correspondência exata
+    if (statusMapping[statusText]) {
+        return `<span class="${statusMapping[statusText]}">${statusText}</span>`;
+    }
+    
+    // Procurar correspondência parcial
+    for (const [key, className] of Object.entries(statusMapping)) {
+        if (statusText.includes(key)) {
+            return `<span class="${className}">${statusText}</span>`;
+        }
+    }
+    
+    // Sem formatação especial
+    return statusText;
 }

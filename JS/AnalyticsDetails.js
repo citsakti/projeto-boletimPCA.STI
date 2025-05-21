@@ -68,6 +68,7 @@ function renderSituacionalDetails(categoria) {
                     <th>ID PCA</th>
                     <th>Área</th>
                     <th>Projeto</th>
+                    <th>Status</th>
                     <th>Valor (R$)</th>
                     <th>Número do Processo</th>
                 </tr>
@@ -81,6 +82,7 @@ function renderSituacionalDetails(categoria) {
                 <td>${projeto.idPca}</td>
                 <td>${projeto.area}</td>
                 <td>${projeto.projeto}</td>
+                <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${projeto.numProcesso}</td>
             </tr>
@@ -257,7 +259,7 @@ function renderProdutividadeProjetosTable(projetos) {
                 <td>${projeto.area}</td>
                 <td>${projeto.tipo}</td>
                 <td>${projeto.projeto}</td>
-                <td>${projeto.status}</td>
+                <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${projeto.numProcesso}</td>
             </tr>
@@ -453,4 +455,43 @@ function addProdutividadeExpandListeners() {
             }
         });
     });
+}
+
+/**
+ * Função para formatar o texto de status com as classes corretas
+ * @param {string} statusText - O texto do status a ser formatado
+ * @returns {string} - O HTML com o status formatado
+ */
+function formatStatusWithClasses(statusText) {
+    // Mapeamento de status para classes CSS
+    const statusMapping = {
+        'AUTUAÇÃO ATRASADA 💣': 'status-autuacao-atrasada-highlight',
+        'CONTRATAÇÃO ATRASADA ⚠️': 'status-contratacao-atrasada-highlight',
+        'AGUARDANDO DFD ⏳': 'status-aguardando-dfd-highlight',
+        'AGUARDANDO ETP ⏳': 'status-aguardando-etp-highlight',
+        'ETP ATRASADO❗': 'status-etp-atrasado-highlight',
+        'DFD ATRASADO❗': 'status-dfd-atrasado-highlight',
+        'ELABORANDO TR📝': 'status-elaborando-tr-highlight',
+        'AGUARDANDO DEFINIÇÃO': 'status-aguardando-definicao-highlight',
+        'ANÁLISE DE VIABILIDADE 📝': 'status-analise-viabilidade-highlight',
+        'EM CONTRATAÇÃO 🤝': 'status-em-contratacao-highlight',
+        'EM RENOVAÇÃO 🔄': 'status-em-renovacao-highlight',
+        'RENOVADO ✅': 'status-renovado-highlight',
+        'CONTRATADO ✅': 'status-contratado-highlight'
+    };
+
+    // Procurar correspondência exata
+    if (statusMapping[statusText]) {
+        return `<span class="${statusMapping[statusText]}">${statusText}</span>`;
+    }
+    
+    // Procurar correspondência parcial
+    for (const [key, className] of Object.entries(statusMapping)) {
+        if (statusText.includes(key)) {
+            return `<span class="${className}">${statusText}</span>`;
+        }
+    }
+    
+    // Sem formatação especial
+    return statusText;
 }

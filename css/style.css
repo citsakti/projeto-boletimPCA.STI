@@ -194,7 +194,6 @@ table td:nth-child(9) {
 
 /* Impede quebra de linha nas colunas "Tipo" (3ª) e "Processo" (10ª) em todas as telas */
 table th:nth-child(3), /* Coluna "Tipo" */
-table td:nth-child(3), /* Coluna "Tipo" */
 table th:nth-child(10), /* Coluna "Processo" */
 table td:nth-child(10) { /* Coluna "Processo" */
     white-space: nowrap !important;
@@ -252,7 +251,7 @@ table tbody tr.contratacao-atrasada {
 }
 
 /* highlights de status */
-.status-autuacao-atrasada-highlight { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-autuacao-atrasada-highlight { background: #e6cff2; border-radius:6px; padding:2px 6px; display:ruby-text; }
 .status-contratacao-atrasada-highlight {
     background: #b10202;
     color: #fff;
@@ -262,7 +261,7 @@ table tbody tr.contratacao-atrasada {
     animation: blink 1s linear infinite;
 }
 .status-aguardando-dfd-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:ruby; }
 .status-etp-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-elaborando-tr-highlight         { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
