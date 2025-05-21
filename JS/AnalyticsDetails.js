@@ -23,6 +23,7 @@ function renderProjectDetails(categoria) {
                     <th>ID PCA</th>
                     <th>Área</th>
                     <th>Projeto</th>
+                    <th>Contratar Até</th>
                     <th>Valor (R$)</th>
                     <th>Número do Processo</th>
                 </tr>
@@ -36,6 +37,7 @@ function renderProjectDetails(categoria) {
                 <td>${projeto.idPca}</td>
                 <td>${projeto.area}</td>
                 <td>${projeto.projeto}</td>
+                <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${projeto.numProcesso}</td>
             </tr>
@@ -69,6 +71,7 @@ function renderSituacionalDetails(categoria) {
                     <th>Área</th>
                     <th>Projeto</th>
                     <th>Status</th>
+                    <th>Contratar Até</th>
                     <th>Valor (R$)</th>
                     <th>Número do Processo</th>
                 </tr>
@@ -83,6 +86,7 @@ function renderSituacionalDetails(categoria) {
                 <td>${projeto.area}</td>
                 <td>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
+                <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${projeto.numProcesso}</td>
             </tr>
@@ -119,6 +123,7 @@ function renderAreaDetails(area) {
                     <th>Tipo</th>
                     <th>Projeto</th>
                     <th>Status</th>
+                    <th>Contratar Até</th>
                     <th>Valor (R$)</th>
                     <th>Número do Processo</th>
                 </tr>
@@ -134,6 +139,7 @@ function renderAreaDetails(area) {
                 <td>${projeto.tipo}</td>
                 <td>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
+                <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${projeto.numProcesso}</td>
             </tr>

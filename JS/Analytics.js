@@ -199,7 +199,8 @@ function processData(rawData) {
             numProcesso,
             tipo,      // Adicionando o tipo ao objeto
             status: statusProcesso, // Adicionando o status ao objeto
-            i: dataInicio   // Apenas armazenando a data de início (coluna I - AUTUAR EM)
+            i: dataInicio,   // Apenas armazenando a data de início (coluna I - AUTUAR EM)
+            dataProcesso // Adicionar esta linha para incluir a data de "Contratar Até"
         };
         
         // Processar contadores e categorias

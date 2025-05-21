@@ -207,19 +207,6 @@
     text-align: left; /* Alterado de center para left */
 }
 
-.area-expand-btn {
-    padding: 4px 8px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    /* Não é necessário adicionar margin-left pois o text-align já fará o alinhamento */
-}
-
 .area-details {
     max-height: 0;
     overflow: hidden;
@@ -659,6 +646,7 @@
 /* Estilos e animações para todos os botões de expandir/recolher */
 .expand-btn,
 .situacional-expand-btn,
+.area-expand-btn,
 .prod-expand-btn {
     position: relative;
     padding: 6px 12px;
@@ -731,6 +719,7 @@
 
 /* Estilos específicos para os botões quando estão no estado "recolher" */
 .expand-btn.active,
+.area-expand-btn.active,
 .situacional-expand-btn.active,
 .prod-expand-btn.active {
     background-color: #ff5722;
@@ -774,6 +763,7 @@ tr.expandable-row.active {
 /* Adicionar destacamento de borda animado para os botões expandidos */
 .expand-btn.active,
 .situacional-expand-btn.active,
+.area-expand-btn.active,
 .prod-expand-btn.active {
     animation: pulse-border 2s infinite;
 }
