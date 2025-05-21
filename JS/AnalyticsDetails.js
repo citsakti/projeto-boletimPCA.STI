@@ -6,6 +6,30 @@
  */
 
 /**
+ * Função para aplicar estilo de área
+ * @param {string} area Nome da área
+ * @returns {string} HTML com a área formatada
+ */
+function formatAreaWithClasses(area) {
+    // Mapeamento de áreas para classes CSS (igual ao usado em areas-classes.js)
+    const areaMapping = {
+        'STI 👩‍💼': 'area-sti',
+        'OPERAÇÕES 🗄️': 'area-operacoes',
+        'DEV 👨‍💻': 'area-dev',
+        'ANALYTICS 📊': 'area-analytics',
+        'GOVERNANÇA 🌐': 'area-governanca',
+    };
+    
+    // Verificar se a área está no mapeamento
+    if (areaMapping[area]) {
+        return `<span class="${areaMapping[area]}-highlight">${area}</span>`;
+    }
+    
+    // Sem formatação especial
+    return area;
+}
+
+/**
  * Função para renderizar detalhes dos projetos por categoria
  * @param {string} categoria Nome da categoria 
  */
@@ -35,7 +59,7 @@ function renderProjectDetails(categoria) {
         html += `
             <tr>
                 <td>${projeto.idPca}</td>
-                <td>${projeto.area}</td>
+                <td>${formatAreaWithClasses(projeto.area)}</td>
                 <td>${projeto.projeto}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
@@ -83,7 +107,7 @@ function renderSituacionalDetails(categoria) {
         html += `
             <tr>
                 <td>${projeto.idPca}</td>
-                <td>${projeto.area}</td>
+                <td>${formatAreaWithClasses(projeto.area)}</td>
                 <td>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
@@ -494,7 +518,7 @@ function renderProdutividadeProjetosTable(projetos) {
         html += `
             <tr>
                 <td>${projeto.idPca}</td>
-                <td>${projeto.area}</td>
+                <td>${formatAreaWithClasses(projeto.area)}</td>
                 <td>${projeto.tipo}</td>
                 <td>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>

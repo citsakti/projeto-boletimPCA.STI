@@ -170,19 +170,20 @@
 .area-projects-grid {
     display: inline-flex;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
+    gap: 2.5rem; /* Aumentado para 2.5rem para um espaçamento bem definido */
+    margin-top: 1.5rem; /* Também aumentei um pouco a margem superior */
 }
 
 .area-box {
     background: var(--brand-subtle-bg);
     border-radius: var(--border-radius);
-    padding: 1rem;
+    padding: 1.25rem; /* Aumentado de 1rem para 1.25rem para dar mais "respiro" interno */
     box-shadow: var(--shadow-xs);
     position: relative; /* Adicionado para posicionamento */
     transition: transform 0.3s ease, 
                 box-shadow 0.3s ease,
                 opacity 0.3s ease; /* Transições suaves para múltiplas propriedades */
+    margin: 0.5rem; /* Adicionando uma margem extra em todos os lados */
 }
 
 .area-box-fade-out {
@@ -223,7 +224,6 @@
 .area-name {
     font-weight: bold;
     margin-bottom: 0.5rem;
-    color: #1976d2;
 }
 
 .area-tipo span {

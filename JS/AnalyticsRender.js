@@ -45,10 +45,6 @@ function renderGeneralSection() {
                         <div class="tipo-name">🔄 Renovação</div>
                         <div class="tipo-count">${analyticData.tipoCounts["🔄 Renovação"]}</div>
                     </div>
-                    <div class="tipo-box">
-                        <div class="tipo-name">Total</div>
-                        <div class="tipo-count">${analyticData.tipoCounts["🛒 Aquisição"] + analyticData.tipoCounts["🔄 Renovação"]}</div>
-                    </div>
                 </div>
             </div>
             
@@ -359,7 +355,7 @@ function renderAreaProjectsHtml() {
         const areaCount = analyticData.areaCounts[area];
         boxesHtml += `
             <div class="area-box">
-                <div class="area-name">${area}</div>
+                <div class="area-name">${formatAreaWithClasses(area)}</div>
                 <div class="area-tipo">
                     <span>🛒 Aquisição: ${areaCount['🛒 Aquisição']}</span>
                     <span>🔄 Renovação: ${areaCount['🔄 Renovação']}</span>
@@ -378,6 +374,30 @@ function renderAreaProjectsHtml() {
     });
     
     return boxesHtml;
+}
+
+/**
+ * Função para aplicar estilo de área
+ * @param {string} area Nome da área
+ * @returns {string} HTML com a área formatada
+ */
+function formatAreaWithClasses(area) {
+    // Mapeamento de áreas para classes CSS (igual ao usado em areas-classes.js)
+    const areaMapping = {
+        'STI 👩‍💼': 'area-sti',
+        'OPERAÇÕES 🗄️': 'area-operacoes',
+        'DEV 👨‍💻': 'area-dev',
+        'ANALYTICS 📊': 'area-analytics',
+        'GOVERNANÇA 🌐': 'area-governanca',
+    };
+    
+    // Verificar se a área está no mapeamento
+    if (areaMapping[area]) {
+        return `<span class="${areaMapping[area]}-highlight">${area}</span>`;
+    }
+    
+    // Sem formatação especial
+    return area;
 }
 
 /**
