@@ -516,6 +516,7 @@ function renderProdutividadeDetalhada() {
 
 /**
  * Função para adicionar listeners nos botões de expandir/contrair da produtividade
+ * com funcionalidade de rolagem automática - permitindo múltiplos itens abertos
  */
 function addProdutividadeExpandListeners() {
     const produtividadeExpandButtons = document.querySelectorAll('.prod-expand-btn');
@@ -536,36 +537,70 @@ function addProdutividadeExpandListeners() {
         button.addEventListener('click', function() {
             const detailsDiv = document.getElementById(targetId);
             const expandIcon = this.querySelector('.expand-icon');
+            const produtividadeBox = this.closest('.produtividade-box');
             
             if (!detailsDiv) {
                 console.error(`Elemento #${targetId} não encontrado!`);
                 return;
             }
             
-            if (detailsDiv.style.display === 'none' || detailsDiv.style.display === '') {
+            // Verificar se está expandido ou não
+            const isExpanded = detailsDiv.style.display !== 'none' && detailsDiv.style.display !== '';
+            
+            if (!isExpanded) {
                 // Mostrar os detalhes com animação
                 detailsDiv.style.display = 'block';
+                
+                // Permitir tempo para renderização inicial
                 setTimeout(() => {
                     detailsDiv.classList.add('expanded');
+                    
+                    // Rolar até o conteúdo expandido após um breve atraso
+                    // para que a animação de expansão tenha começado
+                    setTimeout(() => {
+                        detailsDiv.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start'
+                        });
+                        
+                        // Adicionar classe para destacar brevemente o conteúdo
+                        detailsDiv.classList.add('scrolled-to');
+                        setTimeout(() => {
+                            detailsDiv.classList.remove('scrolled-to');
+                        }, 1500);
+                    }, 300);
                 }, 10);
                 
-                this.textContent = 'Esconder detalhes';
+                // Atualizar o botão
                 this.innerHTML = 'Esconder detalhes' + '<span class="expand-icon rotate">▼</span>';
                 this.classList.add('active');
             } else {
                 // Esconder os detalhes com animação
                 detailsDiv.classList.remove('expanded');
+                detailsDiv.classList.remove('scrolled-to');
                 
                 // Usar setTimeout para aguardar a animação completar
                 setTimeout(() => {
                     detailsDiv.style.display = 'none';
                 }, 300);
                 
+                // Restaurar o texto e aparência do botão
                 const originalText = this.getAttribute('data-original-text');
-                this.textContent = originalText;
                 this.innerHTML = originalText + '<span class="expand-icon">▼</span>';
                 this.classList.remove('active');
+                
+                // Rolar de volta para o box pai
+                produtividadeBox.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start'
+                });
             }
+            
+            // Adicionar efeito de ondulação ao clicar
+            this.classList.add('button-ripple');
+            setTimeout(() => {
+                this.classList.remove('button-ripple');
+            }, 600);
         });
     });
 }
@@ -590,7 +625,9 @@ function formatStatusWithClasses(statusText) {
         'EM CONTRATAÇÃO 🤝': 'status-em-contratacao-highlight',
         'EM RENOVAÇÃO 🔄': 'status-em-renovacao-highlight',
         'RENOVADO ✅': 'status-renovado-highlight',
-        'CONTRATADO ✅': 'status-contratado-highlight'
+        'CONTRATADO ✅': 'status-contratado-highlight',
+        'REVISÃO PCA 🚧': 'status-revisao-pca-highlight',
+        'A INICIAR ⏰': 'status-a-iniciar-highlight',
     };
 
     // Procurar correspondência exata

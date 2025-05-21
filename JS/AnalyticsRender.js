@@ -234,12 +234,12 @@ function renderSituacionalSection() {
                             <tr class="expandable-row" data-category="elaboracaoInterna">
                                 <td style="font-weight: bold;">Elaboração Interna de Artefatos</td>
                                 <td style="white-space:normal; word-break:break-word;">
-                                    ${formatStatusWithClasses('AGUARDANDO DFD ⏳')}<br>
-                                    ${formatStatusWithClasses('AGUARDANDO ETP ⏳')}<br>
-                                    ${formatStatusWithClasses('ELABORANDO TR📝')}<br>
-                                    ${formatStatusWithClasses('ANÁLISE DE VIABILIDADE 📝')}<br>
-                                    ${formatStatusWithClasses('DFD ATRASADO❗')}<br>
-                                    ${formatStatusWithClasses('ETP ATRASADO❗')}
+                                    <div style="margin-bottom: 4px;">${formatStatusWithClasses('AGUARDANDO DFD ⏳')}</div>
+                                    <div style="margin-bottom: 4px;">${formatStatusWithClasses('AGUARDANDO ETP ⏳')}</div>
+                                    <div style="margin-bottom: 4px;">${formatStatusWithClasses('ELABORANDO TR📝')}</div>
+                                    <div style="margin-bottom: 4px;">${formatStatusWithClasses('ANÁLISE DE VIABILIDADE 📝')}</div>
+                                    <div style="margin-bottom: 4px;">${formatStatusWithClasses('DFD ATRASADO❗')}</div>
+                                    <div>${formatStatusWithClasses('ETP ATRASADO❗')}</div>
                                 </td>
                                 <td>${analyticData.situacional.elaboracaoInterna}</td>
                                 <td><button class="situacional-expand-btn" data-category="elaboracaoInterna">Expandir</button></td>
@@ -283,7 +283,7 @@ function renderSituacionalSection() {
                             </tr>
                             <tr class="expandable-row" data-category="processosSuspensos">
                                 <td style="font-weight: bold;">Processos Suspensos</td>
-                                <td style="white-space:normal; word-break:break-word;">REVISÃO PCA 🚧</td>
+                                <td style="white-space:normal; word-break:break-word;">${formatStatusWithClasses('REVISÃO PCA 🚧')}</td>
                                 <td>${analyticData.situacional.processosSuspensos}</td>
                                 <td><button class="situacional-expand-btn" data-category="processosSuspensos">Expandir</button></td>
                             </tr>
@@ -296,7 +296,7 @@ function renderSituacionalSection() {
                             </tr>
                             <tr class="expandable-row" data-category="processosAIniciar">
                                 <td style="font-weight: bold;">Processos a Iniciar</td>
-                                <td style="white-space:normal; word-break:break-word;">A INICIAR ⏰</td>
+                                <td style="white-space:normal; word-break:break-word;">${formatStatusWithClasses('A INICIAR ⏰')}</td>
                                 <td>${analyticData.situacional.processosAIniciar}</td>
                                 <td><button class="situacional-expand-btn" data-category="processosAIniciar">Expandir</button></td>
                             </tr>
@@ -391,7 +391,10 @@ function formatStatusWithClasses(statusText) {
         'EM CONTRATAÇÃO 🤝': 'status-em-contratacao-highlight',
         'EM RENOVAÇÃO 🔄': 'status-em-renovacao-highlight',
         'RENOVADO ✅': 'status-renovado-highlight',
-        'CONTRATADO ✅': 'status-contratado-highlight'
+        'CONTRATADO ✅': 'status-contratado-highlight',
+        'REVISÃO PCA 🚧': 'status-revisao-pca-highlight',
+        'A INICIAR ⏰': 'status-a-iniciar-highlight',
+
     };
 
     // Procurar correspondência exata

@@ -16,7 +16,7 @@ const statusMapping = {
     'CONTRATAÇÃO ATRASADA ⚠️': 'status-contratacao-atrasada',
     'ELABORANDO TR📝': 'status-elaborando-tr',
     'ANÁLISE DE VIABILIDADE 📝': 'status-analise-viabilidade',
-
+    'REVISÃO PCA 🚧': 'status-revisao-pca',
 };
 
 function assignStatusClasses() {
@@ -26,23 +26,39 @@ function assignStatusClasses() {
         if (!cell) return;
 
         const txt = cell.textContent.trim();
-        // Adicione este log para verificar o texto exato:
-        if (txt.includes('ELABORANDO TR') || txt.includes('ANÁLISE DE VIABILIDADE')) {
+        
+        // Adicione logs para depuração de status específicos
+        if (txt.includes('REVISÃO PCA') || txt.includes('A INICIAR')) {
             console.log('Texto da célula para mapeamento:', `"${txt}"`);
         }
 
         const base = statusMapping[txt];
         if (!base) {
-            if (txt.includes('ELABORANDO TR') || txt.includes('ANÁLISE DE VIABILIDADE')) {
+            if (txt.includes('REVISÃO PCA') || txt.includes('A INICIAR')) {
                 console.log('Nenhuma classe base encontrada para:', `"${txt}"`);
             }
             return;
         }
 
-        const content = txt
-            .replace(/💣/g, '<span class="emoji-bomba">💣</span>')
-            .replace(/⏳/g, '<span class="emoji-hourglass">⏳</span>')
-            .replace(/❗/g, '<span class="emoji-exclamation">❗</span>');
+        // Tratamento de emojis especiais
+        let content = txt;
+        
+        // Tratamento específico para os emojis dos status
+        if (txt.includes('🚧')) {
+            content = content.replace(/🚧/g, '<span class="emoji-construcao">🚧</span>');
+        }
+        if (txt.includes('⏰')) {
+            content = content.replace(/⏰/g, '<span class="emoji-relogio">⏰</span>');
+        }
+        if (txt.includes('💣')) {
+            content = content.replace(/💣/g, '<span class="emoji-bomba">💣</span>');
+        }
+        if (txt.includes('⏳')) {
+            content = content.replace(/⏳/g, '<span class="emoji-hourglass">⏳</span>');
+        }
+        if (txt.includes('❗')) {
+            content = content.replace(/❗/g, '<span class="emoji-exclamation">❗</span>');
+        }
 
         cell.innerHTML = `<span class="${base}-highlight">${content}</span>`;
     });
