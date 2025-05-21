@@ -417,100 +417,39 @@ function renderProdutividadeDetalhada() {
     
     return html;
 }
+
 /**
  * Função para adicionar listeners nos botões de expandir/contrair da produtividade
  */
 function addProdutividadeExpandListeners() {
-    const prodExpandButtons = document.querySelectorAll('.prod-expand-btn');
+    const produtividadeExpandButtons = document.querySelectorAll('.prod-expand-btn');
     
-    prodExpandButtons.forEach(button => {
+    produtividadeExpandButtons.forEach(button => {
+        // Armazenar o texto original do botão para restaurar ao esconder
+        const originalText = button.textContent;
+        button.setAttribute('data-original-text', originalText);
+        
+        // Construir o ID do alvo a partir dos atributos data-period e data-type
+        const period = button.getAttribute('data-period');
+        const type = button.getAttribute('data-type');
+        const targetId = `detalhes-${period}-${type}`;
+        
         button.addEventListener('click', function() {
-            const period = this.getAttribute('data-period');
-            const type = this.getAttribute('data-type');
-            const detailsContainer = document.getElementById(`detalhes-${period}-${type}`);
+            const detailsDiv = document.getElementById(targetId);
             
-            // Identificar o período oposto ao atual
-            const oppositePeriod = period === '2025_1' ? '2025_2' : '2025_1';
-            const oppositeDisplayText = oppositePeriod === '2025_1' ? '2025.1' : '2025.2';
+            if (!detailsDiv) {
+                console.error(`Elemento #${targetId} não encontrado!`);
+                return;
+            }
             
-            // Esconder todos os outros contêineres de detalhes primeiro
-            document.querySelectorAll('.detalhes-produtividade').forEach(container => {
-                if (container.id !== `detalhes-${period}-${type}`) {
-                    container.style.display = 'none';
-                }
-            });
-            
-            // Redefinir todos os botões para "Ver..."
-            document.querySelectorAll('.prod-expand-btn').forEach(btn => {
-                const btnPeriod = btn.getAttribute('data-period');
-                const btnType = btn.getAttribute('data-type');
-                
-                if (btnPeriod !== period || btnType !== type) {
-                    if (btnType === 'autuados') {
-                        btn.textContent = 'Ver Processos Autuados';
-                    } else if (btnType === 'nao-autuados') {
-                        btn.textContent = 'Ver Processos Não Autuados';
-                    }
-                }
-            });
-            
-            // Referência às caixas de produtividade
-            const currentPeriodBox = this.closest('.produtividade-box');
-            
-            // Encontrar a caixa do período oposto usando o texto do cabeçalho
-            let oppositePeriodBox = null;
-            document.querySelectorAll('.produtividade-box h3').forEach(heading => {
-                if (heading.textContent.includes(oppositeDisplayText)) {
-                    oppositePeriodBox = heading.closest('.produtividade-box');
-                }
-            });
-            
-            // Alternar a visibilidade do contêiner de detalhes atual
-            if (detailsContainer.style.display === 'none') {
-                // Exibir detalhes do período atual
-                detailsContainer.style.display = 'block';
-                this.textContent = 'Esconder Detalhes';
-                
-                // Ocultar a caixa do outro período
-                if (oppositePeriodBox) {
-                    oppositePeriodBox.style.display = 'none';
-                }
-                
-                // Adicionar botão para mostrar ambos os períodos
-                if (!document.getElementById('show-both-periods')) {
-                    const showBothBtn = document.createElement('button');
-                    showBothBtn.id = 'show-both-periods';
-                    showBothBtn.className = 'show-both-btn';
-                    showBothBtn.textContent = 'Mostrar Ambos os Períodos';
-                    showBothBtn.addEventListener('click', function() {
-                        document.querySelectorAll('.produtividade-box').forEach(box => {
-                            box.style.display = 'block';
-                        });
-                        this.remove();
-                    });
-                    document.querySelector('.tipo-grid').prepend(showBothBtn);
-                }
+            if (detailsDiv.style.display === 'none' || detailsDiv.style.display === '') {
+                detailsDiv.style.display = 'block';
+                this.textContent = 'Esconder detalhes';
+                this.classList.add('active'); // Adiciona a classe active para mudar a cor
             } else {
-                // Esconder detalhes
-                detailsContainer.style.display = 'none';
-                
-                // Restaurar texto original do botão
-                if (type === 'autuados') {
-                    this.textContent = 'Ver Processos Autuados';
-                } else if (type === 'nao-autuados') {
-                    this.textContent = 'Ver Processos Não Autuados';
-                }
-                
-                // Mostrar novamente a caixa do outro período
-                if (oppositePeriodBox) {
-                    oppositePeriodBox.style.display = 'block';
-                }
-                
-                // Remover botão de mostrar ambos os períodos
-                const showBothBtn = document.getElementById('show-both-periods');
-                if (showBothBtn) {
-                    showBothBtn.remove();
-                }
+                detailsDiv.style.display = 'none';
+                this.textContent = this.getAttribute('data-original-text');
+                this.classList.remove('active'); // Remove a classe active
             }
         });
     });

@@ -224,7 +224,6 @@
 /* Estilos para os detalhes dos projetos */
 .project-details {
     padding: 10px;
-    max-height: 300px;
     overflow-y: auto;
     background-color: #f9f9f9;
 }
@@ -279,7 +278,7 @@
    SEÇÃO: Produtividade
    ======================= */
 .produtividade-box {
-    background-color: var(--brand-subtle-bg);
+    background-color: white;
     border-radius: var(--border-radius);
     padding: 1.5rem;
     box-shadow: 6px 6px 2px 0px rgba(0, 0, 0, .08);
@@ -415,6 +414,11 @@
     background-color: #1565c0;
 }
 
+/* Nova classe para o botão quando estiver mostrando "Esconder detalhes" */
+.prod-expand-btn.active {
+    background-color: #1565c0;
+}
+
 .detalhes-produtividade {
     margin-top: 1rem;
     padding: 1rem;
@@ -427,7 +431,6 @@
 }
 
 .detalhes-produtividade .project-details {
-    width: 100%;
     max-width: 100%;
     overflow-x: auto;
 }
