@@ -34,6 +34,9 @@
     background: rgba(100, 181, 246, 0.05);
     border-radius: 0 8px 8px 0;
     cursor: default;
+    position: relative;
+    overflow: visible; /* Permitir que o conteúdo se expanda além dos limites */
+    min-height: 100px; /* Altura mínima para garantir espaço */
 }
 
 .analytics-subsection h3 {
@@ -165,7 +168,7 @@
    SEÇÃO: Area Projects Grid/Box
    ======================= */
 .area-projects-grid {
-    display: grid;
+    display: inline-flex;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1rem;
     margin-top: 1rem;
@@ -176,6 +179,13 @@
     border-radius: var(--border-radius);
     padding: 1rem;
     box-shadow: var(--shadow-xs);
+    position: relative; /* Adicionado para posicionamento */
+    transition: margin-bottom 0.5s ease; /* Transição suave para margin */
+}
+
+.area-box.expanded {
+    margin-bottom: 2rem; /* Espaço extra abaixo quando expandido */
+    z-index: 5; /* Garantir que fique acima de outros elementos */
 }
 
 .area-name {
@@ -187,6 +197,71 @@
 .area-tipo span {
     display: block;
     margin-bottom: 0.25rem;
+}
+
+/* =======================
+   SEÇÃO: Area Box Expandable
+   ======================= */
+.area-actions {
+    margin-top: 0.75rem;
+    text-align: left; /* Alterado de center para left */
+}
+
+.area-expand-btn {
+    padding: 4px 8px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Não é necessário adicionar margin-left pois o text-align já fará o alinhamento */
+}
+
+.area-details {
+    max-height: 0;
+    overflow: hidden;
+    width: 100%;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.3s ease, 
+                margin 0.3s ease,
+                padding 0.3s ease;
+    opacity: 0;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.area-details.expanded {
+    max-height: 2000px; /* Aumentado para acomodar mais conteúdo */
+    opacity: 1;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 1rem; /* Adicionado espaço inferior */
+    border-top: 1px solid #e0e0e0;
+    position: relative;
+    width: 100%;
+    overflow: visible;
+    z-index: 10; /* Para garantir que fique acima de elementos próximos */
+}
+
+.area-box .project-details {
+    background-color: #f9f9f9;
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    font-size: 0.9em;
+}
+
+.area-details.expanded .project-details {
+    margin-left: 0; /* Removido margin-left: auto */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Sombra uniforme */
+}
+
+.area-box .project-details-table {
+    width: 100%;
+    font-size: 0.85em;
+    overflow-x: auto; /* Garantir que tabelas grandes possam ser roladas */
 }
 
 /* =======================

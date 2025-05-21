@@ -36,6 +36,7 @@ const analyticData = {
         total: 0
     },
     areaCounts: {},
+    projetosPorArea: {}, // Adicionar esta linha
     // Armazenar detalhes de projetos por categoria
     projetosPorCategoria: {
         custeio: [],
@@ -83,6 +84,8 @@ function initAnalytics() {
             addExpandListeners();
             // Adicionar os event listeners para a seção situacional
             addSituacionalExpandListeners();
+            // Adicionar os event listeners para os botões de área
+            addAreaExpandListeners();
             // Adicionar os event listeners para os botões de produtividade
             if (typeof addProdutividadeExpandListeners === 'function') {
                 addProdutividadeExpandListeners();
@@ -237,6 +240,7 @@ function resetAnalyticData() {
         total: 0
     };
     analyticData.areaCounts = {};
+    analyticData.projetosPorArea = {}; // Adicionar esta linha
     
     // Limpar arrays de projetos por categoria
     analyticData.projetosPorCategoria = {
@@ -271,9 +275,9 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
     }
     
     // Contar tipos (Aquisição/Renovação)
-    if (tipo.includes('🛒')) {
+    if (tipo === '🛒 Aquisição') {
         analyticData.tipoCounts["🛒 Aquisição"]++;
-    } else if (tipo.includes('🔄')) {
+    } else if (tipo === '🔄 Renovação') {
         analyticData.tipoCounts["🔄 Renovação"]++;
     }
     
@@ -282,10 +286,10 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
         analyticData.valorTotal.custeio += projetoObj.valor;
         analyticData.projetosPorCategoria.custeio.push(projetoObj);
         
-        if (tipo.includes('🛒')) {
+        if (tipo === '🛒 Aquisição') {
             analyticData.valorTotal.custoAquisicao += projetoObj.valor;
             analyticData.projetosPorCategoria.custoAquisicao.push(projetoObj);
-        } else if (tipo.includes('🔄')) {
+        } else if (tipo === '🔄 Renovação') {
             analyticData.valorTotal.custoRenovacao += projetoObj.valor;
             analyticData.projetosPorCategoria.custoRenovacao.push(projetoObj);
         }
@@ -293,16 +297,16 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
         analyticData.valorTotal.investimento += projetoObj.valor;
         analyticData.projetosPorCategoria.investimento.push(projetoObj);
         
-        if (tipo.includes('🛒')) {
+        if (tipo === '🛒 Aquisição') {
             analyticData.valorTotal.investimentoAquisicao += projetoObj.valor;
             analyticData.projetosPorCategoria.investimentoAquisicao.push(projetoObj);
-        } else if (tipo.includes('🔄')) {
+        } else if (tipo === '🔄 Renovação') {
             analyticData.valorTotal.investimentoRenovacao += projetoObj.valor;
             analyticData.projetosPorCategoria.investimentoRenovacao.push(projetoObj);
         }
     }
     
-    // Contagem por área e tipo
+    // Contagem por área e adição à lista de projetos da área
     if (area) {
         if (!analyticData.areaCounts[area]) {
             analyticData.areaCounts[area] = {
@@ -311,14 +315,18 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
                 total: 0
             };
         }
-        if (tipo.includes('🛒')) {
+        if (!analyticData.projetosPorArea[area]) {
+            analyticData.projetosPorArea[area] = [];
+        }
+
+        if (projetoObj.tipo === '🛒 Aquisição') {
             analyticData.areaCounts[area]["🛒 Aquisição"]++;
-        } else if (tipo.includes('🔄')) {
+            analyticData.projetosPorArea[area].push(projetoObj);
+        } else if (projetoObj.tipo === '🔄 Renovação') {
             analyticData.areaCounts[area]["🔄 Renovação"]++;
+            analyticData.projetosPorArea[area].push(projetoObj);
         }
-        if (tipo.includes('🛒') || tipo.includes('🔄')) {
-            analyticData.areaCounts[area].total++;
-        }
+        analyticData.areaCounts[area].total++;
     }
 }
 

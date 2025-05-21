@@ -98,6 +98,57 @@ function renderSituacionalDetails(categoria) {
 }
 
 /**
+ * Função para renderizar detalhes dos projetos por área
+ * @param {string} area Nome da área 
+ */
+function renderAreaDetails(area) {
+    // Obter projetos diretamente da lista populada em Analytics.js
+    // Esta lista agora contém apenas projetos de Aquisição ou Renovação para a área especificada.
+    const projetosDaArea = analyticData.projetosPorArea[area] || []; 
+
+    if (projetosDaArea.length === 0) {
+        // Mensagem ajustada para refletir que a lista contém projetos de Aquisição/Renovação
+        return '<p>Nenhum projeto de Aquisição ou Renovação encontrado nesta área.</p>';
+    }
+    
+    let html = `
+        <table class="project-details-table">
+            <thead>
+                <tr>
+                    <th>ID PCA</th>
+                    <th>Tipo</th>
+                    <th>Projeto</th>
+                    <th>Status</th>
+                    <th>Valor (R$)</th>
+                    <th>Número do Processo</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Iterar sobre os projetos da área (que já são os corretos)
+    projetosDaArea.forEach(projeto => {
+        html += `
+            <tr>
+                <td>${projeto.idPca}</td>
+                <td>${projeto.tipo}</td>
+                <td>${projeto.projeto}</td>
+                <td>${formatStatusWithClasses(projeto.status)}</td>
+                <td>R$ ${formatCurrency(projeto.valor)}</td>
+                <td>${projeto.numProcesso}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+    `;
+    
+    return html;
+}
+
+/**
  * Função para adicionar listeners nos botões de expandir/contrair
  */
 function addExpandListeners() {
@@ -230,6 +281,73 @@ function addSituacionalExpandListeners() {
                 // Remover destaque da linha pai
                 const parentRow = this.closest('tr');
                 if (parentRow) parentRow.classList.remove('active');
+            }
+        });
+    });
+}
+
+/**
+ * Função para adicionar listeners nos botões de expandir/contrair áreas
+ */
+function addAreaExpandListeners() {
+    const areaExpandButtons = document.querySelectorAll('.area-expand-btn');
+    
+    areaExpandButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            const area = this.getAttribute('data-area');
+            const detailsDiv = document.getElementById(`area-details-${area.replace(/\s+/g, '-')}`);
+            const expandIcon = this.querySelector('.expand-icon');
+            const areaBox = this.closest('.area-box');
+            
+            if (!detailsDiv) {
+                console.error(`Elemento #area-details-${area.replace(/\s+/g, '-')} não encontrado!`);
+                return;
+            }
+            
+            // Verificar se já está expandido
+            const isExpanded = detailsDiv.style.display !== 'none' && detailsDiv.style.display !== '';
+            
+            // Obter todas as áreas
+            const allAreaBoxes = document.querySelectorAll('.area-box');
+            
+            if (!isExpanded) {
+                // Esconder todas as outras áreas
+                allAreaBoxes.forEach(box => {
+                    if (box !== areaBox) {
+                        box.style.display = 'none';
+                    }
+                });
+                
+                // Primeiro garantir que está visível, depois animar
+                detailsDiv.style.display = 'block';
+                
+                // Usar setTimeout para garantir que o browser renderize o display antes de adicionar a classe
+                setTimeout(() => {
+                    detailsDiv.classList.add('expanded');
+                }, 10);
+                
+                // Atualizar texto e ícone do botão
+                this.innerHTML = 'Recolher <span class="expand-icon rotate">▼</span>';
+                this.classList.add('active');
+            } else {
+                // Remover a classe para iniciar a animação de saída
+                detailsDiv.classList.remove('expanded');
+                
+                // Aguardar a animação terminar antes de esconder
+                setTimeout(() => {
+                    detailsDiv.style.display = 'none';
+                    
+                    // Mostrar todas as áreas novamente
+                    allAreaBoxes.forEach(box => {
+                        box.style.display = '';
+                    });
+                }, 300);
+                
+                // Restaurar o botão
+                this.innerHTML = 'Expandir <span class="expand-icon">▼</span>';
+                this.classList.remove('active');
             }
         });
     });

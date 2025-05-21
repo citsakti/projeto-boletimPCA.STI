@@ -365,6 +365,14 @@ function renderAreaProjectsHtml() {
                     <span>🔄 Renovação: ${areaCount['🔄 Renovação']}</span>
                     <span><strong>Total: ${areaCount.total}</strong></span>
                 </div>
+                <div class="area-actions">
+                    <button class="area-expand-btn" data-area="${area}">Expandir <span class="expand-icon">▼</span></button>
+                </div>
+                <div class="area-details" id="area-details-${area.replace(/\s+/g, '-')}" style="display:none;">
+                    <div class="project-details">
+                        ${renderAreaDetails(area)}
+                    </div>
+                </div>
             </div>
         `;
     });
