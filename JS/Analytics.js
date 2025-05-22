@@ -92,6 +92,10 @@ function initAnalytics() {
             if (typeof addProdutividadeExpandListeners === 'function') {
                 addProdutividadeExpandListeners();
             }
+            // Chamar setup de tooltips de contrato após renderização inicial e configuração de listeners
+            if (typeof window.setupAnalyticsTooltips === 'function') {
+                window.setupAnalyticsTooltips();
+            }
         })
         .catch(err => {
             console.error('Erro ao processar dados analíticos:', err);
@@ -166,7 +170,9 @@ function processData(rawData) {
         orcamento: 14,   // Coluna O - Orçamento
         valorPca: 15,    // Coluna P - Valor PCA
         dataProcesso: 9,  // Coluna J - Data do processo
-        dataInicio: 8    // Coluna I - Data de início (AUTUAR EM:)
+        dataInicio: 8,    // Coluna I - Data de início (AUTUAR EM:)
+        numeroContrato: 21, // Coluna V - Número do Contrato
+        numeroRegistro: 22  // Coluna W - Número de Registro do Contrato
     };
     
     // Resetar contadores e arrays
@@ -191,6 +197,8 @@ function processData(rawData) {
         const valor = parseFloat(valorStr) || 0;
         const dataProcesso = row[columnIndices.dataProcesso] || '';
         const dataInicio = row[columnIndices.dataInicio] || ''; // Capturando a data de início
+        const numeroContrato = String(row[columnIndices.numeroContrato] || '').trim();
+        const numeroRegistro = String(row[columnIndices.numeroRegistro] || '').trim();
         
         // Criar objeto de projeto para uso em detalhamentos
         const projetoObj = {
@@ -202,7 +210,9 @@ function processData(rawData) {
             tipo,      // Adicionando o tipo ao objeto
             status: statusProcesso, // Adicionando o status ao objeto
             i: dataInicio,   // Apenas armazenando a data de início (coluna I - AUTUAR EM)
-            dataProcesso // Adicionar esta linha para incluir a data de "Contratar Até"
+            dataProcesso, // Adicionar esta linha para incluir a data de "Contratar Até"
+            numeroContrato, // Adicionar número do contrato
+            numeroRegistro  // Adicionar número de registro
         };
         
         // Processar contadores e categorias

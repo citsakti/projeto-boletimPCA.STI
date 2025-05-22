@@ -56,11 +56,19 @@ function renderProjectDetails(categoria) {
     `;
     
     projetos.forEach(projeto => {
+        let contratoAttrs = '';
+        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
+            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
+        }
+        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
+            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
+        }
+
         html += `
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${formatAreaWithClasses(projeto.area)}</td>
-                <td>${projeto.projeto}</td>
+                <td${contratoAttrs}>${projeto.projeto}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${projeto.numProcesso}</td>
@@ -104,11 +112,19 @@ function renderSituacionalDetails(categoria) {
     `;
     
     projetos.forEach(projeto => {
+        let contratoAttrs = '';
+        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
+            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
+        }
+        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
+            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
+        }
+
         html += `
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${formatAreaWithClasses(projeto.area)}</td>
-                <td>${projeto.projeto}</td>
+                <td${contratoAttrs}>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
@@ -157,11 +173,19 @@ function renderAreaDetails(area) {
     
     // Iterar sobre os projetos da área (que já são os corretos)
     projetosDaArea.forEach(projeto => {
+        let contratoAttrs = '';
+        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
+            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
+        }
+        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
+            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
+        }
+
         html += `
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${projeto.tipo}</td>
-                <td>${projeto.projeto}</td>
+                <td${contratoAttrs}>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
@@ -217,6 +241,10 @@ function addExpandListeners() {
                 // Usar setTimeout para garantir que o browser renderize o display antes de adicionar a classe
                 setTimeout(() => {
                     detailsRow.classList.add('expanded');
+                    // Chamar setup de tooltips de contrato
+                    if (typeof window.setupAnalyticsTooltips === 'function') {
+                        window.setupAnalyticsTooltips();
+                    }
                 }, 10);
                 
                 // Atualizar texto e ícone do botão
@@ -286,6 +314,10 @@ function addSituacionalExpandListeners() {
                 // Usar setTimeout para garantir que o browser renderize o display antes de adicionar a classe
                 setTimeout(() => {
                     detailsRow.classList.add('expanded');
+                    // Chamar setup de tooltips de contrato
+                    if (typeof window.setupAnalyticsTooltips === 'function') {
+                        window.setupAnalyticsTooltips();
+                    }
                 }, 10);
                 
                 // Atualizar texto e ícone do botão
@@ -363,6 +395,10 @@ function addAreaExpandListeners() {
                     
                     // Inicia a animação de expansão
                     detailsDiv.classList.add('expanded');
+                    // Chamar setup de tooltips de contrato
+                    if (typeof window.setupAnalyticsTooltips === 'function') {
+                        window.setupAnalyticsTooltips();
+                    }
                     
                     // Atualiza o botão
                     this.textContent = 'Recolher';
@@ -522,12 +558,20 @@ function renderProdutividadeProjetosTable(projetos) {
             tdTipoClass = 'no-wrap-cell';
         }
 
+        let contratoAttrs = '';
+        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
+            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
+        }
+        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
+            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
+        }
+
         html += `
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${formatAreaWithClasses(projeto.area)}</td>
                 <td class="${tdTipoClass}">${tipoCellContent}</td>
-                <td>${projeto.projeto}</td>
+                <td${contratoAttrs}>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${projeto.numProcesso}</td>
@@ -730,6 +774,11 @@ function addProdutividadeExpandListeners() {
                 setTimeout(() => {
                     detailsDiv.classList.add('expanded');
                     
+                    // Chamar setup de tooltips de contrato
+                    if (typeof window.setupAnalyticsTooltips === 'function') {
+                        window.setupAnalyticsTooltips();
+                    }
+
                     // Rolar até o conteúdo expandido após um breve atraso
                     // para que a animação de expansão tenha começado
                     setTimeout(() => {

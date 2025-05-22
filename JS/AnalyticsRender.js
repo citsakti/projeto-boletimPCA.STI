@@ -469,11 +469,19 @@ function renderAreaValorDetails(projetos) {
     `;
     
     projetos.forEach(projeto => {
+        let contratoAttrs = '';
+        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
+            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
+        }
+        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
+            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
+        }
+
         html += `
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${projeto.tipo}</td>
-                <td>${projeto.projeto}</td>
+                <td${contratoAttrs}>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>

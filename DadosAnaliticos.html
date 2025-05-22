@@ -22,6 +22,7 @@
     <script src="./JS/Analytics.js"></script>
     <script src="./JS/AnalyticsDetails.js"></script>
     <script src="./JS/AnalyticsRender.js"></script>
+    <script src="JS/AnalyticsContratos.js"></script>
 
 </head>
 <body>
@@ -46,6 +47,16 @@
         <section id="analytics-dashboard">
             <!-- O conteúdo será gerado dinamicamente pelo Analytics.js -->
         </section>
+    </div>
+
+    <!-- Modal para exibir o iframe (reutilizado de index.html ou similar) -->
+    <div id="processo-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-modal-btn" class="close-button" aria-label="Fechar">
+              <span>❌</span> Sair
+            </button>
+            <iframe id="processo-iframe" src="about:blank" frameborder="0"></iframe>
+        </div>
     </div>
 
     <footer>
