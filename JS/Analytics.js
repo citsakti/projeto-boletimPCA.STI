@@ -281,6 +281,11 @@ function resetAnalyticData() {
  * Função para processar contadores e categorizar projetos
  */
 function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, area) {
+    // Não processar projetos cancelados ou sem tipo válido
+    if (statusProcesso === 'CANCELADO ❌' || (tipo !== '🛒 Aquisição' && tipo !== '🔄 Renovação')) {
+        return; // Pular este projeto completamente
+    }
+    
     // Contar status
     if (statusProcesso) {
         analyticData.statusCounts[statusProcesso] = (analyticData.statusCounts[statusProcesso] || 0) + 1;
@@ -347,6 +352,11 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
  * Função para classificar projetos por situação
  */
 function classifyProjectBySituation(projetoObj, statusProcesso, area) {
+    // Não processar projetos cancelados ou sem tipo válido
+    if (statusProcesso === 'CANCELADO ❌' || (projetoObj.tipo !== '🛒 Aquisição' && projetoObj.tipo !== '🔄 Renovação')) {
+        return; // Pular este projeto completamente
+    }
+    
     // Contratação fora da STI
     if (statusProcesso === 'EM CONTRATAÇÃO 🤝' || statusProcesso === 'EM RENOVAÇÃO 🔄') {
         analyticData.situacional.contratacaoForaSTI++;

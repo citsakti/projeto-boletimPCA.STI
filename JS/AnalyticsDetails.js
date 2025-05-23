@@ -457,10 +457,19 @@ function calcularProdutividade(dataInicio, dataFim) {
         }
     }
     
-    // Filtra os projetos para considerar apenas aqueles dentro do período especificado (dataInicio a dataFim).
+    // Filtra os projetos para considerar apenas aqueles:
+    // 1. Dentro do período especificado (dataInicio a dataFim)
+    // 2. Que não estejam com status CANCELADO
+    // 3. Que sejam tipo Aquisição ou Renovação
     const projetosNoPeriodo = todosProjetos.filter(projeto => {
         // Verificar se projeto.i existe e não está vazio
         if (!projeto.i) return false;
+        
+        // Excluir projetos cancelados
+        if (projeto.status === 'CANCELADO ❌') return false;
+        
+        // Verificar se o tipo é válido
+        if (projeto.tipo !== '🛒 Aquisição' && projeto.tipo !== '🔄 Renovação') return false;
         
         // Converter a data do formato brasileiro (DD/MM/YYYY) para objeto Date
         const dataParts = projeto.i.split('/');

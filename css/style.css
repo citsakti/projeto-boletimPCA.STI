@@ -192,6 +192,12 @@ table td:nth-child(9) {
     white-space: nowrap !important;
 }
 
+/* Impede quebra de linha na coluna de Tipo (ajuste o número da coluna se necessário) */
+table th:nth-child(3),
+table td:nth-child(3) {
+    white-space: nowrap !important;
+}
+
 /* Impede quebra de linha nas colunas "Tipo" (3ª) e "Processo" (10ª) em todas as telas */
 table th:nth-child(3), /* Coluna "Tipo" */
 table th:nth-child(10), /* Coluna "Processo" */
@@ -205,6 +211,12 @@ table td:nth-child(2),
 table th:nth-child(9),
 table td:nth-child(9) {
     white-space: nowrap !important;
+}
+
+/* Adiciona uma classe que pode ser aplicada diretamente nos elementos que contêm esses textos */
+.nowrap-text {
+    white-space: nowrap !important;
+    display: inline-block;
 }
 
 /* Negrito para coluna "Projeto de Aquisição" (4ª coluna) */
@@ -274,7 +286,7 @@ table tbody tr.contratacao-atrasada {
 .status-renovado-highlight              { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-contratado-highlight            { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-revisao-pca-highlight           { background: #000000; border-radius:6px; padding:2px 6px; display:inline-block; color:#ffe5a0; }
-.status-a-iniciar-highlight             { background: #e6e6e6; border-radius:6px; padding:2px 6px; display:inline-block; color:#000000; }
+.status-a-iniciar-highlight             { background: #e6e6e6; border-radius:6px; padding:2px 6px; display:inline-block; color:#000000; white-space: nowrap; }
 
 
 /* Badges de status */
