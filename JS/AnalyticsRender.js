@@ -63,14 +63,14 @@ function renderGeneralSection() {
                             <tr>
                                 <th>Categoria</th>
                                 <th>Valor Total</th>
-                                <th>Ações</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="expandable-row" data-category="custeio">
                                 <td>Total CUSTEIO 💳</td>
                                 <td>R$ ${formatCurrency(analyticData.valorTotal.custeio)}</td>
-                                <td><button class="expand-btn" data-category="custeio">Expandir</button></td>
+                                <td><button class="expand-btn" data-category="custeio">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="details-custeio" style="display:none;">
                                 <td colspan="3">
@@ -82,7 +82,7 @@ function renderGeneralSection() {
                             <tr class="expandable-row" data-category="investimento">
                                 <td>Total INVESTIMENTO 💵</td>
                                 <td>R$ ${formatCurrency(analyticData.valorTotal.investimento)}</td>
-                                <td><button class="expand-btn" data-category="investimento">Expandir</button></td>
+                                <td><button class="expand-btn" data-category="investimento">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="details-investimento" style="display:none;">
                                 <td colspan="3">
@@ -99,7 +99,7 @@ function renderGeneralSection() {
                             <tr class="expandable-row" data-category="custoAquisicao">
                                 <td>Total 🛒 Aquisição no CUSTEIO 💳</td>
                                 <td>R$ ${formatCurrency(analyticData.valorTotal.custoAquisicao)}</td>
-                                <td><button class="expand-btn" data-category="custoAquisicao">Expandir</button></td>
+                                <td><button class="expand-btn" data-category="custoAquisicao">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="details-custoAquisicao" style="display:none;">
                                 <td colspan="3">
@@ -111,7 +111,7 @@ function renderGeneralSection() {
                             <tr class="expandable-row" data-category="custoRenovacao">
                                 <td>Total 🔄 Renovação no CUSTEIO 💳</td>
                                 <td>R$ ${formatCurrency(analyticData.valorTotal.custoRenovacao)}</td>
-                                <td><button class="expand-btn" data-category="custoRenovacao">Expandir</button></td>
+                                <td><button class="expand-btn" data-category="custoRenovacao">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="details-custoRenovacao" style="display:none;">
                                 <td colspan="3">
@@ -128,7 +128,7 @@ function renderGeneralSection() {
                             <tr class="expandable-row" data-category="investimentoAquisicao">
                                 <td>Total 🛒 Aquisição no INVESTIMENTO 💵</td>
                                 <td>R$ ${formatCurrency(analyticData.valorTotal.investimentoAquisicao)}</td>
-                                <td><button class="expand-btn" data-category="investimentoAquisicao">Expandir</button></td>
+                                <td><button class="expand-btn" data-category="investimentoAquisicao">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="details-investimentoAquisicao" style="display:none;">
                                 <td colspan="3">
@@ -140,7 +140,7 @@ function renderGeneralSection() {
                             <tr class="expandable-row" data-category="investimentoRenovacao">
                                 <td>Total 🔄 Renovação no INVESTIMENTO 💵</td>
                                 <td>R$ ${formatCurrency(analyticData.valorTotal.investimentoRenovacao)}</td>
-                                <td><button class="expand-btn" data-category="investimentoRenovacao">Expandir</button></td>
+                                <td><button class="expand-btn" data-category="investimentoRenovacao">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="details-investimentoRenovacao" style="display:none;">
                                 <td colspan="3">
@@ -200,7 +200,7 @@ function renderSituacionalSection() {
                                 <th>Categoria</th>
                                 <th style="white-space:normal; word-break:break-word;">Critério (STATUS DO PROCESSO)</th>
                                 <th>Contagem</th>
-                                <th>Ações</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -210,7 +210,7 @@ function renderSituacionalSection() {
                                     ${formatStatusWithClasses('EM CONTRATAÇÃO 🤝')} ou ${formatStatusWithClasses('EM RENOVAÇÃO 🔄')}<br>(ÁREA ≠ STI)
                                 </td>
                                 <td>${analyticData.situacional.contratacaoForaSTI}</td>
-                                <td><button class="situacional-expand-btn" data-category="contratacaoForaSTI">Expandir</button></td>
+                                <td><button class="situacional-expand-btn" data-category="contratacaoForaSTI">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-contratacaoForaSTI" style="display:none;">
                                 <td colspan="4">
@@ -225,7 +225,7 @@ function renderSituacionalSection() {
                                     ${formatStatusWithClasses('AUTUAÇÃO ATRASADA 💣')}
                                 </td>
                                 <td>${analyticData.situacional.autuacaoAtrasada}</td>
-                                <td><button class="situacional-expand-btn" data-category="autuacaoAtrasada">Expandir</button></td>
+                                <td><button class="situacional-expand-btn" data-category="autuacaoAtrasada">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-autuacaoAtrasada" style="display:none;">
                                 <td colspan="4">
@@ -245,7 +245,7 @@ function renderSituacionalSection() {
                                     <div>${formatStatusWithClasses('ETP ATRASADO❗')}</div>
                                 </td>
                                 <td>${analyticData.situacional.elaboracaoInterna}</td>
-                                <td><button class="situacional-expand-btn" data-category="elaboracaoInterna">Expandir</button></td>
+                                <td><button class="situacional-expand-btn" data-category="elaboracaoInterna">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-elaboracaoInterna" style="display:none;">
                                 <td colspan="4">
@@ -260,7 +260,7 @@ function renderSituacionalSection() {
                                     ${formatStatusWithClasses('CONTRATAÇÃO ATRASADA ⚠️')}<br>(ÁREA ≠ STI)
                                 </td>
                                 <td>${analyticData.situacional.contratacaoAtrasadaForaSTI}</td>
-                                <td><button class="situacional-expand-btn" data-category="contratacaoAtrasadaForaSTI">Expandir</button></td>
+                                <td><button class="situacional-expand-btn" data-category="contratacaoAtrasadaForaSTI">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-contratacaoAtrasadaForaSTI" style="display:none;">
                                 <td colspan="4">
@@ -275,7 +275,7 @@ function renderSituacionalSection() {
                                     ${formatStatusWithClasses('CONTRATADO ✅')} ou ${formatStatusWithClasses('RENOVADO ✅')}
                                 </td>
                                 <td>${analyticData.situacional.processosConcluidos}</td>
-                                <td><button class="situacional-expand-btn" data-category="processosConcluidos">Expandir</button></td>
+                                <td><button class="situacional-expand-btn" data-category="processosConcluidos">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-processosConcluidos" style="display:none;">
                                 <td colspan="4">
@@ -288,7 +288,7 @@ function renderSituacionalSection() {
                                 <td style="font-weight: bold;">Processos Suspensos</td>
                                 <td style="white-space:normal; word-break:break-word;">${formatStatusWithClasses('REVISÃO PCA 🚧')}</td>
                                 <td>${analyticData.situacional.processosSuspensos}</td>
-                                <td><button class="situacional-expand-btn" data-category="processosSuspensos">Expandir</button></td>
+                                <td><button class="situacional-expand-btn" data-category="processosSuspensos">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-processosSuspensos" style="display:none;">
                                 <td colspan="4">
@@ -301,7 +301,7 @@ function renderSituacionalSection() {
                                 <td style="font-weight: bold;">Processos a Iniciar</td>
                                 <td style="white-space:normal; word-break:break-word;">${formatStatusWithClasses('A INICIAR ⏰')}</td>
                                 <td>${analyticData.situacional.processosAIniciar}</td>
-                                <td><button class="situacional-expand-btn" data-category="processosAIniciar">Expandir</button></td>
+                                <td><button class="situacional-expand-btn" data-category="processosAIniciar">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-processosAIniciar" style="display:none;">
                                 <td colspan="4">
@@ -369,7 +369,8 @@ function renderValoresPorAreaETipo() {
             investimento: {
                 total: 0,
                 projetos: []
-            }
+            },
+            total: 0 // Adicionando campo para o total geral da área
         };
     });
     
@@ -378,6 +379,7 @@ function renderValoresPorAreaETipo() {
         if (valoresPorArea[projeto.area]) {
             valoresPorArea[projeto.area].custeio.total += projeto.valor;
             valoresPorArea[projeto.area].custeio.projetos.push(projeto);
+            valoresPorArea[projeto.area].total += projeto.valor; // Incrementa o total da área
         }
     });
     
@@ -386,6 +388,7 @@ function renderValoresPorAreaETipo() {
         if (valoresPorArea[projeto.area]) {
             valoresPorArea[projeto.area].investimento.total += projeto.valor;
             valoresPorArea[projeto.area].investimento.projetos.push(projeto);
+            valoresPorArea[projeto.area].total += projeto.valor; // Incrementa o total da área
         }
     });
     
@@ -396,9 +399,11 @@ function renderValoresPorAreaETipo() {
                 <tr>
                     <th>Área</th>
                     <th>CUSTEIO 💳</th>
-                    <th>Ações</th>
+                    <th></th>
                     <th>INVESTIMENTO 💵</th>
-                    <th>Ações</th>
+                    <th></th>
+                    <th>TOTAL</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -409,25 +414,37 @@ function renderValoresPorAreaETipo() {
         const areaData = valoresPorArea[area];
         const areaId = area.replace(/\s+/g, '-').replace(/[^\w-]/g, '');
         
+        // Combinando todos os projetos da área para o total
+        const todosProjetos = [...areaData.custeio.projetos, ...areaData.investimento.projetos];
+        
         html += `
             <tr>
                 <td>${formatAreaWithClasses(area)}</td>
                 <td>R$ ${formatCurrency(areaData.custeio.total)}</td>
-                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="custeio">Expandir</button></td>
+                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="custeio">Detalhar</button></td>
                 <td>R$ ${formatCurrency(areaData.investimento.total)}</td>
-                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="investimento">Expandir</button></td>
+                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="investimento">Detalhar</button></td>
+                <td><strong>R$ ${formatCurrency(areaData.total)}</strong></td>
+                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="total">Detalhar</button></td>
             </tr>
             <tr class="details-row" id="details-area-custeio-${areaId}" style="display:none;">
-                <td colspan="5">
+                <td colspan="7">
                     <div class="project-details">
                         ${renderAreaValorDetails(areaData.custeio.projetos)}
                     </div>
                 </td>
             </tr>
             <tr class="details-row" id="details-area-investimento-${areaId}" style="display:none;">
-                <td colspan="5">
+                <td colspan="7">
                     <div class="project-details">
                         ${renderAreaValorDetails(areaData.investimento.projetos)}
+                    </div>
+                </td>
+            </tr>
+            <tr class="details-row" id="details-area-total-${areaId}" style="display:none;">
+                <td colspan="7">
+                    <div class="project-details">
+                        ${renderAreaValorDetails(todosProjetos)}
                     </div>
                 </td>
             </tr>
@@ -499,7 +516,7 @@ function renderAreaValorDetails(projetos) {
 }
 
 /**
- * Função para adicionar listeners nos botões de expandir/contrair valores por área
+ * Função para adicionar listeners nos botões de Detalhar/contrair valores por área
  */
 function addAreaValorExpandListeners() {
     const areaValorExpandButtons = document.querySelectorAll('.area-valor-expand-btn');
@@ -557,7 +574,7 @@ function addAreaValorExpandListeners() {
                 }, 300);
                 
                 // Restaurar o botão
-                this.innerHTML = 'Expandir <span class="expand-icon">▼</span>';
+                this.innerHTML = 'Detalhar <span class="expand-icon">▼</span>';
                 this.classList.remove('active');
                 
                 // Remover destaque da linha pai
@@ -587,7 +604,7 @@ function renderAreaProjectsHtml() {
                     <span><strong>Total: ${areaCount.total}</strong></span>
                 </div>
                 <div class="area-actions">
-                    <button class="area-expand-btn" data-area="${area}">Expandir <span class="expand-icon">▼</span></button>
+                    <button class="area-expand-btn" data-area="${area}">Detalhar <span class="expand-icon">▼</span></button>
                 </div>
                 <div class="area-details" id="area-details-${area.replace(/\s+/g, '-')}" style="display:none;">
                     <div class="project-details">

@@ -192,23 +192,22 @@ table td:nth-child(9) {
     white-space: nowrap !important;
 }
 
-/* Impede quebra de linha na coluna de Tipo (ajuste o número da coluna se necessário) */
-table th:nth-child(3), {
+/* 
+   Impede quebra de linha na coluna "Tipo" (3ª) da tabela principal 
+   e na coluna "Processo" (10ª) em todas as tabelas (ou especificar se necessário para "Processo").
+*/
+#detalhes table thead.cabecalho th:nth-child(3), /* Cabeçalho da Coluna "Tipo" APENAS na tabela principal */
+#detalhes table tbody td:nth-child(3),          /* Células da Coluna "Tipo" APENAS na tabela principal */
+table th:nth-child(10), /* Cabeçalho da Coluna "Processo" (genérico) */
+table td:nth-child(10) { /* Células da Coluna "Processo" (genérico) */
     white-space: nowrap !important;
 }
 
-/* Impede quebra de linha nas colunas "Tipo" (3ª) e "Processo" (10ª) em todas as telas */
-table th:nth-child(3), /* Coluna "Tipo" */
-table th:nth-child(10), /* Coluna "Processo" */
-table td:nth-child(10) { /* Coluna "Processo" */
-    white-space: nowrap !important;
-}
-
-/* Impede quebra de linha nas colunas “Tipo” (2ª) e “Processo” (9ª) em todas as telas */
-table th:nth-child(2),
-table td:nth-child(2),
-table th:nth-child(9),
-table td:nth-child(9) {
+/* Impede quebra de linha nas colunas “Área” (2ª) e “Orçamento” (9ª) em todas as telas */
+table th:nth-child(2), /* Cabeçalho da Coluna "Área" */
+table td:nth-child(2), /* Células da Coluna "Área" */
+table th:nth-child(9), /* Cabeçalho da Coluna "Orçamento" */
+table td:nth-child(9) { /* Células da Coluna "Orçamento" */
     white-space: nowrap !important;
 }
 
