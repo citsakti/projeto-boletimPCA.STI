@@ -286,12 +286,7 @@ table tbody tr.contratacao-atrasada {
 .status-renovado-highlight              { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-contratado-highlight            { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
 .status-revisao-pca-highlight           { background: #000000; border-radius:6px; padding:2px 6px; display:inline-block; color:#ffe5a0; }
-<<<<<<< HEAD
 .status-a-iniciar-highlight             { background: #e6e6e6; border-radius:6px; padding:2px 6px; display:inline-block; color:#000000; white-space: nowrap; }
-=======
-.status-a-iniciar-highlight             { background: #e6e6e6; border-radius:6px; padding:2px 6px; display:inline-block; color:#000000; white-space: nowrap;}
->>>>>>> 7a210bad260e3b34824c3d5f0f174962ebd7cb53
-
 
 /* Badges de status */
 .status-badge {
