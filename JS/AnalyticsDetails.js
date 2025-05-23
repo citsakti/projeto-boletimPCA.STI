@@ -49,7 +49,7 @@ function renderProjectDetails(categoria) {
                     <th>Projeto</th>
                     <th>Contratar Até</th>
                     <th>Valor (R$)</th>
-                    <th>Número do Processo</th>
+                    <th>Processo</th>
                 </tr>
             </thead>
             <tbody>
@@ -105,7 +105,7 @@ function renderSituacionalDetails(categoria) {
                     <th>Status</th>
                     <th>Contratar Até</th>
                     <th>Valor (R$)</th>
-                    <th>Número do Processo</th>
+                    <th>Processo</th>
                 </tr>
             </thead>
             <tbody>
@@ -165,7 +165,7 @@ function renderAreaDetails(area) {
                     <th>Status</th>
                     <th>Contratar Até</th>
                     <th>Valor (R$)</th>
-                    <th>Número do Processo</th>
+                    <th>Processo</th>
                 </tr>
             </thead>
             <tbody>
@@ -553,7 +553,7 @@ function renderProdutividadeProjetosTable(projetos) {
                     <th>Projeto</th>
                     <th>Status</th>
                     <th>Valor (R$)</th>
-                    <th>Número do Processo</th>
+                    <th>Processo</th>
                 </tr>
             </thead>
             <tbody>

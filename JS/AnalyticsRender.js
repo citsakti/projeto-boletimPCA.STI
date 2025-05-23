@@ -479,7 +479,7 @@ function renderAreaValorDetails(projetos) {
                     <th>Status</th>
                     <th>Contratar Até</th>
                     <th>Valor (R$)</th>
-                    <th>Número do Processo</th>
+                    <th>Processo</th>
                 </tr>
             </thead>
             <tbody>
