@@ -193,8 +193,7 @@ table td:nth-child(9) {
 }
 
 /* Impede quebra de linha na coluna de Tipo (ajuste o número da coluna se necessário) */
-table th:nth-child(3),
-table td:nth-child(3) {
+table th:nth-child(3), {
     white-space: nowrap !important;
 }
 
