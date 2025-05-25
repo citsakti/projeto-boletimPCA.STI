@@ -1,22 +1,36 @@
 /**
- * Script para destacar visualmente linhas de uma tabela conforme a proximidade do vencimento do contrato.
+ * RenovacaoAtrasada.js - Sistema de alerta visual para renovações de contratos do Boletim PCA 2025
  * 
- * Funcionalidade:
- * - Colore as linhas de laranja escuro quando faltam até 30 dias para o vencimento.
- * - Colore as linhas de vermelho quando faltam 20 dias ou menos, ou se o contrato já está vencido.
+ * Este script é responsável por:
+ *  - Destacar visualmente linhas de renovação conforme a proximidade do vencimento
+ *  - Aplicar códigos de cores para diferentes níveis de urgência
+ *  - Monitorar alterações na tabela para manter alertas visuais atualizados
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
  * 
- * Como funciona:
- * - Aguarda o evento personalizado 'tabela-carregada' para iniciar a verificação.
- * - Após um pequeno atraso, percorre todas as linhas da tabela.
- * - Para cada linha, verifica se o status é "EM RENOVAÇÃO".
- * - Se for, analisa a data da coluna "Contratar Até".
- * - Calcula a diferença entre a data de vencimento e a data atual.
- * - Aplica a cor conforme a proximidade do vencimento.
+ * # Componentes Visuais:
+ *   - Coloração laranja: Para contratos com até 30 dias para vencimento
+ *   - Coloração vermelha: Para contratos com 20 dias ou menos, ou já vencidos
  * 
- * Observações:
- * - As colunas são acessadas pelos índices: status (5) e data de contratação (6).
- * - O formato de data esperado é DD/MM/AAAA.
- * - O script não altera linhas cujo status não seja "EM RENOVAÇÃO".
+ * # Funções Principais:
+ *   - verificarRenovacoesProximas(): Função principal que analisa e aplica estilos
+ * 
+ * # Fluxo de Execução:
+ *   1. Aguarda o evento 'tabela-carregada' para iniciar verificação
+ *   2. Percorre todas as linhas da tabela após pequeno atraso
+ *   3. Identifica linhas com status "EM RENOVAÇÃO"
+ *   4. Analisa a data da coluna "Contratar Até"
+ *   5. Calcula a diferença entre data de vencimento e data atual
+ *   6. Aplica coloração conforme proximidade do vencimento
+ * 
+ * # Lógica de Negócio:
+ *   - Colunas acessadas: status (5) e data de contratação (6)
+ *   - Formato de data esperado: DD/MM/AAAA
+ *   - Só altera linhas com status "EM RENOVAÇÃO"
+ * 
+ * # Dependências:
+ *   - Evento customizado 'tabela-carregada'
+ *   - Estrutura da tabela com colunas específicas
  */
 
 // Aguarda o evento personalizado 'tabela-carregada' para iniciar a verificação das renovações.

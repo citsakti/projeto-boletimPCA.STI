@@ -1,9 +1,32 @@
 /**
- * InformacoesDeContratos.js
+ * InformacoesDeContratos.js - Sistema de visualização de contratos do Boletim PCA 2025
  * 
- * Este script adiciona tooltips para exibir informações sobre os contratos ao passar o mouse
- * sobre os projetos de aquisição na tabela do Boletim PCA e torna as células clicáveis 
- * para abrir o contrato correspondente em um iframe.
+ * Este script é responsável por:
+ *  - Adicionar tooltips informativos sobre contratos nos projetos da tabela
+ *  - Tornar células clicáveis para abrir os contratos em um modal com iframe
+ *  - Monitorar mudanças na tabela para manter a funcionalidade em atualizações dinâmicas
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Componentes de Interface:
+ *   - Tooltip: Elemento flutuante que mostra informações do contrato ao passar o mouse
+ *   - Modal: Janela que exibe o contrato em um iframe quando o usuário clica na célula
+ * 
+ * # Funções Principais:
+ *   - setupTooltips(): Configura os tooltips e eventos de clique nas células
+ *   - showTooltip(): Exibe o tooltip com informações do contrato
+ *   - hideTooltip(): Oculta o tooltip quando o mouse sai da célula
+ *   - openContractInModal(): Abre o modal com iframe para visualização do contrato
+ * 
+ * # Fluxo de Execução:
+ *   1. Cria elemento de tooltip no carregamento do DOM
+ *   2. Configura referências para o modal existente
+ *   3. Monitora mudanças na tabela usando MutationObserver
+ *   4. Aplica tooltips e eventos de clique nas células relevantes
+ * 
+ * # Dependências:
+ *   - Modal compartilhado com outros scripts
+ *   - Evento customizado 'tabela-carregada'
  */
 
 document.addEventListener('DOMContentLoaded', function() {

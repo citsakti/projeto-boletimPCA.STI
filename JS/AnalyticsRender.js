@@ -4,6 +4,43 @@
  * Este script é responsável por:
  *  - Renderizar as diferentes seções da página de análise
  *  - Criar tabelas e visualizações para apresentar os dados
+ *  - Formatar valores e aplicar estilos visuais para destacar informações importantes
+ *  - Integrar funcionalidades de expansão/contração de detalhes
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Funções de Renderização de Seções:
+ *   - renderGeneralSection(): Renderiza a seção 1 com dados gerais (status, tipos, áreas, valores)
+ *   - renderSituacionalSection(): Renderiza a seção 2 com análise situacional dos processos
+ *   - renderProdutividadeSection(): Renderiza a seção 3 com métricas de produtividade
+ *   - renderValoresPorAreaETipo(): Renderiza tabela de valores por área e tipo de orçamento
+ *   - renderAreaProjectsHtml(): Gera HTML para os boxes de área na seção geral
+ * 
+ * # Funções de Renderização de Detalhes:
+ *   - renderAreaValorDetails(): Gera tabelas detalhadas para valores por área/tipo
+ *   - renderProjectDetails(): Gera tabelas de projetos por categoria (de AnalyticsDetails.js)
+ *   - renderSituacionalDetails(): Gera tabelas de projetos por situação (de AnalyticsDetails.js)
+ *   - renderAreaDetails(): Gera tabelas de projetos por área (de AnalyticsDetails.js)
+ * 
+ * # Funções de Formatação:
+ *   - formatAreaWithClasses(): Aplica estilos CSS específicos por área
+ *   - formatStatusWithClasses(): Aplica estilos CSS específicos por status
+ *   - formatCurrency(): Formata valores numéricos para moeda (definido em outro arquivo)
+ * 
+ * # Funções de Event Listeners:
+ *   - addAreaValorExpandListeners(): Configura eventos para botões de expandir/contrair na tabela de valores
+ * 
+ * # Fluxo de Execução:
+ *   1. As funções de renderização principais são chamadas por Analytics.js
+ *   2. Tabelas e visualizações são geradas com HTML estruturado
+ *   3. Funções de formatação aplicam estilos específicos aos elementos
+ *   4. Event listeners são configurados para tornar os elementos interativos
+ * 
+ * # Dependências:
+ *   - analyticData: Objeto global com dados processados (de Analytics.js)
+ *   - renderProjectDetails, renderSituacionalDetails, renderAreaDetails: De AnalyticsDetails.js
+ *   - renderProdutividadeDetalhada: De AnalyticsDetails.js (função opcional)
+ *   - formatCurrency: Função global para formatação de valores monetários
  */
 
 /**
@@ -334,6 +371,7 @@ function renderSituacionalSection() {
 
 /**
  * Função para renderizar a seção de produtividade
+ * @returns {string} HTML da seção de produtividade
  */
 function renderProdutividadeSection() {
     // Aqui chamamos a implementação detalhada que está em AnalyticsDetails.js
@@ -645,6 +683,8 @@ function formatAreaWithClasses(area) {
 /**
  * Função para formatar o texto de status com as classes corretas
  * Duplicamos aqui para manter a coesão do módulo
+ * @param {string} statusText - O texto do status a ser formatado
+ * @returns {string} - O HTML com o status formatado
  */
 function formatStatusWithClasses(statusText) {
     // Mapeamento de status para classes CSS

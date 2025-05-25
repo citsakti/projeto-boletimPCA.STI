@@ -1,15 +1,36 @@
 /**
- * AcompanhamentoDeProjetos.js
+ * AcompanhamentoDeProjetos.js - Sistema de acompanhamento de projetos do Boletim PCA 2025
  * 
- * Este script adiciona funcionalidade de acompanhamento aos projetos da tabela principal.
- * Ele busca informações na aba "ACOMPANHAMENTO" do CSV, identifica projetos correspondentes
- * e exibe um tooltip com as informações de acompanhamento mais recentes.
+ * Este script é responsável por:
+ *  - Buscar informações da aba "ACOMPANHAMENTO" do CSV para projetos na tabela principal
+ *  - Exibir tooltips com informações de acompanhamento ao passar o mouse sobre os projetos
+ *  - Identificar visualmente projetos que possuem acompanhamento com um indicador (📩)
+ *  - Integrar dados de acompanhamento com a interface do usuário
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
  * 
- * Funcionalidades:
- * - Recupera dados de acompanhamento do CSV
- * - Faz o matching entre os projetos da aba de acompanhamento e a tabela principal
- * - Adiciona o emoji 📩 aos projetos que possuem acompanhamento
- * - Exibe tooltip com data e detalhes do acompanhamento ao passar o mouse
+ * # Componentes de Dados:
+ *   - URL CSV: Endereço da aba de acompanhamento na planilha Google Sheets
+ *   - Cache: Armazena dados de acompanhamento para evitar download repetido
+ *   - Mapa: Relaciona identificadores de projeto às informações de acompanhamento
+ * 
+ * # Funções Principais:
+ *   - initAcompanhamento(): Inicializa o processamento de acompanhamento
+ *   - fetchAcompanhamentoData(): Busca os dados da aba de acompanhamento
+ *   - processarAcompanhamento(): Processa os dados e marca os projetos correspondentes
+ *   - adicionarTooltips(): Configura tooltips nas células marcadas
+ * 
+ * # Fluxo de Execução:
+ *   1. Inicia após o carregamento do DOM
+ *   2. Busca dados de acompanhamento do CSV
+ *   3. Faz o matching entre os projetos da tabela e os dados de acompanhamento
+ *   4. Adiciona o emoji 📩 aos projetos que possuem acompanhamento
+ *   5. Configura tooltips para exibir detalhes ao passar o mouse
+ * 
+ * # Dependências:
+ *   - PapaParse para processamento de CSV
+ *   - Estrutura da tabela principal para identificação de projetos
+ *   - Evento 'tabela-carregada' para aplicação em atualizações dinâmicas
  */
 
 (function() {

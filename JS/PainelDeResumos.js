@@ -1,17 +1,37 @@
 /**
- * Script responsável por atualizar e gerenciar o painel de resumo de status dos processos.
+ * PainelDeResumos.js - Gerenciador do painel lateral de resumo do Boletim PCA 2025
  * 
- * Funcionalidades:
- * - Conta quantos processos existem para cada status na tabela.
- * - Exibe um painel lateral com a quantidade total e por status, permitindo filtrar a tabela ao clicar em cada status.
- * - O painel é responsivo: em telas menores (até 1024px), ele é recolhido automaticamente após a seleção.
- * - Atualiza o painel automaticamente ao carregar a página ou quando a tabela é atualizada dinamicamente.
+ * Este script é responsável por:
+ *  - Contabilizar e exibir quantidades de processos por status
+ *  - Gerenciar o painel lateral com estatísticas e links de filtro rápido
+ *  - Permitir filtrar a tabela ao clicar em cada status do painel
+ *  - Adaptar comportamento para diferentes tamanhos de tela
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
  * 
- * Observações:
- * - Considera que a coluna "Status do Processo" está na 6ª posição (índice 5).
- * - O painel de resumo deve ter a classe CSS 'painel-resumo'.
- * - O painel pode ser fechado automaticamente em dispositivos móveis/tablets.
- * - O filtro selecionado é armazenado em window.painelFilterStatus.
+ * # Componentes de Interface:
+ *   - Painel lateral: Container com classe 'painel-resumo'
+ *   - Botões de status: Elementos clicáveis que filtram a tabela
+ *   - Contador total: Exibe o número total de processos visíveis
+ * 
+ * # Funções Principais:
+ *   - updatePainelResumo(): Atualiza contadores e eventos do painel
+ *   - filtrarTabelaPorStatus(): Aplica filtro na tabela por status específico
+ *   - resetPainelFilterStatus(): Remove filtro ativo e restaura visualização
+ * 
+ * # Fluxo de Execução:
+ *   1. Executa ao carregar o DOM e após atualizações da tabela
+ *   2. Conta ocorrências de cada status na coluna "Status do Processo"
+ *   3. Atualiza contadores no painel lateral e configura eventos de clique
+ *   4. Em telas menores, recolhe o painel após seleção para maximizar área útil
+ * 
+ * # Adaptação Responsiva:
+ *   - Em dispositivos móveis/tablets (telas até 1024px), painel é recolhido após seleção
+ *   - Estado do filtro é armazenado em window.painelFilterStatus
+ * 
+ * # Dependências:
+ *   - Estrutura esperada da tabela com status na 6ª coluna (índice 5)
+ *   - Elemento HTML com classe 'painel-resumo' para conter os contadores
  */
 
 function updatePainelResumo() {

@@ -1,8 +1,48 @@
 /**
  * AnalyticsDetails.js - Funções para gerenciar a exibição de detalhes dos projetos na análise
  * 
- * Este script contém funções complementares para o Analytics.js,
- * focando na exibição detalhada de projetos por categoria.
+ * Este script é responsável por:
+ *  - Renderizar tabelas detalhadas de projetos para diferentes categorias
+ *  - Formatar dados para exibição (status, áreas, valores monetários)
+ *  - Implementar funcionalidades de expansão/contração de seções
+ *  - Calcular métricas de produtividade para períodos específicos
+ *  - Gerenciar interações do usuário com elementos expansíveis
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Funções de Renderização:
+ *   - renderProjectDetails(): Gera tabelas para detalhes por categoria orçamentária
+ *   - renderSituacionalDetails(): Gera tabelas para detalhes por situação
+ *   - renderAreaDetails(): Gera tabelas para detalhes por área organizacional
+ *   - renderProdutividadeDetalhada(): Gera seção completa de produtividade
+ *   - renderProdutividadeProjetosTable(): Gera tabelas para projetos da produtividade
+ * 
+ * # Funções de Formatação:
+ *   - formatAreaWithClasses(): Aplica estilos CSS específicos por área
+ *   - formatStatusWithClasses(): Aplica estilos CSS específicos por status
+ *   - formatCurrency(): Formata valores numéricos para moeda (definido em outro arquivo)
+ * 
+ * # Funções de Event Listeners:
+ *   - addExpandListeners(): Configura eventos para botões de expandir/contrair gerais
+ *   - addSituacionalExpandListeners(): Configura eventos para seção situacional
+ *   - addAreaExpandListeners(): Configura eventos para detalhes de áreas
+ *   - addProdutividadeExpandListeners(): Configura eventos para seção de produtividade
+ * 
+ * # Funções de Cálculo:
+ *   - calcularProdutividade(): Calcula métricas de acompanhamento para períodos
+ *   - toggleAreaDetails(): Controla a exibição de detalhes de áreas
+ * 
+ * # Fluxo de Execução:
+ *   1. Funções de renderização são chamadas por Analytics.js
+ *   2. Tabelas e seções detalhadas são geradas com HTML estruturado
+ *   3. Event listeners são configurados para elementos expansíveis
+ *   4. Usuário interage com os elementos para mostrar/ocultar detalhes
+ *   5. Dados são formatados adequadamente durante a exibição
+ * 
+ * # Dependências:
+ *   - analyticData: Objeto global com dados processados (de Analytics.js)
+ *   - setupAnalyticsTooltips: Função global para tooltips de contratos
+ *   - Funções de formatação auxiliares (formatCurrency, etc.)
  */
 
 /**

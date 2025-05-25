@@ -1,19 +1,36 @@
 /**
- * Este arquivo controla todos os filtros da tabela principal do boletim PCA.
- * Ele lida tanto com filtros para desktop quanto para dispositivos móveis,
- * preenchendo selects dinamicamente, aplicando filtros combinados e
- * gerenciando o dropdown multi-seleção para "Status do Processo".
+ * filter-controls.js - Sistema de filtros para a tabela principal do Boletim PCA 2025
  * 
- * Principais funções:
- * - initFiltros: Inicializa e configura todos os filtros ao carregar a tabela.
- * - filterTable: Aplica os filtros combinados para desktop.
- * - filterTableMobile: Aplica os filtros combinados para mobile.
- * - alternaCoresLinhas: Alterna as cores das linhas visíveis para melhor visualização.
- * - clearStatusDropdown: Limpa o dropdown multi-seleção de status.
+ * Este script é responsável por:
+ *  - Implementar e gerenciar todos os filtros da tabela principal
+ *  - Suportar filtros em diferentes formatos para desktop e dispositivos móveis
+ *  - Preencher dinamicamente opções de filtro com base nos dados da tabela
+ *  - Aplicar filtros combinados e gerenciar estados de interface relacionados
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
  * 
- * Eventos:
- * - DOMContentLoaded: Inicializa filtros ao carregar a página.
- * - tabela-carregada: Inicializa filtros após a tabela ser preenchida via JS.
+ * # Componentes de Filtro:
+ *   - Filtros de desktop: Inputs de texto e selects padrão
+ *   - Filtros mobile: Selects otimizados para toque
+ *   - Dropdown multi-seleção para "Status do Processo"
+ * 
+ * # Funções Principais:
+ *   - initFiltros(): Inicializa e configura todos os filtros
+ *   - filterTable(): Aplica filtros combinados para desktop
+ *   - filterTableMobile(): Aplica filtros combinados para mobile
+ *   - populateTipoFiltro(): Preenche dinamicamente o select de tipo
+ *   - alternaCoresLinhas(): Alterna cores das linhas visíveis
+ *   - clearStatusDropdown(): Limpa seleções do dropdown de status
+ * 
+ * # Fluxo de Execução:
+ *   1. Inicializa ao carregar o DOM
+ *   2. Reinicializa após o evento 'tabela-carregada'
+ *   3. Responde a interações do usuário nos controles de filtro
+ *   4. Atualiza a exibição da tabela conforme os filtros aplicados
+ * 
+ * # Dependências:
+ *   - Estrutura HTML específica para os controles de filtro
+ *   - Evento customizado 'tabela-carregada' para reinicialização
  */
 
 // Inicializa os filtros ao carregar o DOM e ao evento customizado "tabela-carregada"

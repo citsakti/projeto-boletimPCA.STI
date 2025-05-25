@@ -1,15 +1,32 @@
 /**
- * Script responsável por exibir um modal com a fonte de dados (planilha Google) ao clicar no botão "Fonte de Dados".
+ * btnFonteDeDados.js - Gerenciador do botão para visualização da planilha de dados do Boletim PCA 2025
  * 
- * Funcionalidades:
- * - Ao clicar no botão com ID 'btnFonteDeDados', abre um modal exibindo a planilha de dados em um iframe.
- * - Reutiliza os elementos do modal já existentes na página (compartilhados com btnPCAPublicada.js).
- * - Aplica animação de entrada ao modal e impede a rolagem da página de fundo enquanto o modal está aberto.
+ * Este script é responsável por:
+ *  - Implementar a funcionalidade do botão "FONTE DE DADOS"
+ *  - Exibir um modal com a planilha Google Sheets fonte dos dados
+ *  - Gerenciar a exibição/ocultação do modal e seus eventos associados
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
  * 
- * Observações:
- * - Os elementos do modal (overlay, iframe, conteúdo) devem existir no HTML com os IDs corretos.
- * - A lógica de fechamento do modal (botão fechar, clique fora, tecla ESC) é gerenciada pelo script btnPCAPublicada.js.
- * - Caso utilize um modal separado, será necessário replicar os event listeners de fechamento neste script.
+ * # Elementos de Interface:
+ *   - Botão Fonte de Dados: Identificado pelo ID 'btnFonteDeDados'
+ *   - Modal Overlay: Identificado pelo ID 'processo-modal-overlay'
+ *   - Iframe: Identificado pelo ID 'processo-iframe'
+ * 
+ * # Funções Principais:
+ *   - Configuração de event listener para o clique no botão
+ *   - Manipulação do modal para exibir a planilha Google Sheets
+ * 
+ * # Fluxo de Execução:
+ *   1. Inicializa com o modal fechado
+ *   2. Ao clicar no botão Fonte de Dados, abre o modal
+ *   3. A planilha é carregada no iframe
+ *   4. O usuário pode fechar o modal através de mecanismos implementados em outro script
+ * 
+ * # Dependências:
+ *   - Elementos do modal no HTML da página
+ *   - Lógica de fechamento do modal (implementada em btnPCAPublicada.js)
+ *   - URL da planilha Google Sheets definida no script
  */
 
 document.addEventListener('DOMContentLoaded', function() {

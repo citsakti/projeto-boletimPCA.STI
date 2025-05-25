@@ -1,7 +1,46 @@
 /**
- * AnalyticsContratos.js
+ * AnalyticsContratos.js - Gerenciador de interfaces para contratos do Boletim PCA 2025
  * 
- * Adiciona tooltips e modais para informações de contrato nas tabelas de analytics.
+ * Este script é responsável por:
+ *  - Criar e gerenciar tooltips para exibir números de contratos
+ *  - Implementar funcionalidade de modal para visualização de contratos
+ *  - Fornecer interface unificada para integração com o sistema de analytics
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Componentes de Interface:
+ *   - Tooltip: Elemento flutuante que mostra número do contrato ao passar o mouse
+ *   - Modal: Janela de visualização que carrega o contrato do TCE-CE via iframe
+ * 
+ * # Funções Principais:
+ *   - showAnalyticsTooltip(): Exibe tooltip com número do contrato
+ *   - hideAnalyticsTooltip(): Oculta o tooltip
+ *   - openAnalyticsContractModal(): Abre modal com iframe do contrato
+ *   - closeAnalyticsModal(): Fecha o modal com animação
+ *   - setupAnalyticsTooltips(): Função global para configurar tooltips em células de tabela
+ * 
+ * # Fluxo de Execução:
+ *   1. O script cria elementos de UI reutilizáveis (tooltip)
+ *   2. Captura referências para elementos do modal no DOM
+ *   3. Define funções de manipulação de eventos
+ *   4. Expõe função global para configuração de tooltips
+ *   5. Configura listeners para fechamento do modal (clique, ESC)
+ * 
+ * # Integração:
+ *   - Exporta setupAnalyticsTooltips como método global (window)
+ *   - Responde a eventos de mouse em células com atributo data-contrato
+ *   - Utiliza classes CSS existentes (status-tooltip) para estilização
+ *   - Adiciona ícone 📄 para indicar contratos visualizáveis
+ * 
+ * # Interação com Usuário:
+ *   - Hover: Exibe tooltip com número do contrato
+ *   - Clique: Abre modal para visualização completa do contrato
+ *   - ESC/clique externo/botão fechar: Fecha o modal
+ * 
+ * # Tratamento de Erros:
+ *   - Fallback para abrir em nova aba caso modal não esteja disponível
+ *   - Verificações de null/empty para evitar erros em atributos ausentes
+ *   - Limpeza do iframe após fechamento para prevenir problemas de memória
  */
 document.addEventListener('DOMContentLoaded', function() {
     // Criar elemento de tooltip que será reutilizado
@@ -15,6 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalIframe = document.getElementById('processo-iframe');
     const closeModalBtn = document.getElementById('close-modal-btn');
 
+    /**
+     * Exibe tooltip com número do contrato
+     * @param {Event} event - Evento de mouse que acionou a função
+     */
     function showAnalyticsTooltip(event) {
         const numeroContrato = this.getAttribute('data-contrato');
         if (!numeroContrato || numeroContrato.trim() === '') return;
@@ -28,11 +71,18 @@ document.addEventListener('DOMContentLoaded', function() {
         tooltip.style.top = (rect.top - tooltip.offsetHeight - 10 + window.scrollY) + 'px';
     }
     
+    /**
+     * Oculta o tooltip de contrato
+     */
     function hideAnalyticsTooltip() {
         tooltip.style.opacity = '0';
         tooltip.style.visibility = 'hidden';
     }
     
+    /**
+     * Abre o modal com iframe do contrato
+     * Se o modal não estiver disponível, abre em nova aba como fallback
+     */
     function openAnalyticsContractModal() {
         const numeroRegistro = this.getAttribute('data-registro');
         if (!numeroRegistro || numeroRegistro.trim() === '') return;
@@ -57,6 +107,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = 'hidden';
     }
 
+    /**
+     * Fecha o modal com animação
+     * Limpa o iframe para economizar recursos
+     */
     function closeAnalyticsModal() {
         if (modalOverlay && modalContent && modalIframe) {
             modalContent.classList.remove('show');
@@ -89,7 +143,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Função global para configurar/reconfigurar tooltips e modais nas tabelas de analytics
+    /**
+     * Função global para configurar tooltips e modais nas células de tabela
+     * Exposta como método global para ser chamada após carregamento de dados
+     */
     window.setupAnalyticsTooltips = function() {
         const projetoCells = document.querySelectorAll('.project-details-table td[data-contrato]');
         

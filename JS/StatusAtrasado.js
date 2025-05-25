@@ -1,31 +1,43 @@
 /**
- * StatusAtrasado.js
+ * StatusAtrasado.js - Sistema de Tooltips e Alertas Visuais do Boletim PCA 2025
  * 
- * Este script adiciona tooltips (dicas de contexto) e destaque visual para células da tabela
- * que possuem determinados status de processo, facilitando a visualização de atrasos e etapas importantes.
+ * Este script é responsável por:
+ *  - Adicionar tooltips informativos aos status de processo
+ *  - Destacar visualmente células da tabela com status de atraso ou especiais
+ *  - Reagir dinamicamente a alterações na tabela
+ *  - Exibir detalhes contextuais sobre cada status ao passar o mouse
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
  * 
- * Funcionamento:
- * - Destaca células da coluna "Status do Processo" (6ª coluna) que contenham status definidos na lista.
- * - Exibe um tooltip ao passar o mouse sobre a célula, mostrando detalhes adicionais (quando disponíveis).
- * - Observa alterações dinâmicas na tabela para manter o comportamento mesmo após atualizações via JavaScript.
+ * # Componentes de Interface:
+ *   - Elemento tooltip: Exibição flutuante com informações detalhadas
+ *   - Marcação visual: Classe CSS aplicada às células com status especiais
+ *   - Observer: Monitora mudanças na tabela para manter tooltips atualizados
  * 
- * Como funciona:
- * 1. Define uma lista de status especiais a serem destacados.
- * 2. Cria um observer para monitorar mudanças na tabela e reaplicar tooltips quando necessário.
- * 3. Cria dinamicamente um elemento de tooltip no body da página.
- * 4. Para cada célula da coluna de status, verifica se o texto corresponde a algum status da lista:
- *    - Se sim, adiciona classe de destaque e listeners para mostrar/ocultar o tooltip.
- *    - Se não, remove destaque e listeners.
- * 5. O conteúdo do tooltip é definido conforme o status e os atributos data-* presentes na célula.
- * 6. O script escuta o evento customizado 'tabela-carregada' para reaplicar tooltips após carregamento dinâmico.
+ * # Funções Principais:
+ *   - setupTooltips(): Configura tooltips para células de status especiais
+ *   - handleMouseEnter(): Exibe tooltip com detalhes específicos do status
+ *   - handleMouseLeave(): Oculta o tooltip quando o mouse sai da célula
  * 
- * Observações:
- * - Os detalhes exibidos nos tooltips dependem dos atributos data-* presentes nas células.
- * - O script é executado automaticamente ao carregar o DOM.
+ * # Fluxo de Execução:
+ *   1. Define uma lista de status especiais a serem destacados
+ *   2. Cria um observer para monitorar mudanças na tabela
+ *   3. Cria dinamicamente um elemento de tooltip no body da página
+ *   4. Para cada célula da coluna de status, aplica classes e listeners quando necessário
+ *   5. O conteúdo do tooltip é definido conforme o status e atributos data-*
+ *   6. O script responde ao evento customizado 'tabela-carregada'
  * 
- * Dependências:
- * - A tabela deve possuir um <tbody> e a coluna de status deve ser a sexta (índice 5).
- * - As células podem conter atributos data-detalhe-autuacao, data-detalhe-contratacao, data-detalhe-contratacao-renovacao ou data-detalhe-status-geral.
+ * # Personalização de Tooltips:
+ *   - AUTUAÇÃO ATRASADA: Usa data-detalhe-autuacao
+ *   - CONTRATAÇÃO ATRASADA: Usa data-detalhe-contratacao
+ *   - EM CONTRATAÇÃO/RENOVAÇÃO: Usa data-detalhe-contratacao-renovacao
+ *   - Outros status: Usa data-detalhe-status-geral
+ * 
+ * # Dependências:
+ *   - Tabela DOM com <tbody> e coluna de status (6ª coluna, índice 5)
+ *   - Atributos data-* nas células para informações detalhadas
+ *   - Evento customizado 'tabela-carregada' disparado por main.js
+ *   - CSS para a classe 'status-atrasado' e 'status-tooltip'
  */
 
 document.addEventListener('DOMContentLoaded', function() {

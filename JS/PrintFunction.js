@@ -1,17 +1,40 @@
 /**
- * Script responsável por gerenciar a impressão da página, ocultando elementos desnecessários e aplicando estilos específicos para o modo de impressão.
+ * PrintFunction.js - Sistema de Impressão do Boletim PCA 2025
  * 
- * Funcionalidades:
- * - Adiciona listeners para o botão de imprimir e para o atalho de teclado Ctrl+P (ou ⌘+P no Mac).
- * - Ao acionar a impressão, oculta botões, filtros e outros elementos que não devem aparecer no papel.
- * - Remove animações e impede quebra de linha na coluna de processos.
- * - Se houver filtros aplicados, oculta também o painel de resumo.
- * - Após a impressão ou cancelamento, restaura o estado original da página.
+ * Este script é responsável por:
+ *  - Gerenciar a impressão otimizada das páginas do Boletim
+ *  - Ocultar elementos desnecessários durante a impressão
+ *  - Aplicar estilos específicos para versão impressa
+ *  - Restaurar a visualização normal após impressão
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
  * 
- * Observações:
- * - O botão de impressão deve ter o ID 'btnPrint'.
- * - O painel de resumo é ocultado apenas se houver filtros ativos.
- * - O script utiliza um elemento <style> dinâmico para sobrescrever estilos durante a impressão.
+ * # Componentes de Interface:
+ *   - Botão de impressão: Identificado pelo ID 'btnPrint'
+ *   - Elementos ocultáveis: Botões, filtros, e itens não relevantes para versão impressa
+ *   - Estilos dinâmicos: Regras CSS específicas aplicadas somente durante impressão
+ * 
+ * # Funções Principais:
+ *   - printPage(): Prepara a página e inicia a impressão pelo navegador
+ *   - hideElementsForPrint(): Oculta elementos desnecessários
+ *   - applyPrintStyles(): Aplica estilos específicos para impressão
+ *   - restorePageAfterPrint(): Restaura a visualização normal
+ * 
+ * # Fluxo de Execução:
+ *   1. Event listener é configurado para o botão de impressão
+ *   2. Ao acionar a impressão, elementos desnecessários são ocultados
+ *   3. Estilos específicos são aplicados (remoção de animações, ajustes de layout)
+ *   4. Após impressão ou cancelamento, a visualização normal é restaurada
+ * 
+ * # Lógica Condicional:
+ *   - Se filtros estiverem aplicados, o painel de resumo é ocultado
+ *   - Diferentes áreas da página recebem tratamentos específicos
+ *   - Breaks de página são otimizados para melhor resultado em papel
+ * 
+ * # Dependências:
+ *   - Botão com ID 'btnPrint' no HTML
+ *   - Estrutura DOM específica para identificar elementos a ocultar
+ *   - CSS base da aplicação (para sobrescrever propriedades específicas)
  */
 
 document.addEventListener('DOMContentLoaded', () => {

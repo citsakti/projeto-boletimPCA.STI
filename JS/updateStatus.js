@@ -1,12 +1,31 @@
 /**
- * Atualiza o texto de status do rodapé, definindo-o com a data e hora atual.
+ * updateStatus.js - Atualizador de timestamp do rodapé do Boletim PCA 2025
+ * 
+ * Este script é responsável por:
+ *  - Atualizar o texto de status no rodapé da página
+ *  - Exibir a data e hora atual no formato brasileiro
+ *  - Fornecer feedback visual sobre quando a página foi carregada/atualizada
  *
- * A função seleciona um elemento de parágrafo dentro do rodapé e formata a data
- * e a hora atual utilizando a localidade 'pt-BR'. A hora é exibida no formato 24 horas com horas,
- * minutos e segundos.
- *
- * @function updateStatus
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Elementos de Interface:
+ *   - Parágrafo do rodapé: Contém o texto de status com timestamp
+ * 
+ * # Funções Principais:
+ *   - updateStatus(): Define o texto do rodapé com data e hora atuais
+ * 
+ * # Fluxo de Execução:
+ *   1. Script é executado quando o DOM é completamente carregado
+ *   2. Localiza o elemento de parágrafo dentro do rodapé
+ *   3. Formata a data e hora atual no padrão brasileiro
+ *   4. Atualiza o texto do rodapé com o timestamp formatado
+ * 
+ * # Formatação:
+ *   - Data: Formato brasileiro (DD/MM/AAAA)
+ *   - Hora: Formato 24h com horas, minutos e segundos (HH:MM:SS)
+ *   - Localidade: pt-BR para formatação adequada
  */
+
 function updateStatus() {
     const footerParagraph = document.querySelector('footer p');
     const now = new Date();

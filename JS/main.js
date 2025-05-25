@@ -1,34 +1,38 @@
 /**
- * -----------------------------------------------------------------------------
- * main.js - Script principal do Boletim PCA STI 2025
- * -----------------------------------------------------------------------------
- * Este arquivo é responsável por:
+ * main.js - Script principal do Boletim PCA 2025
+ * 
+ * Este script é responsável por:
  *  - Buscar os dados da planilha Google Sheets (CSV público)
  *  - Processar e montar a tabela HTML principal do boletim
  *  - Aplicar filtros dinâmicos, animações, estilos e funcionalidades de modal
  *  - Gerenciar eventos de carregamento, atualização e interação do usuário
- *  - Expor funções globais para atualização automática dos dados
  *
- * Principais funções e responsabilidades:
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Componentes de Dados:
+ *   - CSV da planilha: Fonte primária de dados em formato tabular
+ *   - Tabela HTML: Apresentação formatada e interativa dos dados
+ * 
+ * # Funções Principais:
+ *   - fetchAndPopulate(): Busca dados do CSV e monta a tabela HTML
+ *   - populateTipoFiltro(): Preenche filtros com valores únicos da tabela
+ *   - filterTable(): Filtra as linhas conforme valores nos filtros
+ *   - trimTableEnding(): Remove linhas em branco no final da tabela
+ *   - aplicarEstiloStatus(): Destaca visualmente linhas com status específicos
+ * 
+ * # Fluxo de Execução:
+ *   1. Carrega biblioteca PapaParse para processamento de CSV
+ *   2. Busca os dados da planilha e identifica cabeçalho correto
+ *   3. Processa e filtra apenas as linhas válidas
+ *   4. Monta as linhas da tabela na ordem correta
+ *   5. Aplica formatações específicas para cada coluna
+ *   6. Dispara o evento "tabela-carregada" ao finalizar
+ * 
+ * # Dependências:
+ *   - PapaParse: Para processamento de CSV
+ *   - Funções de formatação (em outros arquivos)
+ *   - Manipulação de modal para visualização de processos
  *
- * - fetchAndPopulate:
- *      Busca os dados do CSV, identifica o cabeçalho correto, filtra apenas as linhas válidas,
- *      monta as linhas da tabela na ordem correta e aplica formatações específicas para cada coluna.
- *      Também dispara o evento "tabela-carregada" ao final.
- *
- * - populateTipoFiltro:
- *      Preenche dinamicamente o filtro "Tipo" com as opções únicas encontradas na tabela.
- *
- * - filterTable:
- *      Filtra as linhas da tabela conforme os valores digitados ou selecionados nos filtros.
- *
- * - trimTableEnding:
- *      Remove linhas em branco após a última linha válida na coluna "Projeto de Aquisição".
- *
- * - aplicarEstiloStatus:
- *      Aplica classes CSS especiais para destacar linhas com status de contratação atrasada.
- *
- * - Manipulação de modal:
  *      Permite abrir um modal ao clicar no ícone de processo, copiando o número do processo
  *      e abrindo o iframe com a consulta correspondente.
  *

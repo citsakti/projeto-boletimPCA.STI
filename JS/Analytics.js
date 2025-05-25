@@ -5,6 +5,48 @@
  *  - Carregar os dados do CSV da planilha do PCA 2025
  *  - Processar os dados para gerar métricas e estatísticas
  *  - Coordenar a exibição das seções da página de Dados Analíticos
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Objeto de Dados: analyticData
+ * Armazena todos os dados processados, incluindo:
+ *   - statusCounts: Contador de projetos por status
+ *   - tipoCounts: Contador por tipo de projeto (Aquisição/Renovação)
+ *   - valorTotal: Somas por categoria orçamentária
+ *   - situacional: Contadores para situações específicas
+ *   - areaCounts: Contador de projetos por área
+ *   - projetosPorArea: Projetos organizados por área
+ *   - projetosPorCategoria: Listas por tipo de orçamento
+ *   - projetosPorSituacao: Listas por situação processual
+ * 
+ * # Funções Principais:
+ *   - initAnalytics(): Inicia o processamento, coordena o fluxo
+ *   - fetchCSVData(): Busca e processa dados CSV
+ *   - processData(): Transforma dados brutos em métricas
+ *   - resetAnalyticData(): Limpa contadores para novo processamento
+ *   - processProjectCounters(): Classifica e conta projetos
+ *   - classifyProjectBySituation(): Categoriza projetos por situação
+ *   - formatCurrency(): Formata valores monetários
+ * 
+ * # Fluxo de Execução:
+ *   1. O script inicia quando o DOM carrega
+ *   2. Dados CSV são baixados e processados
+ *   3. Métricas são calculadas e classificadas
+ *   4. Interface é renderizada com os dados
+ *   5. Event listeners são configurados
+ * 
+ * # Lógica de Negócio:
+ *   - Projetos cancelados são excluídos da análise
+ *   - Dados são segregados por tipo (aquisição/renovação)
+ *   - Valores são separados por orçamento (custeio/investimento)
+ *   - Situações específicas são identificadas e contabilizadas
+ *   - Áreas organizacionais têm suas contratações mapeadas
+ * 
+ * # Dependências:
+ *   - Papa Parse: Para processamento de CSV
+ *   - Funções de renderização (em outros arquivos)
+ *   - Funções de tooltip para detalhes de contratos
+ *   - Event listeners para interatividade
  */
 
 // URL da planilha CSV (mesma do main.js)

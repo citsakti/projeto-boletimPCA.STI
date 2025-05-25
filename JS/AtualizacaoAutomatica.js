@@ -1,36 +1,83 @@
 /**
- * -----------------------------------------------------------------------------
- * AtualizacaoAutomatica.js - Atualização automática da tabela do Boletim PCA STI 2025
- * -----------------------------------------------------------------------------
+ * AtualizacaoAutomatica.js - Sistema de atualização automática do Boletim PCA 2025
+ * 
  * Este script é responsável por:
- *  - Verificar periodicamente (a cada 5 minutos) se houve atualização nos dados da planilha Google Sheets (CSV).
- *  - Comparar os dados atuais da tabela com os dados mais recentes do CSV.
- *  - Exibir uma notificação modal ao usuário caso sejam detectadas alterações nos projetos ou na estrutura da tabela.
- *  - Atualizar a tabela automaticamente no DOM, sem recarregar a página, caso haja mudanças.
+ *  - Verificar periodicamente se houve atualizações nos dados da planilha Google Sheets
+ *  - Comparar os dados atuais com os mais recentes para detectar alterações
+ *  - Notificar o usuário sobre mudanças através de um modal interativo
+ *  - Atualizar a tabela dinamicamente sem necessidade de recarregar a página
  *
- * Principais funções e responsabilidades:
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Componentes de Dados:
+ *   - Dados originais: Estado atual da tabela no DOM
+ *   - Dados novos: Obtidos do CSV em tempo real
+ *   - Intervalo de verificação: 5 minutos (300.000ms)
+ * 
+ * # Funções Principais:
+ *   - fetchRawData(): Busca os dados brutos do CSV e processa
+ *   - compareData(): Compara dados antigos e novos, identificando mudanças
+ *   - showUpdateModal(): Exibe modal com detalhes das alterações detectadas
+ *   - updateTable(): Atualiza a tabela no DOM com os novos dados
+ *   - initAutoUpdate(): Inicia o ciclo de verificação automática
+ * 
+ * # Fluxo de Execução:
+ *   1. Inicia após o carregamento completo da tabela
+ *   2. A cada 5 minutos, verifica se há alterações na fonte de dados
+ *   3. Se detectar alterações, notifica o usuário com detalhes das mudanças
+ *   4. Permite atualização manual ou automática dos dados
+ *   5. Reinicia o ciclo de verificação após cada atualização
+ * 
+ * # Lógica de Negócio:
+ *   - Análise linha a linha e célula a célula para detectar alterações precisas
+ *   - Categorização de mudanças (projetos novos, alterados, etc.)
+ *   - Manipulação do DOM para atualização sem reload da página
+ * 
+ * # Dependências:
+ *   - PapaParse para processamento de CSV
+ *   - fetchAndPopulate (definida em main.js) para atualização da tabela
+ *   - Modal HTML para exibição de notificações
  *
- * - fetchRawData:
- *      Busca os dados brutos do CSV, identifica o cabeçalho correto e retorna apenas as linhas válidas.
- *
- * - compareData:
- *      Compara os dados antigos e novos, detectando mudanças em projetos, colunas e estrutura da tabela.
- *
- * - showUpdateNotificationModal / hideUpdateNotificationModal:
+ * - showUpdateNotificationModal(htmlContent) / hideUpdateNotificationModal():
  *      Exibe ou oculta o modal de notificação de atualização para o usuário.
+ *      Insere conteúdo HTML dinâmico descrevendo as mudanças detectadas.
  *
- * - checkForUpdates:
- *      Função principal chamada periodicamente. Busca os dados, compara com os atuais e, se houver mudanças,
- *      exibe notificação e atualiza a tabela.
+ * - checkForUpdates():
+ *      Função principal chamada periodicamente pelo setInterval.
+ *      Busca os dados atualizados, compara com os atuais e, se houver mudanças,
+ *      exibe notificação e atualiza a tabela usando populateTableDOMWithData().
+ *      Atualiza a referência de dados após cada mudança detectada.
  *
  * - DOMContentLoaded:
  *      Inicializa o serviço de atualização automática após o carregamento da página e dependências.
+ *      Configura o intervalo de verificação e tratamento de eventos do modal.
  *
- * Observações:
- * - O script depende das variáveis globais SHEET_CSV_URL_GLOBAL e Papa (biblioteca PapaParse).
- * - A função window.populateTableDOMWithData deve estar disponível para repopular a tabela no DOM.
- * - O modal de notificação deve estar presente no HTML com os IDs esperados.
- * - O serviço só inicia se todas as dependências estiverem carregadas corretamente.
+ * # Estrutura de dados:
+ * - columnHeaders: Array com nomes das colunas na ordem da tabela HTML
+ * - csvColumnIndices: Array com índices correspondentes no CSV para cada coluna
+ * - currentProcessedData: Armazena os dados atuais para comparação
+ * - comparison.updatedProjects: Array de objetos detalhando mudanças por projeto
+ *
+ * # Manipulação de eventos:
+ * - Listener para DOMContentLoaded: Inicia o serviço após carregamento da página
+ * - Listener para clique no botão de fechar o modal de notificação
+ * - Timer setInterval: Executa checkForUpdates() periodicamente (5 minutos)
+ *
+ * # Tratamento de erros:
+ * - Verificação de dependências (SHEET_CSV_URL_GLOBAL e Papa)
+ * - Verificação da presença do cabeçalho correto no CSV
+ * - Logs detalhados para facilitar debug em diferentes cenários
+ * - Fallbacks para situações onde elementos do DOM não são encontrados
+ *
+ * # Observações:
+ * - O script é encapsulado em IIFE para evitar poluição do escopo global
+ * - O script depende das variáveis globais SHEET_CSV_URL_GLOBAL e Papa (biblioteca PapaParse)
+ * - A função window.populateTableDOMWithData deve estar disponível para repopular a tabela no DOM
+ * - O modal de notificação deve estar presente no HTML com os IDs esperados:
+ *   - update-notification-overlay: Container do modal
+ *   - update-notification-details: Elemento para inserir detalhes das mudanças
+ *   - update-notification-close-btn: Botão para fechar o modal
+ * - O serviço só inicia se todas as dependências estiverem carregadas corretamente
  * -----------------------------------------------------------------------------
  */
 
@@ -49,7 +96,11 @@
     // Índices correspondentes no array da linha do CSV (row[i])
     const csvColumnIndices = [2, 3, 4, 5, 10, 6, 9, 15, 14, 13];
 
-    // Função para buscar e processar os dados do CSV
+    /**
+     * Busca e processa os dados brutos do CSV da planilha
+     * @returns {Promise<Array>} Promise com os dados processados do CSV
+     * @throws {Error} Caso ocorra falha no carregamento ou parsing do CSV
+     */
     async function fetchRawData() {
         return new Promise((resolve, reject) => {
             if (!window.SHEET_CSV_URL_GLOBAL || !window.Papa) {
@@ -107,7 +158,12 @@
         });
     }
 
-    // Função para comparar os dados antigos e novos
+    /**
+     * Compara dados antigos e novos para detectar mudanças
+     * @param {Array} oldData Array com os dados atuais
+     * @param {Array} newData Array com os dados recém-baixados
+     * @returns {Object} Objeto detalhando mudanças encontradas
+     */
     function compareData(oldData, newData) {
         console.log("[compareData] Iniciando comparação.");
         const changes = {
@@ -178,6 +234,10 @@
         return changes;
     }
 
+    /**
+     * Exibe o modal de notificação com detalhes das atualizações
+     * @param {string} htmlContent Conteúdo HTML a ser exibido no modal
+     */
     function showUpdateNotificationModal(htmlContent) {
         const modalOverlay = document.getElementById('update-notification-overlay');
         const modalDetails = document.getElementById('update-notification-details');
@@ -187,6 +247,9 @@
         }
     }
 
+    /**
+     * Oculta o modal de notificação de atualizações
+     */
     function hideUpdateNotificationModal() {
         const modalOverlay = document.getElementById('update-notification-overlay');
         if (modalOverlay) {
@@ -194,6 +257,10 @@
         }
     }
 
+    /**
+     * Função principal que verifica e processa atualizações
+     * Busca novos dados, compara com os atuais e atualiza a interface se necessário
+     */
     async function checkForUpdates() {
         console.log("Atualização Automática: Verificando atualizações...");
         try {
@@ -257,6 +324,7 @@
         }
     }
 
+    // Inicialização do serviço após carregamento da página
     document.addEventListener('DOMContentLoaded', () => {
         console.log("Atualização Automática: DOMContentLoaded acionado.");
 
@@ -279,6 +347,7 @@
             }
         }, 3000);
         
+        // Configuração do botão de fechamento do modal
         const closeBtn = document.getElementById('update-notification-close-btn');
         if (closeBtn) {
             closeBtn.addEventListener('click', hideUpdateNotificationModal);

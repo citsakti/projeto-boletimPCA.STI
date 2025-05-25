@@ -1,15 +1,34 @@
 /**
- * Script responsável por aplicar animações e destacar emojis específicos (💣, ⏳, ❗) no conteúdo da página.
+ * emoji animation function.js - Sistema de animação de emojis do Boletim PCA 2025
  * 
- * Funcionalidades:
- * - Substitui os emojis 💣, ⏳ e ❗ por spans com classes específicas para permitir animação via CSS.
- * - Aplica a substituição em células da tabela, spans de destaque e em qualquer texto puro do body.
- * - Expõe funções globais para reaplicar as animações dinamicamente, caso o conteúdo da página seja atualizado.
+ * Este script é responsável por:
+ *  - Aplicar animações e destacar emojis específicos na página (💣, ⏳, ❗)
+ *  - Substituir emojis por spans com classes específicas para estilização via CSS
+ *  - Processar células da tabela, spans de destaque e textos no corpo da página
+ *  - Expor funções globais para reaplicação das animações após atualizações
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
  * 
- * Observações:
- * - As classes CSS esperadas são: .emoji-bomba, .emoji-hourglass e .emoji-exclamation.
- * - As funções são executadas automaticamente ao carregar o DOM, mas também podem ser chamadas manualmente.
- * - O script é compatível com atualizações dinâmicas do conteúdo da página.
+ * # Emojis Animados:
+ *   - 💣 (bomba): Indica processos com problemas críticos ou atrasados
+ *   - ⏳ (ampulheta): Indica processos em espera ou pendentes
+ *   - ❗ (exclamação): Indica alertas ou atenção especial
+ * 
+ * # Funções Principais:
+ *   - createSpan(): Substitui emoji 💣 por span com classe especial
+ *   - createSpanHourglass(): Substitui emoji ⏳ por span animado
+ *   - createSpanExclamation(): Substitui emoji ❗ por span animado
+ *   - findAndReplace(): Aplica substituições em elementos específicos
+ *   - emojiReplace(): Função principal que coordena todas as substituições
+ * 
+ * # Fluxo de Execução:
+ *   1. Executa automaticamente quando o DOM é carregado
+ *   2. Busca ocorrências dos emojis específicos no conteúdo
+ *   3. Substitui por elementos animados mantendo o texto original
+ *   4. Expõe funções para serem chamadas após atualizações dinâmicas
+ * 
+ * # Dependências:
+ *   - Classes CSS: .emoji-bomba, .emoji-hourglass, .emoji-exclamation
  */
 
 /* Função para o emoji 💣 */

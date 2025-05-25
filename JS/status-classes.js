@@ -1,3 +1,28 @@
+/**
+ * status-classes.js - Mapeamento de status para classes CSS no Boletim PCA 2025
+ * 
+ * Este script é responsável por:
+ *  - Definir o mapeamento entre texto de status e classes CSS correspondentes
+ *  - Fornecer constantes para aplicação consistente de estilos visuais
+ *  - Permitir a identificação visual rápida do status de cada projeto
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Mapeamento de Status:
+ *   - Relaciona cada texto de status (com emoji) à sua classe CSS
+ *   - Organizado por categorias semânticas (atrasado, em andamento, concluído, etc.)
+ *   - Utilizado por várias partes do sistema para formatação visual
+ * 
+ * # Utilização:
+ *   - Importado por outros scripts para acesso ao mapeamento
+ *   - Aplicado às células de status nas tabelas
+ *   - Mantém consistência visual em toda a aplicação
+ * 
+ * # Dependências:
+ *   - Requer os estilos CSS correspondentes definidos na folha de estilos
+ *   - Usado por scripts que manipulam a tabela principal
+ */
+
 console.log('fstatus-classes.js carregado');
 
 const statusMapping = {

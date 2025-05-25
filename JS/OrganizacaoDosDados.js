@@ -1,24 +1,37 @@
 /**
- * -----------------------------------------------------------------------------
- * sortTable.js - Ordenação dinâmica da tabela do Boletim PCA STI 2025
- * -----------------------------------------------------------------------------
+ * OrganizacaoDosDados.js - Sistema de ordenação dinâmica do Boletim PCA 2025
+ * 
  * Este script é responsável por:
- *  - Permitir a ordenação das colunas da tabela ao clicar no cabeçalho.
- *  - Exibir indicadores visuais de ordenação (setas) no cabeçalho.
- *  - Ordenar automaticamente a tabela pela coluna "Contratar Até" ao carregar a página ou atualizar os dados.
- *  - Manter as linhas com status "CONTRATADO ✅" ou "RENOVADO ✅" sempre no final da tabela, independentemente da ordenação.
+ *  - Permitir a ordenação interativa das colunas da tabela principal
+ *  - Exibir indicadores visuais (setas) para a direção de ordenação
+ *  - Ordenar automaticamente a tabela por "Contratar Até" ao carregar
+ *  - Manter projetos já contratados/renovados sempre no final da tabela
  *
- * Principais funções:
- *
- * - attachSorting:
- *      Adiciona eventos de clique aos cabeçalhos da tabela para permitir a ordenação dinâmica.
- *
- * - sortTableByColumn:
- *      Realiza a ordenação das linhas da tabela com base na coluna selecionada e na direção (ascendente/descendente).
- *      Faz tratamento especial para datas, números e strings, além de priorizar o status de contratação.
- *
- * - parseDate:
- *      Converte uma string no formato DD/MM/AAAA para um objeto Date do JavaScript.
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Componentes de Interface:
+ *   - Cabeçalhos de coluna: Recebem eventos de clique para ordenação
+ *   - Indicadores de direção: Setas visuais ▲▼ anexadas aos cabeçalhos
+ * 
+ * # Funções Principais:
+ *   - attachSorting(): Adiciona eventos de clique aos cabeçalhos da tabela
+ *   - sortTableByColumn(): Realiza a ordenação com base na coluna e direção
+ *   - parseDate(): Converte strings de data para objetos Date para comparação
+ *   - compareValues(): Função genérica para comparar valores de diferentes tipos
+ * 
+ * # Fluxo de Execução:
+ *   1. Adiciona eventos de clique aos cabeçalhos da tabela
+ *   2. Responde aos cliques do usuário alterando a ordenação
+ *   3. Realiza ordenação automática inicial por "Contratar Até"
+ *   4. Reaplica ordenação após atualizações dinâmicas da tabela
+ * 
+ * # Lógica de Negócio:
+ *   - Tratamento especial para datas, números e strings
+ *   - Projetos "CONTRATADO ✅" ou "RENOVADO ✅" são mantidos no final
+ *   - Direção de ordenação alternada a cada clique no mesmo cabeçalho
+ * 
+ * # Dependências:
+ *   - Evento customizado 'tabela-carregada' para reinicialização
  *
  * - sortByContratarAteDesc:
  *      Ordena automaticamente a tabela pela coluna "Contratar Até" do mais antigo para o mais novo.

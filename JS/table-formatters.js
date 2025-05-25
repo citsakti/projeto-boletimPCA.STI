@@ -1,14 +1,30 @@
 /**
- * Script utilitário para formatação de dados e aplicação de estilos em linhas da tabela.
+ * table-formatters.js - Utilitários de formatação para tabelas do Boletim PCA 2025
  * 
- * Funcionalidades:
- * - formatContratarAte: Retorna a data de entrada sem aplicar formatação.
- * - formatStatusInicio: Formata o valor do status de início, exibindo "Faltam X dias" se for numérico.
- * - strikeCancelledRows: Aplica o estilo de texto riscado às linhas cujo status contenha "CANCELADO".
+ * Este script é responsável por:
+ *  - Formatar dados específicos para exibição adequada na tabela principal
+ *  - Aplicar estilos visuais a linhas da tabela com base em critérios específicos
+ *  - Fornecer funções utilitárias para manipulação de textos e datas
+ *
+ * =============== ESTRUTURA PRINCIPAL ================
  * 
- * Observações:
- * - A função strikeCancelledRows considera que o status está na 5ª coluna (índice 4).
- * - strikeCancelledRows é executada tanto ao carregar o DOM quanto após o evento customizado "tabela-carregada".
+ * # Funções de Formatação:
+ *   - formatContratarAte(): Processa datas para exibição na coluna "Contratar Até"
+ *   - formatStatusInicio(): Formata texto "Faltam X dias" para status de início
+ *   - strikeCancelledRows(): Aplica estilo riscado a linhas com status "CANCELADO"
+ * 
+ * # Manipulação Visual:
+ *   - Linhas canceladas recebem estilo de texto riscado
+ *   - Valores numéricos em status são exibidos com mensagem "Faltam X dias"
+ * 
+ * # Fluxo de Execução:
+ *   1. Funções são chamadas durante a renderização da tabela
+ *   2. A função strikeCancelledRows é executada após o carregamento do DOM
+ *   3. Também é executada novamente após o evento "tabela-carregada"
+ * 
+ * # Dependências:
+ *   - Estrutura esperada da tabela com status na 5ª coluna
+ *   - Evento customizado "tabela-carregada" para reaplicação após atualizações
  */
 
 function formatContratarAte(dateInput) {
