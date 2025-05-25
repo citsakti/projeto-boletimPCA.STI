@@ -1,6 +1,6 @@
 /* Estilos para o botão Limpar Filtros quando há filtros ativos */
 .btn-limpar-filtros.filters-active {
-    background-color: #ffc107 !important;
+    background-color: #fa8c16 !important;
     font-weight: bold;
     animation: pulse 1.5s infinite;
 }
