@@ -63,28 +63,22 @@
     padding: 10px;
     border-top: 1px solid #eee;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     z-index: 2;
 }
 
 /* Botões no fundo */
 .filter-fixed-bottom button {
-    background-color: #007bff;
+    background-color: #6c757d;
     color: white;
     border: none;
     padding: 8px 12px;
     cursor: pointer;
     border-radius: 4px;
+    width: 100%;
+    text-align: center;
 }
 
 .filter-fixed-bottom button:hover {
-    background-color: #0056b3;
-}
-
-.filter-fixed-bottom button:last-child {
-    background-color: #6c757d;
-}
-
-.filter-fixed-bottom button:last-child:hover {
     background-color: #545b62;
 }

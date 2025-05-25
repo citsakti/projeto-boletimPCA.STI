@@ -100,12 +100,12 @@ function printPage() {
         /* Desativa todas as animações */
         * {
             animation: none !important;
-        }
-        /* Oculta botões e filtros */
+        }        /* Oculta botões e filtros */
         .btn-limpar-filtros,
         thead tr.filter-row,
         #btnPrint,
         #btnFonteDeDados,
+        #btnRelatorioAnalitico,
         .processo-link-icon {
             display: none !important;
         }

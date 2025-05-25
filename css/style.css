@@ -669,6 +669,7 @@ tbody tr.row-odd {
 .google-sheet-filter-btn {
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
+    border-radius: 6px; /* Adicionando bordas arredondadas */
     padding: 5px 10px;
     cursor: pointer;
     font-size: 12px;
@@ -677,6 +678,12 @@ tbody tr.row-odd {
     justify-content: space-between;
     width: 100%; /* Para ocupar o espaço da célula th */
     box-sizing: border-box;
+    transition: background-color 0.2s, border-color 0.2s; /* Adicionando transição suave */
+}
+
+.google-sheet-filter-btn:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
 }
 
 .google-sheet-filter-btn .filter-icon {
@@ -685,15 +692,18 @@ tbody tr.row-odd {
 }
 
 .google-sheet-filter-btn.filter-active {
-    background-color: #c2e7ff;
+    background-color: #ffd09d;
     border-color: #0067b8;
+    border-radius: 6px; /* Mantendo a mesma borda arredondada */
     font-weight: bold;
     color: #0067b8;
+    box-shadow: 0 0 0 2px rgba(0, 103, 184, 0.25); /* Adicionando um sutil brilho ao redor */
 }
 
 .google-sheet-filter-dropdown {
     background-color: white;
     border: 1px solid #ccc;
+    border-radius: 8px; /* Adicionando bordas arredondadas */
     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     padding: 10px;
     min-width: 200px;

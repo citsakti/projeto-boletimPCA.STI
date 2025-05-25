@@ -51,6 +51,8 @@ function openFilterDropdown(button, columnIndex) {
     dropdown.classList.add('google-sheet-filter-dropdown');
     dropdown.style.position = 'absolute';
     dropdown.style.zIndex = '1000';
+    // Armazenar o índice da coluna como atributo do dropdown
+    dropdown.dataset.columnIndex = columnIndex;
 
     const rect = button.getBoundingClientRect();
     dropdown.style.top = `${rect.bottom + window.scrollY}px`;
@@ -66,12 +68,15 @@ function openFilterDropdown(button, columnIndex) {
     searchInput.placeholder = 'Pesquisar...';
     searchInput.addEventListener('keyup', () => filterDropdownOptions(searchInput.value, dropdown));
     fixedTopContainer.appendChild(searchInput);
-    
-    // Checkbox "Selecionar Tudo"
+      // Checkbox "Selecionar Tudo"
     const selectAllCheckbox = createCheckbox('Selecionar Tudo', 'select-all');
     selectAllCheckbox.value = 'Selecionar Tudo';
-    selectAllCheckbox.checked = true;
-    selectAllCheckbox.addEventListener('change', () => toggleAllOptions(dropdown, selectAllCheckbox.checked));
+    selectAllCheckbox.checked = false; // Inicialmente desmarcado, será atualizado depois
+    selectAllCheckbox.addEventListener('change', () => {
+        toggleAllOptions(dropdown, selectAllCheckbox.checked);
+        // Aplicar filtros imediatamente quando o "Selecionar Tudo" for alterado
+        applyFilters(columnIndex, dropdown);
+    });
     fixedTopContainer.appendChild(createLabel(selectAllCheckbox, 'Selecionar Tudo'));
     
     dropdown.appendChild(fixedTopContainer);
@@ -79,31 +84,52 @@ function openFilterDropdown(button, columnIndex) {
     // Contêiner para os checkboxes com scroll
     const optionsContainer = document.createElement('div');
     optionsContainer.className = 'filter-options-container';
-    
-    // Adicionar as opções ao contêiner com scroll
+      // Adicionar as opções ao contêiner com scroll
     const uniqueValues = getUniqueColumnValues(columnIndex);
+    
+    // Verificar se existem filtros ativos para esta coluna
+    const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${columnIndex}"]`);
+    let activeFilters = [];
+    if (filterButton && filterButton.hasAttribute('data-active-filters')) {
+        try {
+            activeFilters = JSON.parse(filterButton.getAttribute('data-active-filters')) || [];
+        } catch (e) {
+            console.error('Erro ao analisar filtros ativos:', e);
+            activeFilters = [];
+        }
+    }
+    
     uniqueValues.forEach(value => {
         const checkbox = createCheckbox(value, value);
-        checkbox.checked = true; // Por padrão, todos selecionados
-        optionsContainer.appendChild(createLabel(checkbox, value));
-    });
+        // Verificar se este valor está nos filtros ativos
+        checkbox.checked = activeFilters.includes(value.toLowerCase());
+        
+        // Adicionar evento para aplicar filtros imediatamente quando a checkbox for alterada
+        checkbox.addEventListener('change', () => {
+            // Se todas as checkboxes forem marcadas, marcar também "Selecionar Tudo"
+            updateSelectAllState(dropdown);
+            // Aplicar filtros imediatamente
+            applyFilters(columnIndex, dropdown);
+        });
+        optionsContainer.appendChild(createLabel(checkbox, value));    });
     
     dropdown.appendChild(optionsContainer);
 
-    // Criar contêiner fixo para os botões no fundo
+    // Atualizar o estado do checkbox "Selecionar Tudo" com base nas opções marcadas
+    setTimeout(() => updateSelectAllState(dropdown), 0);
+
+    // Criar contêiner fixo para o botão Limpar no fundo
     const fixedBottomContainer = document.createElement('div');
     fixedBottomContainer.className = 'filter-fixed-bottom';
     
-    // Botão Aplicar
-    const applyButton = document.createElement('button');
-    applyButton.textContent = 'Aplicar';
-    applyButton.addEventListener('click', () => applyFilters(columnIndex, dropdown));
-    fixedBottomContainer.appendChild(applyButton);
-
-    // Botão Limpar
+    // Apenas o botão Limpar
     const clearButton = document.createElement('button');
     clearButton.textContent = 'Limpar';
-    clearButton.addEventListener('click', () => clearFilter(columnIndex, dropdown));
+    clearButton.style.width = '100%'; // Ocupar todo o espaço disponível
+    clearButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Impedir que o dropdown feche
+        clearFilter(columnIndex, dropdown, false); // Não fechar dropdown
+    });
     fixedBottomContainer.appendChild(clearButton);
     
     dropdown.appendChild(fixedBottomContainer);
@@ -190,16 +216,11 @@ function applyFilters(columnIndex, dropdown) {
     // Armazena o estado do filtro globalmente ou em um atributo no botão
     const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${columnIndex}"]`);
     if (filterButton) {
-        // Se "Selecionar Tudo" está marcado E todos os valores estão selecionados, remove o filtro
-        const selectAllCheckbox = dropdown.querySelector('input[value="Selecionar Tudo"]');
-        const selectAllIsChecked = selectAllCheckbox ? selectAllCheckbox.checked : false;
-        const totalUniqueValues = getUniqueColumnValues(columnIndex).length;
-        
-        if (selectAllIsChecked && selectedValues.length === totalUniqueValues) {
-            // Remove o filtro se tudo estiver selecionado
+        // Se não há valores selecionados, remove o filtro
+        if (selectedValues.length === 0) {
             filterButton.removeAttribute('data-active-filters');
             filterButton.classList.remove('filter-active');
-            console.log(`Removendo filtro da coluna ${columnIndex}`);
+            console.log(`Removendo filtro da coluna ${columnIndex} - nenhum valor selecionado, mostrando todos`);
         } else {
             // Aplica o filtro
             filterButton.setAttribute('data-active-filters', JSON.stringify(selectedValues));
@@ -210,18 +231,17 @@ function applyFilters(columnIndex, dropdown) {
 
     // Chama uma função de filtro global que considera todos os filtros ativos
     masterFilterFunction();
-    closeAllFilterDropdowns();
 }
 
-function clearFilter(columnIndex, dropdown) {
-    // Marca "Selecionar Tudo"
+function clearFilter(columnIndex, dropdown, closeAfter = true) {
+    // Desmarca "Selecionar Tudo"
     const selectAllCheckbox = dropdown.querySelector('input[value="Selecionar Tudo"]');
     if (selectAllCheckbox) {
-        selectAllCheckbox.checked = true;
+        selectAllCheckbox.checked = false;
     }
     
-    // Marca todas as opções individuais
-    toggleAllOptions(dropdown, true);
+    // Desmarca todas as opções individuais
+    toggleAllOptions(dropdown, false);
 
     // Limpa a pesquisa
     const searchInput = dropdown.querySelector('input[type="text"]');
@@ -239,7 +259,23 @@ function clearFilter(columnIndex, dropdown) {
 
     // Reaplica os filtros (que agora mostrará tudo para esta coluna)
     masterFilterFunction();
-    closeAllFilterDropdowns();
+    
+    // Fecha o dropdown se solicitado
+    if (closeAfter) {
+        closeAllFilterDropdowns();
+    }
+}
+
+// Nova função para atualizar o estado do checkbox "Selecionar Tudo"
+function updateSelectAllState(dropdown) {
+    const totalCheckboxes = dropdown.querySelectorAll('.filter-options-container .filter-option-checkbox').length;
+    const checkedCheckboxes = dropdown.querySelectorAll('.filter-options-container .filter-option-checkbox:checked').length;
+    
+    const selectAllCheckbox = dropdown.querySelector('input[value="Selecionar Tudo"]');
+    if (selectAllCheckbox) {
+        // Marca "Selecionar Tudo" se todas as opções estiverem marcadas, desmarca caso contrário
+        selectAllCheckbox.checked = (checkedCheckboxes === totalCheckboxes);
+    }
 }
 
 // Função global para limpar todos os filtros (pode ser chamada pelo botão "Limpar Filtros")
@@ -257,8 +293,15 @@ function clearAllGoogleSheetFilters() {
         button.classList.remove('filter-active');
     });
     
-    // Fecha qualquer dropdown aberto
-    closeAllFilterDropdowns();
+    // Atualizar o estado de todos os dropdowns abertos
+    const openDropdowns = document.querySelectorAll('.google-sheet-filter-dropdown');
+    openDropdowns.forEach(dropdown => {
+        const columnIndex = dropdown.dataset.columnIndex;
+        if (columnIndex) {
+            // Limpar o dropdown sem fechá-lo
+            clearFilter(columnIndex, dropdown, false);
+        }
+    });
     
     // Mostra todas as linhas da tabela
     const tableRows = document.querySelectorAll('#detalhes table tbody tr');
@@ -306,18 +349,19 @@ function masterFilterFunction() {
             const activeFilters = JSON.parse(activeFiltersData);
             const cell = row.querySelectorAll('td')[colIndex];
 
+            // Se não há filtros ativos para esta coluna (nenhuma checkbox marcada), mostra tudo
+            if (activeFilters.length === 0) {
+                return;
+            }
+
             if (cell) {
                 const cellValue = cell.textContent.trim().toLowerCase();
-                // Se o filtro para esta coluna está ativo (ou seja, activeFilters foi definido):
-                // 1. Se activeFilters está vazio, significa que nada foi selecionado, então a linha não corresponde.
-                // 2. Se activeFilters não está vazio, mas o valor da célula não está incluído, a linha não corresponde.
-                if (activeFilters.length === 0) {
-                    showRow = false;
-                } else if (!activeFilters.includes(cellValue)) {
+                // Lógica invertida: mostrar apenas os itens que estão selecionados
+                if (!activeFilters.includes(cellValue)) {
                     showRow = false;
                 }
             } else {
-                // Se a célula não existe e um filtro está ativo para esta coluna, considera que não corresponde.
+                // Se a célula não existe e um filtro está ativo para esta coluna, considera que não corresponde
                 showRow = false;
             }
         });
