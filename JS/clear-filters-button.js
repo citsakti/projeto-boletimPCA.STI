@@ -20,7 +20,12 @@ function setupClearFiltersButtonObserver() {
     function checkActiveFilters() {
         const activeFilterButtons = document.querySelectorAll('.google-sheet-filter-btn.filter-active, .google-sheet-filter-btn[data-active-filters]');
         
-        if (activeFilterButtons.length > 0) {
+        // Verifica se há filtros ativos do painel de resumo
+        const painelFilterAtivo = window.painelFilterStatus && window.painelFilterStatus !== 'TODOS';
+        
+        console.log('Verificando filtros ativos - Filtros de coluna:', activeFilterButtons.length, 'Filtro do painel:', painelFilterAtivo);
+        
+        if (activeFilterButtons.length > 0 || painelFilterAtivo) {
             // Há filtros ativos, destaca o botão
             limparBtn.classList.add('filters-active');
         } else {
@@ -34,19 +39,22 @@ function setupClearFiltersButtonObserver() {
 
     // Configura o observador para monitorar mudanças nos botões de filtro
     const filterRowElement = document.querySelector('.filter-row');
-    if (!filterRowElement) return;
+    if (filterRowElement) {
+        const observer = new MutationObserver(function(mutations) {
+            // Quando houver alterações, verifica se há filtros ativos
+            checkActiveFilters();
+        });
 
-    const observer = new MutationObserver(function(mutations) {
-        // Quando houver alterações, verifica se há filtros ativos
-        checkActiveFilters();
-    });
-
-    // Observa mudanças nos atributos e classes dos botões de filtro
-    observer.observe(filterRowElement, {
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['class', 'data-active-filters']
-    });
+        // Observa mudanças nos atributos e classes dos botões de filtro
+        observer.observe(filterRowElement, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'data-active-filters']
+        });
+    }
+    
+    // Adiciona listener para o evento personalizado do painel de filtros
+    document.addEventListener('painel-filter-applied', checkActiveFilters);
 
     // Também verifica periodicamente (como backup)
     setInterval(checkActiveFilters, 2000);

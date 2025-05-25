@@ -278,41 +278,40 @@ function updateSelectAllState(dropdown) {
     }
 }
 
-// Função global para limpar todos os filtros (pode ser chamada pelo botão "Limpar Filtros")
+// Função para limpar todos os filtros das colunas
 function clearAllGoogleSheetFilters() {
     console.log('Limpando todos os filtros');
     
-    // Seleciona todos os botões de filtro ativos
-    const activeFilterButtons = document.querySelectorAll('.google-sheet-filter-btn.filter-active, .google-sheet-filter-btn[data-active-filters]');
-    
-    console.log('Botões de filtro ativos encontrados:', activeFilterButtons.length);
-    
-    // Remove os atributos e classes de filtro ativo
-    activeFilterButtons.forEach(button => {
-        delete button.dataset.activeFilters;
+    // Remove filtros ativos do Google Sheet
+    const filterButtons = document.querySelectorAll('.google-sheet-filter-btn');
+    filterButtons.forEach(button => {
         button.classList.remove('filter-active');
+        delete button.dataset.activeFilters;
     });
     
-    // Atualizar o estado de todos os dropdowns abertos
-    const openDropdowns = document.querySelectorAll('.google-sheet-filter-dropdown');
-    openDropdowns.forEach(dropdown => {
-        const columnIndex = dropdown.dataset.columnIndex;
-        if (columnIndex) {
-            // Limpar o dropdown sem fechá-lo
-            clearFilter(columnIndex, dropdown, false);
-        }
-    });
+    // Remove classe de destaque do botão Limpar Filtros
+    const limparBtn = document.getElementById("btnLimparFiltros");
+    if (limparBtn) {
+        limparBtn.classList.remove('filters-active');
+    }
+    
+    // Limpa filtros do painel de resumos
+    if (typeof resetPainelFilterStatus === 'function') {
+        resetPainelFilterStatus();
+    }
     
     // Mostra todas as linhas da tabela
-    const tableRows = document.querySelectorAll('#detalhes table tbody tr');
+    const tableRows = document.querySelectorAll('table tbody tr');
     tableRows.forEach(row => {
         row.style.display = '';
     });
     
-    // Reaplica as cores alternadas
-    alternaCoresLinhas();
+    // Atualiza contadores e visuais
+    if (typeof updateStatusCounts === 'function') {
+        updateStatusCounts();
+    }
     
-    console.log('Filtros limpos com sucesso');
+    console.log('Todos os filtros foram limpos');
 }
 
 // Torna a função disponível globalmente
@@ -323,12 +322,32 @@ function masterFilterFunction() {
     const activeFilterButtons = document.querySelectorAll('.google-sheet-filter-btn.filter-active, .google-sheet-filter-btn[data-active-filters]');
     
     console.log('Executando masterFilterFunction, botões ativos:', activeFilterButtons.length);
+    
+    // Verifica se há filtro ativo do painel de resumos
+    const painelFilterAtivo = window.painelFilterStatus && window.painelFilterStatus !== 'TODOS';
 
-    // Se não houver filtros ativos, mostra todas as linhas
-    if (activeFilterButtons.length === 0) {
+    // Atualiza o botão "Limpar Filtros" com base nos filtros ativos
+    const limparBtn = document.getElementById("btnLimparFiltros");
+    if (limparBtn) {
+        if (activeFilterButtons.length > 0 || painelFilterAtivo) {
+            limparBtn.classList.add('filters-active');
+        } else {
+            limparBtn.classList.remove('filters-active');
+        }
+    }
+
+    // Se não houver filtros ativos de colunas, verifica se há filtro do painel
+    if (activeFilterButtons.length === 0 && !painelFilterAtivo) {
         tableRows.forEach(row => {
             row.style.display = '';
         });
+        alternaCoresLinhas();
+        return;
+    }
+    
+    // Se temos apenas filtro do painel e nenhum filtro de coluna, deixamos o filtro do painel agir sozinho
+    if (activeFilterButtons.length === 0 && painelFilterAtivo) {
+        // Neste caso, o filtro já foi aplicado pelo filterTableByStatus
         alternaCoresLinhas();
         return;
     }

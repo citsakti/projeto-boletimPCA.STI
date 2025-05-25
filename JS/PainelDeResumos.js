@@ -65,6 +65,27 @@ function updatePainelResumo() {
         el.addEventListener('click', () => {
             const statusSelecionado = el.getAttribute('data-status');
             window.painelFilterStatus = statusSelecionado;
+            
+            // Remove o destaque de todos os elementos
+            statusElements.forEach(item => {
+                item.style.backgroundColor = '';
+                item.style.fontWeight = '';
+            });
+            
+            // Adiciona destaque ao elemento selecionado, exceto se for "TODOS" e não houver filtro
+            if (statusSelecionado !== 'TODOS') {
+                el.style.backgroundColor = '#fa8c16';
+                el.style.fontWeight = 'bold';
+                
+                // Destaca o botão "Limpar Filtros"
+                const limparBtn = document.getElementById("btnLimparFiltros");
+                if (limparBtn) limparBtn.classList.add('filters-active');
+            } else {
+                // Se for "TODOS", remove o destaque do botão "Limpar Filtros"
+                const limparBtn = document.getElementById("btnLimparFiltros");
+                if (limparBtn) limparBtn.classList.remove('filters-active');
+            }
+            
             filterTable();
             // 4) Recolhe o painel de Resumo no mobile após seleção
             const detalhes = document.getElementById('painel-resumo-details');
@@ -74,6 +95,19 @@ function updatePainelResumo() {
             }
         });
     });
+    
+    // Restaura o destaque para o filtro ativo atual
+    if (window.painelFilterStatus && window.painelFilterStatus !== 'TODOS') {
+        const activeFilter = resumoContainer.querySelector(`.status-option[data-status="${window.painelFilterStatus}"]`);
+        if (activeFilter) {
+            activeFilter.style.backgroundColor = '#fa8c16';
+            activeFilter.style.fontWeight = 'bold';
+            
+            // Destaca o botão "Limpar Filtros"
+            const limparBtn = document.getElementById("btnLimparFiltros");
+            if (limparBtn) limparBtn.classList.add('filters-active');
+        }
+    }
 }
 
 // Função para filtrar a tabela conforme o status clicado
@@ -91,6 +125,42 @@ function filterTableByStatus(statusSelecionado) {
     });
 }
 
+// Função que serve como intermediária para aplicar o filtro atual
+function filterTable() {
+    filterTableByStatus(window.painelFilterStatus);
+    
+    // Chama a função master de filtragem para garantir que todos os filtros sejam aplicados corretamente
+    // e que o botão "Limpar Filtros" seja atualizado
+    if (typeof masterFilterFunction === 'function') {
+        masterFilterFunction();
+    }
+    
+    // Dispara um evento personalizado para notificar que um filtro do painel foi aplicado
+    document.dispatchEvent(new CustomEvent('painel-filter-applied'));
+}
+
+// Função para resetar o filtro do painel de resumos
+function resetPainelFilterStatus() {
+    window.painelFilterStatus = 'TODOS';
+    
+    // Remove o destaque de todos os elementos de status
+    const statusElements = document.querySelectorAll('.status-option');
+    statusElements.forEach(item => {
+        item.style.backgroundColor = '';
+        item.style.fontWeight = '';
+    });
+    
+    // Remove o destaque do botão "Limpar Filtros"
+    const limparBtn = document.getElementById("btnLimparFiltros");
+    if (limparBtn) limparBtn.classList.remove('filters-active');
+    
+    // Aplica o filtro "TODOS"
+    filterTableByStatus('TODOS');
+    
+    // Dispara um evento personalizado para notificar que o filtro do painel foi resetado
+    document.dispatchEvent(new CustomEvent('painel-filter-applied'));
+}
+
 // Atualiza o painel quando o DOM carregar e quando a tabela for preenchida
 document.addEventListener('DOMContentLoaded', () => {
     // 0) Fecha o painel de resumo por default no mobile
@@ -100,6 +170,13 @@ document.addEventListener('DOMContentLoaded', () => {
         detalhes.removeAttribute('open');
     }
     updatePainelResumo();
+    
+    // Garante que o botão "Limpar Filtros" seja atualizado corretamente no carregamento
+    setTimeout(() => {
+        if (typeof masterFilterFunction === 'function') {
+            masterFilterFunction();
+        }
+    }, 500);
 });
 
 // Mantém este listener para quando a tabela for carregada dinamicamente
