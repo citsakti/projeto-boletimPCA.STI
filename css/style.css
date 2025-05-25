@@ -664,3 +664,94 @@ tbody tr.row-even {
 tbody tr.row-odd {
     background-color: #fff;
 }
+
+/* Estilos para os novos botões de filtro e o dropdown de filtro */
+.google-sheet-filter-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; /* Para ocupar o espaço da célula th */
+    box-sizing: border-box;
+}
+
+.google-sheet-filter-btn .filter-icon {
+    margin-left: 5px;
+    font-size: 10px;
+}
+
+.google-sheet-filter-btn.filter-active {
+    background-color: #c2e7ff;
+    border-color: #0067b8;
+    font-weight: bold;
+    color: #0067b8;
+}
+
+.google-sheet-filter-dropdown {
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    padding: 10px;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.google-sheet-filter-dropdown input[type="text"] {
+    width: calc(100% - 20px); /* Desconta padding */
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+.google-sheet-filter-dropdown label {
+    display: block;
+    padding: 5px 0;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.google-sheet-filter-dropdown label:hover {
+    background-color: #f0f0f0;
+}
+
+.google-sheet-filter-dropdown input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.google-sheet-filter-dropdown button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-top: 10px;
+    margin-right: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.google-sheet-filter-dropdown button:hover {
+    background-color: #0056b3;
+}
+
+.google-sheet-filter-dropdown button:last-child {
+    background-color: #6c757d;
+}
+
+.google-sheet-filter-dropdown button:last-child:hover {
+    background-color: #545b62;
+}
+
+/* Estilos para linhas par e ímpar */
+#detalhes table tbody tr.linha-par td {
+    background-color: #f9f9f9; /* Cor para linhas pares */
+}
+
+#detalhes table tbody tr.linha-impar td {
+    background-color: #ffffff; /* Cor para linhas ímpares */
+}

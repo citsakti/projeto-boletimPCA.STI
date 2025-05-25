@@ -223,32 +223,30 @@ function fetchAndPopulate() {
 
 // Função para popular o filtro "tipo" como select com as opções da tabela
 function populateTipoFiltro() {
-    // Seleciona o container do filtro "tipo" no HTML (certifique-se de ter um elemento com id "tipo-filter")
+    // Esta função pode não ser mais necessária se os filtros são populados dinamicamente
+    // pelo novo sistema google-sheet-filters.js ao clicar no botão de filtro da coluna.
+    // Comente ou remova se for o caso.
+    /*
     const tipoFiltroContainer = document.getElementById('tipo-filter');
     if (!tipoFiltroContainer) return;
     
-    // Coleta valores únicos da coluna "tipo" (neste exemplo, assume-se que é a coluna de índice 1)
     const tableRows = document.querySelectorAll('table tbody tr');
     const tipos = new Set();
     tableRows.forEach(row => {
         const cells = row.querySelectorAll('td');
-        if (cells[1]) {
-            const valor = cells[2].textContent.trim();
-            if (valor) {
-                tipos.add(valor);
-            }
+        if (cells[1]) { // Ajuste o índice da coluna se necessário
+            const tipoText = cells[1].textContent.trim();
+            if (tipoText) tipos.add(tipoText);
         }
     });
     
-    // Cria o select e insere a opção "Todos"
     const select = document.createElement('select');
-    select.id = 'tipo-filter-select';
+    select.id = 'tipo-filter-select'; // Mantenha ou ajuste o ID conforme necessário
     const defaultOption = document.createElement('option');
     defaultOption.value = "";
     defaultOption.textContent = "Todos";
     select.appendChild(defaultOption);
 
-    // Adiciona as opções obtidas
     tipos.forEach(tipo => {
         const option = document.createElement('option');
         option.value = tipo.toLowerCase();
@@ -256,40 +254,41 @@ function populateTipoFiltro() {
         select.appendChild(option);
     });
     
-    // Insere o select no container, substituindo o input antigo (se houver)
     tipoFiltroContainer.innerHTML = "";
     tipoFiltroContainer.appendChild(select);
     
-    // Adiciona o listener para o select (utiliza a mesma função de filtragem)
-    select.addEventListener('change', filterTable);
+    // A filtragem agora é tratada pelo novo sistema, então o listener abaixo pode não ser necessário aqui.
+    // select.addEventListener('change', filterTable);
+    */
 }
 
 // Modificação da função filterTable para considerar inputs e selects
 function filterTable() {
-    // Seleciona todos os filtros de texto e selects
+    // Esta função é provavelmente substituída pela masterFilterFunction em google-sheet-filters.js
+    // Comente ou remova se for o caso.
+    /*
     const filterElements = document.querySelectorAll('.filter-row input[type="text"], .filter-row select');
     const filters = Array.from(filterElements).map(el => el.value.trim().toLowerCase());
 
-    // Seleciona todas as linhas do corpo da tabela
     const tableRows = document.querySelectorAll('table tbody tr');
 
-    // Itera por cada linha da tabela
     tableRows.forEach(row => {
         const cells = row.querySelectorAll('td');
         let showRow = true;
 
-        // Para cada filtro, verifica se a célula equivalente inclui o valor do filtro
         filters.forEach((filterText, index) => {
-            // Se houver filtro, compara com o texto da célula correspondente
-            if (filterText !== "") {
-                const cellText = cells[index] ? cells[index].textContent.toLowerCase() : "";
-                if (!cellText.includes(filterText)) {
+            // Esta lógica de correspondência de índice precisa ser robusta
+            // ou os data-attributes nos inputs de filtro precisam ser usados para mapear para as colunas corretas.
+            if (cells[index] && filterText) {
+                if (!cells[index].textContent.toLowerCase().includes(filterText)) {
                     showRow = false;
                 }
             }
         });
         row.style.display = showRow ? "" : "none";
     });
+    // Se alternaCoresLinhas for mantida, chame-a aqui ou na função de filtro mestre.
+    */
 }
 
 // Função para remover linhas após a última linha com conteúdo na coluna "Descrição do Objeto"
@@ -319,18 +318,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchAndPopulate()
       .then(() => {
-        if (overlay) overlay.style.display = 'none';
+        if (overlay) overlay.style.display = 'none'; // Esconde o overlay após o carregamento
         // Configura filtros e trim como antes
-        populateTipoFiltro();
-        document.querySelectorAll('.filter-row input[type="text"]').forEach(input =>
-          input.addEventListener('keyup', filterTable)
-        );
+        // populateTipoFiltro(); // Comentado - o novo sistema lida com isso
+        
+        // Os listeners para inputs de texto na filter-row são removidos pois os inputs foram substituídos por botões.
+        // document.querySelectorAll('.filter-row input[type="text"]').forEach(input =>
+        //   input.addEventListener('keyup', filterTable)
+        // );
+        
+        // A inicialização dos novos filtros estilo Google Sheets deve ser chamada aqui ou no google-sheet-filters.js
+        if (typeof initializeGoogleSheetFilters === 'function') {
+            initializeGoogleSheetFilters();
+        }
+
         assignStatusClasses();
         trimTableEnding();
         aplicarEstiloStatus();
       })
       .catch(err => {
-        if (overlay) overlay.style.display = 'none';
+        if (overlay) overlay.style.display = 'none'; // Esconde o overlay mesmo em caso de erro
         console.error('Erro ao carregar dados:', err);
       });
 
@@ -439,102 +446,73 @@ window.globalFetchAndPopulate = fetchAndPopulate;
 // Se você refatorar main.js para ter uma função que apenas popula o DOM com dados já processados:
 function populateTableDOMWithData(processedDataRows) {
     const tbody = document.querySelector('table tbody');
-    if (!tbody) return;
-    tbody.innerHTML = ''; // Limpa a tabela
-
+    if (!tbody) return; // Adiciona verificação de segurança
+    tbody.innerHTML = '';
     const headers = [
         "ID PCA", "Área", "Tipo", "Projeto de Aquisição", 
         "Status Início", "Status do Processo", "Contratar Até", 
         "Valor PCA", "Orçamento", "Processo"
     ];
 
-    processedDataRows.forEach(row => {
-        const tr = document.createElement('tr');
-        // Mapeamento dos índices do CSV para as colunas da tabela
-        // CSV[2] -> ID PCA (0)
-        // CSV[3] -> Área (1)
-        // CSV[4] -> Tipo (2)
-        // CSV[5] -> Projeto de Aquisição (3)
-        // CSV[10] -> Status Início (4)
-        // CSV[6] -> Status do Processo (5)
-        // CSV[9] -> Contratar Até (6)
-        // CSV[15] -> Valor PCA (7)
-        // CSV[14] -> Orçamento (8)
-        // CSV[13] -> Processo (9)
-        const csvIndices = [2, 3, 4, 5, 10, 6, 9, 15, 14, 13]; 
-
-        csvIndices.forEach((csvIndex, tableColIndex) => {
-            const td = document.createElement('td');
-            td.dataset.label = headers[tableColIndex];
-            let value = row[csvIndex] || '';
+    processedDataRows.forEach(row => { // row aqui deve ser um array de valores na ordem correta
+        const tr = tbody.insertRow();
+        headers.forEach((headerText, index) => {
+            const cell = tr.insertCell();
+            let cellData = row[index] !== undefined && row[index] !== null ? row[index] : '';
             
             // Aplica a mesma lógica de formatação e manipulação de 'value' e 'td'
             // que existe dentro do loop de fetchAndPopulate em main.js
-            if (tableColIndex === 3) { // Coluna "Projeto de Aquisição"
-                const numeroContrato = row[21]; // Coluna V do CSV (índice 21 no raw data)
-                const numeroRegistro = row[22]; // Coluna W do CSV (índice 22 no raw data)
-                
-                if (numeroContrato && String(numeroContrato).trim() !== '') {
-                    td.setAttribute('data-contrato', String(numeroContrato).trim());
-                }
-                
-                if (numeroRegistro && String(numeroRegistro).trim() !== '') {
-                    td.setAttribute('data-registro', String(numeroRegistro).trim());
-                }
-                // O 'value' (nome do projeto) será definido por td.textContent abaixo
-            } else if (tableColIndex === 4) { // Status Início
-                value = formatStatusInicio(value); // Supondo que formatStatusInicio está acessível
-            } else if (tableColIndex === 6) { // Contratar Até
-                value = formatContratarAte(value); // Supondo que formatContratarAte está acessível
-            } else if (tableColIndex === 8) { // Orçamento
-                if (String(value).trim() === '') value = '<Não Orçado>'; // Convertido para String para o trim
-            } else if (tableColIndex === 9) { // Processo
-                if (String(value).trim() === '') {
-                    td.textContent = '*';
-                } else {
-                    td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
-                }
-                tr.appendChild(td);
-                return; 
-            } else if (tableColIndex === 5) { // Status do Processo
-                const statusProcessoTexto = String(row[6]); // Coluna F do CSV original (índice 6 no raw data)
-                td.textContent = statusProcessoTexto;
-                // Adicionar datasets conforme lógica em main.js (replicado de fetchAndPopulate)
-                if (statusProcessoTexto.includes('AUTUAÇÃO ATRASADA 💣')) {
-                    if (row[11]) td.dataset.detalheAutuacao = row[11]; // Coluna L (índice 11)
-                }
-                if (statusProcessoTexto.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
-                    if (row[12]) td.dataset.detalheContratacao = row[12]; // Coluna M (índice 12)
-                }
-                const outrosStatusRelevantes = ['AGUARDANDO DFD ⏳', 'AGUARDANDO ETP ⏳', 'DFD ATRASADO❗', 'ETP ATRASADO❗', 'ELABORANDO TR📝', 'ANÁLISE DE VIABILIDADE 📝'];
-                if (outrosStatusRelevantes.some(s => statusProcessoTexto.includes(s))) {
-                    if (row[11]) td.dataset.detalheStatusGeral = row[11]; // Coluna L (índice 11)
-                }
-                const statusContratacaoRenovacao = ['EM CONTRATAÇÃO 🤝', 'EM RENOVAÇÃO 🔄'];
-                if (statusContratacaoRenovacao.some(s => statusProcessoTexto.includes(s))) {
-                    if (row[12]) td.dataset.detalheContratacaoRenovacao = row[12]; // Coluna M (índice 12)
-                }
-                tr.appendChild(td);
-                return;
+            if (headerText === "Status Início") {
+                // cellData = formatStatusInicio(cellData); // Supondo que você tenha essa função
+            } else if (headerText === "Contratar Até") {
+                // cellData = formatContratarAte(cellData); // Supondo que você tenha essa função
             }
-            
-            td.textContent = value;
-            tr.appendChild(td);
+            // Adicione mais formatações conforme necessário
+
+            cell.textContent = cellData;
+
+            // Adiciona classes ou atributos se necessário, por exemplo, para o ícone do processo
+            if (headerText === "Processo" && cellData) {
+                const icon = document.createElement('span');
+                icon.classList.add('process-icon'); // Adicione uma classe para estilização
+                icon.textContent = ' 📄'; // Exemplo de ícone
+                icon.style.cursor = 'pointer';
+                icon.title = `Abrir processo ${cellData}`;
+                icon.addEventListener('click', () => {
+                    // Lógica para abrir modal do processo, similar à existente
+                    const modalOverlay = document.getElementById('processo-modal-overlay');
+                    const modalIframe = document.getElementById('processo-iframe');
+                    if (modalOverlay && modalIframe) {
+                        const numeroProcesso = cellData.replace(/[^0-9]/g, '');
+                        modalIframe.src = `https://sei.example.com/sei/controlador.php?acao=protocolo_visualizar&id_protocolo=${numeroProcesso}`;
+                        modalOverlay.style.display = 'flex';
+                    }
+                });
+                cell.appendChild(icon);
+            }
         });
-        tbody.appendChild(tr);
     });
 
     // Disparar eventos e funções pós-carga que estavam no final de fetchAndPopulate
-    if (window.aplicarAnimacaoBomba) aplicarAnimacaoBomba();
-    if (window.aplicarAnimacaoHourglass) aplicarAnimacaoHourglass();
-    if (window.aplicarAnimacaoExclamation) aplicarAnimacaoExclamation();
+    if (window.aplicarAnimacaoBomba) window.aplicarAnimacaoBomba();
+    if (window.aplicarAnimacaoHourglass) window.aplicarAnimacaoHourglass();
+    if (window.aplicarAnimacaoExclamation) window.aplicarAnimacaoExclamation();
     
-    document.dispatchEvent(new Event('tabela-carregada')); // Crucial para outros scripts
-
+    document.dispatchEvent(new Event('tabela-carregada')); // Essencial para que outros scripts (como filtros) saibam que a tabela foi atualizada
+    
     // Chamar funções que são configuradas no DOMContentLoaded após fetchAndPopulate
-    if (typeof populateTipoFiltro === 'function') populateTipoFiltro();
+    // if (typeof populateTipoFiltro === 'function') populateTipoFiltro(); // Comentado
     if (typeof assignStatusClasses === 'function') assignStatusClasses();
     if (typeof trimTableEnding === 'function') trimTableEnding();
     if (typeof aplicarEstiloStatus === 'function') aplicarEstiloStatus();
+    
+    // Reinitialize os novos filtros do Google Sheets se a tabela for repopulada dinamicamente
+    if (typeof initializeGoogleSheetFilters === 'function') {
+        initializeGoogleSheetFilters();
+    }
+    // Garante que as cores das linhas sejam aplicadas após a carga/atualização dos dados
+    if (typeof alternaCoresLinhas === 'function') {
+        alternaCoresLinhas();
+    }
 }
 window.populateTableDOMWithData = populateTableDOMWithData;
