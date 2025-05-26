@@ -43,6 +43,13 @@
     // Mapa para armazenar as informações de acompanhamento por projeto
     const projetosComAcompanhamento = new Map();
     
+    // Mapa para guardar o estado anterior para comparação de notificações
+    let dadosAcompanhamentoAnterioresParaNotificacao = new Map();
+    let isFirstLoadAcompanhamento = true; // Sinalizador para a primeira carga
+    
+    // Intervalo para atualização automática do acompanhamento (em milissegundos). Ex: 3 minutos.
+    const INTERVALO_ATUALIZACAO_ACOMPANHAMENTO = 3 * 60 * 1000;
+
     /**
      * Função principal que inicializa o processamento de acompanhamento
      */
@@ -54,17 +61,69 @@
         tooltip.className = 'status-tooltip';
         document.body.appendChild(tooltip);
         
-        // Carregar dados de acompanhamento
-        fetchAcompanhamentoData()
-            .then(() => {
-                console.log(`Dados de acompanhamento carregados. ${projetosComAcompanhamento.size} projetos encontrados.`);
-                setupAcompanhamentoTooltips();
-            })
-            .catch(error => {
-                console.error("Erro ao carregar dados de acompanhamento:", error);
-            });
+        // Função para buscar e aplicar atualizações de acompanhamento
+        async function verificarAtualizacoesAcompanhamento() {
+            console.log("Verificando atualizações de dados de acompanhamento...");
+
+            if (isFirstLoadAcompanhamento) {
+                try {
+                    await fetchAcompanhamentoData(true); // Carrega os dados iniciais
+                    // Após a primeira carga bem-sucedida, copia os dados para 'dadosAcompanhamentoAnterioresParaNotificacao'
+                    // para que a próxima verificação tenha uma base de comparação.
+                    dadosAcompanhamentoAnterioresParaNotificacao = new Map(projetosComAcompanhamento);
+                    isFirstLoadAcompanhamento = false; // Marca que a primeira carga foi concluída
+                    console.log("Dados de acompanhamento iniciais carregados. Notificações de mudança ativadas para verificações futuras.");
+                    setupAcompanhamentoTooltips(); // Aplica tooltips com os dados iniciais
+                } catch (error) {
+                    console.error("Erro ao carregar dados de acompanhamento iniciais:", error);
+                }
+                return; // Não compara nem notifica na primeira carga
+            }
         
-        // Adicionar listener para quando a tabela for atualizada
+            // Lógica para verificações subsequentes (não é a primeira carga)
+            // Usa o estado da última verificação/carga bem-sucedida como base para comparação.
+            const dadosAnteriores = new Map(dadosAcompanhamentoAnterioresParaNotificacao); 
+
+            try {
+                await fetchAcompanhamentoData(true); // Força o refresh, atualiza \'projetosComAcompanhamento\' internamente
+
+                // \'projetosComAcompanhamento\' agora tem os dados mais recentes.
+                // \'dadosAnteriores\' tem os dados de antes desta chamada.
+                const mudancas = compararDadosAcompanhamento(dadosAnteriores, projetosComAcompanhamento);
+
+                if (mudancas.length > 0) {
+                    const mensagemHtml = formatarMensagemMudancasAcompanhamento(mudancas);
+                    
+                    const modalOverlay = document.getElementById('update-notification-overlay');
+                    const modalDetails = document.getElementById('update-notification-details');
+                    
+                    if (modalOverlay && modalDetails) {
+                        modalDetails.innerHTML = "<h2>Atualizações de Acompanhamento de Projetos</h2>" + mensagemHtml;
+                        modalOverlay.style.display = 'flex';
+                    } else {
+                         const alertText = mensagemHtml.replace(/<[^>]*>?/gm, '\\n').replace(/\\n\\n+/g, '\\n').trim();
+                         alert("Atualizações de Acompanhamento:\\n" + alertText);
+                    }
+                    console.log(`Dados de acompanhamento atualizados. ${mudancas.length} alterações encontradas e notificadas.`);
+                } else {
+                    console.log("Nenhuma nova atualização de acompanhamento detectada desde a última verificação.");
+                }
+
+                // Atualiza o 'dadosAcompanhamentoAnterioresParaNotificacao' com os dados mais recentes para a próxima comparação.
+                dadosAcompanhamentoAnterioresParaNotificacao = new Map(projetosComAcompanhamento);
+                setupAcompanhamentoTooltips(); // Reaplicar tooltips e ícones
+            } catch (error) {
+                console.error("Erro ao atualizar dados de acompanhamento subsequente:", error);
+            }
+        }
+
+        // Carregar dados de acompanhamento inicialmente
+        verificarAtualizacoesAcompanhamento();
+        
+        // Configurar atualização automática periódica para o acompanhamento
+        setInterval(verificarAtualizacoesAcompanhamento, INTERVALO_ATUALIZACAO_ACOMPANHAMENTO);
+
+        // Adicionar listener para quando a tabela for atualizada por outros scripts
         document.addEventListener('tabela-carregada', () => {
             console.log("Tabela carregada, atualizando tooltips de acompanhamento...");
             setupAcompanhamentoTooltips();
@@ -83,22 +142,25 @@
     
     /**
      * Busca os dados da aba de acompanhamento e processa-os
+     * @param {boolean} forceRefresh - Se true, ignora o cache e busca os dados novamente.
      */
-    function fetchAcompanhamentoData() {
+    function fetchAcompanhamentoData(forceRefresh = false) {
         return new Promise((resolve, reject) => {
-            if (acompanhamentoData) {
+            if (acompanhamentoData && !forceRefresh) {
+                // Se temos dados em cache e não estamos forçando a atualização,
+                // processa os dados cacheados.
                 processAcompanhamentoData(acompanhamentoData);
                 resolve();
                 return;
             }
             
-            console.log("Buscando dados da aba de acompanhamento...");
+            console.log("Buscando dados da aba de acompanhamento (forçado refresh ou primeira carga)...");
             Papa.parse(ACOMPANHAMENTO_CSV_URL, {
                 download: true,
                 header: false,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    acompanhamentoData = results.data;
+                    acompanhamentoData = results.data; // Atualiza o cache com os novos dados
                     processAcompanhamentoData(acompanhamentoData);
                     resolve();
                 },
@@ -418,6 +480,71 @@
         tooltip.style.opacity = '0';
     }
     
+    /**
+     * Compara os dados de acompanhamento antigos e novos para detectar mudanças.
+     * @param {Map} mapaAntigo - Mapa com os dados de acompanhamento anteriores.
+     * @param {Map} mapaNovo - Mapa com os dados de acompanhamento atuais.
+     * @returns {Array} - Array de objetos descrevendo as mudanças.
+     */
+    function compararDadosAcompanhamento(mapaAntigo, mapaNovo) {
+        const mudancasDetectadas = [];
+
+        // Verificar novos acompanhamentos ou atualizados
+        for (const [projeto, novoAcomp] of mapaNovo.entries()) {
+            const antigoAcomp = mapaAntigo.get(projeto);
+            if (!antigoAcomp) {
+                // Verifica se o acompanhamento é recente (até 6 dias) antes de notificar como novo
+                const dataAcompanhamento = parseDataBrasileira(novoAcomp.data);
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                dataAcompanhamento.setHours(0, 0, 0, 0);
+                const diferencaDias = Math.floor((hoje - dataAcompanhamento) / (1000 * 60 * 60 * 24));
+
+                if (diferencaDias <= 6) {
+                    mudancasDetectadas.push({ tipo: 'novo', projeto, acompanhamento: novoAcomp });
+                }
+            } else {
+                if (antigoAcomp.data !== novoAcomp.data || antigoAcomp.detalhes !== novoAcomp.detalhes) {
+                    // Verifica se o acompanhamento atualizado é recente
+                    const dataAcompanhamento = parseDataBrasileira(novoAcomp.data);
+                    const hoje = new Date();
+                    hoje.setHours(0, 0, 0, 0);
+                    dataAcompanhamento.setHours(0, 0, 0, 0);
+                    const diferencaDias = Math.floor((hoje - dataAcompanhamento) / (1000 * 60 * 60 * 24));
+
+                    if (diferencaDias <= 6) {
+                         mudancasDetectadas.push({ tipo: 'atualizado', projeto, acompanhamento: novoAcomp, anterior: antigoAcomp });
+                    }
+                }
+            }
+        }
+        return mudancasDetectadas;
+    }
+
+    /**
+     * Formata as mudanças detectadas em HTML para exibição.
+     * @param {Array} mudancas - Array de objetos de mudança.
+     * @returns {string} - String HTML formatada.
+     */
+    function formatarMensagemMudancasAcompanhamento(mudancas) {
+        if (mudancas.length === 0) return "";
+
+        let html = "<ul>";
+        mudancas.forEach(m => {
+            const detalhesLimpos = m.acompanhamento.detalhes.replace(/<[^>]*>?/gm, ''); // Sanitiza detalhes
+            switch (m.tipo) {
+                case 'novo':
+                    html += `<li><strong>Novo Acompanhamento:</strong> Projeto "${m.projeto}"<br/><em>Data:</em> ${m.acompanhamento.data}<br/><em>Detalhes:</em> ${detalhesLimpos}</li>`;
+                    break;
+                case 'atualizado':
+                    html += `<li><strong>Acompanhamento Atualizado:</strong> Projeto "${m.projeto}"<br/><em>Nova Data:</em> ${m.acompanhamento.data}<br/><em>Novos Detalhes:</em> ${detalhesLimpos}</li>`;
+                    break;
+            }
+        });
+        html += "</ul>";
+        return html;
+    }
+
     // Inicializar quando o DOM estiver pronto
     document.addEventListener('DOMContentLoaded', initAcompanhamento);
 })();
