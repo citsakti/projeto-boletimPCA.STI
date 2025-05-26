@@ -1,4 +1,4 @@
-@media (max-width: 768px) {
+@media (max-width: 1199px) {
     .painel-resumo-details summary {
         display: block;      /* Mostra só no mobile */
         margin-top: 16px;    /* Afasta para baixo */
@@ -159,12 +159,32 @@
 }
 
 @media (max-width: 1024px) {
-    /* Reaplica o que está em (max-width: 768px) para tablets */
+    /* Configura para exibir como mobile em tablets também */
     tbody tr {
-        display: grid;
-        grid-template-columns: 120px 1fr;
-        padding: var(--space-2);
+        display: flex;
+        flex-direction: column;
         gap: var(--space-1);
+        padding: var(--space-3);
+        margin-bottom: var(--space-2);
+        border: 1px solid var(--brand-neutral);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+    }
+    tbody td {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+    tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--brand-primary-medium);
+        min-width: 40%;
+        max-width: 40%;
+        flex-shrink: 0;
+        padding-right: 8px;
     }
     .btn {
         width: 100%;
@@ -346,28 +366,7 @@
   }
 }
 
-/* Apenas para Tablet: mantém visualização em tabela */
-@media (min-width: 576px) and (max-width: 1200px) {
-    /* Mantém exibição em tabela (não em cards) */
-    #mobile-filters {
-        margin-bottom: 1rem;
-    }
-    
-    /* Ajusta tamanho da fonte para tablets */
-    table, th, td {
-        font-size: 0.9rem;
-    }
-    
-    /* Esconde o filtro desktop mas mantém o cabeçalho visível */
-    thead.cabecalho tr:first-child {
-        display: table-row;
-    }
-    
-    /* Oculta media query que estava sobrepondo e convertendo para grid */
-    tbody tr {
-        display: table-row !important;
-    }
-}
+/* Removido código específico para tablets conforme solicitado */
 
 /* Media Queries */
 @media (max-width: 768px) {
@@ -483,14 +482,7 @@
   }
 }
 
-/* Tablets: 576px a 991.98px */
-@media (min-width: 576px) and (max-width: 991.98px) {
-  .toolbar {
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    justify-content: center;
-  }
-}
+/* Removido código específico para tablets conforme solicitado */
 
 /* Ajuste para botões da toolbar em dispositivos móveis */
 @media (max-width: 767px) {
@@ -559,90 +551,13 @@
   }
 }
 
-/* Tablets e iPads: 600px a 1100px */
-@media (min-width: 600px) and (max-width: 1100px) {
-  .container {
-    max-width: 98vw;
-    padding-inline: var(--space-2);
-  }
-  .painel-resumo {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    font-size: clamp(0.9rem, 2vw, 1rem);
-  }
-  table {
-    font-size: 0.95rem;
-  }
-  th, td {
-    padding: var(--space-1);
-  }
-  .toolbar {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: 10px 5px;
-  }
-  .btn, .btn-print, .btn-limpar-filtros {
-    font-size: 0.95rem;
-    padding: 6px 12px;
-    min-width: 100px;
-  }
-}
+/* Removido código específico para tablets conforme solicitado */
 
-/* Ajuste para tablets em modo retrato */
-@media (max-width: 900px) {
-  .painel-resumo {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
-  }
-  .toolbar {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-2);
-  }
-  table, th, td {
-    font-size: 0.9rem;
-  }
-}
+/* Removido código específico para tablets conforme solicitado */
 
-/* Ajuste para Samsung Tab S6 Lite, S7, S8, S9, S10 (800px a 1280px) */
-@media (min-width: 800px) and (max-width: 1280px) {
-  .container {
-    max-width: 98vw;
-  }
-  .painel-resumo {
-    font-size: 0.98rem;
-    padding: var(--space-2) var(--space-3);
-  }
-  .toolbar {
-    gap: var(--space-2);
-    padding: 10px 5px;
-  }
-  .btn, .btn-print, .btn-limpar-filtros {
-    font-size: 0.95rem;
-    padding: 6px 12px;
-  }
-}
+/* Removido código específico para tablets conforme solicitado */
 
-/* Responsivo para tablets entre 600px e 1024px */
-@media (min-width: 600px) and (max-width: 1024px) {
-    .painel-resumo {
-        /* Ajustes de layout */
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .toolbar {
-        /* Centraliza e ajusta botões */
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    table, th, td {
-        font-size: 0.9rem;
-    }
-}
+/* Removido código específico para tablets conforme solicitado */
 
 /* Ajuste para telas pequenas */
 @media (max-width: 600px) {

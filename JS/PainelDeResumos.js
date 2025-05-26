@@ -85,12 +85,11 @@ function updatePainelResumo() {
                 const limparBtn = document.getElementById("btnLimparFiltros");
                 if (limparBtn) limparBtn.classList.remove('filters-active');
             }
-            
-            filterTable();
+              filterTable();
             // 4) Recolhe o painel de Resumo no mobile após seleção
             const detalhes = document.getElementById('painel-resumo-details');
-            // Fecha o painel apenas em telas até 1024px (inclui iPad Pro)
-            if (detalhes && window.matchMedia('(max-width: 1024px)').matches) {
+            // Fecha o painel em qualquer tamanho de tela menor que desktop
+            if (detalhes && window.matchMedia('(max-width: 1199px)').matches) {
                 detalhes.removeAttribute('open');
             }
         });
@@ -127,12 +126,16 @@ function filterTableByStatus(statusSelecionado) {
 
 // Função que serve como intermediária para aplicar o filtro atual
 function filterTable() {
+    // Primeiro aplicamos o filtro do painel de resumos
     filterTableByStatus(window.painelFilterStatus);
     
     // Chama a função master de filtragem para garantir que todos os filtros sejam aplicados corretamente
     // e que o botão "Limpar Filtros" seja atualizado
     if (typeof masterFilterFunction === 'function') {
         masterFilterFunction();
+    } else {
+        // Se a função master não existir, pelo menos atualizamos as cores das linhas
+        alternaCoresLinhas();
     }
     
     // Dispara um evento personalizado para notificar que um filtro do painel foi aplicado
@@ -165,8 +168,8 @@ function resetPainelFilterStatus() {
 document.addEventListener('DOMContentLoaded', () => {
     // 0) Fecha o painel de resumo por default no mobile
     const detalhes = document.getElementById('painel-resumo-details');
-    // Fecha o painel apenas em telas até 1024px (inclui iPad Pro)
-    if (detalhes && window.matchMedia('(max-width: 1024px)').matches) {
+    // Fecha o painel em qualquer tamanho de tela menor que desktop
+    if (detalhes && window.matchMedia('(max-width: 1199px)').matches) {
         detalhes.removeAttribute('open');
     }
     updatePainelResumo();

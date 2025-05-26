@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     initializeGoogleSheetFilters();
     initializeClearFiltersButton();
+    initializeMobileFilters(); // Adicionado inicialização dos filtros mobile
 });
 
 document.addEventListener('tabela-carregada', () => {
@@ -8,6 +9,7 @@ document.addEventListener('tabela-carregada', () => {
     setTimeout(() => {
         initializeGoogleSheetFilters();
         initializeClearFiltersButton();
+        initializeMobileFilters(); // Adicionado inicialização dos filtros mobile
     }, 100); 
 });
 
@@ -17,6 +19,129 @@ function initializeGoogleSheetFilters() {
         button.removeEventListener('click', handleFilterButtonClick); // Evita duplicidade
         button.addEventListener('click', handleFilterButtonClick);
     });
+}
+
+// Função para inicializar os filtros mobile (aplicado para todos não-desktop)
+function initializeMobileFilters() {
+    console.log('Inicializando filtros mobile');
+    
+    // Mapeia os campos de filtro mobile para as colunas correspondentes
+    const mobileFilters = {
+        'filtroIdPcaMobile': 0,
+        'filter-area-mobile': 1,
+        'filter-tipo-mobile': 2,
+        'filtroProjeto': 3,
+        'filtroStatusInicioMobile': 4,
+        'filter-status-processo-mobile': 5,
+        'filtroContratarAteMobile': 6,
+        'filtroValorPcaMobile': 7,
+        'filter-orcamento-mobile': 8,
+        'filtroProcessoMobile': 9
+    };
+    
+    // Preenche os selects com opções
+    populateMobileSelectOptions();
+    
+    // Adiciona event listeners aos filtros mobile
+    Object.keys(mobileFilters).forEach(filterId => {
+        const element = document.getElementById(filterId);
+        if (element) {
+            // Remove listener existente para evitar duplicação
+            element.removeEventListener('input', handleMobileFilterChange);
+            element.removeEventListener('change', handleMobileFilterChange);
+            
+            // Adiciona os novos listeners
+            if (element.tagName === 'SELECT') {
+                element.addEventListener('change', handleMobileFilterChange);
+            } else {
+                element.addEventListener('input', handleMobileFilterChange);
+            }
+            
+            // Armazena o índice da coluna como atributo do elemento
+            element.dataset.colIndex = mobileFilters[filterId];
+        }
+    });
+}
+
+// Preenche os selects mobile com opções da tabela
+function populateMobileSelectOptions() {
+    // Preenche o select de Área
+    populateMobileSelect('filter-area-mobile', 1);
+    
+    // Preenche o select de Tipo
+    populateMobileSelect('filter-tipo-mobile', 2);
+    
+    // Preenche o select de Status do Processo
+    populateMobileSelect('filter-status-processo-mobile', 5);
+    
+    // Preenche o select de Orçamento
+    populateMobileSelect('filter-orcamento-mobile', 8);
+}
+
+// Função auxiliar para preencher um select mobile com valores únicos de uma coluna
+function populateMobileSelect(selectId, columnIndex) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    const uniqueValues = getUniqueColumnValues(columnIndex);
+    
+    // Limpa as opções atuais, mantendo a primeira opção (vazia)
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+    
+    // Adiciona as novas opções
+    uniqueValues.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+    });
+}
+
+// Handler para eventos de filtros mobile
+function handleMobileFilterChange(event) {
+    const element = event.target;
+    const columnIndex = parseInt(element.dataset.colIndex);
+    const value = element.value.trim().toLowerCase();
+    
+    // Se o filtro não tem valor, remova qualquer filtro ativo para esta coluna
+    if (!value) {
+        const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${columnIndex}"]`);
+        if (filterButton) {
+            filterButton.removeAttribute('data-active-filters');
+            filterButton.classList.remove('filter-active');
+        }
+    } else {
+        // Aplica o filtro para esta coluna
+        applyMobileFilter(columnIndex, value);
+    }
+    
+    // Atualiza a visualização da tabela
+    masterFilterFunction();
+}
+
+// Aplica um filtro a partir de um controle mobile
+function applyMobileFilter(columnIndex, filterValue) {
+    const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${columnIndex}"]`);
+    if (!filterButton) return;
+    
+    // Busca todos os valores da coluna
+    const allValues = getUniqueColumnValues(columnIndex);
+    
+    // Filtra os valores que correspondem ao critério
+    const matchingValues = allValues.filter(value => 
+        value.toLowerCase().includes(filterValue)
+    ).map(value => value.toLowerCase());
+    
+    // Aplica o filtro (se não houver correspondências, mantém tudo visível)
+    if (matchingValues.length > 0) {
+        filterButton.setAttribute('data-active-filters', JSON.stringify(matchingValues));
+        filterButton.classList.add('filter-active');
+    } else {
+        filterButton.removeAttribute('data-active-filters');
+        filterButton.classList.remove('filter-active');
+    }
 }
 
 // Função para inicializar o botão de limpar filtros
@@ -300,6 +425,9 @@ function clearAllGoogleSheetFilters() {
         resetPainelFilterStatus();
     }
     
+    // Limpa os filtros mobile
+    clearMobileFilters();
+    
     // Mostra todas as linhas da tabela
     const tableRows = document.querySelectorAll('table tbody tr');
     tableRows.forEach(row => {
@@ -312,6 +440,31 @@ function clearAllGoogleSheetFilters() {
     }
     
     console.log('Todos os filtros foram limpos');
+}
+
+// Função para limpar todos os filtros mobile
+function clearMobileFilters() {
+    // IDs dos filtros mobile a serem limpos
+    const mobileFilterIds = [
+        'filtroIdPcaMobile',
+        'filter-area-mobile',
+        'filter-tipo-mobile',
+        'filtroProjeto',
+        'filtroStatusInicioMobile',
+        'filter-status-processo-mobile',
+        'filtroContratarAteMobile',
+        'filtroValorPcaMobile',
+        'filter-orcamento-mobile',
+        'filtroProcessoMobile'
+    ];
+    
+    // Limpa o valor de cada filtro
+    mobileFilterIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.value = '';
+        }
+    });
 }
 
 // Torna a função disponível globalmente
@@ -352,7 +505,17 @@ function masterFilterFunction() {
         return;
     }
 
+    // Se chegamos aqui, temos filtros de coluna ativos
+    // Primeiro aplicamos o filtro do painel, se existir
+    if (painelFilterAtivo) {
+        filterTableByStatus(window.painelFilterStatus);
+    }
+
+    // Então aplicamos os filtros de coluna nas linhas que ainda estão visíveis
     tableRows.forEach(row => {
+        // Se já está oculta pelo filtro do painel, não precisamos verificar mais
+        if (row.style.display === 'none') return;
+        
         let showRow = true;
         activeFilterButtons.forEach(button => {
             if (!showRow) return; // Otimização: se a linha já está marcada para não ser exibida, pule outros filtros
@@ -384,9 +547,17 @@ function masterFilterFunction() {
                 showRow = false;
             }
         });
+        
+        // Aplica a visibilidade final após todos os filtros
         row.style.display = showRow ? '' : 'none';
     });
+    
     alternaCoresLinhas(); // Reutiliza a função existente para atualizar as cores
+    
+    // Atualiza contadores e visuais, se existirem
+    if (typeof updateStatusCounts === 'function') {
+        updateStatusCounts();
+    }
 }
 
 

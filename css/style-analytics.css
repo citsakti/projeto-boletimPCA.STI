@@ -699,10 +699,10 @@ table td:has(span:contains("🛒")) {
     display: none; /* Escondemos já que agora os boxes já estão lado a lado */
 }
 
-/* Ajustes para mobile e telas pequenas */
-@media (max-width: 992px) {
+/* Ajustes para mobile */
+@media (max-width: 1199px) {
     .tipo-grid {
-        grid-template-columns: 1fr; /* Em telas menores, voltamos para 1 coluna */
+        grid-template-columns: 1fr; /* Em telas menores, uma coluna única */
         gap: 1rem;
     }
     

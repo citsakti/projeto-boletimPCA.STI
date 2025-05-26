@@ -372,19 +372,7 @@ table tbody tr.contratacao-atrasada {
     }
 }
 
-/* Ajuste para iPad Pro e tablets grandes */
-@media (min-width: 1024px) and (max-width: 1366px) {
-  .container {
-    max-width: 1200px;
-  }
-  .painel-resumo {
-    font-size: 1rem;
-    padding: var(--space-3) var(--space-4);
-  }
-  table {
-    font-size: 1rem;
-  }
-}
+/* Removido código específico para tablets conforme solicitado */
 
 /* ---------- Dropdown multi-seleção ---------- */
 .dropdown-multi { position: relative; }

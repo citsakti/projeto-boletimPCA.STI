@@ -1,0 +1,60 @@
+/* 
+ * Arquivo CSS para garantir comportamento mobile para todos os dispositivos não-desktop
+ */
+
+/* Aplica os estilos de dispositivos móveis a todos os dispositivos com largura menor que desktop */
+.mobile-device .toolbar {
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.mobile-device thead.cabecalho {
+    position: absolute !important;
+    left: -9999px;
+}
+
+.mobile-device #mobile-filters {
+    display: block;
+}
+
+.mobile-device thead .filter-row {
+    display: none;
+}
+
+.mobile-device tbody tr {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    margin-bottom: var(--space-2);
+    border: 1px solid var(--brand-neutral);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.mobile-device tbody td {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.mobile-device tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--brand-primary-medium);
+    min-width: 40%;
+    max-width: 40%;
+    flex-shrink: 0;
+    padding-right: 8px;
+}
+
+/* Garante que classes adequadas sejam aplicadas quando detectado via JavaScript */
+body.mobile-device .desktop-only {
+    display: none !important;
+}
+
+body.desktop-device .mobile-only {
+    display: none !important;
+}
