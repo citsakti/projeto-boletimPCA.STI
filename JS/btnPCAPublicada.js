@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalContent = document.querySelector('.modal-content');
     
     // URL do documento PCA 2025
-    const pcaUrl = 'https://www.tce.ce.gov.br/component/jdownloads/send/324-plano-de-contratacoes-anual-2025/4539-pca-2025';
+    const pcaUrl = 'https://www.tce.ce.gov.br/component/jdownloads/send/324-plano-de-contratacoes-anual-2025/4631-pca-2025-1-revisao';
     
     // Função para abrir o modal
     function openPCAModal() {
