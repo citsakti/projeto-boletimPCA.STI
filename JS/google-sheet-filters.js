@@ -472,88 +472,88 @@ window.clearAllGoogleSheetFilters = clearAllGoogleSheetFilters;
 
 function masterFilterFunction() {
     const tableRows = document.querySelectorAll('#detalhes table tbody tr');
-    const activeFilterButtons = document.querySelectorAll('.google-sheet-filter-btn.filter-active, .google-sheet-filter-btn[data-active-filters]');
-    
-    console.log('Executando masterFilterFunction, botões ativos:', activeFilterButtons.length);
-    
-    // Verifica se há filtro ativo do painel de resumos
+    // Renomeado para clareza e consistência na nomenclatura
+    const activeColumnFilterButtons = document.querySelectorAll('.google-sheet-filter-btn.filter-active, .google-sheet-filter-btn[data-active-filters]');
+
     const painelFilterAtivo = window.painelFilterStatus && window.painelFilterStatus !== 'TODOS';
 
     // Atualiza o botão "Limpar Filtros" com base nos filtros ativos
     const limparBtn = document.getElementById("btnLimparFiltros");
     if (limparBtn) {
-        if (activeFilterButtons.length > 0 || painelFilterAtivo) {
+        if (activeColumnFilterButtons.length > 0 || painelFilterAtivo) {
             limparBtn.classList.add('filters-active');
         } else {
             limparBtn.classList.remove('filters-active');
         }
     }
 
-    // Se não houver filtros ativos de colunas, verifica se há filtro do painel
-    if (activeFilterButtons.length === 0 && !painelFilterAtivo) {
+    // 1. Determinar visibilidade inicial baseada no filtro do painel (se ativo)
+    if (painelFilterAtivo) {
+        // Presume-se que filterTableByStatus modifica row.style.display diretamente
+        filterTableByStatus(window.painelFilterStatus);
+    } else {
+        // Se o filtro do painel não está ativo, todas as linhas devem começar visíveis
+        // antes de aplicar os filtros de coluna.
         tableRows.forEach(row => {
             row.style.display = '';
         });
-        alternaCoresLinhas();
-        return;
     }
-    
-    // Se temos apenas filtro do painel e nenhum filtro de coluna, deixamos o filtro do painel agir sozinho
-    if (activeFilterButtons.length === 0 && painelFilterAtivo) {
-        // Neste caso, o filtro já foi aplicado pelo filterTableByStatus
+
+    // 2. Se não há filtros de coluna, o trabalho está feito.
+    // A visibilidade já foi definida pelo filtro do painel ou resetada para todas as linhas visíveis.
+    if (activeColumnFilterButtons.length === 0) {
         alternaCoresLinhas();
+        if (typeof updateStatusCounts === 'function') {
+            updateStatusCounts();
+        }
         return;
     }
 
-    // Se chegamos aqui, temos filtros de coluna ativos
-    // Primeiro aplicamos o filtro do painel, se existir
-    if (painelFilterAtivo) {
-        filterTableByStatus(window.painelFilterStatus);
-    }
-
-    // Então aplicamos os filtros de coluna nas linhas que ainda estão visíveis
+    // 3. Aplicar filtros de coluna nas linhas que estão atualmente visíveis
     tableRows.forEach(row => {
-        // Se já está oculta pelo filtro do painel, não precisamos verificar mais
-        if (row.style.display === 'none') return;
-        
-        let showRow = true;
-        activeFilterButtons.forEach(button => {
-            if (!showRow) return; // Otimização: se a linha já está marcada para não ser exibida, pule outros filtros
+        // Se a linha já está escondida (pelo filtro do painel), não a processe mais.
+        if (row.style.display === 'none') {
+            return;
+        }
+
+        let rowPassesAllColumnFilters = true;
+        activeColumnFilterButtons.forEach(button => {
+            if (!rowPassesAllColumnFilters) return; // Otimização: se já falhou em um filtro, pule os outros
 
             const colIndex = button.dataset.colIndex;
             const activeFiltersData = button.getAttribute('data-active-filters');
-            
-            if (!activeFiltersData) {
-                // Se não há dados de filtro (mas o botão tem a classe), pula este filtro
+
+            if (!activeFiltersData) { // Pular se o botão está marcado como ativo mas não tem dados de filtro
                 return;
             }
-            
-            const activeFilters = JSON.parse(activeFiltersData);
-            const cell = row.querySelectorAll('td')[colIndex];
 
-            // Se não há filtros ativos para esta coluna (nenhuma checkbox marcada), mostra tudo
+            const activeFilters = JSON.parse(activeFiltersData);
+            // Se não há valores selecionados para esta coluna específica (ex: dropdown limpo),
+            // a linha passa neste filtro de coluna.
             if (activeFilters.length === 0) {
                 return;
             }
 
+            const cell = row.querySelectorAll('td')[colIndex];
             if (cell) {
                 const cellValue = cell.textContent.trim().toLowerCase();
-                // Lógica invertida: mostrar apenas os itens que estão selecionados
                 if (!activeFilters.includes(cellValue)) {
-                    showRow = false;
+                    rowPassesAllColumnFilters = false; // Não corresponde ao filtro desta coluna
                 }
             } else {
                 // Se a célula não existe e um filtro está ativo para esta coluna, considera que não corresponde
-                showRow = false;
+                rowPassesAllColumnFilters = false;
             }
         });
-        
-        // Aplica a visibilidade final após todos os filtros
-        row.style.display = showRow ? '' : 'none';
+
+        // Se a linha não passou em algum dos filtros de coluna, esconda-a.
+        // Caso contrário, ela permanece visível (estado definido no passo 1 ou pelo reset).
+        if (!rowPassesAllColumnFilters) {
+            row.style.display = 'none';
+        }
     });
-    
+
     alternaCoresLinhas(); // Reutiliza a função existente para atualizar as cores
-    
     // Atualiza contadores e visuais, se existirem
     if (typeof updateStatusCounts === 'function') {
         updateStatusCounts();
