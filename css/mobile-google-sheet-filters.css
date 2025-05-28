@@ -183,6 +183,52 @@
     background-color: #495057;
 }
 
+/* Container para botões lado a lado (Limpar e OK) */
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom > div {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom > div button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Botão Limpar */
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom > div button:first-child {
+    background-color: #6c757d;
+    color: white;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom > div button:first-child:hover {
+    background-color: #545b62;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom > div button:first-child:active {
+    background-color: #495057;
+}
+
+/* Botão OK */
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom > div button:last-child {
+    background-color: #1a73e8;
+    color: white;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom > div button:last-child:hover {
+    background-color: #1557b0;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom > div button:last-child:active {
+    background-color: #1246a0;
+}
+
 /* Botão limpar filtros mobile */
 .btn-limpar-filtros-mobile {
     width: 100%;

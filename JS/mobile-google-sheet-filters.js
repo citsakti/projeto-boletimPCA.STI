@@ -187,20 +187,37 @@ function openMobileFilterDropdown(button, columnIndex) {
     dropdown.appendChild(optionsContainer);
 
     // Atualiza estado do "Selecionar Tudo"
-    setTimeout(() => updateMobileSelectAllState(dropdown), 0);
-
-    // Container fixo inferior com botão Limpar
+    setTimeout(() => updateMobileSelectAllState(dropdown), 0);    // Container fixo inferior com botões Limpar e OK
     const fixedBottomContainer = document.createElement('div');
     fixedBottomContainer.className = 'filter-fixed-bottom';
     
+    // Container para os botões lado a lado
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.style.display = 'flex';
+    buttonsContainer.style.gap = '10px';
+    buttonsContainer.style.width = '100%';
+    
     const clearButton = document.createElement('button');
     clearButton.textContent = 'Limpar';
-    clearButton.style.width = '100%';
+    clearButton.style.flex = '1';
     clearButton.addEventListener('click', (e) => {
         e.stopPropagation();
         clearMobileFilter(columnIndex, dropdown);
     });
-    fixedBottomContainer.appendChild(clearButton);
+    
+    const okButton = document.createElement('button');
+    okButton.textContent = 'OK';
+    okButton.style.flex = '1';
+    okButton.style.backgroundColor = '#1a73e8';
+    okButton.style.color = 'white';
+    okButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeMobileFilterDropdowns();
+    });
+    
+    buttonsContainer.appendChild(clearButton);
+    buttonsContainer.appendChild(okButton);
+    fixedBottomContainer.appendChild(buttonsContainer);
     
     dropdown.appendChild(fixedBottomContainer);
 
