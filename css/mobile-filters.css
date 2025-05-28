@@ -57,15 +57,15 @@
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
-    padding: 10px 12px;
-    margin-bottom: 14px;
+    padding: 8px 10px; /* Reduzido para mobile */
+    margin-bottom: 10px; /* Reduzido para mobile */
     border: 1px solid var(--brand-neutral);
     border-radius: var(--radius-sm);
-    font-size: 1rem;
+    font-size: 0.95rem; /* Ligeiramente menor para mobile */
     background: #f8fafc;
     color: #2c417a;
     transition: border-color 0.2s, box-shadow 0.2s;
-    height: 44px !important;
+    height: 40px !important; /* Reduzido para mobile */
     appearance: none;
 }
 

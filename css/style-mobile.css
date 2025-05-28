@@ -41,27 +41,26 @@
         padding: 0.5em 0 0.5em 1.5em;
         margin-top: 16px;
         margin-bottom: 0.5em;
-    }
-    /* Estilo para o bloco de filtros mobile */
+    }    /* Estilo para o bloco de filtros mobile */
     #mobile-filters {
         display: block;
         background: #fff;
         border: 1px solid var(--brand-neutral);
         border-radius: var(--radius-md);
         box-shadow: 0 1px 4px rgba(44,65,122,0.04);
-        padding: var(--space-3);
+        padding: var(--space-2); /* Reduzido de var(--space-3) */
+        margin-top: var(--space-4); /* Aumenta distância da linha decorativa */
         margin-bottom: var(--space-3);
-    }
-    #mobile-filters summary {
+    }    #mobile-filters summary {
         font-weight: bold;
         cursor: pointer;
-        padding: 0.5em 0 0.5em 1.5em;
-        font-size: 1rem;
+        padding: 0.4em 0 0.4em 1.5em; /* Reduzido padding vertical */
+        font-size: 0.95rem; /* Ligeiramente menor */
         background: var(--brand-primary);
         color: #fff;
         border-radius: var(--radius-md);
-        margin-bottom: 1em;
-        margin-top: 1em;
+        margin-bottom: 0.8em; /* Reduzido de 1em */
+        margin-top: 0.8em; /* Reduzido de 1em */
         outline: none;
         text-align: left;
         position: relative;
@@ -80,22 +79,21 @@
     #mobile-filters[open] > summary::before {
         content: '▼';
         transform: translateY(-50%) rotate(0deg);
-    }
-    #mobile-filters input,
+    }    #mobile-filters input,
     #mobile-filters select {
         width: 100% !important;
         min-width: 0;
         max-width: 100%;
         box-sizing: border-box;
-        padding: 10px 12px;
-        margin-bottom: 14px;
+        padding: 8px 10px; /* Reduzido de 10px 12px */
+        margin-bottom: 10px; /* Reduzido de 14px */
         border: 1px solid var(--brand-neutral);
         border-radius: var(--radius-sm);
-        font-size: 1rem;
+        font-size: 0.95rem; /* Ligeiramente menor */
         background: #f8fafc;
         color: #2c417a;
         transition: border-color 0.2s, box-shadow 0.2s;
-        height: 44px !important;
+        height: 40px !important; /* Reduzido de 44px */
         line-height: 1.2;
         appearance: none;
     }
@@ -117,14 +115,13 @@
         color: var(--brand-primary-medium);
         margin-bottom: 4px;
         margin-top: 8px;
-    }
-    #mobile-filters .btn-limpar-filtros {
+    }    #mobile-filters .btn-limpar-filtros {
         width: 100%;
-        margin-top: 8px;
+        margin-top: 6px; /* Reduzido de 8px */
         margin-bottom: 0;
-        padding: 12px 0;
-        font-size: 1rem;
-        height: 44px;
+        padding: 10px 0; /* Reduzido de 12px 0 */
+        font-size: 0.95rem; /* Ligeiramente menor */
+        height: 40px; /* Reduzido de 44px */
     }
     /* Remove marcador padrão e mantém só nossa ::before */
     #mobile-filters summary::-webkit-details-marker {
@@ -229,12 +226,8 @@
     .painel-resumo-details summary {
         display: block;
     }
-    
-    /* Configurações de toolbar */
-    .toolbar {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
+      /* Configurações de toolbar - agora controlada pelo mobile-menu.js */
+    /* .toolbar configurações movidas para mobile-menu.css */
     
     /* Botões ocupam mais espaço */
     .btn {
@@ -305,8 +298,9 @@
     font-size: 1.3em; /* Aumenta o tamanho da fonte */
     font-weight: 600;  /* Torna o texto mais negrito */
   }
-
+  /* Configurações específicas da toolbar no mobile - agora controladas pelo mobile-menu.js */
   .toolbar {
+    /* Estilos base - o mobile-menu.css vai sobrescrever conforme necessário */
     display: flex;
     flex-wrap: wrap;
     align-items: center;

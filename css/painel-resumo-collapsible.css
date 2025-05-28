@@ -45,6 +45,16 @@
     transform: rotate(180deg);
 }
 
+/* Ajuste para o painel quando usado no mobile-controls-container */
+@media (max-width: 1199px) {
+    /* Remove margin quando dentro do mobile-controls-container */
+    .mobile-controls-container .painel-toggle-btn {
+        margin: 0;
+        max-width: none;
+        min-width: 120px;
+    }
+}
+
 /* Container do painel de resumos */
 .painel-resumo-container {
     background: #fcfeff;
@@ -123,8 +133,8 @@
 /* Opções de status dentro do painel */
 .painel-resumo-container .painel-resumo .status-option {
     display: inline-block;
-    padding: clamp(6px, 1.5vw, 8px) clamp(10px, 3vw, 16px);
-    margin: clamp(2px, 0.8vw, 5px);
+    padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 18px);
+    margin: clamp(3px, 1vw, 6px);
     background-color: var(--brand-primary);
     color: #fff;
     border: none;
@@ -132,10 +142,14 @@
     text-decoration: none;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: clamp(11px, 2.2vw, 14px);
+    font-size: clamp(13px, 2.5vw, 16px);
     font-weight: 500;
     white-space: nowrap;
     flex-shrink: 0;
+    min-height: 44px; /* Altura mínima para facilitar toque em dispositivos móveis */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .painel-resumo-container .painel-resumo .status-option:hover {
@@ -168,15 +182,22 @@
     
     .painel-resumo-container .painel-resumo {
         flex-direction: row;
-        gap: clamp(6px, 1.5vw, 12px);
+        gap: clamp(8px, 2vw, 14px);
         padding: var(--space-2);
         justify-content: flex-start;
     }
     
+    /* Melhorias para toque em dispositivos móveis */
     .painel-resumo-container .painel-resumo .status-option {
-        padding: clamp(4px, 1.2vw, 6px) clamp(8px, 2.5vw, 12px);
-        margin: clamp(1px, 0.5vw, 3px);
-        font-size: clamp(10px, 2vw, 13px);
+        padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px);
+        margin: clamp(2px, 0.8vw, 4px);
+        font-size: clamp(13px, 2.5vw, 16px);
+        min-height: 44px; /* Altura mínima recomendada para toque */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.3;
+        border-radius: var(--radius-md);
     }
 }
 
@@ -207,35 +228,38 @@
     
     .painel-resumo-container .painel-resumo {
         flex-direction: row;
-        gap: clamp(3px, 1vw, 6px);
-        padding: clamp(8px, 2.5vw, 12px);
+        gap: clamp(4px, 1.2vw, 8px);
+        padding: clamp(10px, 3vw, 15px);
         justify-content: flex-start;
         align-items: flex-start;
     }
     
     .painel-resumo-container .painel-resumo .status-option {
-        padding: clamp(2px, 0.8vw, 4px) clamp(4px, 1.5vw, 8px);
-        margin: clamp(0px, 0.2vw, 1px);
-        font-size: clamp(8px, 1.5vw, 11px);
-        line-height: 1.2;
+        padding: clamp(8px, 2vw, 12px) clamp(10px, 2.5vw, 14px);
+        margin: clamp(2px, 0.5vw, 4px);
+        font-size: clamp(12px, 2.2vw, 15px);
+        line-height: 1.3;
+        min-height: 44px; /* Mantém altura mínima para toque */
     }
 }
 
 @media (max-width: 480px) {
     .painel-resumo-container .painel-resumo {
         flex-direction: column;
-        gap: clamp(2px, 0.8vw, 4px);
-        padding: clamp(6px, 2vw, 10px);
+        gap: clamp(4px, 1vw, 6px);
+        padding: clamp(8px, 2.5vw, 12px);
         align-items: stretch;
     }
     
     .painel-resumo-container .painel-resumo .status-option {
-        padding: clamp(3px, 1vw, 5px) clamp(6px, 2vw, 10px);
-        margin: clamp(1px, 0.3vw, 2px) 0;
-        font-size: clamp(9px, 2vw, 12px);
+        padding: clamp(10px, 2.5vw, 14px) clamp(12px, 3vw, 16px);
+        margin: clamp(2px, 0.5vw, 3px) 0;
+        font-size: clamp(13px, 3vw, 16px);
         text-align: center;
         width: 100%;
         box-sizing: border-box;
+        min-height: 44px; /* Garante altura mínima para toque em telas pequenas */
+        line-height: 1.4;
     }
 }
 
