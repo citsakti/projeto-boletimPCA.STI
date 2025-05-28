@@ -51,7 +51,9 @@
     .mobile-controls-container .painel-toggle-btn {
         margin: 0;
         max-width: none;
-        min-width: 120px;
+        min-width: 100px; /* Reduzido de 120px para 100px */
+        padding: 6px 10px; /* Padding mais compacto */
+        font-size: 10px; /* Fonte menor */
     }
 }
 
@@ -187,9 +189,9 @@
     min-height: 60px;
     flex-wrap: wrap;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    max-height: 200px;
+    max-height: 500px; /* Aumentado de 200px para 500px para acomodar mais conteúdo */
     opacity: 1;
-    overflow: hidden;
+    overflow: visible; /* Mudado de hidden para visible para mostrar todo o conteúdo */
     will-change: max-height, opacity, transform;
 }
 
@@ -204,7 +206,7 @@
 
 /* Estado expandido - conteúdo visível */
 .painel-resumo-container.expanded .painel-resumo {
-    max-height: 200px;
+    max-height: 500px; /* Aumentado de 200px para 500px */
     opacity: 1;
     padding: var(--space-3) var(--space-4);
     min-height: 60px;
@@ -269,44 +271,73 @@
 
 /* Adaptações para mobile */
 @media (max-width: 1199px) {
+    /* Oculta o header do painel no mobile */
+    .painel-resumo-header {
+        display: none;
+    }
+    
     .painel-toggle-btn {
         margin: var(--space-2) 0;
-        padding: 10px 16px;
-        font-size: 12px;
-        max-width: 160px;
+        padding: 6px 10px; /* Reduzido ainda mais para ser mais compacto */
+        font-size: 10px; /* Reduzido para 10px */
+        max-width: 120px; /* Reduzido para 120px */
     }
     
     .painel-toggle-btn .toggle-text {
         display: none;
     }
-    
+      /* Container do painel sempre visível, mas conteúdo recolhido por padrão no mobile */
     .painel-resumo-container {
-        margin: var(--space-2) 0;
+        margin: var(--space-1) 0; /* Margem menor */
+        overflow: hidden; /* Necessário para a animação funcionar */
     }
     
+    /* Estado recolhido por padrão no mobile */
     .painel-resumo-container .painel-resumo {
-        flex-direction: row;
-        gap: clamp(8px, 2vw, 14px);
-        padding: var(--space-2);
-        justify-content: flex-start;
+        max-height: 0;
+        opacity: 0;
+        padding: 0 var(--space-4);
+        min-height: 0;
+        transform: translateY(-8px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-      /* Melhorias para toque em dispositivos móveis */
+    
+    /* Estado expandido no mobile - animação suave */
+    .painel-resumo-container.expanded .painel-resumo {
+        max-height: 500px; /* Altura suficiente para todo o conteúdo */
+        opacity: 1;
+        padding: clamp(6px, 1.5vw, 10px);
+        min-height: 40px;
+        transform: translateY(0);
+    }    .painel-resumo-container .painel-resumo {
+        flex-direction: row;
+        gap: clamp(3px, 1vw, 6px); /* Reduzido ainda mais o gap */
+        justify-content: flex-start;
+        /* Padding será controlado pelos estados collapsed/expanded acima */
+    }
+      /* Melhorias para toque em dispositivos móveis - botões ainda menores */
     .painel-resumo-container .painel-resumo .status-option {
-        padding: clamp(6px, 1.8vw, 10px) clamp(10px, 2.8vw, 14px);
-        margin: clamp(2px, 0.6vw, 3px);
-        font-size: clamp(11px, 2.3vw, 14px);
-        min-height: 38px; /* Altura reduzida mas ainda tocável */
+        padding: clamp(3px, 1vw, 5px) clamp(5px, 1.5vw, 8px); /* Reduzido ainda mais */
+        margin: clamp(1px, 0.3vw, 2px); /* Reduzido as margens */
+        font-size: clamp(9px, 1.6vw, 11px); /* Reduzido ainda mais o tamanho da fonte */
+        min-height: 28px; /* Reduzido de 32px para 28px */
         display: flex;
         align-items: center;
         justify-content: center;
-        line-height: 1.3;
-        border-radius: var(--radius-md);
+        line-height: 1.1; /* Reduzido ainda mais */
+        border-radius: calc(var(--radius-sm) * 0.8); /* Raio ainda menor */
     }
 }
 
 @media (max-width: 992px) {
     .painel-resumo-container .painel-resumo {
         gap: clamp(3px, 1vw, 6px);
+        overflow: visible; /* Garante visibilidade do conteúdo */
+    }
+    
+    /* Estados específicos para telas médias */
+    .painel-resumo-container.expanded .painel-resumo {
+        max-height: 450px; /* Altura adequada para telas médias */
         padding: clamp(10px, 2.5vw, 14px);
     }
     
@@ -333,9 +364,15 @@
     .painel-resumo-container .painel-resumo {
         flex-direction: row;
         gap: clamp(4px, 1.2vw, 8px);
-        padding: clamp(10px, 3vw, 15px);
         justify-content: flex-start;
         align-items: flex-start;
+        overflow: visible; /* Garante que todo o conteúdo seja visível */
+    }
+    
+    /* Estados específicos para tablets */
+    .painel-resumo-container.expanded .painel-resumo {
+        max-height: 400px; /* Altura adequada para tablets */
+        padding: clamp(10px, 3vw, 15px);
     }
     
     .painel-resumo-container .painel-resumo .status-option {
@@ -351,8 +388,14 @@
     .painel-resumo-container .painel-resumo {
         flex-direction: column;
         gap: clamp(4px, 1vw, 6px);
-        padding: clamp(8px, 2.5vw, 12px);
         align-items: stretch;
+        overflow: visible; /* Garante que todo o conteúdo seja visível */
+    }
+    
+    /* Estados específicos para telas pequenas */
+    .painel-resumo-container.expanded .painel-resumo {
+        max-height: none; /* Remove limitação de altura em telas pequenas */
+        padding: clamp(8px, 2.5vw, 12px);
     }
     
     .painel-resumo-container .painel-resumo .status-option {
@@ -375,7 +418,21 @@
         transform: translateY(-10px);
     }
     to {
-        max-height: 500px;
+        max-height: 600px; /* Aumentado para acomodar todo o conteúdo */
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animação específica para mobile com altura otimizada */
+@keyframes slideDownMobile {
+    from {
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        max-height: 500px; /* Altura otimizada para mobile */
         opacity: 1;
         transform: translateY(0);
     }
@@ -383,6 +440,13 @@
 
 .painel-resumo-container.expanding {
     animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animação específica para mobile */
+@media (max-width: 1199px) {
+    .painel-resumo-container.expanding .painel-resumo {
+        animation: slideDownMobile 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 }
 
 /* Estado de carregamento */
