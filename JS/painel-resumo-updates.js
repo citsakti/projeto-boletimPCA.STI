@@ -5,7 +5,14 @@
  *  - Conectar os filtros do painel de resumos com o sistema Google Sheets e filtros mobile
  *  - Atualizar dinamicamente os contadores do painel conforme a filtragem é aplicada
  *  - Melhorar a experiência em dispositivos móveis e tablets
+ * 
+ * ⚠️ FUNCIONALIDADE DESABILITADA ⚠️
+ * Este arquivo foi temporariamente desabilitado para manter as contagens do painel
+ * de resumos sempre fixas (mostrando os totais originais), independente dos filtros aplicados.
+ * A funcionalidade foi movida para PainelDeResumos.js com contagens fixas.
  */
+
+/* CÓDIGO COMENTADO - CONTAGENS DINÂMICAS DESABILITADAS
 
 document.addEventListener('DOMContentLoaded', () => {
     // Adiciona event listener para quando filtros Google Sheets são aplicados
@@ -56,3 +63,5 @@ function updatePainelResumoWithVisibleRows() {
         }
     });
 }
+
+*/

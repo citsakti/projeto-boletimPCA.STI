@@ -6,24 +6,27 @@
  *  - Gerenciar o painel lateral com estatísticas e links de filtro rápido
  *  - Permitir filtrar a tabela ao clicar em cada status do painel
  *  - Adaptar comportamento para diferentes tamanhos de tela
+ *  - Manter contagens originais fixas independente dos filtros aplicados
  *
  * =============== ESTRUTURA PRINCIPAL ================
  * 
  * # Componentes de Interface:
  *   - Painel lateral: Container com classe 'painel-resumo'
  *   - Botões de status: Elementos clicáveis que filtram a tabela
- *   - Contador total: Exibe o número total de processos visíveis
+ *   - Contador total: Exibe o número total de processos (sempre fixo)
  * 
  * # Funções Principais:
  *   - updatePainelResumo(): Atualiza contadores e eventos do painel
+ *   - calcularContagensOriginais(): Calcula e armazena as contagens iniciais
  *   - filtrarTabelaPorStatus(): Aplica filtro na tabela por status específico
  *   - resetPainelFilterStatus(): Remove filtro ativo e restaura visualização
  * 
  * # Fluxo de Execução:
  *   1. Executa ao carregar o DOM e após atualizações da tabela
- *   2. Conta ocorrências de cada status na coluna "Status do Processo"
- *   3. Atualiza contadores no painel lateral e configura eventos de clique
- *   4. Em telas menores, recolhe o painel após seleção para maximizar área útil
+ *   2. Conta ocorrências de cada status na coluna "Status do Processo" APENAS na primeira vez
+ *   3. Mantém contagens fixas mesmo quando filtros são aplicados
+ *   4. Atualiza contadores no painel lateral e configura eventos de clique
+ *   5. Em telas menores, recolhe o painel após seleção para maximizar área útil
  * 
  * # Adaptação Responsiva:
  *   - Em dispositivos móveis/tablets (telas até 1024px), painel é recolhido após seleção
@@ -34,10 +37,11 @@
  *   - Elemento HTML com classe 'painel-resumo' para conter os contadores
  */
 
-function updatePainelResumo() {
-    const resumoContainer = document.querySelector('.painel-resumo');
-    if (!resumoContainer) return;
-    
+// Variáveis globais para armazenar as contagens originais
+let originalStatusCounts = null;
+let originalTotalRows = 0;
+
+function calcularContagensOriginais() {
     // Seleciona todas as linhas da tabela (tbody)
     const rows = document.querySelectorAll('table tbody tr');
     const statusCounts = {};
@@ -51,9 +55,31 @@ function updatePainelResumo() {
         }
     });
 
-    // Constrói o HTML do painel com elementos clicáveis
+    // Armazena as contagens originais para uso posterior
+    originalStatusCounts = statusCounts;
+    originalTotalRows = rows.length;
+    
+    return { statusCounts, totalRows: rows.length };
+}
+
+function updatePainelResumo() {
+    const resumoContainer = document.querySelector('.painel-resumo');
+    if (!resumoContainer) return;
+    
+    // Se ainda não temos as contagens originais, calcula pela primeira vez
+    // ou se a tabela foi recarregada (número de linhas mudou significativamente)
+    let statusCounts, totalRows;
+    if (!originalStatusCounts) {
+        const dados = calcularContagensOriginais();
+        statusCounts = dados.statusCounts;
+        totalRows = dados.totalRows;
+    } else {
+        // Usa as contagens originais armazenadas (mantém os números fixos)
+        statusCounts = originalStatusCounts;
+        totalRows = originalTotalRows;
+    }    // Constrói o HTML do painel com elementos clicáveis
     // Remove o text-decoration: underline dos elementos
-    let html = `<div class="status-option" data-status="TODOS" style="cursor:pointer; margin-bottom: 5px;">TODOS: ${rows.length}</div>`;
+    let html = `<div class="status-option" data-status="TODOS" style="cursor:pointer; margin-bottom: 5px;">TODOS: ${totalRows}</div>`;
     for (const status in statusCounts) {
         html += `<div class="status-option" data-status="${status}" style="cursor:pointer; margin-bottom: 5px;">${status}: ${statusCounts[status]}</div>`;
     }
@@ -166,6 +192,12 @@ function resetPainelFilterStatus() {
     document.dispatchEvent(new CustomEvent('painel-filter-applied'));
 }
 
+// Função para resetar as contagens originais (chamada quando a tabela é recarregada)
+function resetOriginalCounts() {
+    originalStatusCounts = null;
+    originalTotalRows = 0;
+}
+
 // Atualiza o painel quando o DOM carregar e quando a tabela for preenchida
 document.addEventListener('DOMContentLoaded', () => {
     updatePainelResumo();
@@ -179,4 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Mantém este listener para quando a tabela for carregada dinamicamente
-document.addEventListener('tabela-carregada', updatePainelResumo);
+document.addEventListener('tabela-carregada', () => {
+    // Limpa as contagens originais para recalcular com os novos dados
+    resetOriginalCounts();
+    updatePainelResumo();
+});
