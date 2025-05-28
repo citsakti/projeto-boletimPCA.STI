@@ -58,7 +58,7 @@ header::after {
     margin-bottom: 0; /* Sem margem inferior */
 }
 
-/* Painel resumo ajustado */
+/* Painel resumo - LEGADO - Mantido para compatibilidade mas sobrescrito pelo novo sistema */
 .painel-resumo {
     display: flex;
     flex-direction: row;
@@ -76,11 +76,12 @@ header::after {
     flex-wrap: wrap; /* Adicionado para distribuir os itens em duas linhas */
 }
 
-/* Painel de resumo recolhível no mobile */
+/* Painel de resumo recolhível no mobile - LEGADO */
 .painel-resumo-details summary {
-    display: none; /* Esconde por padrão */
+    display: none; /* Esconde por padrão - sobrescrito pelo novo sistema */
 }
 
+/* LEGADO - Mantido para compatibilidade */
 .painel-resumo .status-option {
     display: inline-block;
     padding: 8px 16px;

@@ -83,14 +83,14 @@ function updatePainelResumo() {
             } else {
                 // Se for "TODOS", remove o destaque do botão "Limpar Filtros"
                 const limparBtn = document.getElementById("btnLimparFiltros");
-                if (limparBtn) limparBtn.classList.remove('filters-active');
-            }
+                if (limparBtn) limparBtn.classList.remove('filters-active');            }
               filterTable();
-            // 4) Recolhe o painel de Resumo no mobile após seleção
-            const detalhes = document.getElementById('painel-resumo-details');
-            // Fecha o painel em qualquer tamanho de tela menor que desktop
-            if (detalhes && window.matchMedia('(max-width: 1199px)').matches) {
-                detalhes.removeAttribute('open');
+            // Recolhe o painel de Resumo no mobile após seleção
+            if (window.matchMedia('(max-width: 1199px)').matches) {
+                // Usa o novo sistema de painel recolhível
+                if (window.painelResumoCollapsible) {
+                    window.painelResumoCollapsible.collapse();
+                }
             }
         });
     });
@@ -104,9 +104,11 @@ function updatePainelResumo() {
             
             // Destaca o botão "Limpar Filtros"
             const limparBtn = document.getElementById("btnLimparFiltros");
-            if (limparBtn) limparBtn.classList.add('filters-active');
-        }
+            if (limparBtn) limparBtn.classList.add('filters-active');        }
     }
+    
+    // Dispara evento personalizado para notificar que o painel foi atualizado
+    document.dispatchEvent(new CustomEvent('painel-resumo-updated'));
 }
 
 // Função para filtrar a tabela conforme o status clicado
@@ -166,12 +168,6 @@ function resetPainelFilterStatus() {
 
 // Atualiza o painel quando o DOM carregar e quando a tabela for preenchida
 document.addEventListener('DOMContentLoaded', () => {
-    // 0) Fecha o painel de resumo por default no mobile
-    const detalhes = document.getElementById('painel-resumo-details');
-    // Fecha o painel em qualquer tamanho de tela menor que desktop
-    if (detalhes && window.matchMedia('(max-width: 1199px)').matches) {
-        detalhes.removeAttribute('open');
-    }
     updatePainelResumo();
     
     // Garante que o botão "Limpar Filtros" seja atualizado corretamente no carregamento

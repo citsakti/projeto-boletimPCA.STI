@@ -9,9 +9,9 @@
     <link rel="preload" href="./css/style.css" as="style">
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/style-emojis.css">
-    <link rel="stylesheet" href="./css/style-areas.css">
-    <link rel="stylesheet" href="./css/style-orcamento.css">    <link rel="stylesheet" href="./css/style-status_atrasado.css">    <link rel="stylesheet" href="css/style-mobile.css">    <link rel="stylesheet" href="css/style-atualizacao_automatica.css">    <link rel="stylesheet" href="css/limpar-filtros.css">    <link rel="stylesheet" href="css/mobile-filters.css">
+    <link rel="stylesheet" href="./css/style-areas.css">    <link rel="stylesheet" href="./css/style-orcamento.css">    <link rel="stylesheet" href="./css/style-status_atrasado.css">    <link rel="stylesheet" href="css/style-mobile.css">    <link rel="stylesheet" href="css/style-atualizacao_automatica.css">    <link rel="stylesheet" href="css/limpar-filtros.css">    <link rel="stylesheet" href="css/mobile-filters.css">
     <link rel="stylesheet" href="css/device-detection.css">
+    <link rel="stylesheet" href="css/painel-resumo-collapsible.css">
     <script src="./JS/mobile-device-detection.js" defer></script>
     <script src="./JS/google-sheet-filters.js" defer></script>
     <script src="./JS/mobile-google-sheet-filters.js" defer></script>
@@ -19,8 +19,8 @@
     <script src="./JS/table-formatters.js" defer></script>
     <script src="./JS/filter-controls.js" defer></script>
     <script src="./JS/OrganizacaoDosDados.js" defer></script>
-    <script src="./JS/emoji animation function.js" defer></script>
-    <script src="./JS/PainelDeResumos.js" defer></script>
+    <script src="./JS/emoji animation function.js" defer></script>    <script src="./JS/PainelDeResumos.js" defer></script>
+    <script src="./JS/PainelResumoCollapsible.js" defer></script>
     <script src="./JS/painel-resumo-updates.js" defer></script>
     <script src="./JS/PrintFunction.js" defer></script>
     <script src="./JS/btnCancelados.js" defer></script>
@@ -44,16 +44,26 @@
     <!-- overlay de carregamento -->
     <div id="loading-overlay">
       <div class="loader"> ⏳ Carregando dados, por favor aguarde...</div>
-    </div>
-
-    <header>
+    </div>    <header>
         <img src="./IMG/tribunal.png" alt="Tribunal" size="10" class="logo-tribunal">
         <h1>Boletim PCA 2025 - STI</h1>
     </header>
-    <details id="painel-resumo-details" class="painel-resumo-details" open>
-      <summary>Painel de Resumo</summary>
-      <div class="painel-resumo"> ... </div>
-    </details>
+    
+    <!-- Botão para expandir/recolher o painel de resumos -->
+    <button id="painel-toggle-btn" class="painel-toggle-btn" title="Mostrar/Ocultar Painel de Resumos">
+        <span class="toggle-icon">📊</span>
+        <span class="toggle-text">Resumos</span>
+    </button>
+    
+    <!-- Container do painel de resumos -->
+    <div id="painel-resumo-container" class="painel-resumo-container expanded">
+        <div class="painel-resumo-header">
+            <h3>📈 Painel de Resumos</h3>
+            <button id="painel-close-btn" class="painel-close-btn" title="Fechar painel">✕</button>
+        </div>
+        <div class="painel-resumo"> ... </div>
+    </div>
+    
     <div class="linha-decorativa"></div>
 
     <!-- Toolbar para botões -->
