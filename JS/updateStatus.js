@@ -14,7 +14,7 @@
  * # Funções Principais:
  *   - updateStatus(): Define o texto do rodapé com data e hora atuais
  * 
- * # Fluxo de Execução:
+ * # Fluxo de Execução:.
  *   1. Script é executado quando o DOM é completamente carregado
  *   2. Localiza o elemento de parágrafo dentro do rodapé
  *   3. Formata a data e hora atual no padrão brasileiro
