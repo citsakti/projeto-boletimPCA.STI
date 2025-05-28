@@ -14,7 +14,7 @@ class PainelResumoCollapsible {
         this.container = document.getElementById('painel-resumo-container');
         this.toggleBtn = document.getElementById('painel-toggle-btn');
         this.closeBtn = document.getElementById('painel-close-btn');
-        this.isExpanded = true;
+        this.isExpanded = false; // Inicia fechado por padrão
         this.storageKey = 'painel-resumo-state';
         
         this.init();
@@ -213,10 +213,9 @@ class PainelResumoCollapsible {
             this.isExpanded = this.getDefaultState();
         }
     }
-    
-    getDefaultState() {
-        // No mobile/tablet, começa recolhido. No desktop, começa expandido.
-        return window.innerWidth >= 1200;
+      getDefaultState() {
+        // Sempre começa recolhido (fechado) por padrão
+        return false;
     }
     
     handleResize() {
