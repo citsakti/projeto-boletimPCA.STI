@@ -25,9 +25,9 @@
  *   2. Ao acionar a impressão, elementos desnecessários são ocultados
  *   3. Estilos específicos são aplicados (remoção de animações, ajustes de layout)
  *   4. Após impressão ou cancelamento, a visualização normal é restaurada
- * 
- * # Lógica Condicional:
- *   - Se filtros estiverem aplicados, o painel de resumo é ocultado
+ *  * # Lógica Condicional:
+ *   - Elementos de interface são sempre ocultados na impressão
+ *   - Painel de resumos e linha decorativa são sempre removidos
  *   - Diferentes áreas da página recebem tratamentos específicos
  *   - Breaks de página são otimizados para melhor resultado em papel
  * 
@@ -56,43 +56,25 @@ document.addEventListener('DOMContentLoaded', () => {
 /*
  * Função principal de impressão.
  * Oculta elementos desnecessários, aplica estilos específicos para impressão e restaura o estado original após imprimir.
+ * 
+ * Elementos ocultados na impressão:
+ * - Botões de ação (imprimir, fonte de dados, relatório analítico, PCA publicada)
+ * - Filtros e linha de filtros da tabela
+ * - Painel de resumos completo (independente de filtros aplicados)
+ * - Linha decorativa
+ * - Containers da toolbar e controles móveis (para eliminar espaçamento)
+ * - Ícones de processo
  */
-function printPage() {
-    // Esconde o botão de imprimir, caso esteja visível
+function printPage() {    // Esconde o botão de imprimir, caso esteja visível
     let btnPrint = document.getElementById('btnPrint');
     if (btnPrint) {
         btnPrint.style.display = 'none';
-    }
-
-    // Verifica se algum filtro está aplicado na tabela ou no painel de resumo
-    let filtroAplicado = false;
-    document.querySelectorAll('.filter-row input[type="text"]').forEach(input => {
-        if (input.value.trim() !== '') {
-            filtroAplicado = true;
-        }
-    });
-    document.querySelectorAll('.filter-row select').forEach(select => {
-        if (select.value.trim() !== '') {
-            filtroAplicado = true;
-        }
-    });
-    // Verifica checkboxes do filtro de status
-    document.querySelectorAll('#status-filter input[type="checkbox"]').forEach(checkbox => {
-        if (checkbox.checked) {
-            filtroAplicado = true;
-        }
-    });
-    // Verifica filtro aplicado no painel de resumo
-    if (window.painelFilterStatus && window.painelFilterStatus !== 'TODOS') {
-        filtroAplicado = true;
-    }
-
-    /*
+    }/*
      * Cria um elemento <style> para sobrescrever estilos durante a impressão:
      * - Remove animações
      * - Oculta botões e elementos de filtro
      * - Garante que a coluna de processos não quebre linha
-     * - Oculta o painel de resumo se houver filtro aplicado
+     * - Oculta o painel de resumo e linha decorativa
      */
     const printStyle = document.createElement('style');
     printStyle.id = 'printOverrides';
@@ -100,7 +82,8 @@ function printPage() {
         /* Desativa todas as animações */
         * {
             animation: none !important;
-        }        /* Oculta botões e filtros */
+        }
+        /* Oculta botões e filtros */
         .btn-limpar-filtros,
         thead tr.filter-row,
         #btnPrint,
@@ -112,13 +95,26 @@ function printPage() {
         /* Oculta o botão PCA Publicada */
         #btnPCAPublicada {
             display: none !important;
+        }        /* Oculta o painel de resumos e linha decorativa */
+        .painel-resumo,
+        .painel-resumo-container,
+        #painel-resumo-container,
+        .linha-decorativa,
+        .painel-toggle-btn {
+            display: none !important;
+        }
+        /* Oculta containers que podem causar espaçamento */
+        .toolbar,
+        #toolbar,
+        .mobile-controls-container,
+        #mobile-filters {
+            display: none !important;
         }
         /* Impede quebra de linha na coluna Processos */
         table th:nth-child(9),
         table td:nth-child(9) {
             white-space: nowrap !important;
         }
-        ${filtroAplicado ? '.painel-resumo { display: none !important; }' : ''}
     `;
     document.head.appendChild(printStyle);
 
