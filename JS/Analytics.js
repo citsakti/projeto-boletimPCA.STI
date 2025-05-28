@@ -76,8 +76,7 @@ const analyticData = {
         processosSuspensos: 0,
         processosAIniciar: 0,
         total: 0
-    },
-    areaCounts: {},
+    },    areaCounts: {},
     projetosPorArea: {}, // Adicionar esta linha
     // Armazenar detalhes de projetos por categoria
     projetosPorCategoria: {
@@ -87,6 +86,13 @@ const analyticData = {
         custoRenovacao: [],
         investimentoAquisicao: [],
         investimentoRenovacao: []
+    },
+    // Armazenar detalhes de projetos por status
+    projetosPorStatus: {},
+    // Armazenar detalhes de projetos por tipo
+    projetosPorTipo: {
+        "🛒 Aquisição": [],
+        "🔄 Renovação": []
     },
     // Armazenar detalhes de projetos por categoria situacional
     projetosPorSituacao: {
@@ -121,8 +127,7 @@ function initAnalytics() {
                     overlay.style.display = 'none';
                 }, 500);
             }
-            
-            // Adicionar os event listeners para expandir/contrair detalhes
+              // Adicionar os event listeners para expandir/contrair detalhes
             addExpandListeners();
             // Adicionar os event listeners para a seção situacional
             addSituacionalExpandListeners();
@@ -130,6 +135,9 @@ function initAnalytics() {
             addAreaExpandListeners();
             // Adicionar os event listeners para os botões de área e valor
             addAreaValorExpandListeners();
+            // Adicionar os event listeners para status e tipos
+            addStatusExpandListeners();
+            addTipoExpandListeners();
             // Adicionar os event listeners para os botões de produtividade
             if (typeof addProdutividadeExpandListeners === 'function') {
                 addProdutividadeExpandListeners();
@@ -296,8 +304,7 @@ function resetAnalyticData() {
     };
     analyticData.areaCounts = {};
     analyticData.projetosPorArea = {}; // Adicionar esta linha
-    
-    // Limpar arrays de projetos por categoria
+      // Limpar arrays de projetos por categoria
     analyticData.projetosPorCategoria = {
         custeio: [],
         investimento: [],
@@ -305,6 +312,15 @@ function resetAnalyticData() {
         custoRenovacao: [],
         investimentoAquisicao: [],
         investimentoRenovacao: []
+    };
+    
+    // Limpar arrays de projetos por status
+    analyticData.projetosPorStatus = {};
+    
+    // Limpar arrays de projetos por tipo
+    analyticData.projetosPorTipo = {
+        "🛒 Aquisição": [],
+        "🔄 Renovação": []
     };
     
     // Limpar arrays de projetos por categoria situacional
@@ -327,18 +343,50 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
     if (statusProcesso === 'CANCELADO ❌' || (tipo !== '🛒 Aquisição' && tipo !== '🔄 Renovação')) {
         return; // Pular este projeto completamente
     }
-    
-    // Contar status
+      // Contar status
     if (statusProcesso) {
         analyticData.statusCounts[statusProcesso] = (analyticData.statusCounts[statusProcesso] || 0) + 1;
+        
+        // Adicionar projeto ao array de projetos por status
+        if (!analyticData.projetosPorStatus[statusProcesso]) {
+            analyticData.projetosPorStatus[statusProcesso] = [];
+        }
+        analyticData.projetosPorStatus[statusProcesso].push({
+            id: projetoObj.idPca,
+            area: projetoObj.area,
+            objeto: projetoObj.projeto,
+            contratar_ate: projetoObj.dataProcesso,
+            valor: projetoObj.valor,
+            numeroProcesso: projetoObj.numProcesso,
+            numeroContrato: projetoObj.numeroContrato
+        });
+        
         analyticData.situacional.total++;
     }
     
     // Contar tipos (Aquisição/Renovação)
     if (tipo === '🛒 Aquisição') {
         analyticData.tipoCounts["🛒 Aquisição"]++;
+        analyticData.projetosPorTipo["🛒 Aquisição"].push({
+            id: projetoObj.idPca,
+            area: projetoObj.area,
+            objeto: projetoObj.projeto,
+            contratar_ate: projetoObj.dataProcesso,
+            valor: projetoObj.valor,
+            numeroProcesso: projetoObj.numProcesso,
+            numeroContrato: projetoObj.numeroContrato
+        });
     } else if (tipo === '🔄 Renovação') {
         analyticData.tipoCounts["🔄 Renovação"]++;
+        analyticData.projetosPorTipo["🔄 Renovação"].push({
+            id: projetoObj.idPca,
+            area: projetoObj.area,
+            objeto: projetoObj.projeto,
+            contratar_ate: projetoObj.dataProcesso,
+            valor: projetoObj.valor,
+            numeroProcesso: projetoObj.numProcesso,
+            numeroContrato: projetoObj.numeroContrato
+        });
     }
     
     // Calcular valores totais por orçamento e tipo

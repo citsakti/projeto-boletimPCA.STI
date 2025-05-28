@@ -27,6 +27,8 @@
  *   - addSituacionalExpandListeners(): Configura eventos para seção situacional
  *   - addAreaExpandListeners(): Configura eventos para detalhes de áreas
  *   - addProdutividadeExpandListeners(): Configura eventos para seção de produtividade
+ *   - addStatusExpandListeners(): Configura eventos para botões de status
+ *   - addTipoExpandListeners(): Configura eventos para botões de tipo de contratação
  * 
  * # Funções de Cálculo:
  *   - calcularProdutividade(): Calcula métricas de acompanhamento para períodos
@@ -939,4 +941,152 @@ function toggleAreaDetails(detailsDiv) {
             }
         });
     }
+}
+
+/**
+ * Função para adicionar listeners nos botões de expandir/contrair status
+ */
+function addStatusExpandListeners() {
+    const statusExpandButtons = document.querySelectorAll('.status-expand-btn');
+    
+    statusExpandButtons.forEach(button => {
+        // Remover qualquer ícone existente primeiro para evitar duplicação
+        const existingIcon = button.querySelector('.expand-icon');
+        if (existingIcon) {
+            existingIcon.remove();
+        }
+        
+        // Guardar o texto original e adicionar ícone de seta
+        const originalText = button.textContent;
+        button.innerHTML = originalText + '<span class="expand-icon">▼</span>';
+        
+        button.addEventListener('click', function(e) {
+            e.stopPropagation(); // Evitar que o clique propague
+            
+            const status = this.getAttribute('data-status');
+            const statusId = status.replace(/\s+/g, '-').toLowerCase();
+            const detailsRow = document.getElementById(`status-details-${statusId}`);
+            
+            if (!detailsRow) {
+                console.error(`Elemento #status-details-${statusId} não encontrado!`);
+                return;
+            }
+            
+            // Verificar se já está expandido
+            const isExpanded = detailsRow.style.display !== 'none' && 
+                              detailsRow.style.display !== '';
+            
+            if (!isExpanded) {
+                // Primeiro garantir que está visível, depois animar
+                detailsRow.style.display = 'block';
+                
+                // Usar setTimeout para garantir que o browser renderize o display antes de adicionar a classe
+                setTimeout(() => {
+                    detailsRow.classList.add('expanded');
+                    // Chamar setup de tooltips de contrato
+                    if (typeof window.setupAnalyticsTooltips === 'function') {
+                        window.setupAnalyticsTooltips();
+                    }
+                }, 10);
+                
+                // Atualizar texto e ícone do botão
+                this.innerHTML = 'Recolher <span class="expand-icon rotate">▼</span>';
+                this.classList.add('active');
+                
+                // Destacar o box pai
+                const parentBox = this.closest('.status-box');
+                if (parentBox) parentBox.classList.add('active');
+            } else {
+                // Remover a classe para iniciar a animação de saída
+                detailsRow.classList.remove('expanded');
+                
+                // Aguardar a animação terminar antes de esconder
+                setTimeout(() => {
+                    detailsRow.style.display = 'none';
+                }, 300);
+                
+                // Restaurar o botão
+                this.innerHTML = 'Detalhar <span class="expand-icon">▼</span>';
+                this.classList.remove('active');
+                
+                // Remover destaque do box pai
+                const parentBox = this.closest('.status-box');
+                if (parentBox) parentBox.classList.remove('active');
+            }
+        });
+    });
+}
+
+/**
+ * Função para adicionar listeners nos botões de expandir/contrair tipos
+ */
+function addTipoExpandListeners() {
+    const tipoExpandButtons = document.querySelectorAll('.tipo-expand-btn');
+    
+    tipoExpandButtons.forEach(button => {
+        // Remover qualquer ícone existente primeiro para evitar duplicação
+        const existingIcon = button.querySelector('.expand-icon');
+        if (existingIcon) {
+            existingIcon.remove();
+        }
+        
+        // Guardar o texto original e adicionar ícone de seta
+        const originalText = button.textContent;
+        button.innerHTML = originalText + '<span class="expand-icon">▼</span>';
+        
+        button.addEventListener('click', function(e) {
+            e.stopPropagation(); // Evitar que o clique propague
+            
+            const tipo = this.getAttribute('data-tipo');
+            const tipoId = tipo === "🛒 Aquisição" ? "aquisicao" : "renovacao";
+            const detailsRow = document.getElementById(`tipo-details-${tipoId}`);
+            
+            if (!detailsRow) {
+                console.error(`Elemento #tipo-details-${tipoId} não encontrado!`);
+                return;
+            }
+            
+            // Verificar se já está expandido
+            const isExpanded = detailsRow.style.display !== 'none' && 
+                              detailsRow.style.display !== '';
+            
+            if (!isExpanded) {
+                // Primeiro garantir que está visível, depois animar
+                detailsRow.style.display = 'block';
+                
+                // Usar setTimeout para garantir que o browser renderize o display antes de adicionar a classe
+                setTimeout(() => {
+                    detailsRow.classList.add('expanded');
+                    // Chamar setup de tooltips de contrato
+                    if (typeof window.setupAnalyticsTooltips === 'function') {
+                        window.setupAnalyticsTooltips();
+                    }
+                }, 10);
+                
+                // Atualizar texto e ícone do botão
+                this.innerHTML = 'Recolher <span class="expand-icon rotate">▼</span>';
+                this.classList.add('active');
+                
+                // Destacar o box pai
+                const parentBox = this.closest('.tipo-box');
+                if (parentBox) parentBox.classList.add('active');
+            } else {
+                // Remover a classe para iniciar a animação de saída
+                detailsRow.classList.remove('expanded');
+                
+                // Aguardar a animação terminar antes de esconder
+                setTimeout(() => {
+                    detailsRow.style.display = 'none';
+                }, 300);
+                
+                // Restaurar o botão
+                this.innerHTML = 'Detalhar <span class="expand-icon">▼</span>';
+                this.classList.remove('active');
+                
+                // Remover destaque do box pai
+                const parentBox = this.closest('.tipo-box');
+                if (parentBox) parentBox.classList.remove('active');
+            }
+        });
+    });
 }

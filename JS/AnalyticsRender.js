@@ -54,8 +54,7 @@ function renderGeneralSection() {
     let html = `
         <div class="analytics-section">
             <h2>1. Dados Gerais</h2>
-            
-            <div class="analytics-subsection">
+              <div class="analytics-subsection">
                 <h3>Status dos Processos</h3>
                 <div class="status-grid">
                     <div class="status-box">
@@ -63,24 +62,43 @@ function renderGeneralSection() {
                         <div class="status-count">${totalStatus}</div>
                     </div>
                     ${Object.entries(analyticData.statusCounts).map(([status, count]) => `
-                        <div class="status-box">
+                        <div class="status-box expandable-status-box" data-status="${status}">
                             <div class="status-name">${status}</div>
                             <div class="status-count">${count}</div>
+                            <button class="status-expand-btn" data-status="${status}">Detalhar</button>
                         </div>
                     `).join('')}
                 </div>
+                ${Object.entries(analyticData.statusCounts).map(([status, count]) => `
+                    <div class="status-details-row" id="status-details-${status.replace(/\s+/g, '-').toLowerCase()}" style="display:none;">
+                        <div class="project-details">
+                            ${renderStatusDetails(status)}
+                        </div>
+                    </div>
+                `).join('')}
             </div>
-            
-            <div class="analytics-subsection">
+              <div class="analytics-subsection">
                 <h3>Tipo de Contratação</h3>
                 <div class="tipo-grid">
-                    <div class="tipo-box">
+                    <div class="tipo-box expandable-tipo-box" data-tipo="🛒 Aquisição">
                         <div class="tipo-name">🛒 Aquisição</div>
                         <div class="tipo-count">${analyticData.tipoCounts["🛒 Aquisição"]}</div>
+                        <button class="tipo-expand-btn" data-tipo="🛒 Aquisição">Detalhar</button>
                     </div>
-                    <div class="tipo-box">
+                    <div class="tipo-box expandable-tipo-box" data-tipo="🔄 Renovação">
                         <div class="tipo-name">🔄 Renovação</div>
                         <div class="tipo-count">${analyticData.tipoCounts["🔄 Renovação"]}</div>
+                        <button class="tipo-expand-btn" data-tipo="🔄 Renovação">Detalhar</button>
+                    </div>
+                </div>
+                <div class="tipo-details-row" id="tipo-details-aquisicao" style="display:none;">
+                    <div class="project-details">
+                        ${renderTipoDetails("🛒 Aquisição")}
+                    </div>
+                </div>
+                <div class="tipo-details-row" id="tipo-details-renovacao" style="display:none;">
+                    <div class="project-details">
+                        ${renderTipoDetails("🔄 Renovação")}
                     </div>
                 </div>
             </div>
@@ -719,6 +737,112 @@ function formatStatusWithClasses(statusText) {
         }
     }
     
-    // Sem formatação especial
+    // Sem formatação especial para status desconhecidos
     return statusText;
+}
+
+/**
+ * Função para renderizar detalhes dos projetos por status
+ * @param {string} status - O status dos projetos a serem exibidos
+ * @returns {string} - HTML da tabela com os projetos do status
+ */
+function renderStatusDetails(status) {
+    const projetos = analyticData.projetosPorStatus[status] || [];
+    
+    if (projetos.length === 0) {
+        return '<p>Nenhum projeto encontrado neste status.</p>';
+    }
+    
+    let html = `
+        <table class="project-details-table">
+            <thead>
+                <tr>
+                    <th>ID PCA</th>
+                    <th>Área</th>
+                    <th>Projeto</th>
+                    <th>Contratar Até</th>
+                    <th>Valor (R$)</th>
+                    <th>Processo</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    projetos.forEach(projeto => {
+        let contratoAttrs = '';
+        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
+            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
+        }
+        
+        html += `
+            <tr${contratoAttrs}>
+                <td>${projeto.id || 'N/A'}</td>
+                <td>${formatAreaWithClasses(projeto.area || 'N/A')}</td>
+                <td>${projeto.objeto || 'N/A'}</td>
+                <td>${projeto.contratar_ate || 'N/A'}</td>
+                <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
+                <td>${projeto.numeroProcesso || 'N/A'}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+    `;
+    
+    return html;
+}
+
+/**
+ * Função para renderizar detalhes dos projetos por tipo de contratação
+ * @param {string} tipo - O tipo de contratação dos projetos a serem exibidos
+ * @returns {string} - HTML da tabela com os projetos do tipo
+ */
+function renderTipoDetails(tipo) {
+    const projetos = analyticData.projetosPorTipo[tipo] || [];
+    
+    if (projetos.length === 0) {
+        return '<p>Nenhum projeto encontrado neste tipo de contratação.</p>';
+    }
+    
+    let html = `
+        <table class="project-details-table">
+            <thead>
+                <tr>
+                    <th>ID PCA</th>
+                    <th>Área</th>
+                    <th>Projeto</th>
+                    <th>Contratar Até</th>
+                    <th>Valor (R$)</th>
+                    <th>Processo</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    projetos.forEach(projeto => {
+        let contratoAttrs = '';
+        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
+            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
+        }
+        
+        html += `
+            <tr${contratoAttrs}>
+                <td>${projeto.id || 'N/A'}</td>
+                <td>${formatAreaWithClasses(projeto.area || 'N/A')}</td>
+                <td>${projeto.objeto || 'N/A'}</td>
+                <td>${projeto.contratar_ate || 'N/A'}</td>
+                <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
+                <td>${projeto.numeroProcesso || 'N/A'}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+    `;
+    
+    return html;
 }
