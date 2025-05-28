@@ -76,13 +76,14 @@
     flex-direction: column;
     max-height: 70vh;
     min-height: 300px;
-    width: calc(100vw - 20px);
-    max-width: 350px;
+    /* Largura será definida dinamicamente via JavaScript para coincidir com o botão */
+    min-width: 250px; /* Largura mínima para garantir usabilidade */
     background-color: white;
     border: 1px solid #ccc;
     border-radius: var(--radius-md);
     box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     z-index: 1000;
+    box-sizing: border-box;
 }
 
 /* Container fixo superior do dropdown mobile */
@@ -286,10 +287,8 @@
 /* Responsividade adicional */
 @media (max-width: 768px) {
     .mobile-google-sheet-filter-dropdown {
-        width: calc(100vw - 10px);
+        /* Largura definida dinamicamente pelo JavaScript */
         max-width: none;
-        left: 5px !important;
-        right: 5px !important;
     }
     
     .mobile-filters-container {
@@ -312,12 +311,13 @@
 
 /* Ajustes para dispositivos muito pequenos */
 @media (max-width: 480px) {
-    .mobile-google-sheet-filter-dropdown .filter-options-container {
-        max-height: calc(60vh - 120px);
+    .mobile-google-sheet-filter-dropdown {
+        min-width: 200px; /* Largura mínima reduzida para telas muito pequenas */
+        max-height: 60vh;
     }
     
-    .mobile-google-sheet-filter-dropdown {
-        max-height: 60vh;
+    .mobile-google-sheet-filter-dropdown .filter-options-container {
+        max-height: calc(60vh - 120px);
     }
 }
 

@@ -108,12 +108,28 @@ function openMobileFilterDropdown(button, columnIndex) {
     dropdown.classList.add('mobile-google-sheet-filter-dropdown');
     dropdown.style.position = 'fixed';
     dropdown.style.zIndex = '1000';
-    dropdown.dataset.columnIndex = columnIndex;
-
-    // Posicionamento responsivo
+    dropdown.dataset.columnIndex = columnIndex;    // Posicionamento responsivo
     const rect = button.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
     const dropdownHeight = 400; // altura estimada do dropdown
+    
+    // Define a largura do dropdown igual à largura do botão, respeitando limites
+    const minWidth = 250; // largura mínima para usabilidade
+    const maxWidth = viewportWidth - 20; // evita ultrapassar a viewport
+    const buttonWidth = rect.width;
+    
+    let dropdownWidth = Math.max(minWidth, buttonWidth);
+    dropdownWidth = Math.min(dropdownWidth, maxWidth);
+    
+    dropdown.style.width = `${dropdownWidth}px`;
+    
+    // Ajusta posição horizontal se necessário
+    let leftPosition = rect.left;
+    if (leftPosition + dropdownWidth > viewportWidth - 10) {
+        leftPosition = viewportWidth - dropdownWidth - 10;
+    }
+    leftPosition = Math.max(10, leftPosition);
     
     if (rect.bottom + dropdownHeight > viewportHeight) {
         // Abre para cima se não há espaço embaixo
@@ -123,8 +139,7 @@ function openMobileFilterDropdown(button, columnIndex) {
         dropdown.style.top = `${rect.bottom + 5}px`;
     }
     
-    dropdown.style.left = `${Math.max(10, rect.left)}px`;
-    dropdown.style.right = '10px';
+    dropdown.style.left = `${leftPosition}px`;
 
     // Container fixo superior com barra de pesquisa e "Selecionar Tudo"
     const fixedTopContainer = document.createElement('div');
