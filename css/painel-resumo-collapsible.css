@@ -63,18 +63,17 @@
     margin: var(--space-3) 0;
     border: 1px solid var(--brand-neutral);
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    max-height: none;
-    min-height: auto;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.painel-resumo-container.expanded {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .painel-resumo-container.collapsed {
-    max-height: 0;
-    opacity: 0;
-    margin: 0;
-    transform: translateY(-10px);
-    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* Header do painel */
@@ -86,6 +85,60 @@
     align-items: center;
     justify-content: space-between;
     position: relative;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.painel-resumo-header:hover {
+    background: linear-gradient(135deg, var(--brand-primary-medium), var(--brand-primary-dark));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.painel-resumo-header:active {
+    transform: translateY(0);
+}
+
+/* Efeito de clique no header */
+.painel-resumo-header.header-click-effect {
+    animation: headerClickPulse 0.3s ease-out;
+}
+
+@keyframes headerClickPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Efeito ripple para o header */
+.painel-resumo-header::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+    pointer-events: none;
+}
+
+.painel-resumo-header.header-click-effect::before {
+    width: 300px;
+    height: 300px;
 }
 
 .painel-resumo-header h3 {
@@ -128,34 +181,80 @@
     font-size: clamp(0.7rem, 1.8vw, 1rem);
     min-height: 60px;
     flex-wrap: wrap;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 200px;
+    opacity: 1;
+    overflow: hidden;
+}
+
+/* Estado recolhido - apenas o conteúdo fica escondido */
+.painel-resumo-container.collapsed .painel-resumo {
+    max-height: 0;
+    opacity: 0;
+    padding: 0 var(--space-4);
+    min-height: 0;
+    transform: translateY(-10px);
+}
+
+/* Estado expandido - conteúdo visível */
+.painel-resumo-container.expanded .painel-resumo {
+    max-height: 200px;
+    opacity: 1;
+    padding: var(--space-3) var(--space-4);
+    min-height: 60px;
+    transform: translateY(0);
+}
 }
 
 /* Opções de status dentro do painel */
 .painel-resumo-container .painel-resumo .status-option {
     display: inline-block;
-    padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 18px);
-    margin: clamp(3px, 1vw, 6px);
+    padding: clamp(4px, 1.2vw, 6px) clamp(8px, 2vw, 12px);
+    margin: clamp(1px, 0.5vw, 3px);
     background-color: var(--brand-primary);
     color: #fff;
     border: none;
     border-radius: var(--radius-sm);
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: clamp(13px, 2.5vw, 16px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: clamp(10px, 2vw, 12px);
     font-weight: 500;
     white-space: nowrap;
     flex-shrink: 0;
-    min-height: 44px; /* Altura mínima para facilitar toque em dispositivos móveis */
+    min-height: 30px; /* Altura ainda mais reduzida */
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transform: translateY(0);
+}
+
+.painel-resumo-container .painel-resumo .status-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.painel-resumo-container .painel-resumo .status-option:hover::before {
+    left: 100%;
 }
 
 .painel-resumo-container .painel-resumo .status-option:hover {
     background-color: var(--brand-primary-medium);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.painel-resumo-container .painel-resumo .status-option:active {
+    transform: translateY(-1px) scale(1.02);
 }
 
 .painel-resumo-container .painel-resumo .status-option[style*="background-color: rgb(250, 140, 22)"] {
@@ -186,13 +285,12 @@
         padding: var(--space-2);
         justify-content: flex-start;
     }
-    
-    /* Melhorias para toque em dispositivos móveis */
+      /* Melhorias para toque em dispositivos móveis */
     .painel-resumo-container .painel-resumo .status-option {
-        padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px);
-        margin: clamp(2px, 0.8vw, 4px);
-        font-size: clamp(13px, 2.5vw, 16px);
-        min-height: 44px; /* Altura mínima recomendada para toque */
+        padding: clamp(6px, 1.8vw, 10px) clamp(10px, 2.8vw, 14px);
+        margin: clamp(2px, 0.6vw, 3px);
+        font-size: clamp(11px, 2.3vw, 14px);
+        min-height: 38px; /* Altura reduzida mas ainda tocável */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -203,14 +301,15 @@
 
 @media (max-width: 992px) {
     .painel-resumo-container .painel-resumo {
-        gap: clamp(4px, 1.2vw, 8px);
-        padding: clamp(12px, 3vw, 16px);
+        gap: clamp(3px, 1vw, 6px);
+        padding: clamp(10px, 2.5vw, 14px);
     }
     
     .painel-resumo-container .painel-resumo .status-option {
-        padding: clamp(3px, 1vw, 5px) clamp(6px, 2vw, 10px);
-        margin: clamp(1px, 0.3vw, 2px);
-        font-size: clamp(9px, 1.8vw, 12px);
+        padding: clamp(4px, 1.2vw, 6px) clamp(8px, 2vw, 12px);
+        margin: clamp(1px, 0.4vw, 2px);
+        font-size: clamp(10px, 1.9vw, 13px);
+        min-height: 32px; /* Altura ainda menor para telas médias */
     }
 }
 

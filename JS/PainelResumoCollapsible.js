@@ -36,8 +36,7 @@ class PainelResumoCollapsible {
         // Listener para quando o painel de resumos é atualizado
         document.addEventListener('painel-resumo-updated', () => this.handlePainelUpdate());
     }
-    
-    setupEventListeners() {
+      setupEventListeners() {
         // Botão de toggle principal
         if (this.toggleBtn) {
             this.toggleBtn.addEventListener('click', () => this.toggle());
@@ -46,6 +45,23 @@ class PainelResumoCollapsible {
         // Botão de fechar no header do painel
         if (this.closeBtn) {
             this.closeBtn.addEventListener('click', () => this.collapse());
+        }
+        
+        // Header clicável para expandir/recolher (exceto no botão de fechar)
+        const header = this.container?.querySelector('.painel-resumo-header');
+        if (header) {
+            header.addEventListener('click', (e) => {
+                // Não ativa se clicou no botão de fechar
+                if (e.target.closest('.painel-close-btn')) {
+                    return;
+                }
+                this.toggle();
+                // Adiciona efeito visual de clique
+                this.addClickEffect(header);
+            });
+            
+            // Adiciona cursor pointer para indicar que é clicável
+            header.style.cursor = 'pointer';
         }
         
         // ESC para fechar o painel
@@ -63,10 +79,10 @@ class PainelResumoCollapsible {
             this.expand();
         }
     }
-    
-    expand() {
+      expand() {
         if (this.isExpanded) return;
         
+        console.log('Expandindo painel de resumos');
         this.isExpanded = true;
         this.applyState(true);
         this.saveState();
@@ -78,6 +94,7 @@ class PainelResumoCollapsible {
     collapse() {
         if (!this.isExpanded) return;
         
+        console.log('Recolhendo painel de resumos');
         this.isExpanded = false;
         this.applyState(true);
         this.saveState();
@@ -86,19 +103,34 @@ class PainelResumoCollapsible {
         document.dispatchEvent(new CustomEvent('painel-resumo-collapsed'));
     }
     
-    applyState(animate = true) {
+    addClickEffect(element) {
+        // Remove efeito anterior se existir
+        element.classList.remove('header-click-effect');
+        
+        // Força um reflow para garantir que a classe foi removida
+        element.offsetHeight;
+        
+        // Adiciona o efeito
+        element.classList.add('header-click-effect');
+        
+        // Remove o efeito após a animação
+        setTimeout(() => {
+            element.classList.remove('header-click-effect');
+        }, 300);
+    }
+      applyState(animate = true) {
         if (!this.container || !this.toggleBtn) return;
         
         if (animate) {
-            // Adiciona classe de transição
-            this.container.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            // Adiciona classe de transição melhorada
+            this.container.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
         } else {
             // Remove transição para aplicação inicial
             this.container.style.transition = 'none';
             // Reaplica transição após um frame
             requestAnimationFrame(() => {
                 if (this.container) {
-                    this.container.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                    this.container.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
                 }
             });
         }
@@ -109,6 +141,11 @@ class PainelResumoCollapsible {
             this.container.classList.add('expanded');
             this.toggleBtn.classList.remove('collapsed');
             this.toggleBtn.title = 'Ocultar Painel de Resumos';
+            
+            // Adiciona efeito de bounce suave
+            if (animate) {
+                this.addExpandEffect();
+            }
             
             // Atualiza texto do botão se visível
             const toggleText = this.toggleBtn.querySelector('.toggle-text');
@@ -128,6 +165,18 @@ class PainelResumoCollapsible {
                 toggleText.textContent = 'Resumos';
             }
         }
+    }
+      addExpandEffect() {
+        // Força um reflow para garantir que as classes estão aplicadas
+        this.container.offsetHeight;
+        
+        // Adiciona uma classe temporária para a animação se necessário
+        this.container.classList.add('expanding');
+        
+        // Remove a classe temporária após a animação
+        setTimeout(() => {
+            this.container.classList.remove('expanding');
+        }, 500);
     }
     
     saveState() {
