@@ -1,0 +1,305 @@
+/* 
+ * mobile-google-sheet-filters.css - Estilos para filtros mobile estilo Google Sheets
+ * 
+ * Este arquivo contém os estilos para o novo sistema de filtros mobile que
+ * replica a funcionalidade e aparência dos filtros Google Sheets no desktop.
+ */
+
+/* Container principal dos filtros mobile */
+.mobile-filters-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Container de cada botão de filtro mobile */
+.mobile-filter-button-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Estilo dos botões de filtro mobile */
+.mobile-google-sheet-filter-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid var(--brand-neutral);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--brand-primary-medium);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mobile-google-sheet-filter-btn:hover {
+    background: #f8fafc;
+    border-color: var(--brand-primary);
+}
+
+.mobile-google-sheet-filter-btn:active {
+    background: #f1f5f9;
+}
+
+/* Estado ativo do botão de filtro mobile */
+.mobile-google-sheet-filter-btn.filter-active {
+    background: #e3f2fd;
+    border-color: var(--brand-primary);
+    font-weight: 600;
+    color: var(--brand-primary);
+}
+
+.mobile-google-sheet-filter-btn.filter-active .filter-icon {
+    color: var(--brand-primary);
+    font-weight: bold;
+}
+
+/* Ícone de seta do filtro */
+.mobile-google-sheet-filter-btn .filter-icon {
+    font-size: 0.8rem;
+    color: #666;
+    transition: transform 0.2s ease;
+}
+
+/* Dropdown do filtro mobile */
+.mobile-google-sheet-filter-dropdown {
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
+    min-height: 300px;
+    width: calc(100vw - 20px);
+    max-width: 350px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    z-index: 1000;
+}
+
+/* Container fixo superior do dropdown mobile */
+.mobile-google-sheet-filter-dropdown .filter-fixed-top {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    z-index: 2;
+}
+
+/* Barra de pesquisa no dropdown mobile */
+.mobile-google-sheet-filter-dropdown .filter-fixed-top input[type="text"] {
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-fixed-top input[type="text"]:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 2px rgba(0, 95, 184, 0.2);
+}
+
+/* Container de opções com scroll no mobile */
+.mobile-google-sheet-filter-dropdown .filter-options-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 12px;
+    max-height: calc(70vh - 140px);
+}
+
+/* Labels das opções no dropdown mobile */
+.mobile-google-sheet-filter-dropdown .filter-options-container label {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    margin: 0;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-options-container label:last-child {
+    border-bottom: none;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-options-container label:hover {
+    background-color: #f8fafc;
+    border-radius: var(--radius-sm);
+}
+
+/* Checkboxes no dropdown mobile */
+.mobile-google-sheet-filter-dropdown input[type="checkbox"] {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--brand-primary);
+    flex-shrink: 0;
+}
+
+/* Container fixo inferior do dropdown mobile */
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    padding: 12px;
+    border-top: 1px solid #eee;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    z-index: 2;
+}
+
+/* Botão limpar no dropdown mobile */
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom button {
+    width: 100%;
+    padding: 10px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom button:hover {
+    background-color: #545b62;
+}
+
+.mobile-google-sheet-filter-dropdown .filter-fixed-bottom button:active {
+    background-color: #495057;
+}
+
+/* Botão limpar filtros mobile */
+.btn-limpar-filtros-mobile {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    background: var(--brand-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-limpar-filtros-mobile:hover {
+    background: var(--brand-primary-medium);
+    transform: translateY(-1px);
+}
+
+.btn-limpar-filtros-mobile:active {
+    transform: translateY(0);
+}
+
+/* Estado ativo do botão limpar filtros mobile */
+.btn-limpar-filtros-mobile.filters-active {
+    background-color: #fa8c16 !important;
+    font-weight: bold;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(250, 140, 22, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(250, 140, 22, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(250, 140, 22, 0);
+    }
+}
+
+/* Ícones emoji nos botões */
+.emoji-icon {
+    font-size: 1rem;
+    margin: 0 2px;
+}
+
+/* Responsividade adicional */
+@media (max-width: 768px) {
+    .mobile-google-sheet-filter-dropdown {
+        width: calc(100vw - 10px);
+        max-width: none;
+        left: 5px !important;
+        right: 5px !important;
+    }
+    
+    .mobile-filters-container {
+        padding: 0.8rem;
+        gap: 8px;
+    }
+    
+    .mobile-google-sheet-filter-btn {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        min-height: 40px;
+    }
+    
+    .btn-limpar-filtros-mobile {
+        padding: 10px 14px;
+        font-size: 0.95rem;
+        min-height: 40px;
+    }
+}
+
+/* Ajustes para dispositivos muito pequenos */
+@media (max-width: 480px) {
+    .mobile-google-sheet-filter-dropdown .filter-options-container {
+        max-height: calc(60vh - 120px);
+    }
+    
+    .mobile-google-sheet-filter-dropdown {
+        max-height: 60vh;
+    }
+}
+
+/* Melhorias de acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+    .mobile-google-sheet-filter-btn,
+    .btn-limpar-filtros-mobile,
+    .mobile-google-sheet-filter-btn .filter-icon {
+        transition: none;
+    }
+    
+    .btn-limpar-filtros-mobile.filters-active {
+        animation: none;
+    }
+}
+
+/* Alto contraste */
+@media (prefers-contrast: high) {
+    .mobile-google-sheet-filter-btn {
+        border-width: 2px;
+    }
+    
+    .mobile-google-sheet-filter-btn.filter-active {
+        background: #1976d2;
+        color: white;
+    }
+    
+    .mobile-google-sheet-filter-dropdown {
+        border-width: 2px;
+    }
+}

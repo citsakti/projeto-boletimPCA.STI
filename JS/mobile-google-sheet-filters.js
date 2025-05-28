@@ -1,319 +1,431 @@
 /**
- * mobile-google-sheet-filters.js - Integração dos filtros mobile com os filtros estilo Google Sheets
+ * mobile-google-sheet-filters.js - Sistema de filtros mobile seguindo padrão Google Sheets
  * 
- * Este script é responsável por:
- *  - Conectar os filtros mobile/tablet com o sistema Google Sheets
- *  - Garantir que alterações em um tipo de filtro sejam refletidas no outro
- *  - Sincronizar o estado dos filtros entre desktop e dispositivos móveis
+ * Este script redesenha os filtros mobile para seguir exatamente o mesmo padrão
+ * dos filtros web Google Sheets, garantindo consistência e funcionalidade.
+ * 
+ * Características:
+ *  - Botões de filtro mobile com dropdowns idênticos ao sistema web
+ *  - Mesma funcionalidade de checkbox múltiplo
+ *  - Integração completa com masterFilterFunction
+ *  - Interface responsiva e otimizada para mobile
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    setupMobileFiltersSync();
-    addMobileFilterListeners();
+    initializeMobileGoogleSheetFilters();
 });
 
 document.addEventListener('tabela-carregada', () => {
     setTimeout(() => {
-        setupMobileFiltersSync();
-        addMobileFilterListeners();
+        initializeMobileGoogleSheetFilters();
     }, 200);
 });
 
-// Adiciona event listeners aos filtros mobile
-function addMobileFilterListeners() {
-    const mobileInputs = document.querySelectorAll('#mobile-filters input');
-    const mobileSelects = document.querySelectorAll('#mobile-filters select');
+// Configuração dos filtros mobile com mapeamento para colunas
+const MOBILE_FILTER_CONFIG = {
+    'mobile-filter-id': { columnIndex: 0, label: 'ID PCA' },
+    'mobile-filter-area': { columnIndex: 1, label: 'Área' },
+    'mobile-filter-tipo': { columnIndex: 2, label: 'Tipo' },
+    'mobile-filter-projeto': { columnIndex: 3, label: 'Projeto' },
+    'mobile-filter-status-inicio': { columnIndex: 4, label: 'Status Início' },
+    'mobile-filter-status-processo': { columnIndex: 5, label: 'Status Processo' },
+    'mobile-filter-contratar-ate': { columnIndex: 6, label: 'Contratar Até' },
+    'mobile-filter-valor': { columnIndex: 7, label: 'Valor PCA' },
+    'mobile-filter-orcamento': { columnIndex: 8, label: 'Orçamento' },
+    'mobile-filter-processo': { columnIndex: 9, label: 'Processo' }
+};
+
+// Inicializa o sistema de filtros mobile estilo Google Sheets
+function initializeMobileGoogleSheetFilters() {
+    console.log('Inicializando filtros mobile estilo Google Sheets');
     
-    // Para inputs, usamos evento input para filtragem em tempo real
-    mobileInputs.forEach(input => {
-        input.removeEventListener('input', handleMobileInputFilter);
-        input.addEventListener('input', handleMobileInputFilter);
-    });
+    // Cria os botões de filtro mobile
+    createMobileFilterButtons();
     
-    // Para selects, usamos evento change
-    mobileSelects.forEach(select => {
-        select.removeEventListener('change', handleMobileSelectFilter);
-        select.addEventListener('change', handleMobileSelectFilter);
-    });
+    // Inicializa o botão limpar filtros mobile
+    initializeMobileActionButtons();
     
-    console.log('Listeners de filtro mobile adicionados a', mobileInputs.length, 'inputs e', mobileSelects.length, 'selects');
+    console.log('Filtros mobile inicializados com sucesso');
 }
 
-// Handler para filtros de input mobile
-function handleMobileInputFilter(event) {
-    const input = event.target;
-    const colIndex = parseInt(input.dataset.colIndex);
-    if (isNaN(colIndex)) return;
+// Cria os botões de filtro mobile seguindo o padrão Google Sheets
+function createMobileFilterButtons() {
+    const mobileFiltersContainer = document.getElementById('mobile-filters');
+    if (!mobileFiltersContainer) return;
     
-    const value = input.value.trim().toLowerCase();
-    
-    // Aplica o filtro
-    applyMobileInputFilter(colIndex, value);
-    
-    // Notifica que um filtro mobile foi aplicado
-    document.dispatchEvent(new CustomEvent('mobile-filter-applied', { 
-        detail: { columnIndex: colIndex, value: value }
-    }));
-}
-
-// Handler para filtros de select mobile
-function handleMobileSelectFilter(event) {
-    const select = event.target;
-    const colIndex = parseInt(select.dataset.colIndex);
-    if (isNaN(colIndex)) return;
-    
-    const value = select.value;
-    
-    // Aplica o filtro
-    applyMobileSelectFilter(colIndex, value);
-    
-    // Notifica que um filtro mobile foi aplicado
-    document.dispatchEvent(new CustomEvent('mobile-filter-applied', { 
-        detail: { columnIndex: colIndex, value: value }
-    }));
-}
-
-// Aplica um filtro baseado em input mobile
-function applyMobileInputFilter(colIndex, value) {
-    // Encontra o botão de filtro Google Sheets correspondente
-    const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${colIndex}"]`);
-    if (!filterButton) return;
-    
-    // Se o filtro está vazio, limpa o filtro
-    if (value === '') {
-        filterButton.removeAttribute('data-active-filters');
-        filterButton.classList.remove('filter-active');
-        masterFilterFunction();
-        return;
+    // Limpa o conteúdo atual, mantendo apenas o summary
+    const summary = mobileFiltersContainer.querySelector('summary');
+    mobileFiltersContainer.innerHTML = '';
+    if (summary) {
+        mobileFiltersContainer.appendChild(summary);
     }
     
-    // Obtém valores únicos da coluna
-    const uniqueValues = getUniqueColumnValues(colIndex);
+    // Cria container para os botões de filtro
+    const filtersContainer = document.createElement('div');
+    filtersContainer.className = 'mobile-filters-container';
     
-    // Filtra valores que correspondem à busca
-    const matchingValues = uniqueValues
-        .filter(val => val.toLowerCase().includes(value))
-        .map(val => val.toLowerCase());
+    // Cria cada botão de filtro
+    Object.entries(MOBILE_FILTER_CONFIG).forEach(([filterId, config]) => {
+        const filterButton = createMobileFilterButton(filterId, config);
+        filtersContainer.appendChild(filterButton);
+    });
     
-    // Aplica o filtro apenas se houver correspondências
-    if (matchingValues.length > 0) {
-        filterButton.setAttribute('data-active-filters', JSON.stringify(matchingValues));
-        filterButton.classList.add('filter-active');
+    // Adiciona botão de limpar filtros
+    const clearButton = document.createElement('button');
+    clearButton.className = 'btn-limpar-filtros-mobile';
+    clearButton.id = 'btnLimparFiltrosMobile';
+    clearButton.innerHTML = 'Limpar Filtros <span class="emoji-icon">🚮</span>';
+    filtersContainer.appendChild(clearButton);
+    
+    mobileFiltersContainer.appendChild(filtersContainer);
+}
+
+// Cria um botão de filtro mobile individual
+function createMobileFilterButton(filterId, config) {
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'mobile-filter-button-container';
+    
+    const button = document.createElement('button');
+    button.className = 'mobile-google-sheet-filter-btn';
+    button.id = filterId;
+    button.dataset.colIndex = config.columnIndex;
+    button.innerHTML = `${config.label} <span class="filter-icon">▼</span>`;
+    
+    // Adiciona event listener
+    button.addEventListener('click', (event) => {
+        openMobileFilterDropdown(event.currentTarget, config.columnIndex);
+    });
+    
+    buttonContainer.appendChild(button);
+    return buttonContainer;
+}
+
+// Abre o dropdown de filtro mobile (idêntico ao sistema web)
+function openMobileFilterDropdown(button, columnIndex) {
+    closeMobileFilterDropdowns();
+    
+    const dropdown = document.createElement('div');
+    dropdown.classList.add('mobile-google-sheet-filter-dropdown');
+    dropdown.style.position = 'fixed';
+    dropdown.style.zIndex = '1000';
+    dropdown.dataset.columnIndex = columnIndex;
+
+    // Posicionamento responsivo
+    const rect = button.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const dropdownHeight = 400; // altura estimada do dropdown
+    
+    if (rect.bottom + dropdownHeight > viewportHeight) {
+        // Abre para cima se não há espaço embaixo
+        dropdown.style.bottom = `${viewportHeight - rect.top + 5}px`;
     } else {
-        // Se não houver correspondências, limpa o filtro
-        filterButton.removeAttribute('data-active-filters');
-        filterButton.classList.remove('filter-active');
+        // Abre para baixo normalmente
+        dropdown.style.top = `${rect.bottom + 5}px`;
     }
     
-    // Aplica o filtro na tabela
-    masterFilterFunction();
-}
+    dropdown.style.left = `${Math.max(10, rect.left)}px`;
+    dropdown.style.right = '10px';
 
-// Aplica um filtro baseado em select mobile
-function applyMobileSelectFilter(colIndex, value) {
-    // Encontra o botão de filtro Google Sheets correspondente
-    const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${colIndex}"]`);
-    if (!filterButton) return;
+    // Container fixo superior com barra de pesquisa e "Selecionar Tudo"
+    const fixedTopContainer = document.createElement('div');
+    fixedTopContainer.className = 'filter-fixed-top';
     
-    // Se o select está na opção padrão vazia, limpa o filtro
-    if (value === '') {
-        filterButton.removeAttribute('data-active-filters');
-        filterButton.classList.remove('filter-active');
-        masterFilterFunction();
-        return;
-    }
+    // Barra de pesquisa
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Pesquisar...';
+    searchInput.addEventListener('keyup', () => filterMobileDropdownOptions(searchInput.value, dropdown));
+    fixedTopContainer.appendChild(searchInput);
     
-    // Para selects, aplicamos filtro exato (só o valor selecionado)
-    const matchingValues = [value.toLowerCase()];
+    // Checkbox "Selecionar Tudo"
+    const selectAllCheckbox = createMobileCheckbox('Selecionar Tudo', 'mobile-select-all');
+    selectAllCheckbox.value = 'Selecionar Tudo';
+    selectAllCheckbox.checked = false;
+    selectAllCheckbox.addEventListener('change', () => {
+        toggleAllMobileOptions(dropdown, selectAllCheckbox.checked);
+        applyMobileFilters(columnIndex, dropdown);
+    });
+    fixedTopContainer.appendChild(createMobileLabel(selectAllCheckbox, 'Selecionar Tudo'));
     
-    // Aplica o filtro
-    filterButton.setAttribute('data-active-filters', JSON.stringify(matchingValues));
-    filterButton.classList.add('filter-active');
+    dropdown.appendChild(fixedTopContainer);
+
+    // Container de opções com scroll
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'filter-options-container';
     
-    // Aplica o filtro na tabela
-    masterFilterFunction();
-}
-
-// Configurar a sincronização entre filtros mobile e Google Sheets
-function setupMobileFiltersSync() {
-    // Mapeia filtros mobile para índices de coluna
-    const mobileFiltersMap = {
-        'filtroIdPcaMobile': 0,
-        'filter-area-mobile': 1,
-        'filter-tipo-mobile': 2,
-        'filtroProjeto': 3,
-        'filtroStatusInicioMobile': 4,
-        'filter-status-processo-mobile': 5,
-        'filtroContratarAteMobile': 6,
-        'filtroValorPcaMobile': 7,
-        'filter-orcamento-mobile': 8,
-        'filtroProcessoMobile': 9
-    };
-
-    // Para cada filtro mobile, adiciona listeners que sincronizam com os filtros Google Sheets
-    Object.entries(mobileFiltersMap).forEach(([filterId, colIndex]) => {
-        const mobileFilter = document.getElementById(filterId);
-        if (!mobileFilter) return;
-
-        // Remove listeners anteriores para evitar duplicação
-        mobileFilter.removeEventListener('input', syncMobileToGoogle);
-        mobileFilter.removeEventListener('change', syncMobileToGoogle);
-
-        // Adiciona os novos listeners
-        if (mobileFilter.tagName === 'SELECT') {
-            mobileFilter.addEventListener('change', syncMobileToGoogle);
-        } else {
-            mobileFilter.addEventListener('input', syncMobileToGoogle);
+    // Adiciona as opções
+    const uniqueValues = getUniqueColumnValues(columnIndex);
+    
+    // Verifica filtros ativos
+    const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${columnIndex}"]`);
+    let activeFilters = [];
+    if (filterButton && filterButton.hasAttribute('data-active-filters')) {
+        try {
+            activeFilters = JSON.parse(filterButton.getAttribute('data-active-filters'));
+        } catch (e) {
+            activeFilters = [];
         }
-
-        // Armazena o índice da coluna como atributo do elemento
-        mobileFilter.dataset.colIndex = colIndex;
+    }
+    
+    uniqueValues.forEach(value => {
+        const checkbox = createMobileCheckbox(value, `mobile-filter-opt-${value.replace(/\s+/g, '-')}`);
+        checkbox.value = value;
+        
+        // Marca se está nos filtros ativos
+        if (activeFilters.length === 0 || activeFilters.includes(value.toLowerCase())) {
+            checkbox.checked = true;
+        }
+        
+        checkbox.addEventListener('change', () => {
+            updateMobileSelectAllState(dropdown);
+            applyMobileFilters(columnIndex, dropdown);
+        });
+        
+        optionsContainer.appendChild(createMobileLabel(checkbox, value || '(Vazio)'));
     });
+    
+    dropdown.appendChild(optionsContainer);
 
-    // Adiciona um listener para o evento de aplicação de filtro Google Sheets
-    document.addEventListener('google-sheet-filter-applied', syncGoogleToMobile);
+    // Atualiza estado do "Selecionar Tudo"
+    setTimeout(() => updateMobileSelectAllState(dropdown), 0);
+
+    // Container fixo inferior com botão Limpar
+    const fixedBottomContainer = document.createElement('div');
+    fixedBottomContainer.className = 'filter-fixed-bottom';
+    
+    const clearButton = document.createElement('button');
+    clearButton.textContent = 'Limpar';
+    clearButton.style.width = '100%';
+    clearButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        clearMobileFilter(columnIndex, dropdown);
+    });
+    fixedBottomContainer.appendChild(clearButton);
+    
+    dropdown.appendChild(fixedBottomContainer);
+
+    document.body.appendChild(dropdown);
+
+    // Event listener para fechar ao clicar fora
+    document.removeEventListener('click', handleMobileClickOutsideDropdown, true);
+    document.addEventListener('click', handleMobileClickOutsideDropdown, true);
 }
 
-// Sincroniza alterações dos filtros mobile para os filtros Google Sheets
-function syncMobileToGoogle(event) {
-    const mobileFilter = event.target;
-    const colIndex = parseInt(mobileFilter.dataset.colIndex);
-    const value = mobileFilter.value.trim();
+// Funções auxiliares para criar elementos do dropdown mobile
+function createMobileCheckbox(value, id) {
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = id;
+    checkbox.value = value;
+    checkbox.classList.add('mobile-filter-option-checkbox');
+    return checkbox;
+}
 
-    // Obtém o botão de filtro Google Sheets correspondente
-    const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${colIndex}"]`);
-    if (!filterButton) return;
+function createMobileLabel(checkbox, text) {
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id;
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(text || '(Vazio)'));
+    label.style.display = 'block';
+    return label;
+}
 
-    if (value === '') {
-        // Se o valor está vazio, remove o filtro
-        filterButton.removeAttribute('data-active-filters');
-        filterButton.classList.remove('filter-active');
-    } else {
-        // Se há um valor, aplica o filtro
-        const allValues = getUniqueColumnValues(colIndex);
-        const matchingValues = allValues.filter(val => 
-            val.toLowerCase().includes(value.toLowerCase())
-        ).map(val => val.toLowerCase());
+// Filtra as opções do dropdown mobile baseado na pesquisa
+function filterMobileDropdownOptions(searchTerm, dropdown) {
+    const labels = dropdown.querySelectorAll('label');
+    labels.forEach(label => {
+        const text = label.textContent.toLowerCase();
+        const shouldShow = text.includes(searchTerm.toLowerCase()) || label.querySelector('input').value === 'Selecionar Tudo';
+        label.style.display = shouldShow ? 'block' : 'none';
+    });
+}
 
-        if (matchingValues.length > 0) {
-            filterButton.setAttribute('data-active-filters', JSON.stringify(matchingValues));
+// Alterna todas as opções do dropdown mobile
+function toggleAllMobileOptions(dropdown, checked) {
+    const checkboxes = dropdown.querySelector('.filter-options-container').querySelectorAll('.mobile-filter-option-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = checked;
+    });
+}
+
+// Aplica os filtros selecionados no dropdown mobile
+function applyMobileFilters(columnIndex, dropdown) {
+    const selectedValues = [];
+    
+    const checkboxes = dropdown.querySelectorAll('.mobile-filter-option-checkbox:checked');
+    checkboxes.forEach(checkbox => {
+        if (checkbox.value !== 'Selecionar Tudo') {
+            selectedValues.push(checkbox.value.toLowerCase());
+        }
+    });
+    
+    // Encontra o botão de filtro Google Sheets correspondente
+    const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${columnIndex}"]`);
+    if (filterButton) {
+        if (selectedValues.length === 0) {
+            filterButton.removeAttribute('data-active-filters');
+            filterButton.classList.remove('filter-active');
+        } else {
+            filterButton.setAttribute('data-active-filters', JSON.stringify(selectedValues));
             filterButton.classList.add('filter-active');
         }
     }
+    
+    // Marca o botão mobile como ativo se há filtros
+    const mobileButton = dropdown.closest('body').querySelector(`.mobile-google-sheet-filter-btn[data-col-index="${columnIndex}"]`);
+    if (mobileButton) {
+        if (selectedValues.length === 0) {
+            mobileButton.classList.remove('filter-active');
+        } else {
+            mobileButton.classList.add('filter-active');
+        }
+    }
 
     // Aplica o filtro na tabela
     masterFilterFunction();
 }
 
-// Sincroniza alterações dos filtros Google Sheets para os filtros mobile
-function syncGoogleToMobile() {
-    const activeFilterButtons = document.querySelectorAll('.google-sheet-filter-btn.filter-active, .google-sheet-filter-btn[data-active-filters]');
+// Limpa o filtro de uma coluna específica no mobile
+function clearMobileFilter(columnIndex, dropdown, closeAfter = true) {
+    // Desmarca "Selecionar Tudo"
+    const selectAllCheckbox = dropdown.querySelector('input[value="Selecionar Tudo"]');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+    }
     
-    // Para cada botão de filtro ativo, atualiza o filtro mobile correspondente
-    activeFilterButtons.forEach(button => {
-        const colIndex = parseInt(button.dataset.colIndex);
-        const activeFiltersData = button.getAttribute('data-active-filters');
-        
-        if (!activeFiltersData) return;
-        
-        // Encontra o input/select mobile correspondente
-        let mobileFilter = null;
-        document.querySelectorAll('#mobile-filters input, #mobile-filters select').forEach(element => {
-            if (parseInt(element.dataset.colIndex) === colIndex) {
-                mobileFilter = element;
-            }
-        });
-        
-        if (!mobileFilter) return;
-        
-        // Tenta definir um valor aproximado no filtro mobile
-        try {
-            const activeFilters = JSON.parse(activeFiltersData);
-            if (activeFilters.length > 0) {
-                if (mobileFilter.tagName === 'SELECT') {
-                    // Para selects, tentamos encontrar uma opção correspondente
-                    const options = Array.from(mobileFilter.options).map(opt => opt.value.toLowerCase());
-                    const commonValue = activeFilters.find(val => options.includes(val));
-                    if (commonValue) {
-                        mobileFilter.value = Array.from(mobileFilter.options)
-                            .find(opt => opt.value.toLowerCase() === commonValue).value;
-                    }
-                } else {
-                    // Para inputs de texto, usamos o primeiro valor do filtro
-                    mobileFilter.value = activeFilters[0];
-                }
-            }
-        } catch (e) {
-            console.error('Erro ao sincronizar filtros Google -> Mobile:', e);
-        }
-    });
+    // Desmarca todas as opções
+    toggleAllMobileOptions(dropdown, false);
+
+    // Limpa a pesquisa
+    const searchInput = dropdown.querySelector('input[type="text"]');
+    if (searchInput) {
+        searchInput.value = '';
+        filterMobileDropdownOptions('', dropdown);
+    }
+    
+    // Remove filtro do botão Google Sheets
+    const filterButton = document.querySelector(`.google-sheet-filter-btn[data-col-index="${columnIndex}"]`);
+    if (filterButton) {
+        filterButton.removeAttribute('data-active-filters');
+        filterButton.classList.remove('filter-active');
+    }
+    
+    // Remove filtro do botão mobile
+    const mobileButton = document.querySelector(`.mobile-google-sheet-filter-btn[data-col-index="${columnIndex}"]`);
+    if (mobileButton) {
+        mobileButton.classList.remove('filter-active');
+    }
+
+    // Reaplica os filtros
+    masterFilterFunction();
+    
+    if (closeAfter) {
+        closeMobileFilterDropdowns();
+    }
 }
 
-// Função para respigar os valores únicos de uma coluna da tabela
-function getUniqueColumnValuesForMobile(colIndex) {
-    const tableRows = document.querySelectorAll('#detalhes table tbody tr');
-    const values = new Set();
+// Atualiza o estado do checkbox "Selecionar Tudo" no mobile
+function updateMobileSelectAllState(dropdown) {
+    const totalCheckboxes = dropdown.querySelectorAll('.filter-options-container .mobile-filter-option-checkbox').length;
+    const checkedCheckboxes = dropdown.querySelectorAll('.filter-options-container .mobile-filter-option-checkbox:checked').length;
+    
+    const selectAllCheckbox = dropdown.querySelector('input[value="Selecionar Tudo"]');
+    if (selectAllCheckbox) {
+        if (checkedCheckboxes === 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        } else if (checkedCheckboxes === totalCheckboxes) {
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.indeterminate = false;
+        } else {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = true;
+        }
+    }
+}
+
+// Fecha todos os dropdowns de filtro mobile
+function closeMobileFilterDropdowns() {
+    const dropdowns = document.querySelectorAll('.mobile-google-sheet-filter-dropdown');
+    dropdowns.forEach(dropdown => dropdown.remove());
+    document.removeEventListener('click', handleMobileClickOutsideDropdown, true);
+}
+
+// Handler para clique fora do dropdown mobile
+function handleMobileClickOutsideDropdown(event) {
+    const dropdown = document.querySelector('.mobile-google-sheet-filter-dropdown');
+    if (dropdown && !dropdown.contains(event.target) && 
+        !event.target.classList.contains('mobile-google-sheet-filter-btn') && 
+        !event.target.closest('.mobile-google-sheet-filter-btn')) {
+        closeMobileFilterDropdowns();
+    }
+}
+
+// Inicializa os botões de ação mobile (limpar filtros)
+function initializeMobileActionButtons() {
+    const limparBtn = document.getElementById("btnLimparFiltrosMobile");
+    if (limparBtn) {
+        limparBtn.removeEventListener('click', clearAllMobileFilters);
+        limparBtn.addEventListener('click', clearAllMobileFilters);
+    }
+}
+
+// Limpa todos os filtros mobile
+function clearAllMobileFilters() {
+    console.log('Limpando todos os filtros mobile');
+    
+    // Remove filtros ativos dos botões Google Sheet
+    const filterButtons = document.querySelectorAll('.google-sheet-filter-btn');
+    filterButtons.forEach(button => {
+        button.removeAttribute('data-active-filters');
+        button.classList.remove('filter-active');
+    });
+    
+    // Remove filtros ativos dos botões mobile
+    const mobileButtons = document.querySelectorAll('.mobile-google-sheet-filter-btn');
+    mobileButtons.forEach(button => {
+        button.classList.remove('filter-active');
+    });
+    
+    // Fecha dropdowns abertos
+    closeMobileFilterDropdowns();
+    
+    // Limpa filtros do painel de resumos se existir
+    if (typeof resetPainelFilterStatus === 'function') {
+        resetPainelFilterStatus();
+    }
+    
+    // Remove classe de destaque dos botões limpar filtros
+    const limparBtns = document.querySelectorAll('.btn-limpar-filtros, .btn-limpar-filtros-mobile');
+    limparBtns.forEach(btn => {
+        btn.classList.remove('filters-active');
+    });
+    
+    // Mostra todas as linhas da tabela
+    const tableRows = document.querySelectorAll('table tbody tr');
     tableRows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells && cells[colIndex]) {
-            values.add(cells[colIndex].textContent.trim());
-        }
+        row.style.display = '';
     });
-    return Array.from(values).sort();
-}
-
-// Dispara um evento quando um filtro Google Sheets é aplicado
-function notifyGoogleFilterApplied() {
-    document.dispatchEvent(new CustomEvent('google-sheet-filter-applied'));
-}
-
-// Adiciona o listener ao evento de aplicação de filtro
-document.addEventListener('DOMContentLoaded', () => {
-    if (typeof masterFilterFunction === 'function') {
-        const originalMasterFilterFunction = masterFilterFunction;
-        window.masterFilterFunction = function() {
-            originalMasterFilterFunction();
-            notifyGoogleFilterApplied();
-        };
-    }
-});
-
-// Funções para melhorar a experiência mobile
-
-// Função para fechar o painel de filtros mobile após aplicar um filtro
-function closeFilterPanelAfterFilter() {
-    const mobileFilters = document.getElementById('mobile-filters');
-    if (mobileFilters && window.matchMedia('(max-width: 768px)').matches) {
-        mobileFilters.removeAttribute('open');
-    }
-}
-
-// Adiciona a função ao filtro mobile
-document.addEventListener('google-sheet-filter-applied', () => {
-    closeFilterPanelAfterFilter();
-});
-
-// Inicializa o botão "Limpar Filtros" mobile
-document.addEventListener('DOMContentLoaded', () => {
-    const limparFiltrosMobileBtn = document.getElementById('btnLimparFiltrosMobile');
-    if (limparFiltrosMobileBtn) {
-        limparFiltrosMobileBtn.addEventListener('click', () => {
-            // Usa a mesma função de limpar filtros do sistema principal
-            if (typeof clearAllGoogleSheetFilters === 'function') {
-                clearAllGoogleSheetFilters();
-            }
-            
-            // Atualiza o estado visual do botão
-            limparFiltrosMobileBtn.classList.remove('filters-active');
-            
-            // Fecha o painel de filtros mobile após limpar
-            setTimeout(() => {
-                closeFilterPanelAfterFilter();
-            }, 200);
-        });
+    
+    // Atualiza contadores se existir
+    if (typeof updateStatusCounts === 'function') {
+        updateStatusCounts();
     }
     
-    // Sincroniza o estado de destaque dos botões "Limpar Filtros"
+    // Fecha o painel mobile após limpar
+    setTimeout(() => {
+        const mobileFilters = document.getElementById('mobile-filters');
+        if (mobileFilters && window.matchMedia('(max-width: 768px)').matches) {
+            mobileFilters.removeAttribute('open');
+        }
+    }, 200);
+    
+    console.log('Todos os filtros mobile foram limpos');
+}
+
+// Sincronização com o sistema principal
+document.addEventListener('DOMContentLoaded', () => {
+    // Sincroniza estado dos botões limpar filtros
     document.addEventListener('google-sheet-filter-applied', () => {
         const mainLimparBtn = document.getElementById('btnLimparFiltros');
         const mobileLimparBtn = document.getElementById('btnLimparFiltrosMobile');

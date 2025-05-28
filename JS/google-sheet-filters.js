@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     initializeGoogleSheetFilters();
     initializeClearFiltersButton();
-    initializeMobileFilters(); // Adicionado inicialização dos filtros mobile
 });
 
 document.addEventListener('tabela-carregada', () => {
@@ -9,7 +8,6 @@ document.addEventListener('tabela-carregada', () => {
     setTimeout(() => {
         initializeGoogleSheetFilters();
         initializeClearFiltersButton();
-        initializeMobileFilters(); // Adicionado inicialização dos filtros mobile
     }, 100); 
 });
 

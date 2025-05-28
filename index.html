@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/style-emojis.css">
     <link rel="stylesheet" href="./css/style-areas.css">    <link rel="stylesheet" href="./css/style-orcamento.css">    <link rel="stylesheet" href="./css/style-status_atrasado.css">    <link rel="stylesheet" href="css/style-mobile.css">    <link rel="stylesheet" href="css/style-atualizacao_automatica.css">    <link rel="stylesheet" href="css/limpar-filtros.css">    <link rel="stylesheet" href="css/mobile-filters.css">
+    <link rel="stylesheet" href="css/mobile-google-sheet-filters.css">
     <link rel="stylesheet" href="css/device-detection.css">
     <link rel="stylesheet" href="css/painel-resumo-collapsible.css">
     <link rel="stylesheet" href="css/mobile-menu.css">    <script src="./JS/mobile-device-detection.js" defer></script>
@@ -81,28 +82,10 @@
         <button class="btn btn-limpar-filtros" id="btnToggleCancelados">Ocultar Cancelados <span class="emoji-icon">❌</span></button>
         <button class="btn btn-limpar-filtros" id="btnLimparFiltros"><span class="emoji-icon">🚮</span> Limpar Filtros</button>
         <button class="btn btn-print" id="btnPrint"><span class="emoji-icon">🖨️</span> Imprimir</button>
-    </div><!-- Filtros para dispositivos móveis -->
+    </div>    <!-- Filtros para dispositivos móveis - Sistema Google Sheets -->
     <details id="mobile-filters">
       <summary>Filtros</summary>
-      <input type="text" id="filtroProjeto" placeholder="Filtrar Projeto de Aquisição" data-col-index="3">
-      <input type="text" id="filtroIdPcaMobile" placeholder="Filtrar ID PCA" data-col-index="0">
-      <select id="filter-area-mobile" data-col-index="1">
-          <option value="">Áreas</option>
-      </select>
-      <select id="filter-tipo-mobile" data-col-index="2">
-          <option value="">🛒/🔄</option>
-      </select>
-      <input type="text" id="filtroStatusInicioMobile" placeholder="Filtrar Status Início" data-col-index="4">
-      <!-- Filtro de Status do Processo (dropdown multi) pode ser simplificado para um select no mobile -->
-      <select id="filter-status-processo-mobile" data-col-index="5">
-          <option value="">Status do Processo</option>
-      </select>
-      <input type="text" id="filtroContratarAteMobile" placeholder="Filtrar Contratar Até" data-col-index="6">
-      <input type="text" id="filtroValorPcaMobile" placeholder="Filtrar Valor PCA" data-col-index="7">      <select id="filter-orcamento-mobile" data-col-index="8">
-          <option value="">Orçamentos</option>
-      </select>
-      <input type="text" id="filtroProcessoMobile" placeholder="Filtrar Processo" data-col-index="9">
-      <button class="btn-limpar-filtros" id="btnLimparFiltrosMobile">Limpar Filtros <span class="emoji-icon">🚮</span></button>
+      <!-- Os botões de filtro serão criados dinamicamente pelo JavaScript -->
     </details>
 
     <section id="detalhes">
