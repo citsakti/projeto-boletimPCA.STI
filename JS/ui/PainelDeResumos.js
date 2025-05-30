@@ -83,14 +83,11 @@ function updatePainelResumo() {
     for (const status in statusCounts) {
         html += `<div class="status-option" data-status="${status}" style="cursor:pointer; margin-bottom: 5px;">${status}: ${statusCounts[status]}</div>`;
     }
-    resumoContainer.innerHTML = html;
-
-    // Adiciona o evento de clique para cada status
+    resumoContainer.innerHTML = html;    // Adiciona o evento de clique para cada status
     const statusElements = resumoContainer.querySelectorAll('.status-option');
     statusElements.forEach(el => {
         el.addEventListener('click', () => {
             const statusSelecionado = el.getAttribute('data-status');
-            window.painelFilterStatus = statusSelecionado;
             
             // Remove o destaque de todos os elementos
             statusElements.forEach(item => {
@@ -98,19 +95,14 @@ function updatePainelResumo() {
                 item.style.fontWeight = '';
             });
             
-            // Adiciona destaque ao elemento selecionado, exceto se for "TODOS" e não houver filtro
+            // Aplica o filtro através do sistema GoogleSheetFilters
+            aplicarFiltroStatusProcesso(statusSelecionado);
+            
+            // Adiciona destaque ao elemento selecionado, exceto se for "TODOS"
             if (statusSelecionado !== 'TODOS') {
                 el.style.backgroundColor = '#fa8c16';
                 el.style.fontWeight = 'bold';
-                
-                // Destaca o botão "Limpar Filtros"
-                const limparBtn = document.getElementById("btnLimparFiltros");
-                if (limparBtn) limparBtn.classList.add('filters-active');
-            } else {
-                // Se for "TODOS", remove o destaque do botão "Limpar Filtros"
-                const limparBtn = document.getElementById("btnLimparFiltros");
-                if (limparBtn) limparBtn.classList.remove('filters-active');            }
-              filterTable();
+            }
             // Recolhe o painel de Resumo no mobile após seleção
             if (window.matchMedia('(max-width: 1199px)').matches) {
                 // Usa o novo sistema de painel recolhível
@@ -120,17 +112,31 @@ function updatePainelResumo() {
             }
         });
     });
-    
-    // Restaura o destaque para o filtro ativo atual
-    if (window.painelFilterStatus && window.painelFilterStatus !== 'TODOS') {
-        const activeFilter = resumoContainer.querySelector(`.status-option[data-status="${window.painelFilterStatus}"]`);
-        if (activeFilter) {
-            activeFilter.style.backgroundColor = '#fa8c16';
-            activeFilter.style.fontWeight = 'bold';
-            
-            // Destaca o botão "Limpar Filtros"
-            const limparBtn = document.getElementById("btnLimparFiltros");
-            if (limparBtn) limparBtn.classList.add('filters-active');        }
+      // Restaura o destaque para o filtro ativo atual baseado no GoogleSheetFilters
+    const filterButton = document.querySelector('.google-sheet-filter-btn[data-col-index="5"]');
+    if (filterButton && filterButton.classList.contains('filter-active')) {
+        const activeFilters = filterButton.getAttribute('data-active-filters');
+        if (activeFilters) {
+            try {
+                const filters = JSON.parse(activeFilters);
+                if (filters.length === 1) {
+                    // Encontra o status correspondente no painel (primeiro status que corresponde ao filtro)
+                    const statusAtivo = Object.keys(statusCounts).find(status => 
+                        status.toLowerCase() === filters[0].toLowerCase()
+                    );
+                    
+                    if (statusAtivo) {
+                        const activeFilter = resumoContainer.querySelector(`.status-option[data-status="${statusAtivo}"]`);
+                        if (activeFilter) {
+                            activeFilter.style.backgroundColor = '#fa8c16';
+                            activeFilter.style.fontWeight = 'bold';
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Erro ao processar filtros ativos:', e);
+            }
+        }
     }
     
     // Dispara evento personalizado para notificar que o painel foi atualizado
@@ -172,8 +178,6 @@ function filterTable() {
 
 // Função para resetar o filtro do painel de resumos
 function resetPainelFilterStatus() {
-    window.painelFilterStatus = 'TODOS';
-    
     // Remove o destaque de todos os elementos de status
     const statusElements = document.querySelectorAll('.status-option');
     statusElements.forEach(item => {
@@ -181,12 +185,17 @@ function resetPainelFilterStatus() {
         item.style.fontWeight = '';
     });
     
-    // Remove o destaque do botão "Limpar Filtros"
-    const limparBtn = document.getElementById("btnLimparFiltros");
-    if (limparBtn) limparBtn.classList.remove('filters-active');
+    // Remove o filtro ativo da coluna Status do Processo via GoogleSheetFilters
+    const filterButton = document.querySelector('.google-sheet-filter-btn[data-col-index="5"]');
+    if (filterButton) {
+        filterButton.removeAttribute('data-active-filters');
+        filterButton.classList.remove('filter-active');
+    }
     
-    // Aplica o filtro "TODOS"
-    filterTableByStatus('TODOS');
+    // Chama a função master de filtragem para atualizar a tabela
+    if (typeof masterFilterFunction === 'function') {
+        masterFilterFunction();
+    }
     
     // Dispara um evento personalizado para notificar que o filtro do painel foi resetado
     document.dispatchEvent(new CustomEvent('painel-filter-applied'));
@@ -198,6 +207,52 @@ function resetOriginalCounts() {
     originalTotalRows = 0;
 }
 
+// Função para aplicar filtro de status através do sistema GoogleSheetFilters
+function aplicarFiltroStatusProcesso(statusSelecionado) {
+    // Encontra o botão de filtro da coluna "Status do Processo" (índice 5)
+    const filterButton = document.querySelector('.google-sheet-filter-btn[data-col-index="5"]');
+    
+    if (!filterButton) {
+        console.warn('Botão de filtro da coluna Status do Processo não encontrado');
+        return;
+    }
+      // Encontra também o filtro mobile correspondente
+    const mobileFilterButton = document.getElementById('mobile-filter-status-processo');
+    
+    if (statusSelecionado === 'TODOS') {
+        // Remove o filtro ativo da coluna Status do Processo
+        filterButton.removeAttribute('data-active-filters');
+        filterButton.classList.remove('filter-active');
+        
+        // Remove também do filtro mobile
+        if (mobileFilterButton) {
+            mobileFilterButton.classList.remove('filter-active');
+        }
+        
+        console.log('Removendo filtro da coluna Status do Processo - mostrando todos');
+    } else {
+        // Aplica o filtro com o status selecionado
+        const filtroValor = [statusSelecionado.toLowerCase()];
+        filterButton.setAttribute('data-active-filters', JSON.stringify(filtroValor));
+        filterButton.classList.add('filter-active');
+        
+        // Aplica também no filtro mobile
+        if (mobileFilterButton) {
+            mobileFilterButton.classList.add('filter-active');
+        }
+        
+        console.log(`Aplicando filtro na coluna Status do Processo: ${statusSelecionado}`);
+    }
+    
+    // Chama a função master de filtragem do GoogleSheetFilters
+    if (typeof masterFilterFunction === 'function') {
+        masterFilterFunction();
+    } else {
+        console.warn('masterFilterFunction não encontrada');
+    }
+}
+
+    
 // Atualiza o painel quando o DOM carregar e quando a tabela for preenchida
 document.addEventListener('DOMContentLoaded', () => {
     updatePainelResumo();
