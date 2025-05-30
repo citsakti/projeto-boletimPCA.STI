@@ -21,17 +21,18 @@
     <link rel="stylesheet" href="./css/mobile/Mobile.css">
     <link rel="stylesheet" href="./css/mobile/MobileFilters.css">
     <link rel="stylesheet" href="./css/mobile/MobileGoogleSheetFilters.css">
-    <link rel="stylesheet" href="./css/mobile/MobileMenu.css"><!-- Utils -->
+    <link rel="stylesheet" href="./css/mobile/MobileMenu.css">
+    <link rel="stylesheet" href="./css/mobile/MobileCompactCards.css"><!-- Utils -->
     <script src="./JS/utils/TableFormatters.js" defer></script>
     <script src="./JS/utils/EmojiAnimation.js" defer></script>
     <script src="./JS/utils/StatusClasses.js" defer></script>
     <script src="./JS/utils/AreasClasses.js" defer></script>
     <script src="./JS/utils/OrcamentoClasses.js" defer></script>
-    
-    <!-- Mobile -->
+      <!-- Mobile -->
     <script src="./JS/mobile/MobileDeviceDetection.js" defer></script>
     <script src="./JS/mobile/MobileMenu.js" defer></script>
     <script src="./JS/mobile/MobileGoogleSheetFilters.js" defer></script>
+    <script src="./JS/mobile/MobileCompactCards.js" defer></script>
     
     <!-- UI Components -->
     <script src="./JS/ui/PainelDeResumos.js" defer></script>
@@ -96,8 +97,8 @@
     
     <div class="linha-decorativa"></div><!-- Toolbar para botões -->
     <div id="toolbar" class="toolbar">
-        <button class="btn" id="btnFonteDeDados">Fonte de Dados <span class="emoji-icon">📈</span></button>
-        <button class="btn btn-relatorio-analitico" id="btnRelatorioAnalitico">RELATÓRIO ANALÍTICO <span class="emoji-icon">📊</span></button>
+        <button class="btn" id="btnFonteDeDados">Fonte de Dados <span class="emoji-icon">📈</span></button>        <button class="btn btn-relatorio-analitico" id="btnRelatorioAnalitico">RELATÓRIO ANALÍTICO <span class="emoji-icon">📊</span></button>
+        <button class="btn btn-expand-cards mobile-only" id="btnExpandCards" style="display: none;">Expandir Todos <span class="emoji-icon">📋</span></button>
         <button class="btn btn-pca-publicada" id="btnPCAPublicada">PCA Publicada <span class="emoji-icon">🔗</span></button>
         <button class="btn btn-limpar-filtros" id="btnToggleCancelados">Ocultar Cancelados <span class="emoji-icon">❌</span></button>
         <button class="btn btn-limpar-filtros" id="btnLimparFiltros"><span class="emoji-icon">🚮</span> Limpar Filtros</button>

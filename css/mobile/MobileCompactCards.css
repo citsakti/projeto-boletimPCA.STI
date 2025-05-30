@@ -1,0 +1,505 @@
+/**
+ * MobileCompactCards.css - Sistema de cards compactos para mobile
+ * 
+ * Este arquivo implementa uma visualização compacta dos dados na versão mobile,
+ * mostrando apenas as informações essenciais e permitindo expansão para detalhes completos.
+ */
+
+/* ===========================================
+   CARDS COMPACTOS MOBILE
+   =========================================== */
+
+@media (max-width: 991.98px) {
+  
+  /* Container dos cards compactos */
+  .mobile-compact-cards tbody tr {
+    display: block;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .mobile-compact-cards tbody tr:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Header compacto do card - Padrão azul */
+  .mobile-compact-cards .card-header {
+    padding: 16px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .mobile-compact-cards .card-header:active {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    transform: scale(0.98);
+  }
+
+  /* ===========================================
+     CORES DINÂMICAS BASEADAS NOS STATUS
+     =========================================== */
+  
+  /* Status aguardando DFD/ETP - Amarelo */
+  .mobile-compact-cards tbody tr.status-aguardando-dfd .card-header,
+  .mobile-compact-cards tbody tr.status-aguardando-etp .card-header {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #1f2937;
+  }
+
+  /* Status atrasados - Vermelho */
+  .mobile-compact-cards tbody tr.status-etp-atrasado .card-header,
+  .mobile-compact-cards tbody tr.status-dfd-atrasado .card-header,
+  .mobile-compact-cards tbody tr.status-contratacao-atrasada .card-header,
+  .mobile-compact-cards tbody tr.status-autuacao-atrasada .card-header {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+  }
+
+  /* Status elaborando TR / análise viabilidade - Azul claro */
+  .mobile-compact-cards tbody tr.status-elaborando-tr .card-header,
+  .mobile-compact-cards tbody tr.status-analise-viabilidade .card-header {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    color: white;
+  }
+
+  /* Status aguardando definição - Roxo */
+  .mobile-compact-cards tbody tr.status-aguardando-definicao .card-header {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+    color: white;
+  }
+
+  /* Status em contratação/renovação - Azul escuro */
+  .mobile-compact-cards tbody tr.status-em-contratacao .card-header,
+  .mobile-compact-cards tbody tr.status-em-renovacao .card-header {
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    color: white;
+  }
+
+  /* Status contratado/renovado - Verde */
+  .mobile-compact-cards tbody tr.status-contratado .card-header,
+  .mobile-compact-cards tbody tr.status-renovado .card-header {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+  }
+
+  /* Status revisão PCA - Preto */
+  .mobile-compact-cards tbody tr.status-revisao-pca .card-header {
+    background: linear-gradient(135deg, #374151 0%, #111827 100%);
+    color: #fbbf24;
+  }
+
+  /* Status a iniciar - Cinza */
+  .mobile-compact-cards tbody tr.status-a-iniciar .card-header {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    color: #111827;
+  }
+
+  /* ===========================================
+     ANIMAÇÕES ESPECIAIS PARA STATUS CRÍTICOS
+     =========================================== */
+  
+  /* Animação de piscar para contratação atrasada */
+  .mobile-compact-cards tbody tr.status-contratacao-atrasada .card-header {
+    animation: cardBlink 1s linear infinite;
+  }
+
+  @keyframes cardBlink {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+
+  /* ===========================================
+     AJUSTES DE HOVER PARA CORES ESPECÍFICAS
+     =========================================== */
+  
+  /* Hover para cards amarelos */
+  .mobile-compact-cards tbody tr.status-aguardando-dfd .card-header:active,
+  .mobile-compact-cards tbody tr.status-aguardando-etp .card-header:active {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  /* Hover para cards vermelhos */
+  .mobile-compact-cards tbody tr.status-etp-atrasado .card-header:active,
+  .mobile-compact-cards tbody tr.status-dfd-atrasado .card-header:active,
+  .mobile-compact-cards tbody tr.status-contratacao-atrasada .card-header:active,
+  .mobile-compact-cards tbody tr.status-autuacao-atrasada .card-header:active {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  }
+
+  /* Hover para cards verdes */
+  .mobile-compact-cards tbody tr.status-contratado .card-header:active,
+  .mobile-compact-cards tbody tr.status-renovado .card-header:active {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  }
+
+  /* Hover para cards roxos */
+  .mobile-compact-cards tbody tr.status-aguardando-definicao .card-header:active {
+    background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+  }
+
+  /* Hover para cards azuis escuros */
+  .mobile-compact-cards tbody tr.status-em-contratacao .card-header:active,
+  .mobile-compact-cards tbody tr.status-em-renovacao .card-header:active {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  }
+
+  /* Hover para cards pretos */
+  .mobile-compact-cards tbody tr.status-revisao-pca .card-header:active {
+    background: linear-gradient(135deg, #111827 0%, #000000 100%);
+  }
+
+  /* Hover para cards cinzas */
+  .mobile-compact-cards tbody tr.status-a-iniciar .card-header:active {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  }
+
+  /* Informações principais no header */
+  .mobile-compact-cards .card-main-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mobile-compact-cards .card-id-projeto {
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-compact-cards .card-projeto-nome {
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-top: 4px;
+  }
+
+  .mobile-compact-cards .card-status {
+    margin-top: 8px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+    max-width: fit-content;
+  }
+
+  .mobile-compact-cards .card-valor {
+    margin-top: 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fbbf24;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Botão de expandir/recolher */
+  .mobile-compact-cards .card-toggle-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .mobile-compact-cards .card-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+
+  .mobile-compact-cards .card-toggle-btn .toggle-icon {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+  }
+
+  /* Card expandido */
+  .mobile-compact-cards tbody tr.expanded .card-toggle-btn .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Container dos detalhes completos */
+  .mobile-compact-cards .card-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    background: #f8fafc;
+    opacity: 0;
+  }
+
+  .mobile-compact-cards tbody tr.expanded .card-details {
+    max-height: 500px;
+    opacity: 1;
+    padding: 16px;
+  }
+
+  /* Células dos detalhes */
+  .mobile-compact-cards .card-details .detail-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .mobile-compact-cards .card-details .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-compact-cards .card-details .detail-label {
+    font-weight: 600;
+    color: #374151;
+    min-width: 35%;
+    padding-right: 12px;
+    font-size: 0.85rem;
+  }
+
+  .mobile-compact-cards .card-details .detail-value {
+    flex: 1;
+    color: #1f2937;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  /* Células ocultas no modo compacto */
+  .mobile-compact-cards tbody td {
+    display: none;
+  }
+
+  /* Status classes para styling dinâmico */
+  .mobile-compact-cards .status-contratado .card-header {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+
+  .mobile-compact-cards .status-cancelado .card-header {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    opacity: 0.7;
+  }
+
+  .mobile-compact-cards .status-atrasado .card-header {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  }
+
+  /* Animações de entrada */
+  .mobile-compact-cards tbody tr {
+    animation: slideInUp 0.4s ease-out;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsividade para telas muito pequenas */
+  @media (max-width: 480px) {
+    .mobile-compact-cards .card-header {
+      padding: 12px;
+    }
+
+    .mobile-compact-cards .card-id-projeto {
+      font-size: 0.8rem;
+    }
+
+    .mobile-compact-cards .card-projeto-nome {
+      font-size: 1rem;
+    }
+
+    .mobile-compact-cards .card-toggle-btn {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+    }
+
+    .mobile-compact-cards tbody tr.expanded .card-details {
+      padding: 12px;
+    }
+  }
+}
+
+/* ===========================================
+   CLASSES UTILITÁRIAS
+   =========================================== */
+
+/* Classe para esconder os cards tradicionais quando compactos estão ativos */
+.mobile-compact-mode tbody td::before {
+  display: none !important;
+}
+
+.mobile-compact-mode tbody td {
+  display: none !important;
+}
+
+/* Indicadores visuais adicionais */
+.mobile-compact-cards .priority-high .card-header::after {
+  content: "🔥";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.2rem;
+}
+
+.mobile-compact-cards .has-contract .card-header::before {
+  content: "📄";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 1rem;
+}
+
+/* ===========================================
+   BOTÃO EXPANDIR/RECOLHER TODOS
+   =========================================== */
+
+/* Esconder o botão por padrão */
+.btn-expand-cards {
+  display: none !important;
+}
+
+@media (max-width: 991.98px) {
+  /* Mostrar o botão apenas no mobile */
+  .btn-expand-cards.mobile-only {
+    display: inline-block !important;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-expand-cards.mobile-only:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-expand-cards.mobile-only:active {
+    transform: scale(0.98);
+  }
+
+  /* Estado do botão quando cards estão expandidos */
+  .btn-expand-cards.mobile-only.all-expanded {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+
+  .btn-expand-cards.mobile-only.all-expanded:hover {
+    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  }
+}
+
+/* ===========================================
+   OVERRIDE DO CSS MOBILE PADRÃO
+   =========================================== */
+
+/* Quando o modo compacto está ativo, sobrescreve os estilos padrão */
+.mobile-compact-mode.mobile-compact-cards tbody tr {
+  display: block !important;
+  flex-direction: unset !important;
+  gap: unset !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: unset !important;
+  box-shadow: none !important;
+}
+
+.mobile-compact-mode .mobile-compact-cards tbody td {
+  display: none !important;
+  flex-wrap: unset !important;
+  align-items: unset !important;
+  padding: 0 !important;
+}
+
+.mobile-compact-mode .mobile-compact-cards tbody td::before {
+  display: none !important;
+  content: unset !important;
+}
+
+/* Garante que apenas o conteúdo do card compacto seja visível */
+.mobile-compact-mode .mobile-compact-cards .card-header,
+.mobile-compact-mode .mobile-compact-cards .card-details {
+  display: block !important;
+}
+
+/* ===========================================
+     STATUS ADICIONAIS E FALLBACKS
+     =========================================== */
+  
+  /* Status cancelado - Cinza escuro */
+  .mobile-compact-cards tbody tr.status-cancelado .card-header {
+    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+    color: white;
+  }
+
+  /* Status genérico atrasado (fallback) - Vermelho */
+  .mobile-compact-cards tbody tr.status-atrasado .card-header {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+  }
+
+  /* Cards com prioridade alta - Adiciona borda especial */
+  .mobile-compact-cards tbody tr.priority-high {
+    border: 2px solid #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+
+  /* ===========================================
+     RESPONSIVIDADE PARA TELAS PEQUENAS
+     =========================================== */
+  
+  /* Responsividade para telas muito pequenas */
+  @media (max-width: 480px) {
+    .mobile-compact-cards .card-header {
+      padding: 12px;
+    }
+
+    .mobile-compact-cards .card-id-projeto {
+      font-size: 0.8rem;
+    }
+
+    .mobile-compact-cards .card-projeto-nome {
+      font-size: 1rem;
+    }
+
+    .mobile-compact-cards .card-toggle-btn {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+    }
+
+    .mobile-compact-cards tbody tr.expanded .card-details {
+      padding: 12px;
+    }
+  }
