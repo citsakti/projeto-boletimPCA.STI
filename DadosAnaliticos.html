@@ -12,15 +12,17 @@
     <link rel="stylesheet" href="./css/components/Areas.css">
     <link rel="stylesheet" href="./css/components/Orcamento.css">
     <link rel="stylesheet" href="./css/components/StatusAtrasado.css">
-    <link rel="stylesheet" href="./css/components/AtualizacaoAutomatica.css">
-      <!-- Mobile -->
+    <link rel="stylesheet" href="./css/components/AtualizacaoAutomatica.css">    <!-- Mobile -->
     <link rel="stylesheet" href="./css/mobile/Mobile.css">
+    <link rel="stylesheet" href="./css/mobile/MobileAnalytics.css">
     
     <!-- Pages -->
     <link rel="stylesheet" href="./css/pages/Analytics.css"><script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    
-    <!-- Utils -->
+      <!-- Utils -->
     <script src="./JS/utils/TableFormatters.js"></script>
+    
+    <!-- Mobile -->
+    <script src="./JS/mobile/MobileDeviceDetection.js"></script>
     
     <!-- Filters -->
     <script src="./JS/filters/FilterControls.js"></script>
@@ -39,17 +41,18 @@
     <!-- overlay de carregamento -->
     <div id="loading-overlay">
       <div class="loader">⏳ Carregando dados analíticos, por favor aguarde...</div>
-    </div>
-
-    <header>
+    </div>    <header>
         <img src="./IMG/tribunal.png" alt="Tribunal" size="10" class="logo-tribunal">
         <h1>Relatório Analítico - Boletim PCA 2025 - STI</h1>
-    </header>
-
-    <!-- Toolbar para botões -->
+    </header>    <!-- Toolbar para botões -->
     <div class="toolbar">
         <button class="btn" id="btnVoltar" onclick="window.location.href='index.html'">Voltar ao Boletim <span class="emoji-icon">📊</span></button>
         <button class="btn btn-print" id="btnPrint"><span class="emoji-icon">🖨️</span> Imprimir</button>
+        <!-- Botão para expandir/recolher todas as seções (mobile) -->
+        <button id="analytics-toggle-btn" class="analytics-toggle-btn btn" title="Expandir/Recolher Todas as Seções">
+            <span class="toggle-icon">📊</span>
+            <span class="toggle-text">Seções</span>
+        </button>
     </div>
 
     <!-- Conteúdo específico dos dados analíticos -->
@@ -57,9 +60,7 @@
         <section id="analytics-dashboard">
             <!-- O conteúdo será gerado dinamicamente pelo Analytics.js -->
         </section>
-    </div>
-
-    <!-- Modal para exibir o iframe (reutilizado de index.html ou similar) -->
+    </div>    <!-- Modal para exibir o iframe (reutilizado de index.html ou similar) -->
     <div id="processo-modal-overlay" class="modal-overlay">
         <div class="modal-content">
             <button id="close-modal-btn" class="close-button" aria-label="Fechar">
@@ -67,12 +68,9 @@
             </button>
             <iframe id="processo-iframe" src="about:blank" frameborder="0"></iframe>
         </div>
-    </div>
-
-    <footer>
+    </div>    <footer>
         <p>Dados atualizados em: <span id="data-atualizacao">--/--/----</span></p>
-    </footer>
-
-    <script src="./JS/PrintFunction.js"></script>
+    </footer>    <script src="./JS/ui/PrintFunction.js"></script>
+    <script src="./JS/mobile/MobileAnalytics.js"></script>
 </body>
 </html>
