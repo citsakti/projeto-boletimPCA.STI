@@ -1,0 +1,576 @@
+@media (max-width: 1199px) {
+    .painel-resumo-details summary {
+        display: block;      /* Mostra só no mobile */
+        margin-top: 16px;    /* Afasta para baixo */
+        font-weight: bold;
+        cursor: pointer;
+        padding: 0.5em 0 0.5em 1.5em; /* Recuo à direita */
+        padding-left: 2.5em; /* aumenta o recuo do texto em relação à seta */
+        font-size: 1rem;
+        background: var(--brand-primary);
+        color: #fff;
+        border-radius: var(--radius-md);
+        margin-bottom: 0.5em;
+        outline: none;
+        text-align: left;
+        position: relative;
+        /* Garante espaço para a seta */
+    }
+    .painel-resumo-details summary::before {
+        content: '▶';
+        position: absolute;
+        left: 0.7em;
+        top: 50%;
+        transform: translateY(-50%) rotate(0deg);
+        transition: transform 0.2s;
+        font-size: 1em;
+        color: #fff;
+    }
+    .painel-resumo-details[open] > summary::before {
+        content: '▼';
+        transform: translateY(-50%) rotate(0deg);
+    }
+    /* Caixa leve para o summary do filtro Projeto de Aquisição */
+    .painel-resumo-details summary.filtro-projeto {
+        background: #f5f6f7;
+        color: #2c417a;
+        border: 1px solid #e0e3e8;
+        border-radius: var(--radius-md);
+        box-shadow: 0 1px 4px rgba(44,65,122,0.04);
+        font-weight: 500;
+        padding: 0.5em 0 0.5em 1.5em;
+        margin-top: 16px;
+        margin-bottom: 0.5em;
+    }    /* Estilo para o bloco de filtros mobile */
+    #mobile-filters {
+        display: block;
+        background: #fff;
+        border: 1px solid var(--brand-neutral);
+        border-radius: var(--radius-md);
+        box-shadow: 0 1px 4px rgba(44,65,122,0.04);
+        padding: var(--space-2); /* Reduzido de var(--space-3) */
+        margin-top: var(--space-4); /* Aumenta distância da linha decorativa */
+        margin-bottom: var(--space-3);
+    }    #mobile-filters summary {
+        font-weight: bold;
+        cursor: pointer;
+        padding: 0.4em 0 0.4em 1.5em; /* Reduzido padding vertical */
+        font-size: 0.95rem; /* Ligeiramente menor */
+        background: var(--brand-primary);
+        color: #fff;
+        border-radius: var(--radius-md);
+        margin-bottom: 0.8em; /* Reduzido de 1em */
+        margin-top: 0.8em; /* Reduzido de 1em */
+        outline: none;
+        text-align: left;
+        position: relative;
+        padding-left: 3rem; /* afasta texto da seta */
+    }
+    #mobile-filters summary::before {
+        content: '▶';
+        position: absolute;
+        left: 1rem; /* recua seta para a direita */
+        top: 50%;
+        transform: translateY(-50%) rotate(0deg);
+        transition: transform 0.2s;
+        font-size: 1em;
+        color: #fff;
+    }
+    #mobile-filters[open] > summary::before {
+        content: '▼';
+        transform: translateY(-50%) rotate(0deg);
+    }    #mobile-filters input,
+    #mobile-filters select {
+        width: 100% !important;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px; /* Reduzido de 10px 12px */
+        margin-bottom: 10px; /* Reduzido de 14px */
+        border: 1px solid var(--brand-neutral);
+        border-radius: var(--radius-sm);
+        font-size: 0.95rem; /* Ligeiramente menor */
+        background: #f8fafc;
+        color: #2c417a;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        height: 40px !important; /* Reduzido de 44px */
+        line-height: 1.2;
+        appearance: none;
+    }
+    #mobile-filters input[type="text"]::placeholder {
+        color: #b0b8c9;
+        opacity: 1;
+    }
+    #mobile-filters select {
+        background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8L0.803847 0.5L11.1962 0.5L6 8Z' fill='%232c417a'/%3E%3C/svg%3E%0A");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px 10px;
+        padding-right: 32px;
+    }
+    #mobile-filters label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--brand-primary-medium);
+        margin-bottom: 4px;
+        margin-top: 8px;
+    }    #mobile-filters .btn-limpar-filtros {
+        width: 100%;
+        margin-top: 6px; /* Reduzido de 8px */
+        margin-bottom: 0;
+        padding: 10px 0; /* Reduzido de 12px 0 */
+        font-size: 0.95rem; /* Ligeiramente menor */
+        height: 40px; /* Reduzido de 44px */
+    }
+    /* Remove marcador padrão e mantém só nossa ::before */
+    #mobile-filters summary::-webkit-details-marker {
+        display: none;
+    }
+    #mobile-filters summary::marker {
+        display: none;
+    }
+    /* Desabilita a seta custom criada em ::before */
+    #mobile-filters summary::before,
+    #mobile-filters[open] > summary::before {
+        content: none !important;
+    }
+    /* Garante exibição da seta nativa do <summary> */
+    #mobile-filters summary::-webkit-details-marker,
+    #mobile-filters summary::marker {
+        display: inline !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .painel-resumo-details {
+        width: 100%;
+        margin-bottom: var(--space-2);
+    }
+    .painel-resumo-details[open] .painel-resumo {
+        display: flex;
+    }
+    .painel-resumo-details .painel-resumo {
+        display: none;
+    }
+}
+
+@media (max-width: 1024px) {
+    /* Configura para exibir como mobile em tablets também */
+    tbody tr {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+        padding: var(--space-3);
+        margin-bottom: var(--space-2);
+        border: 1px solid var(--brand-neutral);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+    }
+    tbody td {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+    tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--brand-primary-medium);
+        min-width: 40%;
+        max-width: 40%;
+        flex-shrink: 0;
+        padding-right: 8px;
+    }
+    .btn {
+        width: 100%;
+    }
+    .toolbar {
+        justify-content: center;
+    }
+}
+
+/* Mobile e Tablet compartilham estas configurações */
+@media (max-width: 1199px) {
+    /* Remove marcador padrão e mantém só nossa ::before */
+    #mobile-filters summary::-webkit-details-marker {
+        display: none;
+    }
+    #mobile-filters summary::marker {
+        display: none;
+    }
+
+    /* Configurações para mobile-filters para tablets e celulares */
+    #mobile-filters {
+        display: block; /* Mostra em tablets também */
+    }
+    
+    #mobile-filters summary {
+        padding-left: 3rem; /* afasta texto da seta */
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    #mobile-filters summary::before {
+        left: 1rem; /* recua seta para a direita */
+    }
+
+    /* Altura padrão para os inputs e selects */
+    #mobile-filters input,
+    #mobile-filters select {
+        height: 44px !important;
+    }
+    
+    /* Painel de resumo se comporta como no mobile */
+    .painel-resumo-details summary {
+        display: block;
+    }
+      /* Configurações de toolbar - agora controlada pelo mobile-menu.js */
+    /* .toolbar configurações movidas para mobile-menu.css */
+    
+    /* Botões ocupam mais espaço */
+    .btn {
+        width: 100%;
+    }
+    
+    /* Filtros da tabela desktop ficam ocultos */
+    thead .filter-row {
+        display: none;
+    }
+}
+
+/* Apenas Mobile: exibição em cards */
+@media (max-width: 991.98px) {
+  thead.cabecalho {
+    position: absolute !important;
+    left: -9999px;
+  }
+  tbody tr {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    margin-bottom: var(--space-2);
+    border: 1px solid var(--brand-neutral);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+  tbody td {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--brand-primary-medium);
+    min-width: 40%;
+    max-width: 40%;
+    flex-shrink: 0;
+    padding-right: 8px;
+  }
+  tbody td > span,
+  tbody td > div {
+    text-align: right;
+    word-break: break-word;
+  }
+  tbody td[data-label="Tipo"],
+  tbody td[data-label="Processo"] {
+    white-space: nowrap !important;
+  }
+
+  /* Adicionado para garantir que o conteúdo DENTRO de span/div também não quebre em "Tipo" e "Processo" nos cards */
+  tbody td[data-label="Tipo"] > span,
+  tbody td[data-label="Tipo"] > div,
+  tbody td[data-label="Processo"] > span,
+  tbody td[data-label="Processo"] > div {
+    white-space: nowrap !important; /* Reforça a não quebra de linha */
+    word-break: normal !important;   /* Sobrescreve o 'break-word' que pode estar causando a quebra */
+    display: inline; /* Garante que o elemento flua como texto e respeite o nowrap */
+  }
+
+  /* Estiliza o conteúdo de "Projeto de Aquisição" no mobile */
+  tbody td[data-label="Projeto de Aquisição"] > span,
+  tbody td[data-label="Projeto de Aquisição"] > div {
+    font-size: 1.3em; /* Aumenta o tamanho da fonte */
+    font-weight: 600;  /* Torna o texto mais negrito */
+  }
+  /* Configurações específicas da toolbar no mobile - agora controladas pelo mobile-menu.js */
+  .toolbar {
+    /* Estilos base - o mobile-menu.css vai sobrescrever conforme necessário */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    gap: 10px;
+  }
+  .toolbar .btn {
+    display: inline-block;
+    padding: 5px 8px;
+    font-size: 0.875rem;
+  }
+  thead .filter-row {
+    display: none;
+  }
+  #mobile-filters {
+    display: block;
+    margin-bottom: var(--space-2);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 var(--space-3);
+  }
+  #mobile-filters summary {
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #mobile-filters input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-1);
+    border: 1px solid var(--brand-neutral);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-1);
+  }
+  header {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+  }
+  header img.logo-tribunal {
+    max-width: 300px;
+    margin-bottom: 10px;
+  }
+  header h1 {
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    margin: 0;
+  }
+  tbody td[data-label="Processo"] {
+    white-space: nowrap;
+  }
+  tbody td[data-label="Tipo"],
+  tbody td[data-label="Processo"] {
+    white-space: nowrap !important;
+  }
+}
+
+/* Removido código específico para tablets conforme solicitado */
+
+/* Media Queries */
+@media (max-width: 768px) {
+    tbody tr {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        padding: var(--space-2);
+        gap: var(--space-1);
+    }
+    
+    .btn {
+        width: 100%;
+    }
+
+    .toolbar {
+        justify-content: center;
+    }
+}
+
+/* Smartphones: ≤ 575.98px */
+@media (max-width: 575.98px) {
+  /* Converter tabela em cards */
+  thead.cabecalho {
+    position: absolute !important;
+    left: -9999px;
+  }
+  tbody tr {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    margin-bottom: var(--space-2);
+    border: 1px solid var(--brand-neutral);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+  tbody td {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start; /* Alinha itens ao topo em vez de no centro */
+    padding-top: 8px;
+    padding-bottom: 8px; /* Espaçamento vertical extra para células com conteúdo mais extenso */
+  }
+  tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--brand-primary-medium);
+    min-width: 40%; /* Largura fixa para o rótulo */
+    max-width: 40%;
+    flex-shrink: 0;
+    padding-right: 8px;
+  }
+  tbody td > span,
+  tbody td > div {
+    text-align: right; /* Alinha o conteúdo à direita */
+    word-break: break-word; /* Permite quebras de palavras longas */
+  }
+  /* Ajuste na toolbar */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;         /* Permite quebra de linha */
+    align-items: center;
+    justify-content: center; /* Centraliza os botões */
+    padding: 10px;           /* Reduz padding */
+    gap: 10px;               /* Espaçamento entre os botões */
+  }
+  .toolbar .btn {
+    display: inline-block;
+    padding: 5px 8px;        /* Reduz tamanho interno */
+    font-size: 0.875rem;      /* Fonte um pouco menor */
+  }
+  /* Esconde a linha de filtros (pode-se colocar os filtros móveis em um <details> com id "mobile-filters") */
+  thead .filter-row {
+    display: none;
+  }
+  #mobile-filters {
+    display: block;
+    margin-bottom: var(--space-2);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 var(--space-3); /* Mesmo padding do body/container, se necessário */
+  }
+  #mobile-filters summary {
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #mobile-filters input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-1);
+    border: 1px solid var(--brand-neutral);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-1);
+  }
+  header {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+  }
+  header img.logo-tribunal {
+    max-width: 300px; /* ajuste conforme necessário */
+    margin-bottom: 10px;
+  }
+  header h1 {
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    margin: 0;
+  }
+  tbody td[data-label="Processo"] {
+    white-space: nowrap;
+  }
+}
+
+/* Removido código específico para tablets conforme solicitado */
+
+/* Ajuste para botões da toolbar em dispositivos móveis */
+@media (max-width: 767px) {
+  .toolbar {
+    padding: 10px 5px;
+    gap: 8px;
+  }
+  
+  .toolbar button,
+  .toolbar .btn,
+  .toolbar .btn-print,
+  .toolbar .btn-limpar-filtros {
+    padding: 4px 6px;
+    font-size: 0.75rem;
+    min-width: 0;
+    flex-basis: auto;
+    flex-shrink: 1;
+    white-space: nowrap;
+  }
+}
+
+/* Para telas muito pequenas, deixar ainda mais compacto */
+@media (max-width: 375px) {
+  .toolbar button,
+  .toolbar .btn,
+  .toolbar .btn-print,
+  .toolbar .btn-limpar-filtros {
+    font-size: 0.7rem;
+    padding: 3px 5px;
+  }
+  
+  /* Opcionalmente remover emojis em telas muito pequenas */
+  .toolbar button span.emoji-icon {
+    display: none;
+  }
+}
+
+/* Ajuste específico para iPhone 12 Pro e dispositivos similares */
+@media (min-width: 375px) and (max-width: 414px) {
+  .toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 5px;
+    gap: 8px;
+  }
+  
+  .toolbar button,
+  .toolbar .btn,
+  .toolbar .btn-print,
+  .toolbar .btn-limpar-filtros {
+    width: 70%;
+    margin: 0 !important;
+    padding: 8px 8px;
+    font-size: 0.75rem;
+  }
+  
+  /* Remover margens laterais que podem estar causando problemas */
+  .toolbar button + button {
+    margin-left: 0 !important;
+  }
+  
+  #btnPrint {
+    margin-right: 0 !important;
+  }
+}
+
+/* Removido código específico para tablets conforme solicitado */
+
+/* Removido código específico para tablets conforme solicitado */
+
+/* Removido código específico para tablets conforme solicitado */
+
+/* Removido código específico para tablets conforme solicitado */
+
+/* Ajuste para telas pequenas */
+@media (max-width: 600px) {
+  #loading-overlay .loader {
+    font-size: 1.1rem;
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+    .close-button {
+        top: 25px;
+        right: 25px;
+        height: 36px;
+        min-width: 70px;
+        font-size: 1rem;
+        padding: 0 10px;
+    }
+    .close-button span {
+        font-size: 1.1em;
+    }
+}

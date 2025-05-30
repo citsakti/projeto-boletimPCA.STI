@@ -1,0 +1,756 @@
+/* Importa fontes e tokens */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+/* Reset e base */
+body {
+    font-family: var(--font-primary);
+    line-height: var(--line-height-base);
+    margin: 0;
+    background-color: var(--brand-neutral);
+    color: #333;
+    padding: 0 var(--space-3); /* Adicionado para afastar o conteúdo das bordas */
+    padding-top: 10px; /* Espaço superior para destacar o header */
+}
+
+/* Ajuste base para tipografia */
+html {
+    font-size: clamp(0.75rem, 2.5vw, 1rem);
+}
+
+/* Layout container */
+.container {
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: var(--space-3);
+}
+
+/* Header redesenhado */
+header {
+    background-color: #2c417a;
+    color: #fff;
+    padding: var(--space-3);
+    margin-bottom: 0; /* Removido o espaço inferior, pois a linha será separada */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    top: 0;
+    z-index: 11;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+}
+
+/* Linha decorativa do header */
+header::after {
+    content: '';
+    display: none; /* Esconde a linha do header, pois será usada separadamente */
+}
+
+/* Nova linha decorativa reutilizável */
+.linha-decorativa {
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+    margin-bottom: 0; /* Sem margem inferior */
+}
+
+/* Painel resumo - LEGADO - Mantido para compatibilidade mas sobrescrito pelo novo sistema */
+.painel-resumo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center; /* Alterado para centralizar o conteúdo */
+    gap: var(--space-3);
+    background: #fcfeff;
+    border-radius: var(--radius-lg); /* Alterado para maior arrendondamento */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 -1px 2px rgba(0,0,0,0.04), 1px 0 2px rgba(0,0,0,0.04), -1px 0 2px rgba(0,0,0,0.04);
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
+    border: 1px solid var(--brand-neutral);
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    flex-wrap: wrap; /* Adicionado para distribuir os itens em duas linhas */
+}
+
+/* Painel de resumo recolhível no mobile - LEGADO */
+.painel-resumo-details summary {
+    display: none; /* Esconde por padrão - sobrescrito pelo novo sistema */
+}
+
+/* LEGADO - Mantido para compatibilidade */
+.painel-resumo .status-option {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 5px;
+    background-color: var(--brand-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.painel-resumo .status-option:hover {
+    background-color: var(--brand-primary-medium);
+    transform: translateY(-2px);
+}
+
+/* Tabela moderna */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: var(--space-3);
+    background: #fff;
+    border-radius: var(--radius-md);
+    overflow: visible;   /* permite que o popup “saia” da célula */
+    box-shadow: var(--shadow-sm);
+}
+
+/* Cabeçalho fixo */
+table thead.cabecalho tr:first-child {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background-color: var(--brand-primary);
+}
+
+/* Arredondar as pontas do cabeçalho fixo */
+table thead.cabecalho tr:first-child th:first-child {
+    border-top-left-radius: var(--radius-md);
+}
+table thead.cabecalho tr:first-child th:last-child {
+    border-top-right-radius: var(--radius-md);
+}
+
+/* Linha de filtros fixa logo abaixo do cabeçalho */
+table thead.cabecalho tr.filter-row {
+    position: sticky;
+    top: 40px; /* ajuste de acordo com a altura do cabeçalho */
+    z-index: 2;
+    background-color: #fff;
+}
+
+/* Estilização elegante e bordas arredondadas para todos os filtros */
+table thead.cabecalho tr.filter-row th input[type="text"],
+table thead.cabecalho tr.filter-row th select,
+table thead.cabecalho tr.filter-row th .filter-toggle {
+  width: 100% !important;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  height: auto !important;
+  border: 1px solid var(--brand-neutral);
+  border-radius: var(--radius-sm);
+  background-color: #fff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Se houver inputs com largura fixa inline, zera‑los */
+table thead.cabecalho tr.filter-row th input[style] {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* foco nos filtros */
+table thead.cabecalho tr.filter-row th input[type="text"]:focus,
+table thead.cabecalho tr.filter-row th select:focus,
+table thead.cabecalho tr.filter-row th .filter-toggle:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(0, 95, 184, 0.25);
+}
+
+/* Evitar quebra de linha nas colunas específicas */
+table th:nth-child(2),
+table td:nth-child(2),
+table th:nth-child(5),
+table td:nth-child(5),
+table th:nth-child(7),
+table td:nth-child(7) {
+    white-space: nowrap;
+}
+
+/* Adicionado para a coluna "Contratar Até" (6ª coluna) */
+table th:nth-child(6),
+table td:nth-child(6) {
+    white-space: nowrap;
+}
+
+/* Adicionado para a coluna "Valor PCA" (8ª coluna) */
+table th:nth-child(8),
+table td:nth-child(8) {
+    white-space: nowrap;
+}
+
+/* Adicionado para a coluna "Processos" (9ª coluna) */
+table th:nth-child(9),
+table td:nth-child(9) {
+    white-space: nowrap !important;
+}
+
+/* 
+   Impede quebra de linha na coluna "Tipo" (3ª) da tabela principal 
+   e na coluna "Processo" (10ª) em todas as tabelas (ou especificar se necessário para "Processo").
+*/
+#detalhes table thead.cabecalho th:nth-child(3), /* Cabeçalho da Coluna "Tipo" APENAS na tabela principal */
+#detalhes table tbody td:nth-child(3),          /* Células da Coluna "Tipo" APENAS na tabela principal */
+table th:nth-child(10), /* Cabeçalho da Coluna "Processo" (genérico) */
+table td:nth-child(10) { /* Células da Coluna "Processo" (genérico) */
+    white-space: nowrap !important;
+}
+
+/* Impede quebra de linha nas colunas “Área” (2ª) e “Orçamento” (9ª) em todas as telas */
+table th:nth-child(2), /* Cabeçalho da Coluna "Área" */
+table td:nth-child(2), /* Células da Coluna "Área" */
+table th:nth-child(9), /* Cabeçalho da Coluna "Orçamento" */
+table td:nth-child(9) { /* Células da Coluna "Orçamento" */
+    white-space: nowrap !important;
+}
+
+/* Adiciona uma classe que pode ser aplicada diretamente nos elementos que contêm esses textos */
+.nowrap-text {
+    white-space: nowrap !important;
+    display: inline-block;
+}
+
+/* Negrito para coluna "Projeto de Aquisição" (4ª coluna) */
+table td:nth-child(4) {
+    font-weight: bold;
+}
+
+/* Cabeçalho da tabela */
+th {
+    background-color: var(--brand-primary);
+    color: #fff;
+    font-weight: 600;
+    padding: var(--space-2);
+    text-align: left;
+}
+
+/* Células da tabela */
+td {
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--brand-neutral);
+}
+
+/* Hover na linha */
+tbody tr:hover {
+    box-shadow: var(--shadow-md);
+    position: relative;
+    z-index: 1;
+}
+
+/* Linha para estilizar as linhas com status "CONTRATAÇÃO ATRASADA❗" */
+table tbody tr.contratacao-atrasada {
+    color: red;
+    /* animation: blink 1s linear infinite;  Removido o piscar da linha inteira */
+}
+
+/* Destaca apenas a frase do status AUTUAÇÃO ATRASADA 💣 */
+.status-autuacao-atrasada-highlight {
+    background: #e6cff2;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-flex; /* Alterado de ruby-text para inline-flex */
+    align-items: center; /* Centraliza verticalmente o conteúdo */
+    vertical-align: middle; /* Alinha ao meio da linha */
+    white-space: nowrap; /* Impede quebra de linha */
+}
+
+/* highlights de status */
+.status-autuacao-atrasada-highlight { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-flex; align-items:center; vertical-align:middle; }
+.status-contratacao-atrasada-highlight {
+    background: #b10202;
+    color: #fff;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: ruby;
+    animation: blink 1s linear infinite;
+    white-space: nowrap; /* Impede quebra de linha */
+}
+.status-aguardando-dfd-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:ruby; }
+.status-etp-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-elaborando-tr-highlight         { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-aguardando-definicao-highlight  { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-analise-viabilidade-highlight   { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-em-contratacao-highlight        { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; }
+.status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; }
+.status-renovado-highlight              { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-contratado-highlight            { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
+.status-revisao-pca-highlight           { background: #000000; border-radius:6px; padding:2px 6px; display:inline-block; color:#ffe5a0; }
+.status-a-iniciar-highlight             { background: #e6e6e6; border-radius:6px; padding:2px 6px; display:inline-block; color:#000000; white-space: nowrap; }
+
+/* Badges de status */
+.status-badge {
+    display: inline-block;
+    padding: 2px var(--space-1);
+    border-radius: var(--radius-lg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Toolbar fixa */
+.toolbar {
+    top: 0;
+    right: 0; /* Alinha a toolbar à direita */
+    z-index: 100;
+    background-color: #f5f6f7;
+    padding: 20px 10px; /* Aumenta o espaçamento vertical (acima e abaixo) */
+    display: flex;
+    /*justify-content: flex-end; /* Garante que os botões fiquem alinhados à direita */
+}
+
+.toolbar button + button {
+    margin-left: 20px;
+}
+
+#btnPCAPublicada {
+    margin-right: auto; /* Move o botão PCA Publicada para a esquerda */
+}
+
+/* Botões modernos */
+.btn,
+.btn-print,
+.btn-limpar-filtros {
+    background: var(--brand-primary) !important;
+    color: #fff;
+    height: 35px;
+    border: none;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn:hover,
+.btn-print:hover,
+.btn-limpar-filtros:hover {
+    background: var(--brand-primary-medium);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn:active,
+.btn-print:active,
+.btn-limpar-filtros:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn:disabled,
+.btn-print:disabled,
+.btn-limpar-filtros:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (min-width: 1024px) {
+    #mobile-filters {
+        display: none;
+    }
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+    .status-badge {
+        transition: transform 0.2s ease;
+    }
+    
+    .status-badge:hover {
+        transform: translateY(-1px);
+    }
+}
+
+/* Removido código específico para tablets conforme solicitado */
+
+/* ---------- Dropdown multi-seleção ---------- */
+.dropdown-multi { position: relative; }
+.dropdown-multi .filter-toggle {
+    width: 100%; height: 21px;
+    background:#ffffff;
+    border:1px solid var(--brand-neutral);
+    border-radius: var(--radius-sm);
+    cursor:pointer;
+    font-size:.75rem;
+    color: #2c417a; /* Alterado para definir a cor do texto */
+}
+.dropdown-multi .filter-panel {
+    position:absolute;
+    top:110%; left:0;
+    width:260px;           /* igual ao Google Sheets */
+    background:#ffffff;
+    border:1px solid var(--brand-neutral);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-sm);
+    padding:var(--space-2);
+    display:none;          /* o JS alterna para block */
+    z-index:20;
+    color: #2c417a; /* Alterado para definir a cor do texto */
+}
+
+/* cabeçalho */
+.filter-panel .filter-header{
+    font-size:.75rem;
+    margin-bottom:var(--space-1);
+    display:flex; gap:.25rem; align-items:center; flex-wrap:wrap;
+}
+.filter-panel a {
+    color: var(--brand-primary-medium);
+    text-decoration: none;
+    cursor: pointer;
+}
+.filter-panel .count{margin-left:auto; font-weight:600;}
+
+/* busca */
+.filter-panel .search{
+    width:100%;
+    padding:4px;
+    margin-bottom:var(--space-1);
+    border:1px solid var(--brand-neutral);
+    border-radius:var(--radius-sm);
+    font-size:.75rem;
+}
+
+/* lista */
+.filter-panel ul.options{
+    list-style:none; margin:0; padding:0;
+}
+
+.dropdown-multi .options li {
+    cursor: pointer; /* Exibe mãozinha ao passar o mouse */
+}
+
+/* Destaque para opções selecionadas no dropdown-multi */
+.dropdown-multi .options li.selected,
+.dropdown-multi .filter-panel ul.options li.selected {
+    background-color: #add8e6; /* azul claro */
+}
+
+/* rodapé */
+.filter-panel .filter-footer{
+    margin-top:var(--space-2);
+    display:flex; justify-content:space-between;
+}
+.filter-panel .btn{
+    background:var(--brand-primary); color:#fff;
+    border:none; padding:2px 10px;
+    border-radius:var(--radius-sm);
+    font-size:.75rem; cursor:pointer;
+}
+.filter-panel .btn:hover{background:var(--brand-primary-medium);}
+
+/* Adicionado para os checkboxes */
+input[type="checkbox"]:hover {
+    cursor: pointer;
+}
+
+/* Adicionado para o filtro de status do processo */
+.filtro-status-processo {
+    border: 1px solid #ccc; /* ajuste a espessura, estilo e cor conforme necessário */
+}
+
+/* Adicionado para animação de piscar */
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Overlay de carregamento */
+#loading-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(5px);
+  display: none;       /* vai aparecer via JS */
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+#loading-overlay .loader {
+  font-size: 1.5rem;
+  color: var(--brand-primary);
+  font-weight: 600;
+}
+
+/* Estilos para a Modal e Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo semi-transparente */
+    backdrop-filter: blur(5px); /* Efeito de desfoque */
+    display: none; /* Começa oculto */
+    align-items: center;
+    justify-content: center;
+    z-index: 1001; /* Acima de outros elementos */
+    cursor: pointer; /* Indica que clicar fora fecha */
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    width: 98vw;
+    height: 95vh;
+    max-width: 1600px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    cursor: default;
+    /* Animação inicial */
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.4s cubic-bezier(.4,0,.2,1), transform 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+.modal-content.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.modal-content iframe {
+    flex-grow: 1; /* Ocupa o espaço disponível */
+    border: none;
+    width: 100%;
+    height: 100%;
+}
+
+/* Estilo para o ícone de link na tabela */
+.processo-link-icon {
+    margin-left: 5px; /* Espaço entre o número e o ícone */
+    cursor: pointer;
+    display: inline-block; /* Para aplicar margem */
+}
+
+.processo-link-icon,
+.processo-link-icon:hover {
+    cursor: pointer !important;
+}
+
+/* Estilo para o ícone de contrato na tabela */
+.contract-link-icon {
+    margin-left: 5px; /* Espaço entre o texto e o ícone */
+    cursor: pointer;
+    display: inline-block; /* Para aplicar margem */
+    color: #005fb8; /* Cor do ícone - usando a mesma cor primária do projeto */
+}
+
+.contract-link-icon:hover {
+    color: #003e7a; /* Cor mais escura ao passar o mouse */
+}
+
+/* Estilo para células de projeto clicáveis */
+td[data-contrato] {
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+td[data-contrato]:hover {
+    background-color: rgba(0, 95, 184, 0.1); /* Cor de destaque ao passar o mouse */
+}
+
+/* Estilos para a Caixa de Mensagem Informativa */
+.info-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Fundo um pouco mais claro que o principal */
+    display: none; /* Começa oculto */
+    align-items: center;
+    justify-content: center;
+    z-index: 1002; /* Acima da modal principal */
+}
+
+.info-message-box {
+    background-color: white;
+    padding: 25px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.info-message-box p {
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.info-message-box button {
+    padding: 8px 20px;
+    background-color: var(--brand-primary-medium);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.info-message-box button:hover {
+    background-color: var(--brand-primary-dark);
+}
+
+/* Botão de fechar */
+.close-button {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    background: #fff;
+    border: none;
+    font-size: 1.1rem;
+    color: #c00;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+    width: auto;
+    height: 40px;
+    min-width: 80px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.close-button span {
+    font-size: 1.3em;
+    line-height: 1;
+    display: inline-block;
+}
+.close-button:hover {
+    background: #ffeaea;
+    box-shadow: 0 4px 12px rgba(200,0,0,0.10);
+}
+
+/* Estilo para linhas pares e ímpares */
+tbody tr.row-even {
+    background-color: var(--brand-neutral);
+}
+
+tbody tr.row-odd {
+    background-color: #fff;
+}
+
+/* Estilos para os novos botões de filtro e o dropdown de filtro */
+.google-sheet-filter-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px; /* Adicionando bordas arredondadas */
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; /* Para ocupar o espaço da célula th */
+    box-sizing: border-box;
+    transition: background-color 0.2s, border-color 0.2s; /* Adicionando transição suave */
+}
+
+.google-sheet-filter-btn:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+.google-sheet-filter-btn .filter-icon {
+    margin-left: 5px;
+    font-size: 10px;
+}
+
+.google-sheet-filter-btn.filter-active {
+    background-color: #ffd09d;
+    border-color: #0067b8;
+    border-radius: 6px; /* Mantendo a mesma borda arredondada */
+    font-weight: bold;
+    color: #0067b8;
+    box-shadow: 0 0 0 2px rgba(0, 103, 184, 0.25); /* Adicionando um sutil brilho ao redor */
+}
+
+.google-sheet-filter-dropdown {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Adicionando bordas arredondadas */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    padding: 10px;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.google-sheet-filter-dropdown input[type="text"] {
+    width: calc(100% - 20px); /* Desconta padding */
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+.google-sheet-filter-dropdown label {
+    display: block;
+    padding: 5px 0;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.google-sheet-filter-dropdown label:hover {
+    background-color: #f0f0f0;
+}
+
+.google-sheet-filter-dropdown input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.google-sheet-filter-dropdown button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-top: 10px;
+    margin-right: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.google-sheet-filter-dropdown button:hover {
+    background-color: #0056b3;
+}
+
+.google-sheet-filter-dropdown button:last-child {
+    background-color: #6c757d;
+}
+
+.google-sheet-filter-dropdown button:last-child:hover {
+    background-color: #545b62;
+}
+
+/* Estilos para linhas par e ímpar */
+#detalhes table tbody tr.linha-par td {
+    background-color: #f9f9f9; /* Cor para linhas pares */
+}
+
+#detalhes table tbody tr.linha-impar td {
+    background-color: #ffffff; /* Cor para linhas ímpares */
+}

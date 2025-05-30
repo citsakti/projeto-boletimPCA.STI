@@ -1,0 +1,30 @@
+.area-sti-highlight {
+    background: #ffe5a0;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
+}
+.area-operacoes-highlight {
+    background: #bfe1f6;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
+}
+.area-dev-highlight {
+    background: #d4edbc;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
+}
+.area-analytics-highlight {
+    background: #ffc8aa;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
+}
+.area-governanca-highlight {
+    background: #e8eaed;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
+}
