@@ -111,7 +111,10 @@ const analyticData = {
  */
 function initAnalytics() {
     const overlay = document.getElementById('loading-overlay');
-    if (overlay) overlay.style.display = 'flex';
+    if (overlay) {
+        overlay.classList.remove('d-none');
+        overlay.classList.add('d-flex');
+    }
     
     fetchCSVData()
         .then(processData)
@@ -124,7 +127,8 @@ function initAnalytics() {
             // Ocultar overlay de carregamento
             if (overlay) {
                 setTimeout(() => {
-                    overlay.style.display = 'none';
+                    overlay.classList.remove('d-flex');
+                    overlay.classList.add('d-none');
                 }, 500);
             }
               // Adicionar os event listeners para expandir/contrair detalhes
@@ -146,10 +150,12 @@ function initAnalytics() {
             if (typeof window.setupAnalyticsTooltips === 'function') {
                 window.setupAnalyticsTooltips();
             }
-        })
-        .catch(err => {
+        })        .catch(err => {
             console.error('Erro ao processar dados analíticos:', err);
-            if (overlay) overlay.style.display = 'none';
+            if (overlay) {
+                overlay.classList.remove('d-flex');
+                overlay.classList.add('d-none');
+            }
             alert('Erro ao carregar dados analíticos. Por favor, tente novamente mais tarde.');
         });
 }

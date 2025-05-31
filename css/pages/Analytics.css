@@ -34,8 +34,7 @@
    ======================= */
 .analytics-subsection {
     margin-bottom: 1.5rem;
-    padding: 1rem;
-    background-color: rgba(44, 65, 122, 0.05);
+    padding: 1rem;    background-color: rgba(var(--brand-primary-rgb), 0.05);
     border-left: 4px solid var(--brand-primary);
     border-radius: 0 8px 8px 0;
 }
@@ -74,7 +73,7 @@
 
 .status-box.active {
     border-left: 4px solid var(--brand-primary);
-    background-color: rgba(44, 65, 122, 0.02);
+    background-color: rgba(var(--brand-primary-rgb), 0.02);
 }
 
 .status-name {
@@ -116,7 +115,7 @@
 
 .tipo-box.active {
     border-left: 4px solid var(--brand-primary);
-    background-color: rgba(44, 65, 122, 0.02);
+    background-color: rgba(var(--brand-primary-rgb), 0.02);
 }
 
 .tipo-name {
@@ -144,13 +143,13 @@
 .status-details-row .card,
 .tipo-details-row .card {
     border-left: 4px solid var(--brand-primary);
-    background-color: rgba(44, 65, 122, 0.02);
+    background-color: rgba(var(--brand-primary-rgb), 0.02);
 }
 
 .status-details-row.expanded .card,
 .tipo-details-row.expanded .card {
     border-left-width: 6px;
-    background-color: rgba(44, 65, 122, 0.05);
+    background-color: rgba(var(--brand-primary-rgb), 0.05);
 }
 
 /* =======================
@@ -287,7 +286,7 @@
 .detalhes-produtividade {
     margin-top: 1rem;
     padding: 1rem;
-    background-color: rgba(44, 65, 122, 0.05);
+    background-color: rgba(var(--brand-primary-rgb), 0.05);
     border-radius: 8px;
     border-left: 4px solid var(--brand-primary);
     overflow: hidden;
@@ -365,7 +364,7 @@
 }
 
 .expandable-row:hover {
-    background-color: rgba(44, 65, 122, 0.02);
+    background-color: rgba(var(--brand-primary-rgb), 0.02);
 }
 
 .project-details {
