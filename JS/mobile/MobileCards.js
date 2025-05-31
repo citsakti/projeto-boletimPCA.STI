@@ -352,10 +352,30 @@ class MobileCardsManager {
     }
     
     getAreaClass(area) {
-        if (area.toLowerCase().includes('sti')) return 'area-sti';
-        if (area.toLowerCase().includes('administrativa')) return 'area-administrativa';
-        if (area.toLowerCase().includes('judiciaria')) return 'area-judiciaria';
-        return 'area-geral';
+        // Mapeamento de nomes de áreas para classes CSS
+        // Mantendo consistência com AreasClasses.js e Areas.css
+        const areaMap = {
+            'STI 👩‍💼': 'area-sti',
+            'OPERAÇÕES 🗄️': 'area-operacoes',
+            'DEV 👨‍💻': 'area-dev',
+            'ANALYTICS 📊': 'area-analytics',
+            'GOVERNANÇA 🌐': 'area-governanca',
+        };
+
+        // Procurar por correspondência exata primeiro (incluindo emoji)
+        if (areaMap[area]) {
+            return areaMap[area];
+        }
+
+        // Fallback para correspondência parcial (sem emoji ou variações)
+        const areaLower = area.toLowerCase();
+        if (areaLower.includes('sti')) return 'area-sti';
+        if (areaLower.includes('operações') || areaLower.includes('operacoes')) return 'area-operacoes';
+        if (areaLower.includes('dev')) return 'area-dev';
+        if (areaLower.includes('analytics')) return 'area-analytics';
+        if (areaLower.includes('governança') || areaLower.includes('governanca')) return 'area-governanca';
+        
+        return 'area-geral'; // Classe padrão caso nenhuma corresponda
     }
     
     toggleFilters() {
