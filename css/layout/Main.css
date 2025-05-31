@@ -716,12 +716,12 @@ tbody tr.row-odd {
 }
 
 .google-sheet-filter-btn.filter-active {
-    background-color: #ffd09d;
-    border-color: #0067b8;
-    border-radius: 6px; /* Mantendo a mesma borda arredondada */
+    background-color: #ffe2bb !important; /* Laranja fraquinho */
+    border-color: #fa8c16 !important;
+    color: #b85c00 !important;
     font-weight: bold;
-    color: #0067b8;
-    box-shadow: 0 0 0 2px rgba(0, 103, 184, 0.25); /* Adicionando um sutil brilho ao redor */
+    box-shadow: 0 0 0 2px rgba(250, 140, 22, 0.10);
+    transition: background-color 0.2s, border-color 0.2s;
 }
 
 .google-sheet-filter-dropdown {

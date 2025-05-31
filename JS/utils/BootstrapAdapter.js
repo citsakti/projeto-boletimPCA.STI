@@ -40,49 +40,17 @@
                         }
                     }
                 };
-                setInterval(checkIframeSrc, 100);
-                
-                // Gerencia exibição do overlay
-                const originalStyleDisplay = Object.getOwnPropertyDescriptor(legacyModalOverlay.style, 'display') || 
-                    Object.getOwnPropertyDescriptor(CSSStyleDeclaration.prototype, 'display');
-                
-                Object.defineProperty(legacyModalOverlay.style, 'display', {
-                    set: function(value) {
-                        if (value === 'flex' || value === 'block') {
-                            legacyModalOverlay.style.setProperty('display', 'flex', 'important');
-                            const modalContent = legacyModalOverlay.querySelector('.modal-content');
-                            if (modalContent) {
-                                setTimeout(() => {
-                                    modalContent.classList.add('show');
-                                }, 10);
-                            }
-                            document.body.style.overflow = 'hidden';
-                        } else if (value === 'none') {
-                            const modalContent = legacyModalOverlay.querySelector('.modal-content');
-                            if (modalContent) {
-                                modalContent.classList.remove('show');
-                                setTimeout(() => {
-                                    legacyModalOverlay.style.setProperty('display', 'none');
-                                    document.body.style.overflow = '';
-                                }, 300);
-                            } else {
-                                legacyModalOverlay.style.setProperty('display', 'none');
-                                document.body.style.overflow = '';
-                            }
-                        } else {
-                            originalStyleDisplay.set.call(this, value);
-                        }
-                    },
-                    get: function() {
-                        return legacyModalOverlay.style.getPropertyValue('display') || 'none';
-                    }
-                });
+                // Removido setInterval para evitar possíveis conflitos ou chamadas excessivas.
+                // A sincronização de iframes, se ainda necessária, pode precisar de um gatilho mais explícito.
+                // setInterval(checkIframeSrc, 100);
             }
             
             // Adapta o botão de fechar
             const legacyCloseBtn = document.getElementById('close-modal-btn');
             const legacyCloseBtnLegacy = document.getElementById('close-modal-btn-legacy');
             
+            // Os listeners abaixo também foram removidos pois o ModalManager.js já trata o fechamento.
+            /*
             if (legacyCloseBtn && legacyModalOverlay) {
                 legacyCloseBtn.addEventListener('click', function() {
                     const modalContent = legacyModalOverlay.querySelector('.modal-content');
@@ -110,8 +78,8 @@
                     }
                 });
             }
-            
-            // Fecha modal ao clicar fora
+
+            // Fecha modal ao clicar fora - REMOVIDO
             if (legacyModalOverlay) {
                 legacyModalOverlay.addEventListener('click', function(event) {
                     if (event.target === legacyModalOverlay) {
@@ -128,7 +96,7 @@
                 });
             }
             
-            // Fecha modal com ESC
+            // Fecha modal com ESC - REMOVIDO
             document.addEventListener('keydown', function(event) {
                 if (event.key === 'Escape' && legacyModalOverlay && legacyModalOverlay.style.display === 'flex') {
                     const modalContent = legacyModalOverlay.querySelector('.modal-content');
@@ -140,7 +108,9 @@
                             if (legacyIframe) legacyIframe.src = 'about:blank';
                         }, 300);
                     }
-                }            });
+                }            
+            });
+            */
         }
         
         // Função para adaptar notificações de atualização

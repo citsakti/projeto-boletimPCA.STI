@@ -142,6 +142,10 @@ class ModalManager {
             console.error(`ModalManager: Elemento overlay '${config.overlay}' não encontrado`);
             return false;
         }
+
+        // Resetar estilos do overlay ANTES de exibi-lo e antes de configurar o conteúdo
+        overlay.style.opacity = ''; // Garante que a opacidade padrão (1) seja aplicada
+        overlay.style.pointerEvents = ''; // Garante que o overlay seja clicável se necessário (para fechar ao clicar fora)
         
         // Configura conteúdo específico do modal
         this.configureModalContent(modalId, config, options);
@@ -150,13 +154,13 @@ class ModalManager {
         overlay.style.zIndex = this.calculateZIndex(modalId);
         
         // Exibe o modal
-        overlay.style.display = 'flex';
+        overlay.style.display = 'flex'; // Define display para flex para torná-lo visível
         
         // Adiciona à pilha de modais ativos
         this.activeModals.add(modalId);
         this.modalStack.push(modalId);
         
-        // Aplica animação se disponível
+        // Aplica animação se disponível (isso adicionará a classe 'show' ao conteúdo)
         this.applyModalAnimation(modalId, config, 'open');
         
         // Bloqueia scroll da página para modais não-loading
@@ -300,36 +304,38 @@ class ModalManager {
     applyModalAnimation(modalId, config, action) {
         return new Promise((resolve) => {
             const overlay = document.getElementById(config.overlay);
+            if (!overlay) {
+                console.error(`ModalManager: Overlay '${config.overlay}' não encontrado para animação.`);
+                resolve();
+                return;
+            }
             const content = overlay.querySelector(config.content);
-            
+
             if (action === 'open') {
                 if (content && content.classList) {
-                    content.classList.remove('show');
-                    // Força reflow
-                    void content.offsetWidth;
+                    content.classList.remove('show'); // Garante que está sem 'show' antes de forçar reflow
+                    void content.offsetWidth; // Força reflow
                     setTimeout(() => {
-                        content.classList.add('show');
+                        content.classList.add('show'); // Adiciona 'show' para animar o conteúdo
                         resolve();
-                    }, 10);
+                    }, 10); // Pequeno delay para garantir que a transição CSS seja aplicada
                 } else {
-                    resolve();
+                    resolve(); // Resolve mesmo se não houver conteúdo para animar
                 }
             } else if (action === 'close') {
                 if (content && content.classList) {
-                    content.classList.remove('show');
-                    
-                    // Aplica efeito de fade-out no overlay
-                    overlay.style.opacity = '0';
-                    overlay.style.pointerEvents = 'none';
-                    
-                    setTimeout(() => {
-                        resolve();
-                    }, 400);
-                } else {
-                    resolve();
+                    content.classList.remove('show'); // Anima o conteúdo para fora
                 }
+                // Anima o overlay para fora (opacidade) e desabilita interações
+                // A transição de opacidade deve estar definida no CSS do overlay
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+
+                setTimeout(() => {
+                    resolve(); // Resolve após a duração da animação CSS do overlay
+                }, 400); // Deve corresponder à duração da transição CSS do overlay (geralmente 0.4s)
             } else {
-                resolve();
+                resolve(); // Ação desconhecida
             }
         });
     }
@@ -338,12 +344,9 @@ class ModalManager {
      * Finaliza o fechamento do modal
      */
     finalizeModalClose(modalId, config, overlay) {
-        // Oculta o overlay
+        // Apenas oculta o overlay. Opacidade e pointerEvents já foram tratados
+        // pela applyModalAnimation e serão resetados na próxima abertura.
         overlay.style.display = 'none';
-        
-        // Restaura propriedades
-        overlay.style.opacity = '';
-        overlay.style.pointerEvents = '';
         
         // Limpa iframes se necessário
         if (config.type === 'iframe') {

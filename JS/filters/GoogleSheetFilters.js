@@ -163,25 +163,44 @@ function initializeClearFiltersButton() {
 
 // Função nomeada para o handler para poder removê-la corretamente.
 function handleFilterButtonClick(event) {
-    const columnIndex = event.currentTarget.dataset.colIndex;
-    openFilterDropdown(event.currentTarget, columnIndex);
+    const button = event.currentTarget;
+    const columnIndex = button.dataset.colIndex;
+    const dropdownSelectorForThisColumn = `.google-sheet-filter-dropdown[data-col-index="${columnIndex}"]`;
+
+    // Verifica se o dropdown específico desta coluna estava aberto ANTES de fechar tudo
+    const wasThisColumnDropdownOpen = !!document.querySelector(dropdownSelectorForThisColumn);
+
+    // Sempre tenta fechar qualquer dropdown aberto primeiro.
+    // Se o dropdown desta coluna estava aberto, ele será fechado aqui.
+    // Se um dropdown de outra coluna estava aberto, ele também será fechado aqui.
+    closeAllFilterDropdowns();
+
+    // Se o dropdown desta coluna NÃO estava aberto antes de chamarmos closeAllFilterDropdowns,
+    // então queremos abri-lo agora.
+    if (!wasThisColumnDropdownOpen) {
+        openFilterDropdown(button, columnIndex);
+    }
 }
 
 function openFilterDropdown(button, columnIndex) {
     // Fecha outros dropdowns abertos ANTES de criar o novo
     closeAllFilterDropdowns();
-    
-    // Fecha também dropdowns mobile se abertos
     if (typeof closeMobileFilterDropdowns === 'function') {
         closeMobileFilterDropdowns();
+    }
+
+    // Garante que não existam múltiplos dropdowns para a mesma coluna
+    const existingDropdown = document.querySelector(`.google-sheet-filter-dropdown[data-col-index="${columnIndex}"]`);
+    if (existingDropdown) {
+        existingDropdown.remove();
     }
 
     const dropdown = document.createElement('div');
     dropdown.classList.add('google-sheet-filter-dropdown');
     dropdown.style.position = 'absolute';
     dropdown.style.zIndex = '1000';
-    // Armazenar o índice da coluna como atributo do dropdown
-    dropdown.dataset.columnIndex = columnIndex;
+    // Garante o atributo data-col-index
+    dropdown.setAttribute('data-col-index', columnIndex);
 
     const rect = button.getBoundingClientRect();
     dropdown.style.top = `${rect.bottom + window.scrollY}px`;
