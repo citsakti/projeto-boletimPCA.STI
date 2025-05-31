@@ -68,14 +68,34 @@ class PainelResumoCollapsible {
             if (e.key === 'Escape' && this.isExpanded) {
                 this.collapse();
             }
-        });
-    }
+        });    }
     
     toggle() {
+        // Força uma verificação do estado atual antes do toggle
+        this.refreshState();
+        
         if (this.isExpanded) {
             this.collapse();
         } else {
             this.expand();
+        }
+        
+        // Salva o novo estado
+        this.saveState();
+    }
+    
+    refreshState() {
+        // Verifica o estado atual baseado nas classes CSS
+        if (this.container) {
+            const hasExpandedClass = this.container.classList.contains('expanded');
+            const hasCollapsedClass = this.container.classList.contains('collapsed');
+            
+            // Se há inconsistência, força o estado baseado na classe expanded
+            if (hasExpandedClass && !this.isExpanded) {
+                this.isExpanded = true;
+            } else if (hasCollapsedClass && this.isExpanded) {
+                this.isExpanded = false;
+            }
         }
     }
       expand() {
@@ -116,17 +136,19 @@ class PainelResumoCollapsible {
         setTimeout(() => {
             element.classList.remove('header-click-effect');
         }, 300);
-    }      applyState(animate = true) {
+    }    applyState(animate = true) {
         if (!this.container || !this.toggleBtn) return;
         
-        // Não remove transições - deixa o CSS controlar sempre
-        // Isso elimina o piscar causado pela remoção/reaplicação de transições
+        // Remove classes conflitantes antes de aplicar o novo estado
+        this.container.classList.remove('expanded', 'collapsed');
+        this.toggleBtn.classList.remove('collapsed');
+        
+        // Força um reflow para garantir que as classes foram removidas
+        this.container.offsetHeight;
         
         if (this.isExpanded) {
             // Estado expandido
-            this.container.classList.remove('collapsed');
             this.container.classList.add('expanded');
-            this.toggleBtn.classList.remove('collapsed');
             this.toggleBtn.title = 'Ocultar Painel de Resumos';
             
             // Atualiza seta para apontar para cima
@@ -139,7 +161,6 @@ class PainelResumoCollapsible {
             }
         } else {
             // Estado recolhido
-            this.container.classList.remove('expanded');
             this.container.classList.add('collapsed');
             this.toggleBtn.classList.add('collapsed');
             this.toggleBtn.title = 'Mostrar Painel de Resumos';

@@ -47,11 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const tooltip = document.createElement('div');
     tooltip.className = 'status-tooltip'; // Reutilize a classe CSS existente
     document.body.appendChild(tooltip);
-    
-    // Referências aos elementos do modal (assumindo que existem em DadosAnaliticos.html)
+      // Referências aos elementos do modal (assumindo que existem em DadosAnaliticos.html)
     const modalOverlay = document.getElementById('processo-modal-overlay');
     const modalContent = modalOverlay ? modalOverlay.querySelector('.modal-content') : null;
-    const modalIframe = document.getElementById('processo-iframe');
+    const modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
     const closeModalBtn = document.getElementById('close-modal-btn');
 
     /**
@@ -94,8 +93,13 @@ document.addEventListener('DOMContentLoaded', function() {
             window.open(fallbackContractUrl, '_blank');
             return;
         }
+          const contractUrl = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
         
-        const contractUrl = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
+        // Sincronizar com o iframe Bootstrap se existir
+        const bootstrapIframe = document.getElementById('processo-iframe');
+        if (bootstrapIframe) {
+            bootstrapIframe.src = contractUrl;
+        }
         
         modalIframe.src = contractUrl;
         modalOverlay.style.display = 'flex';
@@ -105,18 +109,30 @@ document.addEventListener('DOMContentLoaded', function() {
         modalContent.classList.add('show');
         
         document.body.style.overflow = 'hidden';
-    }
-
-    /**
+    }    /**
      * Fecha o modal com animação
      * Limpa o iframe para economizar recursos
-     */
+     */    
     function closeAnalyticsModal() {
         if (modalOverlay && modalContent && modalIframe) {
             modalContent.classList.remove('show');
+            
+            // Otimização: esconder o overlay imediatamente para melhor UX
+            modalOverlay.style.opacity = '0';
+            modalOverlay.style.pointerEvents = 'none';
+            
             setTimeout(() => {
                 modalOverlay.style.display = 'none';
-                modalIframe.src = 'about:blank'; // Limpa o iframe
+                // Restaurar propriedades para próxima abertura
+                modalOverlay.style.opacity = '';
+                modalOverlay.style.pointerEvents = '';
+                
+                modalIframe.src = 'about:blank'; // Limpa o iframe legacy
+                // Limpar também o iframe Bootstrap se existir
+                const bootstrapIframe = document.getElementById('processo-iframe');
+                if (bootstrapIframe) {
+                    bootstrapIframe.src = 'about:blank';
+                }
             }, 400); // Tempo da transição CSS (ajuste se necessário)
             document.body.style.overflow = ''; // Restaura a rolagem da página
         }

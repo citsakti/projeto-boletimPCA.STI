@@ -277,19 +277,19 @@
     text-align: right;
     word-break: break-word;
   }
-  tbody td[data-label="Tipo"],
-  tbody td[data-label="Processo"] {
+  tbody td[data-label="Tipo"],  tbody td[data-label="Processo"] {
     white-space: nowrap !important;
   }
 
-  /* Adicionado para garantir que o conteúdo DENTRO de span/div também não quebre em "Tipo" e "Processo" nos cards */
-  tbody td[data-label="Tipo"] > span,
-  tbody td[data-label="Tipo"] > div,
-  tbody td[data-label="Processo"] > span,
-  tbody td[data-label="Processo"] > div {
-    white-space: nowrap !important; /* Reforça a não quebra de linha */
-    word-break: normal !important;   /* Sobrescreve o 'break-word' que pode estar causando a quebra */
-    display: inline; /* Garante que o elemento flua como texto e respeite o nowrap */
+  /* Impedir quebra de linha na coluna "Status do Processo" no mobile */
+  tbody td[data-label="Status do Processo"] {
+    white-space: nowrap !important;
+  }
+
+  tbody td[data-label="Status do Processo"] > span,
+  tbody td[data-label="Status do Processo"] > div {
+    white-space: nowrap !important;
+    display: inline-block; /* Mantém o texto em linha única */
   }
 
   /* Estiliza o conteúdo de "Projeto de Aquisição" no mobile */
@@ -350,12 +350,23 @@
   header h1 {
     font-size: clamp(1rem, 4vw, 1.5rem);
     margin: 0;
-  }
-  tbody td[data-label="Processo"] {
+  }  tbody td[data-label="Processo"] {
     white-space: nowrap;
   }
-  tbody td[data-label="Tipo"],
-  tbody td[data-label="Processo"] {
+  /* Impedir quebra de linha na coluna "Status do Processo" no mobile */
+  tbody td[data-label="Status do Processo"] {
+    white-space: nowrap !important;
+  }
+
+  tbody td[data-label="Status do Processo"] > span,
+  tbody td[data-label="Status do Processo"] > div {
+    white-space: nowrap !important;
+    display: inline-block; /* Mantém o texto em linha única */
+  }
+
+  /* Centralizar datas na coluna "Contratar Até" no mobile */
+  tbody td[data-label="Contratar Até"] {
+    text-align: center !important;
     white-space: nowrap !important;
   }
 }

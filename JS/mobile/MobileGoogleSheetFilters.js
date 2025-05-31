@@ -102,13 +102,19 @@ function createMobileFilterButton(filterId, config) {
 
 // Abre o dropdown de filtro mobile (idêntico ao sistema web)
 function openMobileFilterDropdown(button, columnIndex) {
+    // Fecha outros dropdowns mobile abertos ANTES de criar o novo
     closeMobileFilterDropdowns();
+    
+    // Fecha também dropdowns desktop se abertos
+    if (typeof closeAllFilterDropdowns === 'function') {
+        closeAllFilterDropdowns();
+    }
     
     const dropdown = document.createElement('div');
     dropdown.classList.add('mobile-google-sheet-filter-dropdown');
     dropdown.style.position = 'fixed';
     dropdown.style.zIndex = '1000';
-    dropdown.dataset.columnIndex = columnIndex;    // Posicionamento responsivo
+    dropdown.dataset.columnIndex = columnIndex;// Posicionamento responsivo
     const rect = button.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
@@ -378,8 +384,11 @@ function updateMobileSelectAllState(dropdown) {
 
 // Fecha todos os dropdowns de filtro mobile
 function closeMobileFilterDropdowns() {
+    // Remove todos os dropdowns mobile existentes
     const dropdowns = document.querySelectorAll('.mobile-google-sheet-filter-dropdown');
     dropdowns.forEach(dropdown => dropdown.remove());
+    
+    // Remove event listener de clique externo
     document.removeEventListener('click', handleMobileClickOutsideDropdown, true);
 }
 

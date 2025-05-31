@@ -30,17 +30,19 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const btnFonteDeDados = document.getElementById('btnFonteDeDados');
-
-    // Reutiliza os elementos do modal existentes definidos em btnPCAPublicada.js ou no HTML
+    const btnFonteDeDados = document.getElementById('btnFonteDeDados');    // Reutiliza os elementos do modal existentes definidos em btnPCAPublicada.js ou no HTML
     const modalOverlay = document.getElementById('processo-modal-overlay');
-    const iframe = document.getElementById('processo-iframe');
+    const iframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
     const modalContent = document.querySelector('.modal-content'); // Usado para a animação 'show'
 
-    const fonteDeDadosUrl = 'https://docs.google.com/spreadsheets/d/1ZYquCMfNlBvYYoZ3uxZrW2Vewejcet43FeD3HBh8oLM/edit?usp=sharing';
-
-    function openFonteDeDadosModal() {
+    const fonteDeDadosUrl = 'https://docs.google.com/spreadsheets/d/1ZYquCMfNlBvYYoZ3uxZrW2Vewejcet43FeD3HBh8oLM/edit?usp=sharing';    function openFonteDeDadosModal() {
         if (iframe && modalOverlay && modalContent) {
+            // Sincronizar com o iframe Bootstrap se existir
+            const bootstrapIframe = document.getElementById('processo-iframe');
+            if (bootstrapIframe) {
+                bootstrapIframe.src = fonteDeDadosUrl;
+            }
+            
             iframe.src = fonteDeDadosUrl;
             modalOverlay.style.display = 'flex';
             // Adiciona a classe 'show' para a animação de entrada

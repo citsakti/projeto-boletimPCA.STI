@@ -339,24 +339,52 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(err => {
         if (overlay) overlay.style.display = 'none'; // Esconde o overlay mesmo em caso de erro
         console.error('Erro ao carregar dados:', err);
-      });
-
-    // Modal de processo
+      });    // Modal de processo
     const modalOverlay = document.getElementById('processo-modal-overlay');
-    const modalContent = modalOverlay.querySelector('.modal-content');
-    const modalIframe = document.getElementById('processo-iframe');
-    const tableBody = document.querySelector('#detalhes table tbody');
-
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    if (closeModalBtn && modalOverlay) {
-        closeModalBtn.addEventListener('click', function() {
+    const modalContent = modalOverlay ? modalOverlay.querySelector('.modal-content') : null;
+    const modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
+    const tableBody = document.querySelector('#detalhes table tbody');    // Função centralizada para fechar modal
+    function closeModals() {
+        if (modalContent) {
             modalContent.classList.remove('show');
-            setTimeout(() => {
+        }
+        
+        // Otimização: esconder o overlay imediatamente para melhor UX
+        if (modalOverlay) {
+            modalOverlay.style.opacity = '0';
+            modalOverlay.style.pointerEvents = 'none';
+        }
+        
+        setTimeout(() => {
+            if (modalOverlay) {
                 modalOverlay.style.display = 'none';
+                // Restaurar propriedades para próxima abertura
+                modalOverlay.style.opacity = '';
+                modalOverlay.style.pointerEvents = '';
+            }
+            if (modalIframe) {
                 modalIframe.src = 'about:blank';
-            }, 400);
-        });
+                // Limpar também o iframe Bootstrap se existir
+                const bootstrapIframe = document.getElementById('processo-iframe');
+                if (bootstrapIframe) {
+                    bootstrapIframe.src = 'about:blank';
+                }
+            }
+            // Restaurar rolagem da página
+            document.body.style.overflow = '';
+        }, 400);
     }
+
+    // Event listeners para botões de fechar - usando delegação de eventos
+    document.addEventListener('click', function(event) {
+        if (event.target.id === 'close-modal-btn' || 
+            event.target.id === 'close-modal-btn-legacy' ||
+            event.target.classList.contains('btn-close')) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeModals();
+        }
+    });
 
     if (tableBody && modalOverlay && modalIframe) {
         tableBody.addEventListener('click', function(event) {
@@ -391,19 +419,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     modalOverlay.style.display = 'flex';
                     modalContent.classList.remove('show');
                     void modalContent.offsetWidth;
-                    modalContent.classList.add('show');
-                }
+                    modalContent.classList.add('show');                }
             }
         });
-
-        // Função para fechar a modal
-        function closeModals() {
-            modalContent.classList.remove('show');
-            setTimeout(() => {
-                modalOverlay.style.display = 'none';
-                modalIframe.src = 'about:blank';
-            }, 400);
-        }
 
         // Fecha TUDO ao clicar fora da modal principal
         modalOverlay.addEventListener('click', function(event) {

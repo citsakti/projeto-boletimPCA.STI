@@ -168,7 +168,13 @@ function handleFilterButtonClick(event) {
 }
 
 function openFilterDropdown(button, columnIndex) {
-    closeAllFilterDropdowns(); // Fecha outros dropdowns abertos
+    // Fecha outros dropdowns abertos ANTES de criar o novo
+    closeAllFilterDropdowns();
+    
+    // Fecha também dropdowns mobile se abertos
+    if (typeof closeMobileFilterDropdowns === 'function') {
+        closeMobileFilterDropdowns();
+    }
 
     const dropdown = document.createElement('div');
     dropdown.classList.add('google-sheet-filter-dropdown');
@@ -560,14 +566,19 @@ function masterFilterFunction() {
 
 
 function closeAllFilterDropdowns() {
+    // Remove todos os dropdowns existentes
     const dropdowns = document.querySelectorAll('.google-sheet-filter-dropdown');
     dropdowns.forEach(dropdown => dropdown.remove());
+    
+    // Remove event listener de clique externo
     document.removeEventListener('click', handleClickOutsideDropdown, true);
 }
 
 function handleClickOutsideDropdown(event) {
     const dropdown = document.querySelector('.google-sheet-filter-dropdown');
-    if (dropdown && !dropdown.contains(event.target) && !event.target.classList.contains('google-sheet-filter-btn') && !event.target.closest('.google-sheet-filter-btn')) {
+    if (dropdown && !dropdown.contains(event.target) && 
+        !event.target.classList.contains('google-sheet-filter-btn') && 
+        !event.target.closest('.google-sheet-filter-btn')) {
         closeAllFilterDropdowns();
     }
 }

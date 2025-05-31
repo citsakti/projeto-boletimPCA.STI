@@ -33,18 +33,22 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Referência ao botão PCA Publicada
     const btnPCAPublicada = document.getElementById('btnPCAPublicada');
-    
-    // Referências aos elementos do modal
+      // Referências aos elementos do modal
     const modalOverlay = document.getElementById('processo-modal-overlay');
-    const iframe = document.getElementById('processo-iframe');
+    const iframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
     const closeButton = document.getElementById('close-modal-btn');
     const modalContent = document.querySelector('.modal-content');
     
     // URL do documento PCA 2025
     const pcaUrl = 'https://www.tce.ce.gov.br/component/jdownloads/send/324-plano-de-contratacoes-anual-2025/4631-pca-2025-1-revisao';
-    
-    // Função para abrir o modal
+      // Função para abrir o modal
     function openPCAModal() {
+        // Sincronizar com o iframe Bootstrap se existir
+        const bootstrapIframe = document.getElementById('processo-iframe');
+        if (bootstrapIframe) {
+            bootstrapIframe.src = pcaUrl;
+        }
+        
         // Define a URL no iframe
         iframe.src = pcaUrl;
         
@@ -58,18 +62,30 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Previne rolagem da página de fundo
         document.body.style.overflow = 'hidden';
-    }
-    
-    // Função para fechar o modal
+    }    // Função para fechar o modal
     function closePCAModal() {
         // Remove a classe de animação
         modalContent.classList.remove('show');
         
+        // Otimização: esconder o overlay imediatamente para melhor UX
+        if (modalOverlay) {
+            modalOverlay.style.opacity = '0';
+            modalOverlay.style.pointerEvents = 'none';
+        }
+        
         // Atraso para ocultar o modal após a animação
         setTimeout(() => {
             modalOverlay.style.display = 'none';
-            // Limpa o iframe para evitar problemas de desempenho
+            // Restaurar propriedades para próxima abertura
+            modalOverlay.style.opacity = '';
+            modalOverlay.style.pointerEvents = '';
+            
+            // Limpa ambos os iframes para evitar problemas de desempenho
             iframe.src = 'about:blank';
+            const bootstrapIframe = document.getElementById('processo-iframe');
+            if (bootstrapIframe) {
+                bootstrapIframe.src = 'about:blank';
+            }
         }, 400); // Tempo da transição definida no CSS
         
         // Restaura a rolagem da página

@@ -1,26 +1,190 @@
-/* css/tokens.css */
+/* Design Tokens - Projeto Boletim PCA STI 2025 */
+/* Definições centralizadas de design system */
+
 :root {
-    /* cores da marca */
+    /* ===== CORES DA MARCA ===== */
     --brand-primary: #2c417a;
+    --brand-primary-light: #4a6fd4;
     --brand-primary-medium: #003e8a;
+    --brand-primary-dark: #1a2c54;
     --brand-secondary: #FFC72C;
+    --brand-secondary-light: #ffd56b;
+    --brand-secondary-dark: #e6b329;
     --brand-neutral: #f5f6f7;
+    --brand-neutral-light: #ffffff;
+    --brand-neutral-dark: #e9ecef;
 
-    /* tipografia */
-    --font-primary: 'Inter', Arial, sans-serif;
+    /* ===== CORES DE STATUS ===== */
+    --status-success: #28a745;
+    --status-warning: #ffc107;
+    --status-danger: #dc3545;
+    --status-info: #17a2b8;
+    --status-light: #f8f9fa;
+    --status-dark: #343a40;
+
+    /* ===== CORES DE ÁREA ===== */
+    --area-sti: #007bff;
+    --area-administrativa: #28a745;
+    --area-juridica: #dc3545;
+    --area-financeira: #ffc107;
+
+    /* ===== CORES DE ORÇAMENTO ===== */
+    --orcamento-baixo: #28a745;
+    --orcamento-medio: #ffc107;
+    --orcamento-alto: #fd7e14;
+    --orcamento-muito-alto: #dc3545;
+
+    /* ===== TIPOGRAFIA ===== */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    --font-secondary: Georgia, 'Times New Roman', serif;
+    --font-mono: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    
+    /* Tamanhos de fonte */
+    --font-size-xs: 0.75rem;    /* 12px */
+    --font-size-sm: 0.875rem;   /* 14px */
+    --font-size-base: 1rem;     /* 16px */
+    --font-size-lg: 1.125rem;   /* 18px */
+    --font-size-xl: 1.25rem;    /* 20px */
+    --font-size-2xl: 1.5rem;    /* 24px */
+    --font-size-3xl: 1.875rem;  /* 30px */
+    --font-size-4xl: 2.25rem;   /* 36px */
+    
+    /* Pesos de fonte */
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    
+    /* Altura de linha */
+    --line-height-tight: 1.25;
+    --line-height-snug: 1.375;
     --line-height-base: 1.5;
+    --line-height-relaxed: 1.625;
+    --line-height-loose: 2;
 
-    /* espaçamentos */
-    --space-1: .25rem;
-    --space-2: .5rem;
-    --space-3: 1rem;
+    /* ===== ESPAÇAMENTOS ===== */
+    --space-0: 0;
+    --space-1: 0.25rem;   /* 4px */
+    --space-2: 0.5rem;    /* 8px */
+    --space-3: 0.75rem;   /* 12px */
+    --space-4: 1rem;      /* 16px */
+    --space-5: 1.25rem;   /* 20px */
+    --space-6: 1.5rem;    /* 24px */
+    --space-8: 2rem;      /* 32px */
+    --space-10: 2.5rem;   /* 40px */
+    --space-12: 3rem;     /* 48px */
+    --space-16: 4rem;     /* 64px */
+    --space-20: 5rem;     /* 80px */
+    --space-24: 6rem;     /* 96px */
 
-    /* raios de borda */
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 12px;
+    /* ===== RAIOS DE BORDA ===== */
+    --radius-none: 0;
+    --radius-sm: 0.25rem;     /* 4px */
+    --radius-md: 0.375rem;    /* 6px */
+    --radius-lg: 0.5rem;      /* 8px */
+    --radius-xl: 0.75rem;     /* 12px */
+    --radius-2xl: 1rem;       /* 16px */
+    --radius-3xl: 1.5rem;     /* 24px */
+    --radius-full: 9999px;
 
-    /* sombras */
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+    /* ===== SOMBRAS ===== */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+    /* ===== LARGURAS MÁXIMAS ===== */
+    --max-width-xs: 20rem;     /* 320px */
+    --max-width-sm: 24rem;     /* 384px */
+    --max-width-md: 28rem;     /* 448px */
+    --max-width-lg: 32rem;     /* 512px */
+    --max-width-xl: 36rem;     /* 576px */
+    --max-width-2xl: 42rem;    /* 672px */
+    --max-width-3xl: 48rem;    /* 768px */
+    --max-width-4xl: 56rem;    /* 896px */
+    --max-width-5xl: 64rem;    /* 1024px */
+    --max-width-6xl: 72rem;    /* 1152px */
+    --max-width-7xl: 80rem;    /* 1280px */
+    --max-width-full: 100%;
+
+    /* ===== BREAKPOINTS ===== */
+    --breakpoint-xs: 480px;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --breakpoint-2xl: 1400px;
+
+    /* ===== Z-INDEX ===== */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-toast: 1080;
+
+    /* ===== TRANSIÇÕES ===== */
+    --transition-fast: 150ms ease-in-out;
+    --transition-base: 300ms ease-in-out;
+    --transition-slow: 500ms ease-in-out;
+    --transition-bounce: 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* ===== OPACIDADES ===== */
+    --opacity-0: 0;
+    --opacity-25: 0.25;
+    --opacity-50: 0.5;
+    --opacity-75: 0.75;
+    --opacity-100: 1;
+
+    /* ===== BORDAS ===== */
+    --border-width-0: 0;
+    --border-width-1: 1px;
+    --border-width-2: 2px;
+    --border-width-4: 4px;
+    --border-width-8: 8px;
+
+    /* ===== CORES DE TEXTO ===== */
+    --text-primary: #2c417a;
+    --text-secondary: #6c757d;
+    --text-muted: #9ca3af;
+    --text-inverse: #ffffff;
+    --text-success: #155724;
+    --text-danger: #721c24;
+    --text-warning: #856404;
+    --text-info: #0c5460;
+
+    /* ===== CORES DE FUNDO ===== */
+    --bg-primary: #2c417a;
+    --bg-secondary: #FFC72C;
+    --bg-light: #f8f9fa;
+    --bg-dark: #343a40;
+    --bg-white: #ffffff;
+    --bg-transparent: transparent;
+
+    /* ===== FILTROS E EFEITOS ===== */
+    --blur-sm: blur(4px);
+    --blur-md: blur(8px);
+    --blur-lg: blur(16px);
+    --blur-xl: blur(24px);
+    
+    --brightness-50: brightness(0.5);
+    --brightness-75: brightness(0.75);
+    --brightness-90: brightness(0.9);
+    --brightness-100: brightness(1);
+    --brightness-110: brightness(1.1);
+    --brightness-125: brightness(1.25);
+    --brightness-150: brightness(1.5);
+
+    /* ===== ANIMAÇÕES ===== */
+    --animate-spin: spin 1s linear infinite;
+    --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+    --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    --animate-bounce: bounce 1s infinite;
 }

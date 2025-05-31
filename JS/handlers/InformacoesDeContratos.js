@@ -34,11 +34,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const tooltip = document.createElement('div');
     tooltip.className = 'status-tooltip';
     document.body.appendChild(tooltip);
-    
-    // Referências aos elementos do modal (reutilizando o modal existente)
+      // Referências aos elementos do modal (reutilizando o modal existente)
     const modalOverlay = document.getElementById('processo-modal-overlay');
     const modalContent = modalOverlay.querySelector('.modal-content');
-    const modalIframe = document.getElementById('processo-iframe');
+    const modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
     
     // Adicionar eventos após o carregamento da tabela
     document.addEventListener('tabela-carregada', setupTooltips);
@@ -104,9 +103,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Construir a URL com o número de registro (não com o número do contrato)
         const contractUrl = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
-        
-        // Configurar e abrir o modal
+          // Configurar e abrir o modal
         if (modalIframe && modalOverlay && modalContent) {
+            // Sincronizar com o iframe Bootstrap se existir
+            const bootstrapIframe = document.getElementById('processo-iframe');
+            if (bootstrapIframe) {
+                bootstrapIframe.src = contractUrl;
+            }
+            
             modalIframe.src = contractUrl;
             modalOverlay.style.display = 'flex';
             

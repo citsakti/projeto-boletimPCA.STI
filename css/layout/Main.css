@@ -108,8 +108,9 @@ table {
     margin-top: var(--space-3);
     background: #fff;
     border-radius: var(--radius-md);
-    overflow: visible;   /* permite que o popup “saia” da célula */
+    overflow: visible;   /* permite que o popup "saia" da célula */
     box-shadow: var(--shadow-sm);
+    table-layout: auto; /* Permite que as colunas se ajustem automaticamente ao conteúdo */
 }
 
 /* Cabeçalho fixo */
@@ -175,10 +176,43 @@ table td:nth-child(7) {
     white-space: nowrap;
 }
 
-/* Adicionado para a coluna "Contratar Até" (6ª coluna) */
+/* Corrigido: Aplicar nowrap e centralização na coluna "Contratar Até" (7ª coluna) */
+table th:nth-child(7),
+table td:nth-child(7) {
+    white-space: nowrap;
+}
+
+/* Configuração específica para a coluna "Status do Processo" (6ª coluna) */
 table th:nth-child(6),
 table td:nth-child(6) {
-    white-space: nowrap;
+    white-space: nowrap !important; /* Impede quebra de linha */
+    overflow: visible; /* Garante que o conteúdo seja visível */
+    padding: 8px; /* Adiciona padding para melhor espaçamento */
+    min-width: max-content; /* Garante que a célula se expanda para acomodar o conteúdo */
+    width: auto; /* Permite que a largura se ajuste automaticamente */
+}
+
+/* Garante que todos os elementos dentro da coluna Status do Processo também não quebrem */
+table th:nth-child(6) *,
+table td:nth-child(6) *,
+table td:nth-child(6) span,
+table td:nth-child(6) div {
+    white-space: nowrap !important;
+    max-width: none !important; /* Remove qualquer limitação de largura máxima */
+}
+
+/* Configuração adicional para garantir que a tabela permita expansão das células */
+table {
+    table-layout: auto !important; /* Força layout automático */
+    width: 100%;
+}
+
+/* Remove larguras fixas que possam estar limitando a coluna Status do Processo */
+table th:nth-child(6),
+table td:nth-child(6) {
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
 }
 
 /* Adicionado para a coluna "Valor PCA" (8ª coluna) */
@@ -269,22 +303,22 @@ table tbody tr.contratacao-atrasada {
     color: #fff;
     border-radius: 6px;
     padding: 2px 6px;
-    display: ruby;
+    display: inline-block;
     animation: blink 1s linear infinite;
-    white-space: nowrap; /* Impede quebra de linha */
+    white-space: nowrap; /* Impede quebra de linha e empurra a célula */
 }
-.status-aguardando-dfd-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:ruby; }
-.status-etp-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-elaborando-tr-highlight         { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-aguardando-definicao-highlight  { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-analise-viabilidade-highlight   { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-em-contratacao-highlight        { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; }
-.status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; }
-.status-renovado-highlight              { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-contratado-highlight            { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; }
-.status-revisao-pca-highlight           { background: #000000; border-radius:6px; padding:2px 6px; display:inline-block; color:#ffe5a0; }
+.status-aguardando-dfd-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-etp-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-elaborando-tr-highlight         { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-aguardando-definicao-highlight  { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-analise-viabilidade-highlight   { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-em-contratacao-highlight        { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
+.status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
+.status-renovado-highlight              { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-contratado-highlight            { background: #d4edbc; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-revisao-pca-highlight           { background: #000000; border-radius:6px; padding:2px 6px; display:inline-block; color:#ffe5a0; white-space: normal; }
 .status-a-iniciar-highlight             { background: #e6e6e6; border-radius:6px; padding:2px 6px; display:inline-block; color:#000000; white-space: nowrap; }
 
 /* Badges de status */
@@ -509,9 +543,10 @@ input[type="checkbox"]:hover {
     padding: 20px;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
-    width: 98vw;
-    height: 95vh;
-    max-width: 1600px;
+    width: 90% !important;
+    height: 90% !important;
+    max-width: none !important;
+    max-height: none !important;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -753,4 +788,30 @@ tbody tr.row-odd {
 
 #detalhes table tbody tr.linha-impar td {
     background-color: #ffffff; /* Cor para linhas ímpares */
+}
+
+/* Estilos específicos para modais Bootstrap com 90% da página */
+.modal-dialog.modal-xl {
+    max-width: 90% !important;
+    width: 90% !important;
+    height: 90% !important;
+    margin: 5% auto !important;
+}
+
+.modal-dialog.modal-xl .modal-content {
+    width: 100% !important;
+    height: 90vh !important;
+    max-width: none !important;
+    max-height: none !important;
+}
+
+.modal-dialog.modal-xl .modal-body {
+    height: calc(90vh - 80px) !important; /* Subtrai altura do header */
+    padding: 0 !important;
+}
+
+.modal-dialog.modal-xl .modal-body iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
 }
