@@ -90,7 +90,7 @@
     // Ordem conforme a tabela HTML e a solicitação do usuário
     const columnHeaders = [
         "ID PCA", "Área", "Tipo", "Projeto de Aquisição",
-        "Status Início", "Status do Processo", "Contratar Até",
+        "Status", "Status do Processo", "Contratar Até",
         "Valor PCA", "Orçamento", "Processo"
     ];
     // Índices correspondentes no array da linha do CSV (row[i])
