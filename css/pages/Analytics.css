@@ -369,62 +369,85 @@
    ======================= */
 .produtividade-box {
     background-color: var(--brand-neutral-light);
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     margin-bottom: 1rem;
-    width: 80%;
     margin-left: auto;
     margin-right: auto;
     transition: all 0.3s ease;
     position: relative;
+    width: 100%;
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, 
+        rgba(var(--brand-primary-rgb), 0.02) 0%, 
+        rgba(255, 255, 255, 0.95) 50%, 
+        rgba(var(--brand-secondary-rgb), 0.02) 100%);
+}
+
+/* Variações de destaque para diferentes boxes */
+.produtividade-box:nth-child(1) {
+    border-left: 5px solid #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+    background: linear-gradient(135deg, 
+        rgba(0, 123, 255, 0.03) 0%, 
+        rgba(255, 255, 255, 0.95) 50%, 
+        rgba(0, 123, 255, 0.02) 100%);
+}
+
+.produtividade-box:nth-child(2) {
+    border-left: 5px solid #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+    background: linear-gradient(135deg, 
+        rgba(40, 167, 69, 0.03) 0%, 
+        rgba(255, 255, 255, 0.95) 50%, 
+        rgba(40, 167, 69, 0.02) 100%);
 }
 
 .produtividade-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.produtividade-box:nth-child(1):hover {
+    box-shadow: 0 8px 24px rgba(0, 123, 255, 0.25);
+    border-left-color: #0056b3;
+    background: linear-gradient(135deg, 
+        rgba(0, 123, 255, 0.05) 0%, 
+        rgba(255, 255, 255, 0.95) 50%, 
+        rgba(0, 123, 255, 0.03) 100%);
+}
+
+.produtividade-box:nth-child(2):hover {
+    box-shadow: 0 8px 24px rgba(0, 123, 255, 0.25);
+    border-left-color: #0056b3;
+    background: linear-gradient(135deg, 
+        rgba(40, 167, 69, 0.05) 0%, 
+        rgba(255, 255, 255, 0.95) 50%, 
+        rgba(40, 167, 69, 0.03) 100%);
 }
 
 .produtividade-box.expanded {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    transform: translateY(-4px);
-    z-index: 2;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+    transform: scale(1.02);
+    z-index: 10;
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: none;
+    margin: 1rem auto 2rem auto;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border-width: 3px;
 }
 
-.produtividade-box h3 {
-    color: var(--brand-primary);
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--brand-primary);
+.produtividade-box:nth-child(1).expanded {
+    box-shadow: 0 16px 48px rgba(0, 123, 255, 0.2);
+    border-left-width: 8px;
 }
 
-.produtividade-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+.produtividade-box:nth-child(2).expanded {
+    box-shadow: 0 16px 48px rgba(40, 167, 69, 0.2);
+    border-left-width: 8px;
 }
-
-.detalhes-produtividade {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: rgba(var(--brand-primary-rgb), 0.05);
-    border-radius: 8px;
-    border-left: 4px solid var(--brand-primary);
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-    transition: max-height 0.6s ease, opacity 0.4s ease;
-}
-
-.detalhes-produtividade.expanded {
-    max-height: 1500px;
-    opacity: 1;
-}
-
-/* =======================
-   SEÇÃO: Produtividade Melhorada
-   ======================= */
 
 /* Container geral da seção produtividade */
 .analytics-subsection .tipo-grid {
@@ -432,63 +455,77 @@
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1rem;
     margin-top: 1rem;
-    max-width: 900px;
+    max-width: 100%;
+    width: 90%;
     margin-left: auto;
     margin-right: auto;
+    /* Permitir que os cards se reorganizem quando expandidos */
+    grid-auto-flow: row;
+    /* Adicionar padding superior para evitar sobreposição */
+    padding-top: 0.5rem;
 }
 
-/* Cards de produtividade modernizados */
-.produtividade-box {
-    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
-    border-radius: 12px;
-    padding: 1.25rem;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(var(--brand-primary-rgb), 0.1);
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 0;
+/* Ajustar o grid quando há cards expandidos */
+.analytics-subsection .tipo-grid:has(.produtividade-box.expanded) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 100%;
+    width: 90%;
+    /* Manter espaçamento superior adequado */
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+/* Cards não expandidos quando há um card expandido */
+.analytics-subsection .tipo-grid:has(.produtividade-box.expanded) .produtividade-box:not(.expanded) {
     width: 100%;
-    margin-left: 0;
-    margin-right: 0;
+    max-width: none;
+    margin: 0 auto;
+    /* Garantir que não tenham transformação negativa */
+    transform: none;
 }
 
-.produtividade-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
-    border-radius: 12px 12px 0 0;
-}
-
-.produtividade-box:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    border-color: rgba(var(--brand-primary-rgb), 0.2);
-}
-
-.produtividade-box.expanded {
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-    transform: translateY(-6px) scale(1.02);
-    z-index: 10;
-}
-
-/* Títulos dos cards */
+/* Títulos dos cards com cores diferenciadas */
 .produtividade-box h3 {
     color: var(--brand-primary);
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 700;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 3px solid transparent;
-    background: var(--brand-primary);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.produtividade-box:nth-child(1) h3 {
+    color: #007bff;
+}
+
+.produtividade-box:nth-child(1) h3::before {
+    content: '2025.1';
+    background: #007bff;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.produtividade-box:nth-child(2) h3 {
+    color: #007bff;
+}
+
+.produtividade-box:nth-child(2) h3::before {
+    content: '2025.2';
+    background: #007bff;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
 .produtividade-box h3::after {
@@ -496,16 +533,18 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 40px;
+    width: 60px;
     height: 2px;
-    background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
     border-radius: 2px;
     animation: expandWidth 0.8s ease-out forwards;
 }
 
-@keyframes expandWidth {
-    from { width: 0; }
-    to { width: 40px; }
+.produtividade-box:nth-child(1) h3::after {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+.produtividade-box:nth-child(2) h3::after {
+    background: linear-gradient(90deg, #007bff, #0056b3);
 }
 
 /* Seção de tipos (Aquisição/Renovação) */
@@ -869,6 +908,10 @@
     opacity: 0;
     transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     position: relative;
+    /* Garantir que a tabela use toda a largura disponível */
+    width: 100%;
+    /* Adicionar margem superior para separar do conteúdo acima */
+    margin-top: 1.5rem;
 }
 
 .detalhes-produtividade::before {
@@ -886,6 +929,8 @@
     opacity: 1;
     border-color: rgba(var(--brand-primary-rgb), 0.2);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    /* Garantir que ocupe toda a largura quando expandido */
+    width: 100%;
 }
 
 .detalhes-produtividade h4 {
@@ -897,6 +942,17 @@
     border-bottom: 2px solid rgba(var(--brand-primary-rgb), 0.1);
 }
 
+/* Garantir que a tabela de detalhes use toda a largura */
+.detalhes-produtividade .project-details {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.detalhes-produtividade .project-details-table {
+    width: 100%;
+    min-width: 800px; /* Largura mínima para manter a tabela legível */
+}
+
 /* =======================
    SEÇÃO: Responsividade Mobile
    ======================= */
@@ -905,94 +961,60 @@
         grid-template-columns: 1fr;
         gap: 0.875rem;
         max-width: 100%;
+        /* Manter padding em mobile */
+        padding-top: 0.5rem;
     }
     
-    .tipo-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .status-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .area-projects-grid {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .area-box {
-        min-width: 100%;
-        padding: 1rem;
-    }
-    
-    .area-header {
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-    }
-    
-    .area-metrics {
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .area-metric-item {
-        padding: 0.5rem;
-    }
-    
-    .metric-icon {
-        font-size: 1.25rem;
-        margin-right: 0.5rem;
-        min-width: 1.5rem;
-    }
-    
-    .metric-label {
-        font-size: 0.85rem;
-    }
-    
-    .metric-value {
-        font-size: 1.1rem;
-    }
-    
-    .area-metric-total .metric-value {
-        font-size: 1.25rem;
-    }
-    
-    .produtividade-box {
+    /* Em mobile, os cards expandidos ocupam 95% da largura */
+    .produtividade-box.expanded {
         width: 95%;
-        padding: 1rem;
+        /* Manter margem superior em mobile */
+        margin: 1rem auto 1.5rem auto;
+        /* Remover transformação que pode causar sobreposição */
+        transform: none;
     }
     
-    .analytics-subsection {
-        padding: 0.75rem;
+    /* Simplificar o layout em mobile */
+    .analytics-subsection .tipo-grid:has(.produtividade-box.expanded) {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        max-width: 100%;
+        /* Manter espaçamento em mobile */
+        padding-top: 1rem;
+        margin-top: 0.5rem;
     }
     
-    .status-expand-btn,
-    .tipo-expand-btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
+    .analytics-subsection .tipo-grid:has(.produtividade-box.expanded) .produtividade-box:not(.expanded) {
+        width: 95%;
+        margin: 0 auto;
+        transform: none;
     }
     
-    .prod-expand-btn {
-        min-width: 180px;
-        padding: 0.625rem 0.875rem;
-        font-size: 0.8rem;
-        white-space: normal;
-        word-wrap: break-word;
-        line-height: 1.3;
-    }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
     .analytics-subsection .tipo-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         max-width: 800px;
+        /* Manter padding em tablets */
+        padding-top: 0.75rem;
     }
     
-    .prod-expand-btn {
-        min-width: 190px;
-        font-size: 0.8rem;
+    /* Em tablets, os cards expandidos ocupam 92% da largura */
+    .produtividade-box.expanded {
+        width: 92%;
+        /* Ajustar margem em tablets */
+        margin: 1rem auto 2rem auto;
+        transform: scale(1.01);
     }
+    
+    .analytics-subsection .tipo-grid:has(.produtividade-box.expanded) .produtividade-box:not(.expanded) {
+        width: 90%;
+        transform: none;
+    }
+    
 }
 
 /* =======================
