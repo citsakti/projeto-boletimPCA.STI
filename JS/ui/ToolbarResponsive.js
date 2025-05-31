@@ -164,14 +164,16 @@ class ToolbarResponsive {
     removeHoverEffect(button) {
         button.style.removeProperty('--hover-scale');
     }
-    
-    /**
+      /**
      * Melhora os botões para diferentes breakpoints
      */
     adjustButtonsForBreakpoint() {
         this.buttons.forEach(button => {
             const textElements = button.querySelectorAll('.btn-text');
             const icon = button.querySelector('i');
+            
+            // Remove estilos anteriores
+            button.classList.remove('auto-resize');
             
             switch (this.currentBreakpoint) {
                 case 'mobile-small':
@@ -187,44 +189,63 @@ class ToolbarResponsive {
                     this.optimizeForDesktop(button, textElements, icon);
                     break;
             }
+            
+            // Verifica se precisa de redimensionamento automático
+            this.checkButtonFit(button);
         });
     }
-    
-    /**
+      /**
      * Otimização para mobile pequeno
      */
     optimizeForMobileSmall(button, textElements, icon) {
-        // Texto ultra-compacto
+        // Garante que textos apareçam
         textElements.forEach(text => {
-            text.style.fontSize = '0.65rem';
-            text.style.lineHeight = '1.1';
+            text.style.display = 'inline';
+            text.style.fontSize = 'clamp(0.6rem, 2.5vw, 0.7rem)';
+            text.style.lineHeight = '1.2';
+            text.style.whiteSpace = 'nowrap';
+            text.style.overflow = 'hidden';
+            text.style.textOverflow = 'ellipsis';
         });
         
-        // Ícone menor
+        // Ícone responsivo
         if (icon) {
-            icon.style.fontSize = '0.85rem';
-            icon.style.marginRight = '0.125rem';
+            icon.style.fontSize = 'clamp(0.8rem, 3vw, 1rem)';
+            icon.style.marginRight = 'clamp(0.125rem, 1vw, 0.25rem)';
+            icon.style.flexShrink = '0';
         }
         
         // Padding compacto
-        button.style.padding = '0.5rem 0.375rem';
+        button.style.padding = '0.625rem 0.5rem';
+        button.style.whiteSpace = 'nowrap';
+        button.style.display = 'flex';
+        button.style.alignItems = 'center';
+        button.style.justifyContent = 'center';
     }
-    
-    /**
+      /**
      * Otimização para mobile
      */
     optimizeForMobile(button, textElements, icon) {
         textElements.forEach(text => {
-            text.style.fontSize = '0.7rem';
+            text.style.display = 'inline';
+            text.style.fontSize = 'clamp(0.65rem, 2.8vw, 0.75rem)';
             text.style.lineHeight = '1.2';
+            text.style.whiteSpace = 'nowrap';
+            text.style.overflow = 'hidden';
+            text.style.textOverflow = 'ellipsis';
         });
         
         if (icon) {
-            icon.style.fontSize = '0.9rem';
-            icon.style.marginRight = '0.25rem';
+            icon.style.fontSize = 'clamp(0.85rem, 3.2vw, 1rem)';
+            icon.style.marginRight = 'clamp(0.2rem, 1.2vw, 0.3rem)';
+            icon.style.flexShrink = '0';
         }
         
-        button.style.padding = '0.5rem 0.5rem';
+        button.style.padding = '0.5rem 0.75rem';
+        button.style.whiteSpace = 'nowrap';
+        button.style.display = 'flex';
+        button.style.alignItems = 'center';
+        button.style.justifyContent = 'center';
     }
     
     /**
@@ -279,8 +300,7 @@ class ToolbarResponsive {
             });
         }
     }
-    
-    /**
+      /**
      * Melhora os botões com funcionalidades extras
      */
     enhanceButtons() {
@@ -296,6 +316,15 @@ class ToolbarResponsive {
                 button.setAttribute('role', 'button');
             }
             
+            // Garante que textos ocultos sejam mostrados em mobile
+            const hiddenTexts = button.querySelectorAll('.d-none.d-md-inline');
+            if (hiddenTexts.length > 0) {
+                hiddenTexts.forEach(text => {
+                    // Adiciona classe para controle responsivo
+                    text.classList.add('responsive-text');
+                });
+            }
+            
             // Melhora a navegação por teclado
             button.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -305,8 +334,7 @@ class ToolbarResponsive {
             });
         });
     }
-    
-    /**
+      /**
      * Verifica se há overflow na toolbar
      */
     checkOverflow() {
@@ -327,6 +355,68 @@ class ToolbarResponsive {
         }
         
         return hasOverflow;
+    }
+    
+    /**
+     * Verifica se o conteúdo do botão cabe corretamente
+     */
+    checkButtonFit(button) {
+        const icon = button.querySelector('i');
+        const textElements = button.querySelectorAll('.btn-text');
+        
+        // Temporariamente remove limitações para medir conteúdo real
+        const originalStyles = {
+            whiteSpace: button.style.whiteSpace,
+            overflow: button.style.overflow
+        };
+        
+        button.style.whiteSpace = 'nowrap';
+        button.style.overflow = 'visible';
+        
+        const buttonRect = button.getBoundingClientRect();
+        const buttonWidth = buttonRect.width;
+        const buttonHeight = buttonRect.height;
+        
+        // Restaura estilos
+        button.style.whiteSpace = originalStyles.whiteSpace;
+        button.style.overflow = originalStyles.overflow;
+        
+        // Se o conteúdo estiver sendo cortado, aplica redimensionamento automático
+        const scrollWidth = button.scrollWidth;
+        const scrollHeight = button.scrollHeight;
+        
+        if (scrollWidth > buttonWidth || scrollHeight > buttonHeight) {
+            button.classList.add('auto-resize');
+            this.applyAutoResize(button, icon, textElements);
+        }
+    }
+    
+    /**
+     * Aplica redimensionamento automático ao botão
+     */
+    applyAutoResize(button, icon, textElements) {
+        const availableWidth = button.getBoundingClientRect().width;
+        const padding = 32; // Estimativa do padding total
+        const availableContentWidth = availableWidth - padding;
+        
+        // Calcula tamanhos proporcionais
+        const baseIconSize = 16;
+        const baseTextSize = 14;
+        const iconMargin = 8;
+        
+        // Se não há espaço suficiente, reduz proporcionalmente
+        if (availableContentWidth < 80) {
+            const scaleFactor = Math.max(0.6, availableContentWidth / 80);
+            
+            if (icon) {
+                icon.style.fontSize = `${baseIconSize * scaleFactor}px`;
+                icon.style.marginRight = `${iconMargin * scaleFactor}px`;
+            }
+            
+            textElements.forEach(text => {
+                text.style.fontSize = `${baseTextSize * scaleFactor}px`;
+            });
+        }
     }
     
     /**
