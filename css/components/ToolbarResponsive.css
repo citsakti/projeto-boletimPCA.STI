@@ -849,3 +849,37 @@
         -moz-osx-font-smoothing: grayscale;
     }
 }
+
+/* =======================
+   SEÇÃO: Centralização de linhas extras quando há wrap
+   ======================= */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .toolbar {
+        flex-wrap: wrap;
+        width: 100%;
+        align-items: center;
+        align-content: center;
+    }
+    .btn-group-responsive {
+        width: 100%;
+        justify-content: center !important;
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 0.5rem;
+    }
+    .btn-group-responsive:last-child {
+        margin-bottom: 0;
+    }
+    .btn-toolbar {
+        margin: 0.25rem 0.5rem;
+    }
+}
+
+/* Classe utilitária para centralizar linhas extras via JS, se necessário */
+.toolbar.flex-wrap-center {
+    justify-content: center !important;
+    align-content: center !important;
+}
+.btn-group-responsive.flex-wrap-center {
+    justify-content: center !important;
+}
