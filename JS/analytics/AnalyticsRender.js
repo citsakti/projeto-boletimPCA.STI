@@ -699,14 +699,43 @@ function renderAreaProjectsHtml() {
         const areaCount = analyticData.areaCounts[area];
         boxesHtml += `
             <div class="area-box">
-                <div class="area-name">${formatAreaWithClasses(area)}</div>
-                <div class="area-tipo">
-                    <span>🛒 Aquisição: ${areaCount['🛒 Aquisição']}</span>
-                    <span>🔄 Renovação: ${areaCount['🔄 Renovação']}</span>
-                    <span><strong>Total: ${areaCount.total}</strong></span>
-                </div>                <div class="area-actions">
-                    <button class="btn btn-outline-primary btn-sm area-expand-btn" data-area="${area}">Detalhar <span class="expand-icon">▼</span></button>
+                <div class="area-header">
+                    <div class="area-name">${formatAreaWithClasses(area)}</div>
                 </div>
+                
+                <div class="area-metrics">
+                    <div class="area-metric-item area-metric-aquisicao">
+                        <div class="metric-icon">🛒</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Aquisição</div>
+                            <div class="metric-value">${areaCount['🛒 Aquisição']}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="area-metric-item area-metric-renovacao">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Renovação</div>
+                            <div class="metric-value">${areaCount['🔄 Renovação']}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="area-metric-item area-metric-total">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Total</div>
+                            <div class="metric-value">${areaCount.total}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="area-actions">
+                    <button class="btn btn-outline-primary btn-sm area-expand-btn" data-area="${area}">
+                        <i class="bi bi-search me-1"></i>Detalhar 
+                        <span class="expand-icon">▼</span>
+                    </button>
+                </div>
+                
                 <div class="area-details" id="area-details-${area.replace(/\s+/g, '-')}" style="display:none;">
                     <div class="project-details">
                         ${renderAreaDetails(area)}

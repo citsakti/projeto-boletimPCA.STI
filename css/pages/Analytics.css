@@ -202,18 +202,20 @@
 
 .area-box {
     background: var(--brand-neutral-light);
-    border-radius: 8px;
-    padding: 1.25rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     position: relative;
     transition: all 0.3s ease;
     flex: 1;
-    min-width: 250px;
+    min-width: 280px;
+    border: 1px solid rgba(var(--brand-primary-rgb), 0.1);
 }
 
 .area-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    border-color: rgba(var(--brand-primary-rgb), 0.2);
 }
 
 .area-box.expanded {
@@ -221,10 +223,130 @@
     z-index: 5;
 }
 
+.area-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(var(--brand-primary-rgb), 0.1);
+}
+
 .area-name {
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
     color: var(--brand-primary);
+    text-align: center;
+}
+
+/* Métricas de Área */
+.area-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.area-metric-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.area-metric-item:hover {
+    transform: translateX(2px);
+    background-color: rgba(var(--brand-primary-rgb), 0.03);
+}
+
+/* Estilos específicos por tipo de métrica */
+.area-metric-aquisicao {
+    background-color: rgba(40, 167, 69, 0.08);
+    border-left-color: #28a745;
+}
+
+.area-metric-aquisicao:hover {
+    background-color: rgba(40, 167, 69, 0.12);
+}
+
+.area-metric-renovacao {
+    background-color: rgba(255, 193, 7, 0.08);
+    border-left-color: #ffc107;
+}
+
+.area-metric-renovacao:hover {
+    background-color: rgba(255, 193, 7, 0.12);
+}
+
+.area-metric-total {
+    background-color: rgba(var(--brand-primary-rgb), 0.08);
+    border-left-color: var(--brand-primary);
+    font-weight: 600;
+}
+
+.area-metric-total:hover {
+    background-color: rgba(var(--brand-primary-rgb), 0.12);
+}
+
+.metric-icon {
+    font-size: 1.5rem;
+    margin-right: 0.75rem;
+    min-width: 2rem;
+    text-align: center;
+}
+
+.metric-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.metric-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--brand-primary);
+}
+
+.area-metric-total .metric-label {
+    font-weight: 600;
+    color: var(--brand-primary);
+}
+
+.area-metric-total .metric-value {
+    font-size: 1.4rem;
+    color: var(--brand-primary);
+}
+
+/* Ações da Área */
+.area-actions {
+    text-align: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(var(--brand-primary-rgb), 0.1);
+}
+
+.area-actions .btn {
+    width: 100%;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.area-actions .btn:hover {
+    transform: translateY(-1px);
+}
+
+.expand-icon {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.area-expand-btn.active .expand-icon {
+    transform: rotate(180deg);
 }
 
 .area-details {
@@ -315,10 +437,44 @@
     
     .area-projects-grid {
         flex-direction: column;
+        gap: 1rem;
     }
     
     .area-box {
         min-width: 100%;
+        padding: 1rem;
+    }
+    
+    .area-header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+    }
+    
+    .area-metrics {
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .area-metric-item {
+        padding: 0.5rem;
+    }
+    
+    .metric-icon {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+        min-width: 1.5rem;
+    }
+    
+    .metric-label {
+        font-size: 0.85rem;
+    }
+    
+    .metric-value {
+        font-size: 1.1rem;
+    }
+    
+    .area-metric-total .metric-value {
+        font-size: 1.25rem;
     }
     
     .produtividade-box {
