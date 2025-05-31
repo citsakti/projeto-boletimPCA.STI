@@ -221,9 +221,8 @@ function renderOrcamentoSection() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
+                                            </td>                                        </tr>
+                                        <tr class="table-warning">
                                             <td><strong>Total GERAL no CUSTEIO (Aquisição + Renovação)</strong></td>
                                             <td><strong>R$ ${formatCurrency(analyticData.valorTotal.custoAquisicao + analyticData.valorTotal.custoRenovacao)}</strong></td>
                                             <td></td>
@@ -250,9 +249,8 @@ function renderOrcamentoSection() {
                                                 <div class="project-details">
                                                     ${renderProjectDetails('investimentoRenovacao')}
                                                 </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
+                                            </td>                                        </tr>
+                                        <tr class="table-warning">
                                             <td><strong>Total GERAL no INVESTIMENTO (Aquisição + Renovação)</strong></td>
                                             <td><strong>R$ ${formatCurrency(analyticData.valorTotal.investimentoAquisicao + analyticData.valorTotal.investimentoRenovacao)}</strong></td>
                                             <td></td>
