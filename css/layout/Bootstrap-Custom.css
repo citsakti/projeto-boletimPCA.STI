@@ -1216,7 +1216,7 @@ header h1 {
 /* ===== DARK MODE PREPARATION ===== */
 /* Preparação para modo escuro futuro - atualizado para usar #2c417a */
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     :root {
         --brand-primary: #2c417a;
         --brand-primary-medium: #2c417a;
@@ -1240,7 +1240,7 @@ header h1 {
     .table-striped tbody tr:nth-of-type(odd) {
         background-color: rgba(255, 255, 255, 0.05);
     }
-}
+} */
 
 /* ===== COMPONENTES ESPECIAIS DO PROJETO ===== */
 
