@@ -31,12 +31,10 @@
     --orcamento-baixo: #28a745;
     --orcamento-medio: #ffc107;
     --orcamento-alto: #fd7e14;
-    --orcamento-muito-alto: #dc3545;
-
-    /* ===== TIPOGRAFIA ===== */
-    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-    --font-secondary: Georgia, 'Times New Roman', serif;
-    --font-mono: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    --orcamento-muito-alto: #dc3545;    /* ===== TIPOGRAFIA ===== */
+    --font-primary: 'Calibri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    --font-secondary: 'Calibri', Georgia, 'Times New Roman', serif;
+    --font-mono: 'Calibri', 'Fira Code', 'Monaco', 'Consolas', monospace;
     
     /* Tamanhos de fonte */
     --font-size-xs: 0.75rem;    /* 12px */

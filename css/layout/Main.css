@@ -1,5 +1,9 @@
-/* Importa fontes e tokens */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+/* Importa apenas os tokens, sem fontes externas */
+
+/* Aplicação global da fonte Calibri */
+*, *::before, *::after {
+    font-family: 'Calibri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+}
 
 /* Reset e base */
 body {

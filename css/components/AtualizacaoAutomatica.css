@@ -26,7 +26,7 @@
     overflow-y: auto; /* Rolagem vertical se o conteúdo for grande */
     text-align: left;
     color: #333333; /* Cor do texto principal */
-    font-family: 'Inter', sans-serif; /* Fonte padrão do projeto */
+    font-family: 'Calibri', sans-serif; /* Fonte padrão do projeto */
 }
 
 .update-notification-content h3 {
