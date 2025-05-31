@@ -680,12 +680,15 @@ function renderProdutividadeDetalhada() {
                                 <span class="tipo-value">${produtividade2025_1.total}</span>
                             </div>
                         </div>
-                        
-                        <div class="produtividade-percentual">
+                          <div class="produtividade-percentual">
                             <h4>Produtividade em %</h4>
                             <div class="percentual-item">
                                 <span class="percentual-label">Total de Processos Autuados</span>
                                 <span class="percentual-value">${produtividade2025_1.projetosAutuados}</span>
+                            </div>
+                            <div class="percentual-item">
+                                <span class="percentual-label">Total de Processos Não Autuados</span>
+                                <span class="percentual-value">${produtividade2025_1.projetosNaoAutuadosArray.length}</span>
                             </div>
                             <div class="percentual-item">
                                 <span class="percentual-label">Porcentagem de Conclusão para 2025.1 até Agora</span>
@@ -736,12 +739,15 @@ function renderProdutividadeDetalhada() {
                                 <span class="tipo-value">${produtividade2025_2.total}</span>
                             </div>
                         </div>
-                        
-                        <div class="produtividade-percentual">
+                          <div class="produtividade-percentual">
                             <h4>Produtividade em %</h4>
                             <div class="percentual-item">
                                 <span class="percentual-label">Total de Processos Autuados</span>
                                 <span class="percentual-value">${produtividade2025_2.projetosAutuados}</span>
+                            </div>
+                            <div class="percentual-item">
+                                <span class="percentual-label">Total de Processos Não Autuados</span>
+                                <span class="percentual-value">${produtividade2025_2.projetosNaoAutuadosArray.length}</span>
                             </div>
                             <div class="percentual-item">
                                 <span class="percentual-label">Porcentagem de Conclusão para 2025.2 até Agora</span>
