@@ -273,11 +273,31 @@ header h1 {
         height: 35px !important;
     }
     
+    /* Toolbar específico para mobile */
     .toolbar .btn {
         flex: 1;
         min-width: auto;
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        margin: 0.125rem;
+    }
+    
+    /* Botões da toolbar com texto responsivo */
+    .toolbar .btn .btn-text {
+        font-size: 0.7rem;
+        line-height: 1.2;
+    }
+    
+    /* Ícones da toolbar */
+    .toolbar .btn i {
         font-size: 0.9rem;
-        padding: 0.5rem;
+        margin-right: 0.25rem;
+    }
+    
+    /* Grupos de botões em mobile */
+    .btn-group-responsive {
+        justify-content: center;
+        gap: 0.25rem;
     }
 }
 

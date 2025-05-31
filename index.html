@@ -21,8 +21,8 @@
     <link rel="stylesheet" href="./css/layout/Tokens.css">
     <link rel="preload" href="./css/layout/Main.css" as="style">
     <link rel="stylesheet" href="./css/layout/Main.css">
-    <link rel="stylesheet" href="./css/layout/Bootstrap-Custom.css">
-      <!-- Componentes -->    <link rel="stylesheet" href="./css/components/HeaderResponsive.css">
+    <link rel="stylesheet" href="./css/layout/Bootstrap-Custom.css">      <!-- Componentes -->    <link rel="stylesheet" href="./css/components/HeaderResponsive.css">
+    <link rel="stylesheet" href="./css/components/ToolbarResponsive.css">
     <link rel="stylesheet" href="./css/components/Emojis.css">
     <link rel="stylesheet" href="./css/components/Areas.css">
     <link rel="stylesheet" href="./css/components/Orcamento.css">
@@ -38,11 +38,10 @@
     <script src="./JS/utils/StatusClasses.js" defer></script>
     <script src="./JS/utils/AreasClasses.js" defer></script>
     <script src="./JS/utils/OrcamentoClasses.js" defer></script>
-    <script src="./JS/utils/BootstrapAdapter.js" defer></script>
-
-    <!-- UI Components -->
+    <script src="./JS/utils/BootstrapAdapter.js" defer></script>    <!-- UI Components -->
     <script src="./JS/ui/PainelDeResumos.js" defer></script>
     <script src="./JS/ui/PainelResumoCollapsible.js" defer></script>
+    <script src="./JS/ui/ToolbarResponsive.js" defer></script>
     <script src="./JS/ui/PrintFunction.js" defer></script>
     <script src="./JS/ui/btnCancelados.js" defer></script>
     <script src="./JS/ui/btnPCAPublicada.js" defer></script>
@@ -114,35 +113,50 @@
         </div>
     </div>
     
-    <div class="linha-decorativa"></div>
-    <!-- Toolbar para botões -->
+    <div class="linha-decorativa"></div>    <!-- Toolbar para botões -->
     <div class="row mb-3">
         <div class="col-12">
-            <div id="toolbar" class="d-flex flex-wrap gap-2 toolbar">
-                <button class="btn btn-info" id="btnFonteDeDados">
-                    <i class="bi bi-graph-up me-1"></i>Fonte de Dados
-                </button>
-                <button class="btn btn-primary btn-relatorio-analitico" id="btnRelatorioAnalitico">
-                    <i class="bi bi-bar-chart me-1"></i>RELATÓRIO ANALÍTICO
-                </button>
-                <button class="btn btn-secondary btn-expand-cards mobile-only d-md-none" id="btnExpandCards" style="display: none;">
-                    <i class="bi bi-list me-1"></i>Expandir Todos
-                </button>
-                <button class="btn btn-success btn-pca-publicada" id="btnPCAPublicada">
-                    <i class="bi bi-link me-1"></i>PCA Publicada
-                </button>
-                <button class="btn btn-warning btn-limpar-filtros" id="btnToggleCancelados">
-                    <i class="bi bi-x-circle me-1"></i>Ocultar Cancelados
-                </button>
-                <button class="btn btn-outline-danger btn-limpar-filtros" id="btnLimparFiltros">
-                    <i class="bi bi-trash me-1"></i>Limpar Filtros
-                </button>
-                <button class="btn btn-outline-dark btn-print" id="btnPrint">
-                    <i class="bi bi-printer me-1"></i>Imprimir
-                </button>
+            <div id="toolbar" class="d-flex flex-wrap gap-2 toolbar justify-content-start justify-content-md-center justify-content-lg-start">
+                <!-- Grupo principal de botões -->
+                <div class="btn-group-responsive d-flex flex-wrap gap-2 mb-2 mb-md-0">
+                    <button class="btn btn-info btn-toolbar" id="btnFonteDeDados">
+                        <i class="bi bi-graph-up me-1"></i>
+                        <span class="btn-text">Fonte de Dados</span>
+                    </button>
+                    <button class="btn btn-primary btn-relatorio-analitico btn-toolbar" id="btnRelatorioAnalitico">
+                        <i class="bi bi-bar-chart me-1"></i>
+                        <span class="btn-text">RELATÓRIO ANALÍTICO</span>
+                    </button>
+                    <button class="btn btn-success btn-pca-publicada btn-toolbar" id="btnPCAPublicada">
+                        <i class="bi bi-link me-1"></i>
+                        <span class="btn-text">PCA Publicada</span>
+                    </button>
+                </div>
+                
+                <!-- Grupo secundário de botões -->
+                <div class="btn-group-responsive d-flex flex-wrap gap-2">
+                    <button class="btn btn-secondary btn-expand-cards mobile-only d-md-none btn-toolbar" id="btnExpandCards" style="display: none;">
+                        <i class="bi bi-list me-1"></i>
+                        <span class="btn-text">Expandir Todos</span>
+                    </button>
+                    <button class="btn btn-warning btn-limpar-filtros btn-toolbar" id="btnToggleCancelados">
+                        <i class="bi bi-x-circle me-1"></i>
+                        <span class="btn-text d-none d-sm-inline">Ocultar Cancelados</span>
+                        <span class="btn-text d-sm-none">Cancelados</span>
+                    </button>
+                    <button class="btn btn-outline-danger btn-limpar-filtros btn-toolbar" id="btnLimparFiltros">
+                        <i class="bi bi-trash me-1"></i>
+                        <span class="btn-text d-none d-sm-inline">Limpar Filtros</span>
+                        <span class="btn-text d-sm-none">Limpar</span>
+                    </button>
+                    <button class="btn btn-outline-dark btn-print btn-toolbar" id="btnPrint">
+                        <i class="bi bi-printer me-1"></i>
+                        <span class="btn-text d-none d-md-inline">Imprimir</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>    
+    </div>
     
     <div class="row">
         <div class="col-12">

@@ -1,0 +1,658 @@
+/* ===== TOOLBAR RESPONSIVA ===== */
+/* Melhorias na responsividade dos botões da toolbar */
+
+/* =======================
+   SEÇÃO: Estilos Base da Toolbar
+   ======================= */
+.toolbar {
+    background-color: #f8f9fa;
+    padding: clamp(0.75rem, 2vw, 1.25rem);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-3);
+    min-height: 60px;
+}
+
+/* Grupos de botões responsivos */
+.btn-group-responsive {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Estilos base para botões da toolbar */
+.btn-toolbar {
+    min-height: 44px; /* Altura mínima para toque em dispositivos móveis */
+    font-weight: 600;
+    letter-spacing: 0.025rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    border: none;
+    outline: none;
+    white-space: nowrap;
+}
+
+/* Efeito hover base */
+.btn-toolbar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-toolbar:active {
+    transform: translateY(0);
+    transition-duration: 0.1s;
+}
+
+/* Efeito ripple para botões */
+.btn-toolbar::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+    pointer-events: none;
+}
+
+.btn-toolbar:active::before {
+    width: 200px;
+    height: 200px;
+}
+
+/* Ícones responsivos */
+.btn-toolbar i {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    margin-right: clamp(0.25rem, 1vw, 0.5rem);
+}
+
+/* =======================
+   SEÇÃO: Desktop (1200px+)
+   ======================= */
+@media (min-width: 1200px) {
+    .toolbar {
+        justify-content: flex-start;
+        gap: 1rem;
+    }
+    
+    .btn-toolbar {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+        border-radius: var(--radius-md);
+    }
+    
+    .btn-toolbar .btn-text {
+        display: inline;
+    }
+    
+    /* Botões específicos em desktop */
+    #btnRelatorioAnalitico .btn-text {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+}
+
+/* =======================
+   SEÇÃO: Laptops/Tablets Grandes (992px - 1199px)
+   ======================= */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .toolbar {
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    
+    .btn-toolbar {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.85rem;
+        border-radius: var(--radius-md);
+    }
+    
+    .btn-toolbar .btn-text {
+        display: inline;
+    }
+    
+    /* Texto mais compacto para botões longos */
+    #btnRelatorioAnalitico .btn-text {
+        font-size: 0.8rem;
+    }
+}
+
+/* =======================
+   SEÇÃO: Tablets (768px - 991px)
+   ======================= */
+@media (min-width: 768px) and (max-width: 991px) {
+    .toolbar {
+        justify-content: center;
+        gap: 0.5rem;
+        padding: clamp(0.75rem, 2vw, 1rem);
+    }
+    
+    .btn-toolbar {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        border-radius: var(--radius-sm);
+        flex: 1;
+        max-width: 160px;
+    }
+    
+    .btn-toolbar .btn-text {
+        display: inline;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    
+    /* Agrupamento mais eficiente */
+    .btn-group-responsive {
+        justify-content: center;
+        max-width: 100%;
+    }
+    
+    /* Texto abreviado para tablets */
+    #btnRelatorioAnalitico .btn-text {
+        font-size: 0.75rem;
+    }
+}
+
+/* =======================
+   SEÇÃO: Mobile Grande (576px - 767px)
+   ======================= */
+@media (min-width: 576px) and (max-width: 767px) {
+    .toolbar {
+        justify-content: center;
+        gap: 0.375rem;
+        padding: 0.75rem 0.5rem;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-group-responsive {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-toolbar {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        border-radius: var(--radius-sm);
+        flex: 1;
+        min-width: 120px;
+        max-width: 140px;
+    }
+    
+    .btn-toolbar i {
+        font-size: 0.9rem;
+        margin-right: 0.25rem;
+    }
+    
+    /* Texto responsivo - mostra versões abreviadas */
+    .btn-toolbar .btn-text {
+        font-size: 0.7rem;
+    }
+    
+    /* Primeira linha: botões principais */
+    .btn-group-responsive:first-child {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* =======================
+   SEÇÃO: Mobile Pequeno (< 576px)
+   ======================= */
+@media (max-width: 575px) {
+    .toolbar {
+        padding: 0.5rem 0.25rem;
+        gap: 0.25rem;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-group-responsive {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 0.375rem;
+    }
+    
+    .btn-group-responsive:last-child {
+        margin-bottom: 0;
+    }
+    
+    .btn-toolbar {
+        padding: 0.625rem 0.5rem;
+        font-size: 0.7rem;
+        border-radius: var(--radius-sm);
+        flex: 1;
+        min-width: 0;
+        min-height: 48px; /* Altura adequada para toque */
+        text-align: center;
+    }
+    
+    .btn-toolbar i {
+        font-size: 1rem;
+        margin-right: 0.25rem;
+        display: inline-block;
+    }
+    
+    /* Layout em duas colunas para melhor aproveitamento do espaço */
+    .btn-group-responsive {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.25rem;
+    }
+    
+    /* Botão principal ocupa linha inteira */
+    #btnRelatorioAnalitico {
+        grid-column: 1 / -1;
+    }
+    
+    /* Textos ultra-compactos */
+    .btn-toolbar .btn-text {
+        font-size: 0.65rem;
+        line-height: 1.2;
+    }
+}
+
+/* =======================
+   SEÇÃO: Mobile Ultra-pequeno (< 480px)
+   ======================= */
+@media (max-width: 479px) {
+    .toolbar {
+        padding: 0.375rem 0.125rem;
+    }
+    
+    .btn-toolbar {
+        padding: 0.5rem 0.375rem;
+        font-size: 0.65rem;
+        min-height: 44px;
+    }
+    
+    .btn-toolbar i {
+        font-size: 0.9rem;
+        margin-right: 0.125rem;
+    }
+    
+    /* Layout mais compacto */
+    .btn-group-responsive {
+        grid-template-columns: 1fr;
+        gap: 0.25rem;
+    }
+    
+    /* Todos os botões em coluna única */
+    #btnRelatorioAnalitico {
+        grid-column: 1;
+    }
+    
+    /* Oculta alguns textos para economizar espaço */
+    .btn-toolbar .btn-text.d-none.d-md-inline {
+        display: none !important;
+    }
+}
+
+/* =======================
+   SEÇÃO: Estados Especiais e Acessibilidade
+   ======================= */
+
+/* Focus states melhorados para acessibilidade */
+.btn-toolbar:focus {
+    outline: 2px solid var(--brand-secondary);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(255, 213, 107, 0.3);
+}
+
+/* Estados de loading */
+.btn-toolbar.loading {
+    pointer-events: none;
+    opacity: 0.7;
+    position: relative;
+}
+
+.btn-toolbar.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Animação de rotação */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* =======================
+   SEÇÃO: Cores e Estados dos Botões
+   ======================= */
+
+/* Botão Fonte de Dados */
+.btn-toolbar.btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    border: none;
+    color: white;
+}
+
+.btn-toolbar.btn-info:hover {
+    background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+    color: white;
+}
+
+/* Botão Relatório Analítico */
+.btn-toolbar.btn-primary {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-medium) 100%);
+    border: none;
+    color: white;
+}
+
+.btn-toolbar.btn-primary:hover {
+    background: linear-gradient(135deg, var(--brand-primary-medium) 0%, var(--brand-primary-dark) 100%);
+    color: white;
+}
+
+/* Botão PCA Publicada */
+.btn-toolbar.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    border: none;
+    color: white;
+}
+
+.btn-toolbar.btn-success:hover {
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+    color: white;
+}
+
+/* Botão Toggle Cancelados */
+.btn-toolbar.btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    border: none;
+}
+
+.btn-toolbar.btn-warning:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
+}
+
+/* Botões outline */
+.btn-toolbar.btn-outline-danger {
+    border: 2px solid #dc3545;
+    background: transparent;
+}
+
+.btn-toolbar.btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.btn-toolbar.btn-outline-dark {
+    border: 2px solid #6c757d;
+    background: transparent;
+}
+
+.btn-toolbar.btn-outline-dark:hover {
+    background: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+
+/* =======================
+   SEÇÃO: Otimizações de Performance
+   ======================= */
+
+/* GPU acceleration para animações */
+.btn-toolbar {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Redução de motion para usuários sensíveis */
+@media (prefers-reduced-motion: reduce) {
+    .btn-toolbar {
+        transition: none;
+    }
+    
+    .btn-toolbar:hover {
+        transform: none;
+    }
+    
+    .btn-toolbar::before {
+        display: none;
+    }
+}
+
+/* =======================
+   SEÇÃO: Dark mode preparation
+   ======================= */
+@media (prefers-color-scheme: dark) {
+    .toolbar {
+        border: 1px solid #4a5568;
+    }
+    
+    .btn-toolbar {
+        border-color: #4a5568;
+    }
+    
+    .btn-toolbar:focus {
+        box-shadow: 0 0 0 3px rgba(255, 213, 107, 0.2);
+    }
+}
+
+/* =======================
+   SEÇÃO: Print styles
+   ======================= */
+@media print {
+    .toolbar {
+        display: none !important;
+    }
+}
+
+/* =======================
+   SEÇÃO: Estados de Toque e Interação Melhorada
+   ======================= */
+
+/* Estado de toque ativo */
+.btn-toolbar.touch-active {
+    transform: scale(0.95);
+    transition-duration: 0.1s;
+}
+
+/* Dispositivos de toque - área mínima garantida */
+.toolbar.touch-device .btn-toolbar {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Hover apenas para dispositivos que suportam */
+@media (hover: hover) {
+    .btn-toolbar:hover {
+        transform: translateY(-2px) scale(var(--hover-scale, 1.02));
+    }
+}
+
+/* Estados de loading aprimorados */
+.btn-toolbar.loading {
+    pointer-events: none;
+    position: relative;
+    opacity: 0.7;
+}
+
+.btn-toolbar.loading .btn-text {
+    opacity: 0.5;
+}
+
+.btn-toolbar.loading i {
+    opacity: 0.3;
+}
+
+/* Indicador de overflow */
+.toolbar.has-overflow {
+    border: 2px solid var(--brand-secondary);
+    border-radius: var(--radius-lg);
+}
+
+.toolbar.has-overflow::after {
+    content: '⚠️';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--brand-secondary);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    z-index: 1;
+}
+
+/* Animações de entrada para botões */
+.btn-toolbar {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.btn-toolbar:nth-child(1) { animation-delay: 0.1s; }
+.btn-toolbar:nth-child(2) { animation-delay: 0.2s; }
+.btn-toolbar:nth-child(3) { animation-delay: 0.3s; }
+.btn-toolbar:nth-child(4) { animation-delay: 0.4s; }
+.btn-toolbar:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =======================
+   SEÇÃO: Breakpoint Específico - Dados via atributo
+   ======================= */
+
+/* Desktop */
+.toolbar[data-breakpoint="desktop"] {
+    justify-content: flex-start;
+    padding: 1.25rem 1rem;
+}
+
+.toolbar[data-breakpoint="desktop"] .btn-toolbar {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+}
+
+/* Laptop */
+.toolbar[data-breakpoint="laptop"] {
+    justify-content: center;
+    padding: 1rem 0.75rem;
+}
+
+.toolbar[data-breakpoint="laptop"] .btn-toolbar {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.85rem;
+}
+
+/* Tablet */
+.toolbar[data-breakpoint="tablet"] {
+    justify-content: center;
+    flex-direction: row;
+    padding: 0.875rem 0.5rem;
+}
+
+.toolbar[data-breakpoint="tablet"] .btn-toolbar {
+    flex: 1;
+    max-width: 160px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
+/* Mobile */
+.toolbar[data-breakpoint="mobile"] {
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 0.5rem;
+}
+
+.toolbar[data-breakpoint="mobile"] .btn-group-responsive {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.toolbar[data-breakpoint="mobile"] .btn-toolbar {
+    flex: 1;
+    min-width: 120px;
+    max-width: 140px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+/* Mobile Small */
+.toolbar[data-breakpoint="mobile-small"] {
+    flex-direction: column;
+    padding: 0.5rem 0.25rem;
+}
+
+.toolbar[data-breakpoint="mobile-small"] .btn-group-responsive {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+    width: 100%;
+}
+
+.toolbar[data-breakpoint="mobile-small"] #btnRelatorioAnalitico {
+    grid-column: 1 / -1;
+}
+
+.toolbar[data-breakpoint="mobile-small"] .btn-toolbar {
+    padding: 0.625rem 0.375rem;
+    font-size: 0.65rem;
+    min-height: 48px;
+}
+
+/* =======================
+   SEÇÃO: Melhorias de Performance para Animações
+   ======================= */
+
+/* Acelera animações com GPU */
+.btn-toolbar,
+.toolbar {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Otimização para dispositivos de baixa performance */
+@media (prefers-reduced-motion: reduce) {
+    .btn-toolbar {
+        animation: none;
+        transition: none;
+    }
+    
+    .btn-toolbar:hover {
+        transform: none;
+    }
+}
+
+/* =======================
+   SEÇÃO: Melhorias para High DPI
+   ======================= */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .btn-toolbar {
+        border-width: 0.5px;
+    }
+    
+    .btn-toolbar i {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}

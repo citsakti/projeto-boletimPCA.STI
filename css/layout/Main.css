@@ -335,26 +335,18 @@ table tbody tr.contratacao-atrasada {
     text-align: center;
 }
 
-/* Toolbar fixa */
+/* Toolbar responsiva - estilos base integrados */
 .toolbar {
+    /* Estilos base movidos para ToolbarResponsive.css */
+    /* Mantém compatibilidade com estilos existentes */
     top: 0;
-    right: 0; /* Alinha a toolbar à direita */
+    right: 0;
     z-index: 100;
-    background-color: #f5f6f7;
-    padding: 20px 10px; /* Aumenta o espaçamento vertical (acima e abaixo) */
     display: flex;
-    /*justify-content: flex-end; /* Garante que os botões fiquem alinhados à direita */
+    /* Estilos específicos serão aplicados pelo ToolbarResponsive.css */
 }
 
-.toolbar button + button {
-    margin-left: 20px;
-}
-
-#btnPCAPublicada {
-    margin-right: auto; /* Move o botão PCA Publicada para a esquerda */
-}
-
-/* Botões modernos */
+/* Botões modernos - estilos base mantidos para compatibilidade */
 .btn,
 .btn-print,
 .btn-limpar-filtros {
