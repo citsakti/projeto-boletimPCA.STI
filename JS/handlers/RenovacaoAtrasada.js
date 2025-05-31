@@ -60,8 +60,10 @@ function verificarRenovacoesProximas() {
         const celulaStatus = linha.cells[5]; // Coluna "Status do Processo"
         const celulaContratarAte = linha.cells[6]; // Coluna "Contratar Até"
 
-        // Reseta a cor da linha para o padrão.
-        linha.style.color = '';
+        // Reseta a cor de cada célula da linha para o padrão.
+        Array.from(linha.cells).forEach(cell => {
+            cell.style.removeProperty('color');
+        });
 
         // Verifica se ambas as células existem.
         if (celulaStatus && celulaContratarAte) {
@@ -84,14 +86,18 @@ function verificarRenovacoesProximas() {
                         // Calcula a diferença em milissegundos entre a data de contratação e hoje.
                         const diffTempo = dataContratarAte.getTime() - hoje.getTime();
 
-                        // Se faltar até 30 dias, pinta de laranja escuro.
+                        // Se faltar até 30 dias, pinta cada célula de laranja escuro.
                         if (diffTempo >= 0 && diffTempo <= trintaDiasEmMs) {
-                            linha.style.color = 'darkorange';
+                            Array.from(linha.cells).forEach(cell => {
+                                cell.style.setProperty('color', 'darkorange', 'important');
+                            });
                         }
 
-                        // Se faltar 20 dias ou menos, ou já venceu, pinta de vermelho.
+                        // Se faltar 20 dias ou menos, ou já venceu, pinta cada célula de vermelho.
                         if (diffTempo <= vinteDiasEmMs) {
-                            linha.style.color = 'red';
+                            Array.from(linha.cells).forEach(cell => {
+                                cell.style.setProperty('color', 'red', 'important');
+                            });
                         }
                     }
                 }
