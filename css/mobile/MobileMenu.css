@@ -93,9 +93,10 @@
     /* Mostra a toolbar quando expandida */
     .toolbar.expanded {
         display: flex;
+        animation: slideDown 0.3s ease-out;
     }
     
-    /* Ajusta os botões da toolbar no mobile */
+    /* Estilos melhorados para botões da toolbar */
     .toolbar .btn,
     .toolbar .btn-print,
     .toolbar .btn-limpar-filtros {
@@ -108,16 +109,33 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        border-radius: var(--radius-sm);
+        transition: all 0.2s ease;
     }
     
-    /* Remove margens laterais entre botões */
-    .toolbar button + button {
-        margin-left: 0;
-    }
-    
-    /* Ajusta o botão PCA Publicada */
+    /* Botão PCA Publicada específico */
     #btnPCAPublicada {
         margin-right: 0;
+        background: var(--brand-secondary, #28a745);
+        color: white;
+    }
+    
+    #btnPCAPublicada:hover {
+        background: var(--brand-secondary-dark, #218838);
+        transform: translateY(-1px);
+    }
+    
+    /* Remove margens entre botões */
+    .toolbar button + button {
+        margin-left: 0;
+        margin-top: var(--space-1);
+    }
+    
+    /* Estados especiais para botões */
+    .toolbar .btn-limpar-filtros.filters-active {
+        background-color: #fa8c16 !important;
+        animation: pulse 1.5s infinite;
+        font-weight: 600;
     }
 }
 
@@ -135,7 +153,65 @@
     }
 }
 
-/* Para telas muito pequenas, ajusta ainda mais */
+/* ===========================================
+   CONFIGURAÇÕES PARA TABLETS
+   =========================================== */
+
+@media (max-width: 1024px) and (orientation: landscape) {
+    .toolbar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: var(--space-1);
+        justify-content: center;
+    }
+    
+    .toolbar .btn,
+    .toolbar .btn-print,
+    .toolbar .btn-limpar-filtros {
+        width: calc(50% - var(--space-1));
+        font-size: 0.8rem;
+        padding: 8px 12px;
+        min-height: 40px;
+    }
+}
+
+/* ===========================================
+   SMARTPHONES MÉDIOS
+   =========================================== */
+
+@media (max-width: 768px) {
+    .mobile-controls-container {
+        flex-direction: column;
+        gap: var(--space-2);
+        align-items: stretch;
+    }
+    
+    .mobile-controls-container .painel-toggle-btn,
+    .mobile-controls-container .mobile-menu-btn {
+        width: 100%;
+        margin: 0;
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .toolbar {
+        padding: var(--space-2);
+        gap: var(--space-2);
+    }
+    
+    .toolbar .btn,
+    .toolbar .btn-print,
+    .toolbar .btn-limpar-filtros {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        min-height: 44px;
+    }
+}
+
+/* ===========================================
+   SMARTPHONES PEQUENOS
+   =========================================== */
+
 @media (max-width: 600px) {
     .mobile-controls-container {
         padding: 0 var(--space-1);
@@ -172,28 +248,34 @@
     .toolbar .btn-limpar-filtros {
         padding: 10px 12px;
         font-size: 0.8rem;
+        min-height: 36px;
     }
 }
 
-/* Estados especiais para botões ativos */
-.toolbar .btn-limpar-filtros.filters-active {
-    background-color: #fa8c16 !important;
-    animation: pulse 1.5s infinite;
-}
+/* ===========================================
+   ESTADOS E TRANSIÇÕES
+   =========================================== */
 
-/* Garante que o menu funcione corretamente em orientação landscape */
-@media (max-width: 1199px) and (orientation: landscape) {
-    .toolbar {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: var(--space-1);
+@media (max-width: 1199px) {
+    /* Hover states melhorados */
+    .toolbar .btn:hover,
+    .toolbar .btn-print:hover,
+    .toolbar .btn-limpar-filtros:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
     
-    .toolbar .btn,
-    .toolbar .btn-print,
-    .toolbar .btn-limpar-filtros {
-        width: calc(50% - var(--space-1));
-        font-size: 0.8rem;
-        padding: 8px 12px;
+    /* Active states */
+    .toolbar .btn:active,
+    .toolbar .btn-print:active,
+    .toolbar .btn-limpar-filtros:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Loading states */
+    .toolbar.loading .btn {
+        opacity: 0.6;
+        pointer-events: none;
     }
 }

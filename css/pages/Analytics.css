@@ -34,7 +34,8 @@
    ======================= */
 .analytics-subsection {
     margin-bottom: 1.5rem;
-    padding: 1rem;    background-color: rgba(var(--brand-primary-rgb), 0.05);
+    padding: 1rem;
+    background-color: rgba(var(--brand-primary-rgb), 0.05);
     border-left: 4px solid var(--brand-primary);
     border-radius: 0 8px 8px 0;
 }
@@ -105,7 +106,6 @@
     text-align: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
-    position: relative;
 }
 
 .tipo-box:hover {
@@ -113,20 +113,14 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.tipo-box.active {
-    border-left: 4px solid var(--brand-primary);
-    background-color: rgba(var(--brand-primary-rgb), 0.02);
-}
-
 .tipo-name {
-    font-size: 1.1rem;
     font-weight: 500;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     color: var(--brand-primary);
 }
 
 .tipo-count {
-    font-size: 2rem;
+    font-size: 1.2rem;
     font-weight: bold;
     color: var(--brand-primary);
 }

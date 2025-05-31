@@ -1,0 +1,383 @@
+/* 
+ * MobileAnalyticsLayout.css - Layout responsivo para analytics mobile
+ * 
+ * Este arquivo controla o layout geral da página de analytics em dispositivos móveis,
+ * incluindo seções expandíveis, toolbar e navegação.
+ */
+
+/* ===========================================
+   CONFIGURAÇÕES GERAIS PARA MOBILE
+   =========================================== */
+
+@media (max-width: 1199px) {
+    
+    /* Container principal dos analytics */
+    .container {
+        padding: 0 16px;
+        margin: 0;
+        max-width: 100%;
+    }
+    
+    #analytics-dashboard {
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Header responsive */
+    header {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 16px;
+    }
+    
+    header img.logo-tribunal {
+        max-width: 200px;
+        margin-bottom: 16px;
+    }
+    
+    header h1 {
+        font-size: clamp(1.2rem, 4vw, 1.8rem);
+        margin: 0;
+        line-height: 1.2;
+    }
+    
+    /* Toolbar responsiva */
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        gap: 16px;
+    }
+    
+    /* Botão voltar à esquerda */
+    .toolbar #btnVoltar {
+        order: 1;
+        flex: 0 0 auto;
+        min-width: 140px;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    /* Esconder botão imprimir no mobile */
+    .toolbar .btn-print,
+    .toolbar #btnPrint,
+    .btn-print,
+    #btnPrint {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Botão expandir/recolher à direita */
+    .toolbar .analytics-toggle-btn {
+        order: 3;
+        flex: 0 0 auto;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        transition: all 0.2s ease;
+    }
+    
+    .toolbar .analytics-toggle-btn:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+    }
+    
+    .toolbar .btn {
+        padding: 12px 8px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ===========================================
+   SEÇÕES DE ANALYTICS EM MOBILE
+   =========================================== */
+
+@media (max-width: 1199px) {
+    
+    /* Seções principais como cards expandíveis */
+    .analytics-section {
+        border: none;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        padding: 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        background: white;
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .analytics-section:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Header das seções como botão expandível */
+    .analytics-section h2,
+    .analytics-section h3 {
+        background: var(--brand-primary);
+        color: white;
+        padding: 16px;
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 0;
+        box-shadow: none;
+        transition: background-color 0.3s ease;
+        position: relative;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    .analytics-section h2:hover,
+    .analytics-section h3:hover {
+        background: #2563eb;
+    }
+    
+    .analytics-section h2:active,
+    .analytics-section h3:active {
+        background: #1d4ed8;
+        transform: scale(0.98);
+    }
+    
+    /* Indicador de expansão */
+    .expand-indicator {
+        font-size: 0.9rem;
+        transition: transform 0.3s ease;
+        color: white;
+    }
+    
+    .expand-indicator.rotated {
+        transform: rotate(180deg);
+    }
+    
+    /* Conteúdo das seções */
+    .analytics-section-content {
+        padding: 16px;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        overflow: hidden;
+        max-height: 2000px;
+        opacity: 1;
+    }
+    
+    .analytics-section.collapsed .analytics-section-content {
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        opacity: 0;
+    }
+}
+
+/* ===========================================
+   RESPONSIVIDADE ADICIONAL
+   =========================================== */
+
+/* Tablets */
+@media (max-width: 768px) {
+    
+    .container {
+        padding: 0 12px;
+    }
+    
+    .analytics-section h2 {
+        font-size: 1rem;
+        padding: 12px;
+    }
+    
+    .analytics-section-content {
+        padding: 12px;
+    }
+    
+    /* Ajustar toolbar para tablets */
+    .toolbar {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .toolbar #btnVoltar,
+    .toolbar .analytics-toggle-btn {
+        width: 100%;
+        max-width: none;
+        order: initial;
+    }
+}
+
+/* Smartphones pequenos */
+@media (max-width: 575.98px) {
+    
+    header h1 {
+        font-size: 1.1rem;
+    }
+    
+    .analytics-section h2 {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+    }
+    
+    .analytics-section-content {
+        padding: 10px;
+    }
+    
+    /* Toolbar em coluna para smartphones */
+    .toolbar {
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .toolbar #btnVoltar,
+    .toolbar .analytics-toggle-btn {
+        width: 100%;
+        max-width: none;
+        order: initial;
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ===========================================
+   ESTADOS E TRANSIÇÕES
+   =========================================== */
+
+/* Estado de expansão/colapso das seções */
+.analytics-section.expanding .analytics-section-content {
+    animation: expandSection 0.3s ease-out;
+}
+
+.analytics-section.collapsing .analytics-section-content {
+    animation: collapseSection 0.3s ease-in;
+}
+
+@keyframes expandSection {
+    from {
+        max-height: 0;
+        opacity: 0;
+    }
+    to {
+        max-height: 2000px;
+        opacity: 1;
+    }
+}
+
+@keyframes collapseSection {
+    from {
+        max-height: 2000px;
+        opacity: 1;
+    }
+    to {
+        max-height: 0;
+        opacity: 0;
+    }
+}
+
+/* Scroll suave */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ===========================================
+   CONTROLES DE ACESSIBILIDADE
+   =========================================== */
+
+/* Focus states para navegação por teclado */
+.analytics-section h2:focus,
+.analytics-section h3:focus {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+
+/* Indicadores visuais para interatividade */
+.analytics-section h2::after,
+.analytics-section h3::after {
+    content: '';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid white;
+    transition: transform 0.3s ease;
+}
+
+.analytics-section.collapsed h2::after,
+.analytics-section.collapsed h3::after {
+    transform: translateY(-50%) rotate(-180deg);
+}
+
+/* ===========================================
+   OTIMIZAÇÕES DE PERFORMANCE
+   =========================================== */
+
+/* Will-change para elementos animados */
+.analytics-section-content {
+    will-change: max-height, opacity;
+}
+
+.analytics-section h2,
+.analytics-section h3 {
+    will-change: background-color, transform;
+}
+
+/* Hardware acceleration */
+.analytics-section {
+    transform: translateZ(0);
+}
+
+/* ===========================================
+   ESTADOS ESPECIAIS
+   =========================================== */
+
+/* Estado de carregamento */
+.analytics-section.loading .analytics-section-content {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.analytics-section.loading h2::before,
+.analytics-section.loading h3::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estado de erro */
+.analytics-section.error h2,
+.analytics-section.error h3 {
+    background: #dc3545;
+}
+
+.analytics-section.error h2:hover,
+.analytics-section.error h3:hover {
+    background: #c82333;
+}
