@@ -92,15 +92,8 @@
             </div>
         </header>    
     <!-- Container para botões de controle no mobile -->
-    <div class="row d-md-none mb-3">
-        <div class="col-12">
-            <div class="mobile-controls-container d-flex gap-2">
-                <!-- Botão para expandir/recolher o painel de resumos -->
-                <button id="painel-toggle-btn" class="btn btn-outline-primary painel-toggle-btn flex-fill" title="Mostrar/Ocultar Painel de Resumos">
-                    <i class="bi bi-graph-up me-1"></i>
-                    <span class="toggle-text">Resumos</span>
-                </button>
-            </div>
+    <div class="row d-md-none mb-3">        <div class="col-12">
+            <!-- Botão removido - painel agora controlado apenas pelos controles internos -->
         </div>
     </div>    
     
@@ -257,7 +250,10 @@
             </div>
         </div>
     </footer>
-    </div> <!-- Fim do container-fluid -->    <!-- Modal para exibir o iframe -->
+    </div> 
+    <!-- Fim do container-fluid -->    
+    
+    <!-- Modal para exibir o iframe -->
     <div class="modal fade" id="processo-modal" tabindex="-1" aria-labelledby="processoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
@@ -304,8 +300,5 @@
         </div>
     </div>
 
-    <!-- Dark Mode JavaScript -->
-    <script src="assets/js/dark-mode.js"></script>
-    
 </body>
 </html>

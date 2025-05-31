@@ -9,10 +9,8 @@
  *  - Integrar com o sistema existente de PainelDeResumos.js
  */
 
-class PainelResumoCollapsible {
-    constructor() {
+class PainelResumoCollapsible {    constructor() {
         this.container = document.getElementById('painel-resumo-container');
-        this.toggleBtn = document.getElementById('painel-toggle-btn');
         this.closeBtn = document.getElementById('painel-close-btn');
         this.isExpanded = false; // Inicia fechado por padrão
         this.storageKey = 'painel-resumo-state';
@@ -35,12 +33,7 @@ class PainelResumoCollapsible {
         
         // Listener para quando o painel de resumos é atualizado
         document.addEventListener('painel-resumo-updated', () => this.handlePainelUpdate());
-    }      setupEventListeners() {
-        // Botão de toggle principal
-        if (this.toggleBtn) {
-            this.toggleBtn.addEventListener('click', () => this.toggle());
-        }
-        
+    }    setupEventListeners() {
         // Botão de fechar/seta no header do painel - agora funciona como toggle
         if (this.closeBtn) {
             this.closeBtn.addEventListener('click', () => this.toggle());
@@ -137,11 +130,10 @@ class PainelResumoCollapsible {
             element.classList.remove('header-click-effect');
         }, 300);
     }    applyState(animate = true) {
-        if (!this.container || !this.toggleBtn) return;
+        if (!this.container) return;
         
         // Remove classes conflitantes antes de aplicar o novo estado
         this.container.classList.remove('expanded', 'collapsed');
-        this.toggleBtn.classList.remove('collapsed');
         
         // Força um reflow para garantir que as classes foram removidas
         this.container.offsetHeight;
@@ -149,30 +141,15 @@ class PainelResumoCollapsible {
         if (this.isExpanded) {
             // Estado expandido
             this.container.classList.add('expanded');
-            this.toggleBtn.title = 'Ocultar Painel de Resumos';
             
             // Atualiza seta para apontar para cima
             this.updateArrowIcon('↑');
-            
-            // Atualiza texto do botão se visível
-            const toggleText = this.toggleBtn.querySelector('.toggle-text');
-            if (toggleText) {
-                toggleText.textContent = 'Ocultar';
-            }
         } else {
             // Estado recolhido
             this.container.classList.add('collapsed');
-            this.toggleBtn.classList.add('collapsed');
-            this.toggleBtn.title = 'Mostrar Painel de Resumos';
             
             // Atualiza seta para apontar para baixo
             this.updateArrowIcon('↓');
-            
-            // Atualiza texto do botão se visível
-            const toggleText = this.toggleBtn.querySelector('.toggle-text');
-            if (toggleText) {
-                toggleText.textContent = 'Resumos';
-            }
         }
     }
     
@@ -265,13 +242,12 @@ class PainelResumoCollapsible {
             this.saveState();
         }
     }
-    
-    // Método público para obter o estado atual
+      // Método público para obter o estado atual
     getState() {
         return {
             isExpanded: this.isExpanded,
             container: this.container,
-            toggleBtn: this.toggleBtn
+            closeBtn: this.closeBtn
         };
     }
 }

@@ -203,37 +203,7 @@
                         // Dispatch evento customizado para compatibilidade
                         const event = new CustomEvent('painel-resumo-toggled', {
                             detail: { expanded: !painelContainer.classList.contains('collapsed') }
-                        });
-                        document.dispatchEvent(event);
-                    }
-                });
-            }
-            
-            // Adapter para mobile toggle button
-            const mobileToggleBtn = document.getElementById('painel-toggle-btn');
-            if (mobileToggleBtn) {
-                mobileToggleBtn.addEventListener('click', function() {
-                    if (painelContainer) {
-                        painelContainer.classList.toggle('collapsed');
-                        
-                        // Sincroniza com o botão de seta
-                        if (arrowIcon) {
-                            if (painelContainer.classList.contains('collapsed')) {
-                                arrowIcon.className = 'bi bi-chevron-down arrow-icon';
-                            } else {
-                                arrowIcon.className = 'bi bi-chevron-up arrow-icon';
-                            }
-                        }
-                        
-                        // Scroll suave para o painel em mobile
-                        if (window.innerWidth <= 768 && !painelContainer.classList.contains('collapsed')) {
-                            setTimeout(() => {
-                                painelContainer.scrollIntoView({ 
-                                    behavior: 'smooth', 
-                                    block: 'start' 
-                                });
-                            }, 300);
-                        }
+                        });                        document.dispatchEvent(event);
                     }
                 });
             }
