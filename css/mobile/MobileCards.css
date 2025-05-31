@@ -1,0 +1,404 @@
+/**
+ * MobileCards.css - Estilos para visualização em cards no mobile
+ * 
+ * Este arquivo define os estilos específicos para a visualização em cards
+ * quando a tela atinge as dimensões do iPhone 14 Pro Max (430x932px)
+ */
+
+/* Container dos filtros móveis */
+.mobile-filters-container {
+    display: none;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+}
+
+.mobile-filters-container.show {
+    display: block;
+}
+
+.mobile-filters-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.mobile-filters-content {
+    display: none;
+}
+
+.mobile-filters-content.show {
+    display: block;
+}
+
+.mobile-filter-group {
+    margin-bottom: 1rem;
+}
+
+.mobile-filter-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+    color: #495057;
+}
+
+.mobile-filter-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: white;
+}
+
+/* Container dos cards móveis */
+.mobile-cards-container {
+    display: none;
+    gap: 1rem;
+}
+
+/* Card individual */
+.project-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Header do card */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.card-id {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #495057;
+    background: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #212529;
+    margin: 0;
+    flex: 1;
+    margin-left: 0.75rem;
+    line-height: 1.4;
+}
+
+/* Conteúdo principal do card */
+.card-content {
+    margin-bottom: 1rem;
+}
+
+.card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.card-area {
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: white;
+}
+
+.card-value {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #28a745;
+}
+
+/* Status do projeto */
+.card-status {
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+/* Footer do card */
+.card-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-details {
+    background: var(--brand-primary);
+    color: white;
+    border: none;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.025rem;
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-details:hover {
+    background: var(--brand-primary-medium);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-details:active {
+    transform: translateY(0);
+    transition-duration: 0.1s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Efeito ripple para botão details */
+.btn-details::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+    pointer-events: none;
+}
+
+.btn-details:active::before {
+    width: 100px;
+    height: 100px;
+}
+
+/* Cores para as áreas - Seguindo padrão do Areas.css */
+.area-sti { background-color: #ffe5a0; color: black; }
+.area-operacoes { background-color: #bfe1f6; color: black; }
+.area-dev { background-color: #d4edbc; color: black; }
+.area-analytics { background-color: #ffc8aa; color: black; }
+.area-governanca { background-color: #e8eaed; color: black; }
+
+/* Cores pastéis para status (herdadas das cores dos status) */
+.status-autuacao-atrasada { background-color: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
+.status-em-renovacao { background-color: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0; }
+.status-cancelado { background-color: #fafafa; color: #424242; border-left: 4px solid #424242; }
+.status-em-contratacao { background-color: #e8f5e8; color: #2e7d32; border-left: 4px solid #2e7d32; }
+.status-aguardando-etp { background-color: #fff3e0; color: #ef6c00; border-left: 4px solid #ef6c00; }
+.status-aguardando-dfd { background-color: #fff3e0; color: #ef6c00; border-left: 4px solid #ef6c00; }
+.status-a-iniciar { background-color: #f3e5f5; color: #7b1fa2; border-left: 4px solid #7b1fa2; }
+.status-renovado { background-color: #e8f5e8; color: #2e7d32; border-left: 4px solid #2e7d32; }
+.status-contratado { background-color: #e8f5e8; color: #2e7d32; border-left: 4px solid #2e7d32; }
+.status-aguardando-definicao { background-color: #fff3e0; color: #ef6c00; border-left: 4px solid #ef6c00; }
+.status-etp-atrasado { background-color: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
+.status-dfd-atrasado { background-color: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
+.status-contratacao-atrasada { background-color: #fff8e1; color: #f57c00; border-left: 4px solid #f57c00; }
+.status-elaborando-tr { background-color: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0; }
+.status-analise-viabilidade { background-color: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0; }
+.status-revisao-pca { background-color: #fff3e0; color: #ef6c00; border-left: 4px solid #ef6c00; }
+
+/* Modal de detalhes */
+.details-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    padding: 1rem;
+}
+
+.details-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.details-modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-width: 95%;
+    max-height: 95%;
+    width: 95%;
+    height: 95%;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.details-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.details-modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: #212529;
+}
+
+.details-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.details-modal-close:hover {
+    color: #495057;
+}
+
+.details-modal-body {
+    display: grid;
+    gap: 1rem;
+}
+
+.detail-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.875rem;
+}
+
+.detail-value {
+    color: #212529;
+    font-size: 0.875rem;
+    word-break: break-word;
+}
+
+/* Media query para iPhone 14 Pro Max e dispositivos similares */
+@media (max-width: 430px) {
+    /* Ocultar tabela original */
+    .table-responsive {
+        display: none !important;
+    }
+    
+    /* Mostrar filtros móveis */
+    .mobile-filters-container {
+        display: block;
+    }
+    
+    /* Mostrar cards móveis */
+    .mobile-cards-container {
+        display: block;
+    }
+    
+    /* Ajustes para telas muito pequenas */
+    .project-card {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .card-header {
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .card-title {
+        margin-left: 0;
+        font-size: 0.9rem;
+    }
+    
+    .card-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+      .details-modal-content {
+        padding: 1rem;
+        max-width: 95%;
+        max-height: 95%;
+        width: 95%;
+        height: 95%;
+    }
+    
+    .detail-item {
+        grid-template-columns: 1fr;
+        gap: 0.25rem;
+    }
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.project-card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.details-modal {
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Loading state para cards */
+.cards-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.cards-loading .spinner-border {
+    margin-right: 0.5rem;
+}

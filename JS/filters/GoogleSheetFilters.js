@@ -447,9 +447,13 @@ function clearAllGoogleSheetFilters() {
     if (typeof resetPainelFilterStatus === 'function') {
         resetPainelFilterStatus();
     }
-    
-    // Limpa os filtros mobile
+      // Limpa os filtros mobile
     clearMobileFilters();
+    
+    // Limpa os filtros do MobileCardsManager (se existir)
+    if (window.mobileCardsManager && typeof window.mobileCardsManager.clearFilters === 'function') {
+        window.mobileCardsManager.clearFilters();
+    }
     
     // Mostra todas as linhas da tabela
     const tableRows = document.querySelectorAll('table tbody tr');

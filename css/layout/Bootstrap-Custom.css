@@ -59,7 +59,6 @@ header h1 {
 }
 
 .card-header {
-    background-color: var(--brand-neutral);
     border-bottom-color: #dee2e6;
 }
 
@@ -137,26 +136,32 @@ header h1 {
     color: white;
 }
 
-/* Classes de área com cores originais */
+/* Classes de área com cores padrão do Areas.css */
 .area-sti {
-    background-color: #007bff !important;
-    color: white;
-}
-
-.area-administrativa {
-    background-color: #28a745 !important;
-    color: white;
-}
-
-.area-juridica {
-    background-color: #dc3545 !important;
-    color: white;
-}
-
-.area-financeira {
-    background-color: #ffc107 !important;
+    background-color: #ffe5a0 !important;
     color: black;
 }
+
+.area-operacoes {
+    background-color: #bfe1f6 !important;
+    color: black;
+}
+
+.area-dev {
+    background-color: #d4edbc !important;
+    color: black;
+}
+
+.area-analytics {
+    background-color: #ffc8aa !important;
+    color: black;
+}
+
+.area-governanca {
+    background-color: #e8eaed !important;
+    color: black;
+}
+
 
 /* Classes de orçamento */
 .orcamento-baixo {

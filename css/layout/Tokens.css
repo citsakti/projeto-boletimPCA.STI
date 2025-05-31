@@ -19,10 +19,14 @@
     --status-danger: #dc3545;
     --status-info: #17a2b8;
     --status-light: #f8f9fa;
-    --status-dark: #343a40;
-
-    /* ===== CORES DE ÁREA ===== */
-    --area-sti: #007bff;
+    --status-dark: #343a40;    /* ===== CORES DE ÁREA - Seguindo padrão do Areas.css ===== */
+    --area-sti: #ffe5a0;
+    --area-operacoes: #bfe1f6;
+    --area-dev: #d4edbc;
+    --area-analytics: #ffc8aa;
+    --area-governanca: #e8eaed;
+    
+    /* Cores antigas mantidas para compatibilidade */
     --area-administrativa: #28a745;
     --area-juridica: #dc3545;
     --area-financeira: #ffc107;

@@ -1,0 +1,289 @@
+/**
+ * MobileAnalytics.css - Estilos para a página de analytics em dispositivos móveis
+ */
+
+/* Container principal para analytics mobile */
+.mobile-analytics-container {
+    padding: 0;
+}
+
+/* Cards de analytics mobile */
+.mobile-analytics-card {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.mobile-analytics-header {
+    background: #f8f9fa;
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #dee2e6;
+    user-select: none;
+}
+
+.mobile-analytics-header:hover {
+    background: #e9ecef;
+}
+
+.mobile-analytics-header h6 {
+    color: #495057;
+    font-weight: 600;
+}
+
+.mobile-analytics-header i {
+    color: #6c757d;
+    transition: transform 0.3s ease;
+}
+
+.mobile-analytics-content {
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.mobile-analytics-content.collapsed {
+    display: none;
+}
+
+/* Quando o conteúdo está expandido, rotacionar a seta */
+.mobile-analytics-content:not(.collapsed) ~ .mobile-analytics-header i,
+.mobile-analytics-header:has(+ .mobile-analytics-content:not(.collapsed)) i {
+    transform: rotate(180deg);
+}
+
+/* Grid de cards para dados analytics */
+.analytics-cards-grid {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.analytics-data-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.analytics-data-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.analytics-data-item:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.analytics-data-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.875rem;
+    flex: 1;
+}
+
+.analytics-data-value {
+    color: #212529;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+/* Adaptações para gráficos em mobile */
+@media (max-width: 430px) {
+    .mobile-analytics-container {
+        display: block !important;
+    }
+    
+    #analytics-dashboard {
+        display: none !important;
+    }
+    
+    /* Ajustar cards para telas muito pequenas */
+    .mobile-analytics-card {
+        margin-bottom: 0.75rem;
+        border-radius: 8px;
+    }
+    
+    .mobile-analytics-header,
+    .mobile-analytics-content {
+        padding: 0.75rem;
+    }
+    
+    .analytics-data-card {
+        padding: 0.75rem;
+    }
+    
+    .analytics-data-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .analytics-data-value {
+        max-width: 100%;
+        text-align: left;
+        font-weight: 600;
+    }
+    
+    /* Gráficos responsivos */
+    canvas,
+    .chart {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    
+    /* Tabelas que não foram convertidas */
+    table {
+        font-size: 0.75rem;
+    }
+    
+    table th,
+    table td {
+        padding: 0.25rem !important;
+    }
+}
+
+/* Estados de loading */
+.mobile-analytics-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.mobile-analytics-loading .spinner-border {
+    margin-right: 0.5rem;
+}
+
+/* Animações */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-analytics-content {
+    animation: slideDown 0.3s ease-out;
+}
+
+/* Cores e temas para diferentes tipos de dados */
+.analytics-data-card.status-info {
+    border-left: 4px solid #007bff;
+}
+
+.analytics-data-card.status-success {
+    border-left: 4px solid #28a745;
+}
+
+.analytics-data-card.status-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.analytics-data-card.status-danger {
+    border-left: 4px solid #dc3545;
+}
+
+/* Estilos para diferentes tipos de valores */
+.analytics-data-value.currency {
+    color: #28a745;
+    font-weight: 700;
+}
+
+.analytics-data-value.percentage {
+    color: #007bff;
+    font-weight: 700;
+}
+
+.analytics-data-value.count {
+    color: #6c757d;
+    font-weight: 700;
+}
+
+.analytics-data-value.status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Estados específicos */
+.analytics-data-value.status.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.analytics-data-value.status.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.analytics-data-value.status.delayed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.analytics-data-value.status.completed {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Estilos para spans das áreas nos cards mobile */
+.mobile-analytics-area-span,
+.analytics-data-value .area-span {
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+/* Cores das áreas correspondentes ao Areas.css */
+.mobile-analytics-area-span.area-sti,
+.analytics-data-value .area-span.area-sti {
+    background: #ffe5a0;
+    color: #856404;
+}
+
+.mobile-analytics-area-span.area-operacoes,
+.analytics-data-value .area-span.area-operacoes {
+    background: #bfe1f6;
+    color: #0c5460;
+}
+
+.mobile-analytics-area-span.area-dev,
+.analytics-data-value .area-span.area-dev {
+    background: #d4edbc;
+    color: #155724;
+}
+
+.mobile-analytics-area-span.area-analytics,
+.analytics-data-value .area-span.area-analytics {
+    background: #ffc8aa;
+    color: #721c24;
+}
+
+.mobile-analytics-area-span.area-governanca,
+.analytics-data-value .area-span.area-governanca {
+    background: #e8eaed;
+    color: #495057;
+}

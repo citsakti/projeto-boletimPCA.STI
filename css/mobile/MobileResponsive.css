@@ -1,0 +1,315 @@
+/**
+ * MobileResponsive.css - Estilos responsivos complementares para mobile
+ * 
+ * Este arquivo complementa os estilos móveis com melhorias específicas
+ * para a experiência do usuário em dispositivos móveis
+ */
+
+/* Melhorias gerais para mobile */
+@media (max-width: 430px) {
+    /* Ajustar padding do container principal */
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    /* Header responsivo */
+    header .logo-tribunal {
+        height: 50px !important;
+    }
+    
+    header h1 {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Toolbar ajustado */
+    .toolbar {
+        padding: 0.75rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    .btn-toolbar {
+        font-size: 0.8rem;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .btn-toolbar .btn-text {
+        display: none;
+    }
+    
+    .btn-toolbar i {
+        margin-right: 0 !important;
+    }
+    
+    /* Painel de resumos mobile */
+    .painel-resumo-container {
+        margin-bottom: 0.75rem;
+    }
+    
+    .painel-resumo-header {
+        padding: 0.75rem;
+    }
+    
+    .painel-resumo {
+        padding: 0.75rem;
+    }
+}
+
+/* Cores pastéis específicas para cada status (versão mobile otimizada) */
+@media (max-width: 430px) {
+    .project-card.status-autuacao-atrasada {
+        background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+        border-left: 4px solid #e91e63;
+    }
+    
+    .project-card.status-em-renovacao {
+        background: linear-gradient(135deg, #e3f2fd 0%, #e1f5fe 100%);
+        border-left: 4px solid #03a9f4;
+    }
+    
+    .project-card.status-cancelado {
+        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+        border-left: 4px solid #9e9e9e;
+    }
+    
+    .project-card.status-em-contratacao {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+        border-left: 4px solid #4caf50;
+    }
+    
+    .project-card.status-aguardando-etp {
+        background: linear-gradient(135deg, #fff3e0 0%, #fff8e1 100%);
+        border-left: 4px solid #ff9800;
+    }
+    
+    .project-card.status-aguardando-dfd {
+        background: linear-gradient(135deg, #fff3e0 0%, #fff8e1 100%);
+        border-left: 4px solid #ff9800;
+    }
+    
+    .project-card.status-a-iniciar {
+        background: linear-gradient(135deg, #f3e5f5 0%, #fce4ec 100%);
+        border-left: 4px solid #9c27b0;
+    }
+    
+    .project-card.status-renovado {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+        border-left: 4px solid #4caf50;
+    }
+    
+    .project-card.status-contratado {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+        border-left: 4px solid #4caf50;
+    }
+    
+    .project-card.status-aguardando-definicao {
+        background: linear-gradient(135deg, #fff3e0 0%, #fff8e1 100%);
+        border-left: 4px solid #ff9800;
+    }
+    
+    .project-card.status-etp-atrasado {
+        background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+        border-left: 4px solid #f44336;
+    }
+    
+    .project-card.status-dfd-atrasado {
+        background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+        border-left: 4px solid #f44336;
+    }
+    
+    .project-card.status-contratacao-atrasada {
+        background: linear-gradient(135deg, #fff8e1 0%, #fffde7 100%);
+        border-left: 4px solid #ffc107;
+    }
+    
+    .project-card.status-elaborando-tr {
+        background: linear-gradient(135deg, #e3f2fd 0%, #e1f5fe 100%);
+        border-left: 4px solid #2196f3;
+    }
+    
+    .project-card.status-analise-viabilidade {
+        background: linear-gradient(135deg, #e3f2fd 0%, #e1f5fe 100%);
+        border-left: 4px solid #2196f3;
+    }
+    
+    .project-card.status-revisao-pca {
+        background: linear-gradient(135deg, #fff3e0 0%, #fff8e1 100%);
+        border-left: 4px solid #ff9800;
+    }
+}
+
+/* Status específicos para o card-status dentro dos cards */
+@media (max-width: 430px) {
+    .card-status.status-autuacao-atrasada {
+        background: rgba(244, 67, 54, 0.1);
+        color: #d32f2f;
+        border: 1px solid rgba(244, 67, 54, 0.3);
+    }
+    
+    .card-status.status-em-renovacao {
+        background: rgba(33, 150, 243, 0.1);
+        color: #1976d2;
+        border: 1px solid rgba(33, 150, 243, 0.3);
+    }
+    
+    .card-status.status-cancelado {
+        background: rgba(158, 158, 158, 0.1);
+        color: #616161;
+        border: 1px solid rgba(158, 158, 158, 0.3);
+    }
+    
+    .card-status.status-em-contratacao {
+        background: rgba(76, 175, 80, 0.1);
+        color: #388e3c;
+        border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    
+    .card-status.status-aguardando-etp,
+    .card-status.status-aguardando-dfd,
+    .card-status.status-aguardando-definicao,
+    .card-status.status-revisao-pca {
+        background: rgba(255, 152, 0, 0.1);
+        color: #f57c00;
+        border: 1px solid rgba(255, 152, 0, 0.3);
+    }
+    
+    .card-status.status-a-iniciar {
+        background: rgba(156, 39, 176, 0.1);
+        color: #7b1fa2;
+        border: 1px solid rgba(156, 39, 176, 0.3);
+    }
+    
+    .card-status.status-renovado,
+    .card-status.status-contratado {
+        background: rgba(76, 175, 80, 0.1);
+        color: #388e3c;
+        border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    
+    .card-status.status-etp-atrasado,
+    .card-status.status-dfd-atrasado {
+        background: rgba(244, 67, 54, 0.1);
+        color: #d32f2f;
+        border: 1px solid rgba(244, 67, 54, 0.3);
+    }
+    
+    .card-status.status-contratacao-atrasada {
+        background: rgba(255, 193, 7, 0.1);
+        color: #f57c00;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+    
+    .card-status.status-elaborando-tr,
+    .card-status.status-analise-viabilidade {
+        background: rgba(33, 150, 243, 0.1);
+        color: #1976d2;
+        border: 1px solid rgba(33, 150, 243, 0.3);
+    }
+}
+
+/* Animações suaves para interações */
+@media (max-width: 430px) {
+    .project-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .project-card:active {
+        transform: scale(0.98);
+    }
+    
+    .btn-details {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-details:active {
+        transform: scale(0.95);
+    }
+    
+    .mobile-filters-header {
+        transition: background-color 0.2s ease;
+    }
+    
+    .mobile-filters-content {
+        transition: all 0.3s ease;
+    }
+}
+
+/* Melhorias de acessibilidade para mobile */
+@media (max-width: 430px) {
+    /* Aumentar área de toque */
+    .btn-details,
+    .mobile-filters-header,
+    .details-modal-close {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Melhorar contraste */
+    .card-id {
+        background: rgba(0, 0, 0, 0.1);
+        color: #212529;
+        font-weight: 700;
+    }
+    
+    /* Texto mais legível */
+    .card-title {
+        line-height: 1.5;
+        word-break: break-word;
+    }
+    
+    .card-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+}
+
+/* Estados de carregamento específicos para mobile */
+@media (max-width: 430px) {
+    .mobile-cards-container.loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    .mobile-cards-container.loading::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .project-card.loading {
+        opacity: 0.5;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+/* Otimizações de performance para mobile */
+@media (max-width: 430px) {
+    .project-card {
+        will-change: transform;
+        backface-visibility: hidden;
+    }
+    
+    .details-modal {
+        will-change: opacity;
+    }
+    
+    .mobile-filters-content {
+        will-change: height;
+    }
+}
