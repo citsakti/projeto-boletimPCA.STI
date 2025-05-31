@@ -293,7 +293,8 @@ class MobileCardsManager {
         container.innerHTML = this.filteredData.map(item => this.createCard(item)).join('');
     }
       createCard(item) {
-        const statusClass = this.getStatusClass(item.status);
+        const statusClass = this.getStatusClass(item.status); // Usará a classe base para o card
+        const statusHighlightClass = `${statusClass}-highlight`; // Classe para o texto do status
         const areaClass = this.getAreaClass(item.area);
         
         // Usar MobileUtils para formatação se disponível
@@ -313,7 +314,7 @@ class MobileCardsManager {
                         <span class="card-value">${valorFormatado}</span>
                     </div>
                     
-                    <div class="card-status ${statusClass}">
+                    <div class="card-status-text ${statusHighlightClass}">
                         ${item.status}
                     </div>
                 </div>
@@ -329,6 +330,9 @@ class MobileCardsManager {
     
     getStatusClass(status) {
         // Mapeamento baseado no StatusClasses.js
+        // Retorna a classe base, ex: 'status-autuacao-atrasada'
+        // A variação '-highlight' será usada para o texto do status
+        // e a classe base para o fundo do card.
         const statusMap = {
             'AUTUAÇÃO ATRASADA 💣': 'status-autuacao-atrasada',
             'EM RENOVAÇÃO 🔄': 'status-em-renovacao',
