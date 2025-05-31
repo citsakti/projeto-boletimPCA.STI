@@ -654,7 +654,25 @@ function renderProdutividadeDetalhada() {
         new Date(2025, 6, 1),  // 01/07/2025
         new Date(2025, 11, 31) // 31/12/2025
     );
-      let html = `
+
+    // Função para determinar classe de performance baseada no percentual
+    function getPerformanceClass(percentual) {
+        if (percentual >= 80) return 'alto-desempenho';
+        if (percentual >= 60) return 'medio-desempenho';
+        return 'baixo-desempenho';
+    }
+
+    // Função para obter status textual
+    function getStatusText(percentual) {
+        if (percentual >= 80) return { text: 'Meta Atingida', icon: '✅', class: 'alto' };
+        if (percentual >= 60) return { text: 'Próximo da Meta', icon: '⚠️', class: 'medio' };
+        return { text: 'Abaixo da Meta', icon: '🔴', class: 'baixo' };
+    }
+
+    const status2025_1 = getStatusText(produtividade2025_1.percentualConclusao);
+    const status2025_2 = getStatusText(produtividade2025_2.percentualConclusao);
+    
+    let html = `
     <div class="analytics-section">
         <h2>4. Produtividade Aquisições T.I.</h2>
         
@@ -680,32 +698,48 @@ function renderProdutividadeDetalhada() {
                                 <span class="tipo-value">${produtividade2025_1.total}</span>
                             </div>
                         </div>
-                          <div class="produtividade-percentual">
-                            <h4>Produtividade em %</h4>
+                        
+                        <div class="produtividade-percentual">
+                            <h4>📊 Produtividade em %</h4>
                             <div class="percentual-item">
-                                <span class="percentual-label">Total de Processos Autuados</span>
+                                <span class="percentual-label">✅ Total de Processos Autuados</span>
                                 <span class="percentual-value">${produtividade2025_1.projetosAutuados}</span>
                             </div>
                             <div class="percentual-item">
-                                <span class="percentual-label">Total de Processos Não Autuados</span>
+                                <span class="percentual-label">⏳ Total de Processos Não Autuados</span>
                                 <span class="percentual-value">${produtividade2025_1.projetosNaoAutuadosArray.length}</span>
                             </div>
                             <div class="percentual-item">
-                                <span class="percentual-label">Porcentagem de Conclusão para 2025.1 até Agora</span>
-                                <span class="percentual-value percentual-progress">
-                                    <div class="progress-bar" style="width: ${produtividade2025_1.percentualConclusao}%"></div>
-                                    <span>${produtividade2025_1.percentualConclusao}%</span>
-                                </span>
+                                <span class="percentual-label">🎯 Porcentagem de Conclusão para 2025.1</span>
+                                <div class="percentual-value percentual-progress">
+                                    <div class="progress-container">
+                                        <div class="progress-bar ${getPerformanceClass(produtividade2025_1.percentualConclusao)}" 
+                                             style="--progress-width: ${produtividade2025_1.percentualConclusao}%; width: ${produtividade2025_1.percentualConclusao}%">
+                                        </div>
+                                    </div>
+                                    <div class="progress-text">
+                                        <span class="progress-percentage">${produtividade2025_1.percentualConclusao}%</span>
+                                        <span class="progress-status ${status2025_1.class}">
+                                            ${status2025_1.icon} ${status2025_1.text}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                          <div class="produtividade-botoes">
-                            <button class="btn btn-outline-primary btn-sm prod-expand-btn" data-period="2025_1" data-type="autuados">Ver Processos Autuados</button>
-                            <button class="btn btn-outline-primary btn-sm prod-expand-btn" data-period="2025_1" data-type="nao-autuados">Ver Processos Não Autuados</button>
+                        </div>                        
+                        <div class="produtividade-botoes">
+                            <button class="btn prod-expand-btn" data-period="2025_1" data-type="autuados">
+                                📋 Ver Processos Autuados
+                                <span class="expand-icon">▼</span>
+                            </button>
+                            <button class="btn prod-expand-btn" data-period="2025_1" data-type="nao-autuados">
+                                ⏸️ Ver Processos Não Autuados
+                                <span class="expand-icon">▼</span>
+                            </button>
                         </div>
                         
                         <!-- Container para detalhes dos processos autuados 2025.1 -->
                         <div id="detalhes-2025_1-autuados" class="detalhes-produtividade" style="display:none;">
-                            <h4>Processos Autuados 2025.1</h4>
+                            <h4>📋 Processos Autuados 2025.1</h4>
                             <div class="project-details">
                                 ${renderProdutividadeProjetosTable(produtividade2025_1.projetosAutuadosArray)}
                             </div>
@@ -713,7 +747,7 @@ function renderProdutividadeDetalhada() {
                         
                         <!-- Container para detalhes dos processos não autuados 2025.1 -->
                         <div id="detalhes-2025_1-nao-autuados" class="detalhes-produtividade" style="display:none;">
-                            <h4>Processos Não Autuados 2025.1</h4>
+                            <h4>⏸️ Processos Não Autuados 2025.1</h4>
                             <div class="project-details">
                                 ${renderProdutividadeProjetosTable(produtividade2025_1.projetosNaoAutuadosArray)}
                             </div>
@@ -739,32 +773,49 @@ function renderProdutividadeDetalhada() {
                                 <span class="tipo-value">${produtividade2025_2.total}</span>
                             </div>
                         </div>
-                          <div class="produtividade-percentual">
-                            <h4>Produtividade em %</h4>
+                        
+                        <div class="produtividade-percentual">
+                            <h4>📊 Produtividade em %</h4>
                             <div class="percentual-item">
-                                <span class="percentual-label">Total de Processos Autuados</span>
+                                <span class="percentual-label">✅ Total de Processos Autuados</span>
                                 <span class="percentual-value">${produtividade2025_2.projetosAutuados}</span>
                             </div>
                             <div class="percentual-item">
-                                <span class="percentual-label">Total de Processos Não Autuados</span>
+                                <span class="percentual-label">⏳ Total de Processos Não Autuados</span>
                                 <span class="percentual-value">${produtividade2025_2.projetosNaoAutuadosArray.length}</span>
                             </div>
                             <div class="percentual-item">
-                                <span class="percentual-label">Porcentagem de Conclusão para 2025.2 até Agora</span>
-                                <span class="percentual-value percentual-progress">
-                                    <div class="progress-bar" style="width: ${produtividade2025_2.percentualConclusao}%"></div>
-                                    <span>${produtividade2025_2.percentualConclusao}%</span>
-                                </span>
+                                <span class="percentual-label">🎯 Porcentagem de Conclusão para 2025.2</span>
+                                <div class="percentual-value percentual-progress">
+                                    <div class="progress-container">
+                                        <div class="progress-bar ${getPerformanceClass(produtividade2025_2.percentualConclusao)}" 
+                                             style="--progress-width: ${produtividade2025_2.percentualConclusao}%; width: ${produtividade2025_2.percentualConclusao}%">
+                                        </div>
+                                    </div>
+                                    <div class="progress-text">
+                                        <span class="progress-percentage">${produtividade2025_2.percentualConclusao}%</span>
+                                        <span class="progress-status ${status2025_2.class}">
+                                            ${status2025_2.icon} ${status2025_2.text}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                          <div class="produtividade-botoes">
-                            <button class="btn btn-outline-primary btn-sm prod-expand-btn" data-period="2025_2" data-type="autuados">Ver Processos Autuados</button>
-                            <button class="btn btn-outline-primary btn-sm prod-expand-btn" data-period="2025_2" data-type="nao-autuados">Ver Processos Não Autuados</button>
+                        
+                        <div class="produtividade-botoes">
+                            <button class="btn prod-expand-btn" data-period="2025_2" data-type="autuados">
+                                📋 Ver Processos Autuados
+                                <span class="expand-icon">▼</span>
+                            </button>
+                            <button class="btn prod-expand-btn" data-period="2025_2" data-type="nao-autuados">
+                                ⏸️ Ver Processos Não Autuados
+                                <span class="expand-icon">▼</span>
+                            </button>
                         </div>
                         
                         <!-- Container para detalhes dos processos autuados 2025.2 -->
                         <div id="detalhes-2025_2-autuados" class="detalhes-produtividade" style="display:none;">
-                            <h4>Processos Autuados 2025.2</h4>
+                            <h4>📋 Processos Autuados 2025.2</h4>
                             <div class="project-details">
                                 ${renderProdutividadeProjetosTable(produtividade2025_2.projetosAutuadosArray)}
                             </div>
@@ -772,7 +823,7 @@ function renderProdutividadeDetalhada() {
                         
                         <!-- Container para detalhes dos processos não autuados 2025.2 -->
                         <div id="detalhes-2025_2-nao-autuados" class="detalhes-produtividade" style="display:none;">
-                            <h4>Processos Não Autuados 2025.2</h4>
+                            <h4>⏸️ Processos Não Autuados 2025.2</h4>
                             <div class="project-details">
                                 ${renderProdutividadeProjetosTable(produtividade2025_2.projetosNaoAutuadosArray)}
                             </div>
@@ -780,8 +831,7 @@ function renderProdutividadeDetalhada() {
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </div>    </div>
     `;
     
     return html;
@@ -796,11 +846,8 @@ function addProdutividadeExpandListeners() {
     
     produtividadeExpandButtons.forEach(button => {
         // Armazenar o texto original do botão para restaurar ao esconder
-        const originalText = button.textContent;
+        const originalText = button.textContent.replace('▼', '').trim();
         button.setAttribute('data-original-text', originalText);
-        
-        // Adicionar ícone de seta ao botão
-        button.innerHTML = originalText + '<span class="expand-icon">▼</span>';
         
         // Construir o ID do alvo a partir dos atributos data-period e data-type
         const period = button.getAttribute('data-period');
@@ -840,32 +887,37 @@ function addProdutividadeExpandListeners() {
                             behavior: 'smooth', 
                             block: 'start'
                         });
-                        
-                        // Adicionar classe para destacar brevemente o conteúdo
-                        detailsDiv.classList.add('scrolled-to');
-                        setTimeout(() => {
-                            detailsDiv.classList.remove('scrolled-to');
-                        }, 1500);
-                    }, 300);
-                }, 10);
+                    }, 150);
+                }, 50);
                 
-                // Atualizar o botão
-                this.innerHTML = 'Esconder detalhes' + '<span class="expand-icon rotate">▼</span>';
+                // Atualizar o botão para mostrar que está expandido
                 this.classList.add('active');
+                if (expandIcon) {
+                    expandIcon.style.transform = 'rotate(180deg)';
+                }
+                
+                // Marcar o box como expandido
+                produtividadeBox.classList.add('expanded');
             } else {
                 // Esconder os detalhes com animação
                 detailsDiv.classList.remove('expanded');
-                detailsDiv.classList.remove('scrolled-to');
                 
                 // Usar setTimeout para aguardar a animação completar
                 setTimeout(() => {
                     detailsDiv.style.display = 'none';
                 }, 300);
                 
-                // Restaurar o texto e aparência do botão
-                const originalText = this.getAttribute('data-original-text');
-                this.innerHTML = originalText + '<span class="expand-icon">▼</span>';
+                // Atualizar o botão para mostrar que está recolhido
                 this.classList.remove('active');
+                if (expandIcon) {
+                    expandIcon.style.transform = 'rotate(0deg)';
+                }
+                
+                // Remover a classe expandida se nenhum detalhe estiver visível
+                const allDetails = produtividadeBox.querySelectorAll('.detalhes-produtividade.expanded');
+                if (allDetails.length === 0) {
+                    produtividadeBox.classList.remove('expanded');
+                }
                 
                 // Rolar de volta para o box pai
                 produtividadeBox.scrollIntoView({ 
