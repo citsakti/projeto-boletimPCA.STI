@@ -835,7 +835,6 @@
     position: relative;
     overflow: hidden;
     cursor: pointer;
-    white-space: nowrap;
     text-overflow: ellipsis;
     line-height: 1.2;
     height: auto;
