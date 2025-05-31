@@ -57,9 +57,8 @@ function renderGeneralSection() {
                 <div class="card-header">
                     <h2>1. Dados Gerais</h2>
                 </div>
-                <div class="card-body">
-                    <div class="analytics-subsection">
-                        <h3>Status dos Processos</h3>
+                <div class="card-body">                    <div class="analytics-subsection">
+                        <h3>1.1 Status dos Processos</h3>
                         <div class="status-grid">
                             <div class="status-box">
                                 <div class="status-name">TODOS</div>
@@ -85,7 +84,7 @@ function renderGeneralSection() {
                             </div>
                         `).join('')}
                     </div>                    <div class="analytics-subsection">
-                        <h3>Tipo de Contratação</h3>
+                        <h3>1.2 Tipo de Contratação</h3>
                         <div class="tipo-grid">
                             <div class="tipo-box expandable-tipo-box" data-tipo="🛒 Aquisição">
                                 <div class="tipo-name">🛒 Aquisição</div>
@@ -116,16 +115,34 @@ function renderGeneralSection() {
                                 </div>
                             </div>                        </div>
                     </div>
-                    
-                    <div class="analytics-subsection">
-                        <h3>Projetos de Aquisição por Área</h3>
+                      <div class="analytics-subsection">
+                        <h3>1.3 Projetos por Área</h3>
                         <div class="area-projects-grid">
                             ${renderAreaProjectsHtml()}
                         </div>
                     </div>
-                    
+                </div>
+            </div>
+        </div>
+    `;    const container = document.getElementById('analytics-dashboard');
+    if (container) {
+        container.innerHTML = html;
+    }
+}
+
+/**
+ * Função para renderizar a seção de orçamento
+ */
+function renderOrcamentoSection() {
+    let html = `
+        <div class="analytics-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2>2. Orçamento</h2>
+                </div>
+                <div class="card-body">
                     <div class="analytics-subsection">
-                        <h3>Valores por Orçamento e Tipo</h3>
+                        <h3>2.1 Valores por Orçamento e Tipo</h3>
                         <div class="valor-table">
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover">
@@ -171,7 +188,8 @@ function renderGeneralSection() {
                                         </tr>
                                         <tr class="table-warning">
                                             <td><strong>Total GERAL (CUSTEIO + INVESTIMENTO)</strong></td>
-                                            <td><strong>R$ ${formatCurrency(analyticData.valorTotal.custeio + analyticData.valorTotal.investimento)}</strong></td>                                            <td></td>
+                                            <td><strong>R$ ${formatCurrency(analyticData.valorTotal.custeio + analyticData.valorTotal.investimento)}</strong></td>
+                                            <td></td>
                                         </tr>
                                         <tr class="expandable-row" data-category="custoAquisicao">
                                             <td>Total 🛒 Aquisição no CUSTEIO 💳</td>
@@ -205,52 +223,52 @@ function renderGeneralSection() {
                                                 </div>
                                             </td>
                                         </tr>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Total GERAL no CUSTEIO (Aquisição + Renovação)</strong></td>
-                                <td><strong>R$ ${formatCurrency(analyticData.valorTotal.custoAquisicao + analyticData.valorTotal.custoRenovacao)}</strong></td>
-                                <td></td>
-                            </tr>
-                            <tr class="expandable-row" data-category="investimentoAquisicao">
-                                <td>Total 🛒 Aquisição no INVESTIMENTO 💵</td>
-                                <td>R$ ${formatCurrency(analyticData.valorTotal.investimentoAquisicao)}</td>
-                                <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="investimentoAquisicao">Detalhar</button></td>
-                            </tr>
-                            <tr class="details-row" id="details-investimentoAquisicao" style="display:none;">
-                                <td colspan="3">
-                                    <div class="project-details">
-                                        ${renderProjectDetails('investimentoAquisicao')}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="expandable-row" data-category="investimentoRenovacao">
-                                <td>Total 🔄 Renovação no INVESTIMENTO 💵</td>
-                                <td>R$ ${formatCurrency(analyticData.valorTotal.investimentoRenovacao)}</td>
-                                <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="investimentoRenovacao">Detalhar</button></td>
-                            </tr>
-                            <tr class="details-row" id="details-investimentoRenovacao" style="display:none;">
-                                <td colspan="3">
-                                    <div class="project-details">
-                                        ${renderProjectDetails('investimentoRenovacao')}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Total GERAL no INVESTIMENTO (Aquisição + Renovação)</strong></td>
-                                <td><strong>R$ ${formatCurrency(analyticData.valorTotal.investimentoAquisicao + analyticData.valorTotal.investimentoRenovacao)}</strong></td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>            </div>
-            
-            <div class="analytics-subsection">
-                <h3>Valores por Área e Tipo</h3>
-                <div class="valor-area-table">
-                    ${renderValoresPorAreaETipo()}
-                </div>
-            </div>
+                                        <tr>
+                                            <td><strong>Total GERAL no CUSTEIO (Aquisição + Renovação)</strong></td>
+                                            <td><strong>R$ ${formatCurrency(analyticData.valorTotal.custoAquisicao + analyticData.valorTotal.custoRenovacao)}</strong></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr class="expandable-row" data-category="investimentoAquisicao">
+                                            <td>Total 🛒 Aquisição no INVESTIMENTO 💵</td>
+                                            <td>R$ ${formatCurrency(analyticData.valorTotal.investimentoAquisicao)}</td>
+                                            <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="investimentoAquisicao">Detalhar</button></td>
+                                        </tr>
+                                        <tr class="details-row" id="details-investimentoAquisicao" style="display:none;">
+                                            <td colspan="3">
+                                                <div class="project-details">
+                                                    ${renderProjectDetails('investimentoAquisicao')}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="expandable-row" data-category="investimentoRenovacao">
+                                            <td>Total 🔄 Renovação no INVESTIMENTO 💵</td>
+                                            <td>R$ ${formatCurrency(analyticData.valorTotal.investimentoRenovacao)}</td>
+                                            <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="investimentoRenovacao">Detalhar</button></td>
+                                        </tr>
+                                        <tr class="details-row" id="details-investimentoRenovacao" style="display:none;">
+                                            <td colspan="3">
+                                                <div class="project-details">
+                                                    ${renderProjectDetails('investimentoRenovacao')}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Total GERAL no INVESTIMENTO (Aquisição + Renovação)</strong></td>
+                                            <td><strong>R$ ${formatCurrency(analyticData.valorTotal.investimentoAquisicao + analyticData.valorTotal.investimentoRenovacao)}</strong></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-subsection">
+                        <h3>2.2 Valores por Área e Tipo</h3>
+                        <div class="valor-area-table">
+                            ${renderValoresPorAreaETipo()}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -258,7 +276,7 @@ function renderGeneralSection() {
 
     const container = document.getElementById('analytics-dashboard');
     if (container) {
-        container.innerHTML = html;
+        container.innerHTML += html;
     }
 }
 
@@ -276,15 +294,14 @@ function renderSituacionalSection() {
         analyticData.situacional.processosSuspensos +
         analyticData.situacional.processosAIniciar;
 
-    let html = `
-        <div class="analytics-section">
+    let html = `        <div class="analytics-section">
             <div class="card">
                 <div class="card-header">
-                    <h2>2. Análise Situacional</h2>
+                    <h2>3. Análise Situacional</h2>
                 </div>
                 <div class="card-body">
                     <div class="analytics-subsection">
-                        <h3>Análise Interna</h3>
+                        <h3>3.1 Análise Interna</h3>
                         <div class="situacional-table">
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover">
@@ -405,14 +422,11 @@ function renderSituacionalSection() {
                                 <td></td>
                                 <td>${totalSituacional}</td>
                                 <td></td>
-                            </tr>
-                        </tbody>
+                            </tr>                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        
-        ${renderProdutividadeSection()}
     `;
     
     // Adicionar à página
@@ -435,7 +449,7 @@ function renderProdutividadeSection() {
     // Fallback caso a função não esteja disponível
     return `
     <div class="analytics-section">
-        <h2>3. Produtividade Aquisições T.I.</h2>
+        <h2>4. Produtividade Aquisições T.I.</h2>
         <p>Dados de produtividade não disponíveis.</p>
     </div>
     `;

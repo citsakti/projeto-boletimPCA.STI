@@ -654,13 +654,12 @@ function renderProdutividadeDetalhada() {
         new Date(2025, 6, 1),  // 01/07/2025
         new Date(2025, 11, 31) // 31/12/2025
     );
-    
-    let html = `
+      let html = `
     <div class="analytics-section">
-        <h2>3. Produtividade Aquisições T.I.</h2>
+        <h2>4. Produtividade Aquisições T.I.</h2>
         
         <div class="analytics-subsection">
-            <h3>Índice de Produtividade | Meta 80%</h3>
+            <h3>4.1 Índice de Produtividade | Meta 80%</h3>
         
             <div class="tipo-grid">
                 <!-- Quadro 1: Produtividade 2025.1 -->

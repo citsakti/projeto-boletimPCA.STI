@@ -117,10 +117,16 @@ function initAnalytics() {
     }
     
     fetchCSVData()
-        .then(processData)
-        .then(() => {
-            renderGeneralSection();
+        .then(processData)        .then(() => {            renderGeneralSection();
+            renderOrcamentoSection();
             renderSituacionalSection();
+            
+            // Renderizar seção de produtividade
+            const container = document.getElementById('analytics-dashboard');
+            if (container && typeof renderProdutividadeDetalhada === 'function') {
+                container.innerHTML += renderProdutividadeDetalhada();
+            }
+            
             // Atualizar a data de atualização
             document.getElementById('data-atualizacao').textContent = new Date().toLocaleDateString('pt-BR');
             
