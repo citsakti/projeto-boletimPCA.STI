@@ -50,129 +50,161 @@ function renderGeneralSection() {
     // Calcular o total de todos os status
     const totalStatus = Object.values(analyticData.statusCounts).reduce((sum, num) => sum + num, 0);
 
-    // Montar HTML para a seção Geral
+    // Montar HTML para a seção Geral usando padrão Bootstrap
     let html = `
         <div class="analytics-section">
-            <h2>1. Dados Gerais</h2>
-              <div class="analytics-subsection">
-                <h3>Status dos Processos</h3>
-                <div class="status-grid">
-                    <div class="status-box">
-                        <div class="status-name">TODOS</div>
-                        <div class="status-count">${totalStatus}</div>
-                    </div>
-                    ${Object.entries(analyticData.statusCounts).map(([status, count]) => `
-                        <div class="status-box expandable-status-box" data-status="${status}">
-                            <div class="status-name">${status}</div>
-                            <div class="status-count">${count}</div>
-                            <button class="status-expand-btn" data-status="${status}">Detalhar</button>
+            <div class="card">
+                <div class="card-header">
+                    <h2>1. Dados Gerais</h2>
+                </div>
+                <div class="card-body">
+                    <div class="analytics-subsection">
+                        <h3>Status dos Processos</h3>
+                        <div class="status-grid">
+                            <div class="status-box">
+                                <div class="status-name">TODOS</div>
+                                <div class="status-count">${totalStatus}</div>
+                            </div>
+                            ${Object.entries(analyticData.statusCounts).map(([status, count]) => `
+                                <div class="status-box expandable-status-box" data-status="${status}">
+                                    <div class="status-name">${status}</div>
+                                    <div class="status-count">${count}</div>
+                                    <button class="btn btn-outline-primary btn-sm status-expand-btn" data-status="${status}">Detalhar</button>
+                                </div>
+                            `).join('')}
                         </div>
-                    `).join('')}
-                </div>
-                ${Object.entries(analyticData.statusCounts).map(([status, count]) => `
-                    <div class="status-details-row" id="status-details-${status.replace(/\s+/g, '-').toLowerCase()}" style="display:none;">
-                        <div class="project-details">
-                            ${renderStatusDetails(status)}
+                        ${Object.entries(analyticData.statusCounts).map(([status, count]) => `
+                            <div class="status-details-row" id="status-details-${status.replace(/\s+/g, '-').toLowerCase()}" style="display:none;">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="project-details">
+                                            ${renderStatusDetails(status)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>                    <div class="analytics-subsection">
+                        <h3>Tipo de Contratação</h3>
+                        <div class="tipo-grid">
+                            <div class="tipo-box expandable-tipo-box" data-tipo="🛒 Aquisição">
+                                <div class="tipo-name">🛒 Aquisição</div>
+                                <div class="tipo-count">${analyticData.tipoCounts["🛒 Aquisição"]}</div>
+                                <button class="btn btn-outline-primary btn-sm tipo-expand-btn" data-tipo="🛒 Aquisição">Detalhar</button>
+                            </div>
+                            <div class="tipo-box expandable-tipo-box" data-tipo="🔄 Renovação">
+                                <div class="tipo-name">🔄 Renovação</div>
+                                <div class="tipo-count">${analyticData.tipoCounts["🔄 Renovação"]}</div>
+                                <button class="btn btn-outline-primary btn-sm tipo-expand-btn" data-tipo="🔄 Renovação">Detalhar</button>
+                            </div>
+                        </div>
+                        <div class="tipo-details-row" id="tipo-details-aquisicao" style="display:none;">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="project-details">
+                                        ${renderTipoDetails("🛒 Aquisição")}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tipo-details-row" id="tipo-details-renovacao" style="display:none;">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="project-details">
+                                        ${renderTipoDetails("🔄 Renovação")}
+                                    </div>
+                                </div>
+                            </div>                        </div>
+                    </div>
+                    
+                    <div class="analytics-subsection">
+                        <h3>Projetos de Aquisição por Área</h3>
+                        <div class="area-projects-grid">
+                            ${renderAreaProjectsHtml()}
                         </div>
                     </div>
-                `).join('')}
-            </div>
-              <div class="analytics-subsection">
-                <h3>Tipo de Contratação</h3>
-                <div class="tipo-grid">
-                    <div class="tipo-box expandable-tipo-box" data-tipo="🛒 Aquisição">
-                        <div class="tipo-name">🛒 Aquisição</div>
-                        <div class="tipo-count">${analyticData.tipoCounts["🛒 Aquisição"]}</div>
-                        <button class="tipo-expand-btn" data-tipo="🛒 Aquisição">Detalhar</button>
-                    </div>
-                    <div class="tipo-box expandable-tipo-box" data-tipo="🔄 Renovação">
-                        <div class="tipo-name">🔄 Renovação</div>
-                        <div class="tipo-count">${analyticData.tipoCounts["🔄 Renovação"]}</div>
-                        <button class="tipo-expand-btn" data-tipo="🔄 Renovação">Detalhar</button>
-                    </div>
-                </div>
-                <div class="tipo-details-row" id="tipo-details-aquisicao" style="display:none;">
-                    <div class="project-details">
-                        ${renderTipoDetails("🛒 Aquisição")}
-                    </div>
-                </div>
-                <div class="tipo-details-row" id="tipo-details-renovacao" style="display:none;">
-                    <div class="project-details">
-                        ${renderTipoDetails("🔄 Renovação")}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="analytics-subsection">
-                <h3>Projetos de Aquisição por Área</h3>
-                <div class="area-projects-grid">
-                    ${renderAreaProjectsHtml()}
-                </div>
-            </div>
-            
-            <div class="analytics-subsection">
-                <h3>Valores por Orçamento e Tipo</h3>
-                <div class="valor-table">
-                    <table class="analytics-table">
-                        <thead>
-                            <tr>
-                                <th>Categoria</th>
-                                <th>Valor Total</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="expandable-row" data-category="custeio">
-                                <td>Total CUSTEIO 💳</td>
-                                <td>R$ ${formatCurrency(analyticData.valorTotal.custeio)}</td>
-                                <td><button class="expand-btn" data-category="custeio">Detalhar</button></td>
-                            </tr>
-                            <tr class="details-row" id="details-custeio" style="display:none;">
-                                <td colspan="3">
-                                    <div class="project-details">
-                                        ${renderProjectDetails('custeio')}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="expandable-row" data-category="investimento">
-                                <td>Total INVESTIMENTO 💵</td>
-                                <td>R$ ${formatCurrency(analyticData.valorTotal.investimento)}</td>
-                                <td><button class="expand-btn" data-category="investimento">Detalhar</button></td>
-                            </tr>
-                            <tr class="details-row" id="details-investimento" style="display:none;">
-                                <td colspan="3">
-                                    <div class="project-details">
-                                        ${renderProjectDetails('investimento')}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Total GERAL (CUSTEIO + INVESTIMENTO)</strong></td>
-                                <td><strong>R$ ${formatCurrency(analyticData.valorTotal.custeio + analyticData.valorTotal.investimento)}</strong></td>
-                                <td></td>
-                            </tr>
-                            <tr class="expandable-row" data-category="custoAquisicao">
-                                <td>Total 🛒 Aquisição no CUSTEIO 💳</td>
-                                <td>R$ ${formatCurrency(analyticData.valorTotal.custoAquisicao)}</td>
-                                <td><button class="expand-btn" data-category="custoAquisicao">Detalhar</button></td>
-                            </tr>
-                            <tr class="details-row" id="details-custoAquisicao" style="display:none;">
-                                <td colspan="3">
-                                    <div class="project-details">
-                                        ${renderProjectDetails('custoAquisicao')}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="expandable-row" data-category="custoRenovacao">
-                                <td>Total 🔄 Renovação no CUSTEIO 💳</td>
-                                <td>R$ ${formatCurrency(analyticData.valorTotal.custoRenovacao)}</td>
-                                <td><button class="expand-btn" data-category="custoRenovacao">Detalhar</button></td>
-                            </tr>
-                            <tr class="details-row" id="details-custoRenovacao" style="display:none;">
-                                <td colspan="3">
-                                    <div class="project-details">
-                                        ${renderProjectDetails('custoRenovacao')}
-                                    </div>
+                    
+                    <div class="analytics-subsection">
+                        <h3>Valores por Orçamento e Tipo</h3>
+                        <div class="valor-table">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Categoria</th>
+                                            <th>Valor Total</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="expandable-row" data-category="custeio">
+                                            <td>Total CUSTEIO 💳</td>
+                                            <td>R$ ${formatCurrency(analyticData.valorTotal.custeio)}</td>
+                                            <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="custeio">Detalhar</button></td>
+                                        </tr>
+                                        <tr class="details-row" id="details-custeio" style="display:none;">
+                                            <td colspan="3">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div class="project-details">
+                                                            ${renderProjectDetails('custeio')}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="expandable-row" data-category="investimento">
+                                            <td>Total INVESTIMENTO 💵</td>
+                                            <td>R$ ${formatCurrency(analyticData.valorTotal.investimento)}</td>
+                                            <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="investimento">Detalhar</button></td>
+                                        </tr>
+                                        <tr class="details-row" id="details-investimento" style="display:none;">
+                                            <td colspan="3">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div class="project-details">
+                                                            ${renderProjectDetails('investimento')}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-warning">
+                                            <td><strong>Total GERAL (CUSTEIO + INVESTIMENTO)</strong></td>
+                                            <td><strong>R$ ${formatCurrency(analyticData.valorTotal.custeio + analyticData.valorTotal.investimento)}</strong></td>                                            <td></td>
+                                        </tr>
+                                        <tr class="expandable-row" data-category="custoAquisicao">
+                                            <td>Total 🛒 Aquisição no CUSTEIO 💳</td>
+                                            <td>R$ ${formatCurrency(analyticData.valorTotal.custoAquisicao)}</td>
+                                            <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="custoAquisicao">Detalhar</button></td>
+                                        </tr>
+                                        <tr class="details-row" id="details-custoAquisicao" style="display:none;">
+                                            <td colspan="3">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div class="project-details">
+                                                            ${renderProjectDetails('custoAquisicao')}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="expandable-row" data-category="custoRenovacao">
+                                            <td>Total 🔄 Renovação no CUSTEIO 💳</td>
+                                            <td>R$ ${formatCurrency(analyticData.valorTotal.custoRenovacao)}</td>
+                                            <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="custoRenovacao">Detalhar</button></td>
+                                        </tr>
+                                        <tr class="details-row" id="details-custoRenovacao" style="display:none;">
+                                            <td colspan="3">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div class="project-details">
+                                                            ${renderProjectDetails('custoRenovacao')}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
                                 </td>
                             </tr>
                             <tr>
@@ -183,7 +215,7 @@ function renderGeneralSection() {
                             <tr class="expandable-row" data-category="investimentoAquisicao">
                                 <td>Total 🛒 Aquisição no INVESTIMENTO 💵</td>
                                 <td>R$ ${formatCurrency(analyticData.valorTotal.investimentoAquisicao)}</td>
-                                <td><button class="expand-btn" data-category="investimentoAquisicao">Detalhar</button></td>
+                                <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="investimentoAquisicao">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="details-investimentoAquisicao" style="display:none;">
                                 <td colspan="3">
@@ -195,7 +227,7 @@ function renderGeneralSection() {
                             <tr class="expandable-row" data-category="investimentoRenovacao">
                                 <td>Total 🔄 Renovação no INVESTIMENTO 💵</td>
                                 <td>R$ ${formatCurrency(analyticData.valorTotal.investimentoRenovacao)}</td>
-                                <td><button class="expand-btn" data-category="investimentoRenovacao">Detalhar</button></td>
+                                <td><button class="btn btn-outline-primary btn-sm expand-btn" data-category="investimentoRenovacao">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="details-investimentoRenovacao" style="display:none;">
                                 <td colspan="3">
@@ -211,13 +243,14 @@ function renderGeneralSection() {
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
+                </div>            </div>
             
             <div class="analytics-subsection">
                 <h3>Valores por Área e Tipo</h3>
                 <div class="valor-area-table">
                     ${renderValoresPorAreaETipo()}
+                </div>
+            </div>
                 </div>
             </div>
         </div>
@@ -245,15 +278,20 @@ function renderSituacionalSection() {
 
     let html = `
         <div class="analytics-section">
-            <h2>2. Análise Situacional</h2>
-            <div class="analytics-subsection">
-                <h3>Análise Interna</h3>
-                <div class="situacional-table">
-                    <table class="analytics-table">
-                        <thead>
-                            <tr>
-                                <th>Categoria</th>
-                                <th style="white-space:normal; word-break:break-word;">Critério (STATUS DO PROCESSO)</th>
+            <div class="card">
+                <div class="card-header">
+                    <h2>2. Análise Situacional</h2>
+                </div>
+                <div class="card-body">
+                    <div class="analytics-subsection">
+                        <h3>Análise Interna</h3>
+                        <div class="situacional-table">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Categoria</th>
+                                            <th style="white-space:normal; word-break:break-word;">Critério (STATUS DO PROCESSO)</th>
                                 <th>Contagem</th>
                                 <th></th>
                             </tr>
@@ -264,8 +302,7 @@ function renderSituacionalSection() {
                                 <td style="white-space:normal; word-break:break-word;">
                                     ${formatStatusWithClasses('EM CONTRATAÇÃO 🤝')} ou ${formatStatusWithClasses('EM RENOVAÇÃO 🔄')}<br>(ÁREA ≠ STI)
                                 </td>
-                                <td>${analyticData.situacional.contratacaoForaSTI}</td>
-                                <td><button class="situacional-expand-btn" data-category="contratacaoForaSTI">Detalhar</button></td>
+                                <td>${analyticData.situacional.contratacaoForaSTI}</td>                                <td><button class="btn btn-outline-primary btn-sm situacional-expand-btn" data-category="contratacaoForaSTI">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-contratacaoForaSTI" style="display:none;">
                                 <td colspan="4">
@@ -280,7 +317,7 @@ function renderSituacionalSection() {
                                     ${formatStatusWithClasses('AUTUAÇÃO ATRASADA 💣')}
                                 </td>
                                 <td>${analyticData.situacional.autuacaoAtrasada}</td>
-                                <td><button class="situacional-expand-btn" data-category="autuacaoAtrasada">Detalhar</button></td>
+                                <td><button class="btn btn-outline-primary btn-sm situacional-expand-btn" data-category="autuacaoAtrasada">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-autuacaoAtrasada" style="display:none;">
                                 <td colspan="4">
@@ -298,9 +335,8 @@ function renderSituacionalSection() {
                                     <div style="margin-bottom: 4px;">${formatStatusWithClasses('ANÁLISE DE VIABILIDADE 📝')}</div>
                                     <div style="margin-bottom: 4px;">${formatStatusWithClasses('DFD ATRASADO❗')}</div>
                                     <div>${formatStatusWithClasses('ETP ATRASADO❗')}</div>
-                                </td>
-                                <td>${analyticData.situacional.elaboracaoInterna}</td>
-                                <td><button class="situacional-expand-btn" data-category="elaboracaoInterna">Detalhar</button></td>
+                                </td>                                <td>${analyticData.situacional.elaboracaoInterna}</td>
+                                <td><button class="btn btn-outline-primary btn-sm situacional-expand-btn" data-category="elaboracaoInterna">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-elaboracaoInterna" style="display:none;">
                                 <td colspan="4">
@@ -315,7 +351,7 @@ function renderSituacionalSection() {
                                     ${formatStatusWithClasses('CONTRATAÇÃO ATRASADA ⚠️')}<br>(ÁREA ≠ STI)
                                 </td>
                                 <td>${analyticData.situacional.contratacaoAtrasadaForaSTI}</td>
-                                <td><button class="situacional-expand-btn" data-category="contratacaoAtrasadaForaSTI">Detalhar</button></td>
+                                <td><button class="btn btn-outline-primary btn-sm situacional-expand-btn" data-category="contratacaoAtrasadaForaSTI">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-contratacaoAtrasadaForaSTI" style="display:none;">
                                 <td colspan="4">
@@ -328,9 +364,8 @@ function renderSituacionalSection() {
                                 <td style="font-weight: bold;">Processos Concluídos</td>
                                 <td style="white-space:normal; word-break:break-word;">
                                     ${formatStatusWithClasses('CONTRATADO ✅')} ou ${formatStatusWithClasses('RENOVADO ✅')}
-                                </td>
-                                <td>${analyticData.situacional.processosConcluidos}</td>
-                                <td><button class="situacional-expand-btn" data-category="processosConcluidos">Detalhar</button></td>
+                                </td>                                <td>${analyticData.situacional.processosConcluidos}</td>
+                                <td><button class="btn btn-outline-primary btn-sm situacional-expand-btn" data-category="processosConcluidos">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-processosConcluidos" style="display:none;">
                                 <td colspan="4">
@@ -343,7 +378,7 @@ function renderSituacionalSection() {
                                 <td style="font-weight: bold;">Processos Suspensos</td>
                                 <td style="white-space:normal; word-break:break-word;">${formatStatusWithClasses('REVISÃO PCA 🚧')}</td>
                                 <td>${analyticData.situacional.processosSuspensos}</td>
-                                <td><button class="situacional-expand-btn" data-category="processosSuspensos">Detalhar</button></td>
+                                <td><button class="btn btn-outline-primary btn-sm situacional-expand-btn" data-category="processosSuspensos">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-processosSuspensos" style="display:none;">
                                 <td colspan="4">
@@ -356,7 +391,7 @@ function renderSituacionalSection() {
                                 <td style="font-weight: bold;">Processos a Iniciar</td>
                                 <td style="white-space:normal; word-break:break-word;">${formatStatusWithClasses('A INICIAR ⏰')}</td>
                                 <td>${analyticData.situacional.processosAIniciar}</td>
-                                <td><button class="situacional-expand-btn" data-category="processosAIniciar">Detalhar</button></td>
+                                <td><button class="btn btn-outline-primary btn-sm situacional-expand-btn" data-category="processosAIniciar">Detalhar</button></td>
                             </tr>
                             <tr class="details-row" id="situacional-details-processosAIniciar" style="display:none;">
                                 <td colspan="4">
@@ -475,13 +510,12 @@ function renderValoresPorAreaETipo() {
         
         html += `
             <tr>
-                <td>${formatAreaWithClasses(area)}</td>
-                <td>R$ ${formatCurrency(areaData.custeio.total)}</td>
-                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="custeio">Detalhar</button></td>
+                <td>${formatAreaWithClasses(area)}</td>                <td>R$ ${formatCurrency(areaData.custeio.total)}</td>
+                <td><button class="btn btn-outline-primary btn-sm area-valor-expand-btn" data-area="${areaId}" data-tipo="custeio">Detalhar</button></td>
                 <td>R$ ${formatCurrency(areaData.investimento.total)}</td>
-                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="investimento">Detalhar</button></td>
+                <td><button class="btn btn-outline-primary btn-sm area-valor-expand-btn" data-area="${areaId}" data-tipo="investimento">Detalhar</button></td>
                 <td><strong>R$ ${formatCurrency(areaData.total)}</strong></td>
-                <td><button class="area-valor-expand-btn" data-area="${areaId}" data-tipo="total">Detalhar</button></td>
+                <td><button class="btn btn-outline-primary btn-sm area-valor-expand-btn" data-area="${areaId}" data-tipo="total">Detalhar</button></td>
             </tr>
             <tr class="details-row" id="details-area-custeio-${areaId}" style="display:none;">
                 <td colspan="7">
@@ -658,9 +692,8 @@ function renderAreaProjectsHtml() {
                     <span>🛒 Aquisição: ${areaCount['🛒 Aquisição']}</span>
                     <span>🔄 Renovação: ${areaCount['🔄 Renovação']}</span>
                     <span><strong>Total: ${areaCount.total}</strong></span>
-                </div>
-                <div class="area-actions">
-                    <button class="area-expand-btn" data-area="${area}">Detalhar <span class="expand-icon">▼</span></button>
+                </div>                <div class="area-actions">
+                    <button class="btn btn-outline-primary btn-sm area-expand-btn" data-area="${area}">Detalhar <span class="expand-icon">▼</span></button>
                 </div>
                 <div class="area-details" id="area-details-${area.replace(/\s+/g, '-')}" style="display:none;">
                     <div class="project-details">

@@ -5,10 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="./IMG/favicon.ico" type="image/x-icon" />
     <title>Boletim PCA 2025 - STI</title>
-    
-    <!-- Bootstrap CSS -->
+      <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- PDF Viewer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha512-q+4lLvQQPJxRC2KGK5jUgNNUX4qMg4xVFZgT5tK/FLDEgAjKwLGVFW4/MjP6OwKPpMXOWqaRjWNpvN+U5CR0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript">
+        // Configuração do worker do PDF.js
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
       <!-- Layout e Tokens -->
     <link rel="stylesheet" href="./css/layout/Tokens.css">
     <link rel="preload" href="./css/layout/Main.css" as="style">
@@ -35,8 +43,7 @@
     <script src="./JS/utils/AreasClasses.js" defer></script>
     <script src="./JS/utils/OrcamentoClasses.js" defer></script>
     <script src="./JS/utils/BootstrapAdapter.js" defer></script>
-      <!-- Mobile -->
-    <script src="./JS/mobile/MobileDeviceDetection.js" defer></script>
+      <!-- Mobile -->    <script src="./JS/mobile/MobileDeviceDetection.js" defer></script>
     <script src="./JS/mobile/MobileMenu.js" defer></script>
     <script src="./JS/mobile/MobileGoogleSheetFilters.js" defer></script>
     <script src="./JS/mobile/MobileCompactCards.js" defer></script>

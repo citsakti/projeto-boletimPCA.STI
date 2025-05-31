@@ -696,10 +696,9 @@ function renderProdutividadeDetalhada() {
                                 </span>
                             </div>
                         </div>
-                        
-                        <div class="produtividade-botoes">
-                            <button class="prod-expand-btn" data-period="2025_1" data-type="autuados">Ver Processos Autuados</button>
-                            <button class="prod-expand-btn" data-period="2025_1" data-type="nao-autuados">Ver Processos Não Autuados</button>
+                          <div class="produtividade-botoes">
+                            <button class="btn btn-outline-primary btn-sm prod-expand-btn" data-period="2025_1" data-type="autuados">Ver Processos Autuados</button>
+                            <button class="btn btn-outline-primary btn-sm prod-expand-btn" data-period="2025_1" data-type="nao-autuados">Ver Processos Não Autuados</button>
                         </div>
                         
                         <!-- Container para detalhes dos processos autuados 2025.1 -->
@@ -753,10 +752,9 @@ function renderProdutividadeDetalhada() {
                                 </span>
                             </div>
                         </div>
-                        
-                        <div class="produtividade-botoes">
-                            <button class="prod-expand-btn" data-period="2025_2" data-type="autuados">Ver Processos Autuados</button>
-                            <button class="prod-expand-btn" data-period="2025_2" data-type="nao-autuados">Ver Processos Não Autuados</button>
+                          <div class="produtividade-botoes">
+                            <button class="btn btn-outline-primary btn-sm prod-expand-btn" data-period="2025_2" data-type="autuados">Ver Processos Autuados</button>
+                            <button class="btn btn-outline-primary btn-sm prod-expand-btn" data-period="2025_2" data-type="nao-autuados">Ver Processos Não Autuados</button>
                         </div>
                         
                         <!-- Container para detalhes dos processos autuados 2025.2 -->
