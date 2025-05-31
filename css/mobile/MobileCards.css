@@ -208,22 +208,22 @@
 .area-governanca { background-color: #e8eaed; color: black; }
 
 /* Cores pastéis para status (herdadas das cores dos status) */
-.status-autuacao-atrasada { background-color: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
-.status-em-renovacao { background-color: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0; }
+.status-autuacao-atrasada { background-color: #e6cff2; color: #000; border-left: 4px solid #9c27b0; }
+.status-em-renovacao { background-color: #0a53a8; color: #fff; border-left: 4px solid #0a53a8; }
 .status-cancelado { background-color: #fafafa; color: #424242; border-left: 4px solid #424242; }
-.status-em-contratacao { background-color: #e8f5e8; color: #2e7d32; border-left: 4px solid #2e7d32; }
-.status-aguardando-etp { background-color: #fff3e0; color: #ef6c00; border-left: 4px solid #ef6c00; }
-.status-aguardando-dfd { background-color: #fff3e0; color: #ef6c00; border-left: 4px solid #ef6c00; }
-.status-a-iniciar { background-color: #f3e5f5; color: #7b1fa2; border-left: 4px solid #7b1fa2; }
-.status-renovado { background-color: #e8f5e8; color: #2e7d32; border-left: 4px solid #2e7d32; }
-.status-contratado { background-color: #e8f5e8; color: #2e7d32; border-left: 4px solid #2e7d32; }
-.status-aguardando-definicao { background-color: #fff3e0; color: #ef6c00; border-left: 4px solid #ef6c00; }
-.status-etp-atrasado { background-color: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
-.status-dfd-atrasado { background-color: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
-.status-contratacao-atrasada { background-color: #fff8e1; color: #f57c00; border-left: 4px solid #f57c00; }
-.status-elaborando-tr { background-color: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0; }
-.status-analise-viabilidade { background-color: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0; }
-.status-revisao-pca { background-color: #fff3e0; color: #ef6c00; border-left: 4px solid #ef6c00; }
+.status-em-contratacao { background-color: #0a53a8; color: #fff; border-left: 4px solid #0a53a8; }
+.status-aguardando-etp { background-color: #ffe5a0; color: #000; border-left: 4px solid #f57c00; }
+.status-aguardando-dfd { background-color: #ffe5a0; color: #000; border-left: 4px solid #f57c00; }
+.status-a-iniciar { background-color: #e6e6e6; color: #000000; border-left: 4px solid #9e9e9e; }
+.status-renovado { background-color: #d4edbc; color: #000; border-left: 4px solid #4caf50; }
+.status-contratado { background-color: #d4edbc; color: #000; border-left: 4px solid #4caf50; }
+.status-aguardando-definicao { background-color: #e6cff2; color: #000; border-left: 4px solid #9c27b0; }
+.status-etp-atrasado { background-color: #ffcfc9; color: #000; border-left: 4px solid #f44336; }
+.status-dfd-atrasado { background-color: #ffcfc9; color: #000; border-left: 4px solid #f44336; }
+.status-contratacao-atrasada { background-color: #ffcfc9; color: #000; border-left: 4px solid #f44336; }
+.status-elaborando-tr { background-color: #bfe1f6; color: #000; border-left: 4px solid #2196f3; }
+.status-analise-viabilidade { background-color: #bfe1f6; color: #000; border-left: 4px solid #2196f3; }
+.status-revisao-pca { background-color: #000000; color: #ffe5a0; border-left: 4px solid #000000; }
 
 /* Modal de detalhes */
 .details-modal {

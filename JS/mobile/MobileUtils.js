@@ -104,25 +104,24 @@ class MobileUtils {
         
         return text.substring(0, maxLength - 3) + '...';
     }
-    
-    static getStatusColor(status) {
+      static getStatusColor(status) {
         const statusColors = {
-            'AUTUAÇÃO ATRASADA 💣': '#f44336',
-            'EM RENOVAÇÃO 🔄': '#2196f3',
+            'AUTUAÇÃO ATRASADA 💣': '#e6cff2',
+            'EM RENOVAÇÃO 🔄': '#0a53a8',
             'CANCELADO ❌': '#9e9e9e',
-            'EM CONTRATAÇÃO 🤝': '#4caf50',
-            'AGUARDANDO ETP ⏳': '#ff9800',
-            'AGUARDANDO DFD ⏳': '#ff9800',
-            'A INICIAR ⏰': '#9c27b0',
-            'RENOVADO ✅': '#4caf50',
-            'CONTRATADO ✅': '#4caf50',
-            'AGUR. DEFIN. DO GESTOR ⏳': '#ff9800',
-            'ETP ATRASADO❗': '#f44336',
-            'DFD ATRASADO❗': '#f44336',
-            'CONTRATAÇÃO ATRASADA ⚠️': '#ffc107',
-            'ELABORANDO TR📝': '#2196f3',
-            'ANÁLISE DE VIABILIDADE 📝': '#2196f3',
-            'REVISÃO PCA 🚧': '#ff9800'
+            'EM CONTRATAÇÃO 🤝': '#0a53a8',
+            'AGUARDANDO ETP ⏳': '#ffe5a0',
+            'AGUARDANDO DFD ⏳': '#ffe5a0',
+            'A INICIAR ⏰': '#e6e6e6',
+            'RENOVADO ✅': '#d4edbc',
+            'CONTRATADO ✅': '#d4edbc',
+            'AGUR. DEFIN. DO GESTOR ⏳': '#e6cff2',
+            'ETP ATRASADO❗': '#ffcfc9',
+            'DFD ATRASADO❗': '#ffcfc9',
+            'CONTRATAÇÃO ATRASADA ⚠️': '#ffcfc9',
+            'ELABORANDO TR📝': '#bfe1f6',
+            'ANÁLISE DE VIABILIDADE 📝': '#bfe1f6',
+            'REVISÃO PCA 🚧': '#000000'
         };
         
         return statusColors[status] || '#6c757d';

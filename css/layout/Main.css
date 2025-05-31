@@ -301,16 +301,8 @@ table tbody tr.contratacao-atrasada {
 }
 
 /* highlights de status */
-.status-autuacao-atrasada-highlight { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-flex; align-items:center; vertical-align:middle; }
-.status-contratacao-atrasada-highlight {
-    background: #b10202;
-    color: #fff;
-    border-radius: 6px;
-    padding: 2px 6px;
-    display: inline-block;
-    animation: blink 1s linear infinite;
-    white-space: nowrap; /* Impede quebra de linha e empurra a célula */
-}
+.status-autuacao-atrasada-highlight     { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-contratacao-atrasada-highlight  { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-aguardando-dfd-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-etp-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
