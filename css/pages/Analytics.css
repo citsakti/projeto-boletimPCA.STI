@@ -429,17 +429,20 @@
 /* Container geral da seção produtividade */
 .analytics-subsection .tipo-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-    gap: 2rem;
-    margin-top: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Cards de produtividade modernizados */
 .produtividade-box {
     background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(var(--brand-primary-rgb), 0.1);
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     position: relative;
@@ -456,32 +459,32 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 3px;
     background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
-    border-radius: 16px 16px 0 0;
+    border-radius: 12px 12px 0 0;
 }
 
 .produtividade-box:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     border-color: rgba(var(--brand-primary-rgb), 0.2);
 }
 
 .produtividade-box.expanded {
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    transform: translateY(-6px) scale(1.02);
     z-index: 10;
 }
 
 /* Títulos dos cards */
 .produtividade-box h3 {
     color: var(--brand-primary);
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
     border-bottom: 3px solid transparent;
-    background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+    background: var(--brand-primary);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -493,8 +496,8 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 60px;
-    height: 3px;
+    width: 40px;
+    height: 2px;
     background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
     border-radius: 2px;
     animation: expandWidth 0.8s ease-out forwards;
@@ -502,15 +505,15 @@
 
 @keyframes expandWidth {
     from { width: 0; }
-    to { width: 60px; }
+    to { width: 40px; }
 }
 
 /* Seção de tipos (Aquisição/Renovação) */
 .produtividade-tipos {
     background: rgba(var(--brand-primary-rgb), 0.03);
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    padding: 0.875rem;
+    margin-bottom: 1rem;
     border: 1px solid rgba(var(--brand-primary-rgb), 0.08);
 }
 
@@ -518,7 +521,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0;
+    padding: 0.5rem 0;
     border-bottom: 1px solid rgba(var(--brand-primary-rgb), 0.08);
     transition: all 0.3s ease;
 }
@@ -537,58 +540,58 @@
 .tipo-label {
     font-weight: 600;
     color: var(--brand-primary);
-    font-size: 1rem;
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
 .tipo-value {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--brand-primary);
-    background: linear-gradient(45deg, var(--brand-primary), var(--brand-secondary));
+    background: var(--brand-primary);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    min-width: 40px;
+    min-width: 35px;
     text-align: right;
 }
 
 .tipo-item.total {
     border-top: 2px solid rgba(var(--brand-primary-rgb), 0.15);
-    margin-top: 0.5rem;
-    padding-top: 1rem;
+    margin-top: 0.375rem;
+    padding-top: 0.75rem;
     background: rgba(var(--brand-primary-rgb), 0.05);
-    border-radius: 8px;
-    padding: 1rem 0.75rem;
+    border-radius: 6px;
+    padding: 0.75rem 0.5rem;
 }
 
 .tipo-item.total .tipo-label {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
 }
 
 .tipo-item.total .tipo-value {
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     font-weight: 800;
 }
 
 /* Seção de percentuais modernizada */
 .produtividade-percentual {
     background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.05) 0%, rgba(var(--brand-secondary-rgb), 0.05) 100%);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
     border: 1px solid rgba(var(--brand-primary-rgb), 0.1);
     position: relative;
 }
 
 .produtividade-percentual h4 {
     color: var(--brand-primary);
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 700;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.875rem;
     text-align: center;
     position: relative;
 }
@@ -596,10 +599,10 @@
 .produtividade-percentual h4::after {
     content: '';
     position: absolute;
-    bottom: -8px;
+    bottom: -6px;
     left: 50%;
     transform: translateX(-50%);
-    width: 40px;
+    width: 30px;
     height: 2px;
     background: var(--brand-primary);
     border-radius: 1px;
@@ -609,11 +612,11 @@
 .percentual-item {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
-    padding: 1rem;
+    gap: 0.5rem;
+    margin-bottom: 0.875rem;
+    padding: 0.75rem;
     background: rgba(255, 255, 255, 0.7);
-    border-radius: 10px;
+    border-radius: 6px;
     border: 1px solid rgba(var(--brand-primary-rgb), 0.08);
     transition: all 0.3s ease;
 }
@@ -627,12 +630,12 @@
 .percentual-label {
     font-weight: 600;
     color: var(--brand-primary);
-    font-size: 0.95rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.375rem;
 }
 
 .percentual-value {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--brand-primary);
 }
@@ -642,15 +645,15 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.375rem;
 }
 
 .progress-container {
     position: relative;
     width: 100%;
-    height: 24px;
+    height: 20px;
     background: linear-gradient(90deg, #e9ecef 0%, #f8f9fa 100%);
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(var(--brand-primary-rgb), 0.1);
@@ -674,14 +677,14 @@
     content: '80%';
     position: absolute;
     left: 80%;
-    top: -28px;
+    top: -24px;
     transform: translateX(-50%);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 600;
     color: #dc3545;
     background: white;
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 1px 4px;
+    border-radius: 3px;
     border: 1px solid #dc3545;
     white-space: nowrap;
 }
@@ -740,25 +743,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 700;
-    margin-top: 0.5rem;
+    margin-top: 0.375rem;
 }
 
 .progress-percentage {
     color: var(--brand-primary);
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 800;
 }
 
 .progress-status {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 6px;
+    padding: 3px 6px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
 }
 
 .progress-status.baixo {
@@ -779,10 +782,10 @@
 /* Botões de produtividade */
 .produtividade-botoes {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
     justify-content: center;
-    margin-top: 1rem;
+    margin-top: 0.75rem;
 }
 
 .prod-expand-btn {
@@ -790,15 +793,24 @@
     min-width: 200px;
     background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-medium) 100%);
     border: none;
-    color: white;
-    padding: 0.75rem 1.25rem;
-    border-radius: 10px;
+    color: white !important;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     position: relative;
     overflow: hidden;
     cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    height: auto;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .prod-expand-btn::before {
@@ -820,21 +832,25 @@
     transform: translateY(-2px) scale(1.02);
     box-shadow: 0 8px 24px rgba(var(--brand-primary-rgb), 0.3);
     background: linear-gradient(135deg, var(--brand-primary-medium) 0%, var(--brand-primary-dark) 100%);
+    color: white !important;
 }
 
 .prod-expand-btn:active {
     transform: translateY(0) scale(0.98);
+    color: white !important;
 }
 
 .prod-expand-btn.active {
     background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-primary) 100%);
     box-shadow: 0 6px 20px rgba(var(--brand-secondary-rgb), 0.3);
+    color: white !important;
 }
 
 .expand-icon {
     margin-left: 0.5rem;
     transition: transform 0.3s ease;
     font-size: 0.8rem;
+    color: white !important;
 }
 
 .prod-expand-btn.active .expand-icon {
@@ -843,10 +859,10 @@
 
 /* Detalhes da produtividade */
 .detalhes-produtividade {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
+    margin-top: 1rem;
+    padding: 1rem;
     background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.03) 0%, rgba(var(--brand-secondary-rgb), 0.03) 100%);
-    border-radius: 12px;
+    border-radius: 8px;
     border: 2px solid rgba(var(--brand-primary-rgb), 0.1);
     overflow: hidden;
     max-height: 0;
@@ -861,23 +877,23 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
+    height: 2px;
     background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
 }
 
 .detalhes-produtividade.expanded {
-    max-height: 2000px;
+    max-height: 1500px;
     opacity: 1;
     border-color: rgba(var(--brand-primary-rgb), 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .detalhes-produtividade h4 {
     color: var(--brand-primary);
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 700;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.375rem;
     border-bottom: 2px solid rgba(var(--brand-primary-rgb), 0.1);
 }
 
@@ -885,6 +901,12 @@
    SEÇÃO: Responsividade Mobile
    ======================= */
 @media (max-width: 768px) {
+    .analytics-subsection .tipo-grid {
+        grid-template-columns: 1fr;
+        gap: 0.875rem;
+        max-width: 100%;
+    }
+    
     .tipo-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -949,6 +971,27 @@
     .tipo-expand-btn {
         padding: 8px 12px;
         font-size: 0.85rem;
+    }
+    
+    .prod-expand-btn {
+        min-width: 180px;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.8rem;
+        white-space: normal;
+        word-wrap: break-word;
+        line-height: 1.3;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .analytics-subsection .tipo-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        max-width: 800px;
+    }
+    
+    .prod-expand-btn {
+        min-width: 190px;
+        font-size: 0.8rem;
     }
 }
 

@@ -165,12 +165,51 @@
 .prod-expand-btn {
     margin-top: 0.5rem;
     font-size: 0.9rem;
+    min-width: 200px;
+    background: var(--brand-primary);
+    border: none;
+    color: white !important;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    height: auto;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
-/* Usar classes Bootstrap para botões */
-.status-expand-btn,
-.tipo-expand-btn {
-    width: 100%;
+.prod-expand-btn:hover {
+    background: var(--brand-primary-dark);
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.prod-expand-btn:active {
+    color: white !important;
+}
+
+.prod-expand-btn.active {
+    background: var(--brand-secondary);
+    color: white !important;
+}
+
+.expand-icon {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+    font-size: 0.8rem;
+    color: white !important;
+}
+
+.prod-expand-btn.active .expand-icon {
+    transform: rotate(180deg);
 }
 
 /* =======================
@@ -335,6 +374,15 @@
     .tipo-expand-btn {
         padding: 8px 12px;
         font-size: 0.85rem;
+    }
+    
+    .prod-expand-btn {
+        min-width: 180px;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.8rem;
+        white-space: normal;
+        word-wrap: break-word;
+        line-height: 1.3;
     }
 }
 

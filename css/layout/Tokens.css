@@ -1,11 +1,10 @@
 /* Design Tokens - Projeto Boletim PCA STI 2025 */
 /* Definições centralizadas de design system */
 
-:root {
-    /* ===== CORES DA MARCA ===== */
+:root {    /* ===== CORES DA MARCA ===== */
     --brand-primary: #2c417a;
     --brand-primary-light: #4a6fd4;
-    --brand-primary-medium: #003e8a;
+    --brand-primary-medium: #2c417a;
     --brand-primary-dark: #1a2c54;
     --brand-secondary: #FFC72C;
     --brand-secondary-light: #ffd56b;

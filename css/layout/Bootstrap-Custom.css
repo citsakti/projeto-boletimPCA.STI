@@ -1214,25 +1214,23 @@ header h1 {
 }
 
 /* ===== DARK MODE PREPARATION ===== */
-/* Preparação para modo escuro futuro */
+/* Preparação para modo escuro futuro - atualizado para usar #2c417a */
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --brand-primary: #4a6fd4;
-        --brand-primary-medium: #6785da;
+        --brand-primary: #2c417a;
+        --brand-primary-medium: #2c417a;
         --brand-secondary: #ffd56b;
         --brand-neutral: #2d3748;
     }
     
     body {
         background-color: #1a202c;
-        color: #e2e8f0;
     }
     
     .card {
         background-color: #2d3748;
         border-color: #4a5568;
-        color: #e2e8f0;
     }
     
     .table {
