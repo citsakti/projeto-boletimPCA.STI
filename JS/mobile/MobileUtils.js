@@ -28,31 +28,24 @@ class MobileUtils {
     
     static formatCurrency(value) {
         if (!value || value === '-' || value === 'N/A') return value;
-        
+
         // Remover caracteres não numéricos exceto vírgula e ponto
-        const cleanValue = value.toString().replace(/[^\d.,]/g, '');
-        
+        const cleanValue = value.toString().replace(/[^\\d.,]/g, '');
+
         if (!cleanValue) return value;
-        
+
         try {
             // Converter para número
             const numValue = parseFloat(cleanValue.replace(',', '.'));
-            
+
             if (isNaN(numValue)) return value;
-            
-            // Formatação específica para mobile (mais compacta)
-            if (this.isMobileDevice()) {
-                if (numValue >= 1000000) {
-                    return `R$ ${(numValue / 1000000).toFixed(1)}M`;
-                } else if (numValue >= 1000) {
-                    return `R$ ${(numValue / 1000).toFixed(1)}K`;
-                }
-            }
-            
-            // Formatação padrão
+
+            // Formatação padrão com casas decimais
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
-                currency: 'BRL'
+                currency: 'BRL',
+                minimumFractionDigits: 2, // Garante pelo menos 2 casas decimais
+                // maximumFractionDigits: 2 // Removido para não truncar
             }).format(numValue);
         } catch (error) {
             return value;

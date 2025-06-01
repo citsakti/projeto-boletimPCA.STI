@@ -96,18 +96,19 @@
 }
 
 .card-title {
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: 700;
+    font-size: 2%rem;
     color: #212529;
     margin: 0;
     flex: 1;
     margin-left: 0.75rem;
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
 /* Conteúdo principal do card */
 .card-content {
     margin-bottom: 1rem;
+    font-size: 1.1rem;
 }
 
 .card-row {
@@ -119,7 +120,7 @@
 
 .card-area {
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 1.05rem;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     color: white;
@@ -127,8 +128,8 @@
 
 .card-value {
     font-weight: 700;
-    font-size: 1rem;
-    color: #28a745;
+    font-size: 1.15rem;
+    color: #00290a;
 }
 
 /* Status do projeto */
@@ -147,13 +148,26 @@
     text-align: center;
     padding: 0.5rem 0.75rem; /* Ajuste de padding se necessário */
     border-radius: 6px; /* Mantém o arredondamento dos highlights */
-    font-weight: 600;
-    font-size: 0.875rem;
+    font-weight: 700;
+    font-size: 1.05rem;
     margin-bottom: 1rem;
     display: inline-block; /* Para que o background do highlight funcione corretamente */
     /* As cores de background e texto virão das classes -highlight herdadas de Main.css */
 }
 
+/* Emojis animados nos cards */
+.project-card .emoji-bomba {
+    display: inline-block;
+    animation: blink 1s infinite;
+}
+.project-card .emoji-hourglass {
+    display: inline-block;
+    animation: spin-pause 3s infinite linear;
+}
+.project-card .emoji-exclamation {
+    display: inline-block;
+    animation: fall 1s infinite;
+}
 
 /* Footer do card */
 .card-footer {
@@ -368,7 +382,11 @@
     
     .card-title {
         margin-left: 0;
-        font-size: 0.9rem;
+        font-size: 1.25rem;
+    }
+    
+    .card-content {
+        font-size: 1rem;
     }
     
     .card-row {

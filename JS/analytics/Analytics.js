@@ -515,9 +515,13 @@ function classifyProjectBySituation(projetoObj, statusProcesso, area) {
  * @returns {string} Valor formatado como moeda
  */
 function formatCurrency(value) {
+    // Verifica se o valor é um número antes de formatar
+    if (typeof value !== 'number') {
+        return value; // Retorna o valor original se não for um número
+    }
     return value.toLocaleString('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: 2, // Mantém no mínimo 2 casas decimais
+        // Removido maximumFractionDigits para permitir mais casas decimais se necessário
     });
 }
 

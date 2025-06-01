@@ -200,7 +200,15 @@ class MobileCardsManager {
         this.currentData = rows.map((row, index) => {
             const cells = row.querySelectorAll('td');
             if (cells.length < 10) return null;
-            
+            // Extrai a data para ordenação
+            let contratarAteDate = null;
+            const contratarAteText = cells[6]?.textContent?.trim();
+            if (contratarAteText) {
+                const parts = contratarAteText.split('/');
+                if (parts.length === 3) {
+                    contratarAteDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                }
+            }
             return {
                 id: index,
                 idPca: cells[0]?.textContent?.trim() || '',
@@ -209,17 +217,16 @@ class MobileCardsManager {
                 projeto: cells[3]?.textContent?.trim() || '',
                 acompanhamento: cells[4]?.textContent?.trim() || '',
                 status: cells[5]?.textContent?.trim() || '',
-                contratarAte: cells[6]?.textContent?.trim() || '',
-                valorPca: cells[7]?.textContent?.trim() || '',
+                contratarAte: contratarAteText || '',
+                contratarAteDate: contratarAteDate, // Para ordenação
+                valorPca: cells[7]?.getAttribute('data-valor-original') || cells[7]?.textContent?.trim() || '', // Valor total original do CSV
                 orcamento: cells[8]?.textContent?.trim() || '',
                 processo: cells[9]?.textContent?.trim() || '',
                 row: row
             };
-        }).filter(item => item !== null);
-        
+        }).filter(item => item !== null && item.status !== 'CANCELADO ❌'); // Remove cancelados
         this.populateFilters();
-        this.filteredData = [...this.currentData];
-        this.renderCards();
+        this.applyFilters();
     }
     
     populateFilters() {
@@ -260,8 +267,18 @@ class MobileCardsManager {
                    (!this.filters.tipo || item.tipo.includes(this.filters.tipo)) &&
                    (!this.filters.projeto || item.projeto.toLowerCase().includes(this.filters.projeto.toLowerCase()));
         });
-        
+        this.sortData();
         this.renderCards();
+    }
+    sortData() {
+        this.filteredData.sort((a, b) => {
+            const dateA = a.contratarAteDate;
+            const dateB = b.contratarAteDate;
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateB - dateA; // Mais recente primeiro
+        });
     }
     
     clearFilters() {
@@ -293,32 +310,36 @@ class MobileCardsManager {
         container.innerHTML = this.filteredData.map(item => this.createCard(item)).join('');
     }
       createCard(item) {
-        const statusClass = this.getStatusClass(item.status); // Usará a classe base para o card
-        const statusHighlightClass = `${statusClass}-highlight`; // Classe para o texto do status
+        const statusClass = this.getStatusClass(item.status);
+        const statusHighlightClass = `${statusClass}-highlight`;
         const areaClass = this.getAreaClass(item.area);
-        
-        // Usar MobileUtils para formatação se disponível
         const valorFormatado = MobileUtils ? MobileUtils.formatCurrency(item.valorPca) : item.valorPca;
-        const projetoTruncado = MobileUtils ? MobileUtils.truncateText(item.projeto, 45) : item.projeto;
-        
+        // Nome completo do projeto, sem truncar
+        let statusText = item.status;
+        if (item.status.includes('💣')) {
+            statusText = statusText.replace('💣', '<span class="emoji-bomba">💣</span>');
+        }
+        if (item.status.includes('⏳')) {
+            statusText = statusText.replace(/⏳/g, '<span class="emoji-hourglass">⏳</span>');
+        }
+        if (item.status.includes('❗')) {
+            statusText = statusText.replace(/❗/g, '<span class="emoji-exclamation">❗</span>');
+        }
         return `
             <div class="project-card ${statusClass}" data-project-id="${item.id}">
                 <div class="card-header">
                     <span class="card-id">${item.idPca}</span>
-                    <h6 class="card-title" title="${item.projeto}">${projetoTruncado}</h6>
+                    <h6 class="card-title" title="${item.projeto}">${item.projeto}</h6>
                 </div>
-                
                 <div class="card-content">
                     <div class="card-row">
                         <span class="card-area ${areaClass}">${item.area}</span>
                         <span class="card-value">${valorFormatado}</span>
                     </div>
-                    
                     <div class="card-status-text ${statusHighlightClass}">
-                        ${item.status}
+                        ${statusText}
                     </div>
                 </div>
-                
                 <div class="card-footer">
                     <button class="btn-details" onclick="MobileUtils && MobileUtils.hapticFeedback('light')">
                         <i class="bi bi-eye me-1"></i>Detalhes
