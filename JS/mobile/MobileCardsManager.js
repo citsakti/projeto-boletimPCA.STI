@@ -1,14 +1,59 @@
 /**
- * MobileCardsManager.js - Gerenciador principal dos cards mobile (Refatorado)
+ * MobileCardsManager.js - Orquestrador principal do sistema de cards mobile
  * 
- * Este arquivo é a classe principal que coordena todos os módulos dos cards mobile:
- * - MobileCardsData: Processamento de dados
- * - MobileCardsFilters: Gerenciamento de filtros  
- * - MobileCardsRenderer: Renderização de cards
- * - MobileCardsTooltips: Sistema de tooltips
- * - MobileCardsDetails: Expansão de detalhes
- * - MobileCardsEvents: Gerenciamento de eventos
- * - MobileCardsStyles: Classes CSS e estilos
+ * Este script é responsável por:
+ *  - Coordenar e gerenciar todos os módulos do sistema de cards mobile
+ *  - Detectar automaticamente modo de visualização (mobile/desktop)
+ *  - Inicializar e integrar módulos especializados
+ *  - Gerenciar fluxo de dados entre componentes
+ *  - Controlar ciclo de vida da interface mobile
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Módulos Gerenciados:
+ *   - MobileCardsData: Processamento e manipulação de dados
+ *   - MobileCardsFilters: Sistema de filtros mobile
+ *   - MobileCardsRenderer: Renderização de cards e estruturas HTML
+ *   - MobileCardsTooltips: Sistema de tooltips interativos
+ *   - MobileCardsDetails: Expansão e colapso de detalhes
+ *   - MobileCardsEvents: Central de gerenciamento de eventos
+ *   - MobileCardsStyles: Mapeamento de classes CSS
+ * 
+ * # Propriedades Principais:
+ *   - isMobileView: Estado atual da visualização (mobile/desktop)
+ *   - currentData: Dados originais carregados da tabela
+ *   - filteredData: Dados filtrados para exibição
+ *   - Instâncias de todos os módulos especializados
+ * 
+ * # Métodos Principais:
+ *   - init(): Inicialização completa do sistema
+ *   - createMobileStructure(): Cria estrutura HTML para cards mobile
+ *   - checkMobileView(): Detecta e ajusta para visualização mobile
+ *   - loadAndRenderCards(): Carrega dados e renderiza cards
+ *   - applyFilters(): Aplica filtros aos dados e re-renderiza
+ *   - clearFilters(): Limpa todos os filtros aplicados
+ *   - refreshData(): Atualiza dados da tabela principal
+ * 
+ * # Fluxo de Inicialização:
+ *   1. Instancia todos os módulos especializados
+ *   2. Cria estrutura HTML necessária para mobile
+ *   3. Configura event listeners através do MobileCardsEvents
+ *   4. Detecta modo de visualização atual
+ *   5. Carrega dados iniciais e renderiza interface
+ *   6. Configura sistema de tooltips e filtros
+ * 
+ * # Detecção Responsiva:
+ *   - Monitora redimensionamento da janela
+ *   - Alterna automaticamente entre modos desktop/mobile
+ *   - Preserva estado dos filtros entre mudanças de modo
+ *   - Ajusta comportamento de tooltips conforme dispositivo
+ * 
+ * # Integração:
+ *   - Atua como ponto central de comunicação entre módulos
+ *   - Integra com sistema principal de filtros (GoogleSheetFilters.js)
+ *   - Coordena com painel de resumos (PainelResumoUpdates.js)
+ *   - Utiliza estilos e classes do sistema principal
+ *   - Mantém sincronização com tabela principal do dashboard
  */
 
 class MobileCardsManager {

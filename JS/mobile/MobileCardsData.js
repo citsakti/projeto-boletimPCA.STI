@@ -1,11 +1,45 @@
 /**
  * MobileCardsData.js - Processamento e manipulação de dados para os cards mobile
  * 
- * Este módulo é responsável por:
- * - Carregar dados da tabela
- * - Processar informações de acompanhamento
- * - Adicionar informações de status para tooltips
- * - Ordenar dados
+ * Este script é responsável por:
+ *  - Carregar e processar dados da tabela principal do sistema
+ *  - Converter dados tabulares para formato de cards mobile
+ *  - Extrair e processar informações de acompanhamento de projetos
+ *  - Adicionar informações contextuais de status para tooltips
+ *  - Gerenciar ordenação e filtragem de dados
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Propriedades Principais:
+ *   - statusList: Lista de status especiais para tooltips
+ *   - Configurações de mapeamento de dados
+ * 
+ * # Métodos Principais:
+ *   - loadTableData(): Carrega dados da tabela HTML e converte para objetos
+ *   - processData(): Processa dados brutos e adiciona informações contextuais
+ *   - extractAcompanhamentoInfo(): Extrai informações de acompanhamento
+ *   - addStatusTooltipInfo(): Adiciona dados para tooltips de status
+ *   - sortData(): Ordena dados por critérios específicos
+ * 
+ * # Fluxo de Execução:
+ *   1. Localiza a tabela principal no DOM
+ *   2. Extrai dados de cada linha (tr) da tabela
+ *   3. Converte células (td) em objetos estruturados
+ *   4. Processa datas para ordenação
+ *   5. Adiciona informações de status e acompanhamento
+ *   6. Retorna array de objetos formatados para cards
+ * 
+ * # Tratamento de Dados:
+ *   - Conversão de datas para objetos Date para ordenação
+ *   - Mapeamento de células da tabela para propriedades de objeto
+ *   - Processamento de informações de acompanhamento de contratos
+ *   - Adição de metadados para sistema de tooltips
+ * 
+ * # Integração:
+ *   - Trabalha diretamente com tabela HTML existente
+ *   - Fornece dados estruturados para MobileCardsRenderer
+ *   - Integra com sistema de tooltips (StatusAtrasado.js)
+ *   - Coordena com MobileCardsManager para apresentação dos dados
  */
 
 class MobileCardsData {

@@ -1,11 +1,63 @@
 /**
- * MobileCardsTooltips.js - Sistema de tooltips para os cards mobile
+ * MobileCardsTooltips.js - Sistema avançado de tooltips para interface mobile
  * 
- * Este módulo é responsável por:
- * - Gerenciar tooltips de acompanhamento
- * - Gerenciar tooltips de status
- * - Posicionamento responsivo
- * - Event listeners para dispositivos móveis
+ * Este script é responsável por:
+ *  - Gerenciar tooltips de acompanhamento de contratos nos cards
+ *  - Implementar tooltips de status com informações contextuais
+ *  - Adaptar comportamento de tooltips para dispositivos móveis
+ *  - Implementar posicionamento responsivo e inteligente
+ *  - Gerenciar eventos touch e click para diferentes dispositivos
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Propriedades de Estado:
+ *   - statusTooltip: Referência ao tooltip de status ativo
+ *   - statusTooltipTimeout: Controle de timeout para tooltips
+ *   - isMobileView: Estado atual da visualização (mobile/desktop)
+ * 
+ * # Sistemas de Tooltip:
+ *   - Acompanhamento: Tooltips para informações de contratos e prazos
+ *   - Status: Tooltips para explicações detalhadas de status de projeto
+ *   - Responsivo: Adaptação automática para diferentes dispositivos
+ * 
+ * # Métodos Principais:
+ *   - setupTooltips(): Configura todos os sistemas de tooltip
+ *   - setupAcompanhamentoTooltips(): Configura tooltips de acompanhamento
+ *   - setupStatusTooltips(): Configura tooltips de status
+ *   - setMobileView(): Define modo de visualização atual
+ *   - positionTooltip(): Calcula posicionamento responsivo
+ *   - handleTooltipClick(): Gerencia cliques em elementos com tooltip
+ *   - handleTooltipTouch(): Gerencia eventos touch em dispositivos móveis
+ * 
+ * # Comportamento Mobile:
+ *   - Touch events: Toque para mostrar, toque fora para esconder
+ *   - Click events: Adaptação para desktop com hover
+ *   - Posicionamento: Ajuste automático para evitar sair da tela
+ *   - Timing: Delays apropriados para diferentes dispositivos
+ * 
+ * # Tipos de Tooltip:
+ *   1. Acompanhamento: Mostra detalhes de contratos e renovações
+ *   2. Status: Explica significado de status complexos
+ *   3. Informativos: Dicas de uso e orientações
+ * 
+ * # Posicionamento Inteligente:
+ *   - Detecta bordas da viewport
+ *   - Ajusta posição para manter tooltip visível
+ *   - Considera altura e largura do tooltip
+ *   - Adapta para orientação landscape/portrait
+ * 
+ * # Event Handling:
+ *   - Event delegation para performance
+ *   - Cleanup automático de tooltips órfãos
+ *   - Prevenção de múltiplos tooltips simultâneos
+ *   - Gestão de z-index para sobreposição correta
+ * 
+ * # Integração:
+ *   - Instanciado pelo MobileCardsManager
+ *   - Coordena com MobileCardsRenderer para elementos tooltip
+ *   - Utiliza dados de StatusAtrasado.js para conteúdo
+ *   - Aplicação de estilos via MobileCards.css
+ *   - Sincroniza com sistema de eventos do MobileCardsEvents
  */
 
 class MobileCardsTooltips {

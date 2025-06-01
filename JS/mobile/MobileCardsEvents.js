@@ -1,11 +1,52 @@
 /**
- * MobileCardsEvents.js - Gerenciamento de eventos para os cards mobile
+ * MobileCardsEvents.js - Central de gerenciamento de eventos para o sistema de cards mobile
  * 
- * Este módulo é responsável por:
- * - Configurar event listeners
- * - Gerenciar eventos de resize
- * - Coordenar eventos entre módulos
- * - Detectar mudança de visualização mobile
+ * Este script é responsável por:
+ *  - Configurar e coordenar todos os event listeners do sistema mobile
+ *  - Gerenciar eventos de redimensionamento de tela (responsive)
+ *  - Detectar mudanças entre visualização desktop e mobile
+ *  - Coordenar eventos entre diferentes módulos do sistema
+ *  - Implementar debounce para otimização de performance
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Propriedades Principais:
+ *   - manager: Referência ao MobileCardsManager principal
+ *   - resizeTimeout: Controle de debounce para resize events
+ * 
+ * # Métodos de Configuração:
+ *   - bindEvents(): Configura todos os event listeners
+ *   - bindClickEvents(): Eventos de clique (filtros, detalhes, botões)
+ *   - bindChangeEvents(): Eventos de mudança (selects de filtro)
+ *   - bindResizeEvents(): Eventos de redimensionamento de tela
+ *   - bindCustomEvents(): Eventos customizados do sistema
+ * 
+ * # Eventos Gerenciados:
+ *   1. Toggle de filtros mobile (#mobile-filters-toggle)
+ *   2. Limpar filtros mobile (#mobile-clear-filters)
+ *   3. Botão principal limpar filtros (#btnLimparFiltros)
+ *   4. Expansão de detalhes dos cards (.btn-details)
+ *   5. Mudanças nos selects de filtro (area, status, tipo, projeto)
+ *   6. Redimensionamento da janela (window resize)
+ *   7. Eventos customizados de filtros (filterApplied, filtersCleared)
+ * 
+ * # Fluxo de Eventos:
+ *   1. Inicialização: bindEvents() configura todos os listeners
+ *   2. Cliques: Identifica elemento clicado e executa ação correspondente
+ *   3. Mudanças: Atualiza filtros e re-renderiza cards
+ *   4. Resize: Detecta mudança de visualização e ajusta interface
+ *   5. Custom: Responde a eventos disparados por outros módulos
+ * 
+ * # Otimizações:
+ *   - Debounce no resize para evitar execução excessiva
+ *   - Event delegation para melhor performance
+ *   - Verificação de existência de elementos antes de processar
+ * 
+ * # Integração:
+ *   - Instanciado pelo MobileCardsManager como módulo central
+ *   - Coordena com MobileCardsFilters para gerenciar filtros
+ *   - Aciona MobileCardsDetails para expansão de cards
+ *   - Sincroniza com sistema de responsive design
  */
 
 class MobileCardsEvents {

@@ -1,10 +1,68 @@
 /**
- * MobileUtils.js - Utilitários para funcionalidades móveis
+ * MobileUtils.js - Biblioteca de utilitários para funcionalidades móveis
  * 
- * Este script fornece funções utilitárias para:
- *  - Detecção de dispositivos móveis
- *  - Gerenciamento de orientação
- *  - Utilitários de formatação para mobile
+ * Este script é responsável por:
+ *  - Detectar tipos de dispositivos (mobile, tablet, desktop)
+ *  - Gerenciar orientação de tela e mudanças responsivas
+ *  - Formatar valores monetários para exibição mobile
+ *  - Implementar utilitários de formatação otimizados para mobile
+ *  - Fornecer helpers para desenvolvimento responsivo
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Detecção de Dispositivos:
+ *   - isMobileDevice(): Detecta dispositivos móveis (≤ 430px)
+ *   - isTabletDevice(): Detecta tablets (431px - 768px)
+ *   - isDesktopDevice(): Detecta desktops (> 768px)
+ *   - getDeviceType(): Retorna tipo de dispositivo como string
+ * 
+ * # Formatação de Dados:
+ *   - formatCurrency(): Formata valores monetários para padrão brasileiro
+ *   - formatDate(): Converte datas para formato dd/mm/aaaa
+ *   - formatStatus(): Processa status preservando emojis
+ *   - truncateText(): Trunca textos longos com reticências
+ * 
+ * # Breakpoints Responsivos:
+ *   - Mobile: ≤ 430px (smartphones)
+ *   - Tablet: 431px - 768px (tablets e smartphones grandes)
+ *   - Desktop: > 768px (laptops e desktops)
+ * 
+ * # Formatação Monetária:
+ *   - Suporte ao padrão brasileiro (R$)
+ *   - Limpeza de caracteres não numéricos
+ *   - Conversão de vírgulas para pontos decimais
+ *   - Tratamento de valores inválidos com fallback
+ *   - Formatação com Intl.NumberFormat para precisão
+ * 
+ * # Utilitários de Orientação:
+ *   - Detecção de mudança de orientação
+ *   - Ajustes automáticos para landscape/portrait
+ *   - Cálculos de viewport para posicionamento
+ * 
+ * # Helpers de Performance:
+ *   - Funções estáticas para melhor performance
+ *   - Cache de resultados de detecção quando apropriado
+ *   - Minimização de recálculos de DOM
+ * 
+ * # Tratamento de Erros:
+ *   - Validação de entradas em formatação
+ *   - Fallbacks para valores inválidos
+ *   - Try-catch em operações de formatação
+ *   - Logs de erro para debugging
+ * 
+ * # Casos de Uso:
+ *   1. Detecção responsiva para alternar interfaces
+ *   2. Formatação de dados para cards mobile
+ *   3. Cálculos de posicionamento para tooltips
+ *   4. Validação de entrada de dados
+ *   5. Adaptação de comportamento por dispositivo
+ * 
+ * # Integração:
+ *   - Utilizado por todos os módulos mobile para detecção de dispositivo
+ *   - MobileCardsRenderer usa para formatação de dados
+ *   - MobileCardsTooltips usa para posicionamento responsivo
+ *   - MobileCardsManager usa para controle de modo de visualização
+ *   - Coordena com sistema de CSS responsivo
  */
 
 class MobileUtils {

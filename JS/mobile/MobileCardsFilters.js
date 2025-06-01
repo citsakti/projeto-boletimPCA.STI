@@ -1,11 +1,55 @@
 /**
- * MobileCardsFilters.js - Gerenciamento de filtros para os cards mobile
+ * MobileCardsFilters.js - Sistema de filtros especializado para visualização mobile
  * 
- * Este módulo é responsável por:
- * - Populara filtros com opções disponíveis
- * - Gerenciar estado dos filtros
- * - Sincronizar com painel de resumos
- * - Contar filtros ativos
+ * Este script é responsável por:
+ *  - Gerenciar sistema de filtros otimizado para dispositivos móveis
+ *  - Populara e sincronizar filtros com dados disponíveis
+ *  - Manter estado dos filtros aplicados
+ *  - Sincronizar com painel de resumos principal
+ *  - Implementar contador de filtros ativos para UX mobile
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Propriedades de Estado:
+ *   - filters: Objeto com estado atual dos filtros (area, status, tipo, projeto)
+ *   - Controle de sincronização com interface principal
+ * 
+ * # Métodos Principais:
+ *   - populateFilters(): Popula todos os selects com opções disponíveis
+ *   - populateSelect(): Popula select específico com array de opções
+ *   - updateFilters(): Atualiza estado interno dos filtros
+ *   - getActiveFilters(): Retorna filtros atualmente ativos
+ *   - clearAllFilters(): Limpa todos os filtros aplicados
+ *   - syncWithMainFilters(): Sincroniza com filtros da interface principal
+ *   - countActiveFilters(): Conta número de filtros ativos para badge
+ *   - toggleFilters(): Mostra/oculta painel de filtros mobile
+ * 
+ * # Elementos de Interface:
+ *   - Select de área: #mobile-filter-area
+ *   - Select de status: #mobile-filter-status
+ *   - Select de tipo: #mobile-filter-tipo
+ *   - Select de projeto: #mobile-filter-projeto
+ *   - Container de filtros: .mobile-filters-container
+ *   - Badge de contador: .filters-badge
+ * 
+ * # Fluxo de Funcionamento:
+ *   1. Inicialização: Cria estrutura de filtros mobile
+ *   2. População: Extrai opções únicas dos dados disponíveis
+ *   3. Sincronização: Mantém coerência com filtros principais
+ *   4. Aplicação: Filtra dados baseado em seleções do usuário
+ *   5. Feedback: Atualiza contador e painel de resumos
+ * 
+ * # Sincronização:
+ *   - Monitora mudanças nos filtros principais da página
+ *   - Atualiza filtros mobile quando filtros principais mudam
+ *   - Dispara eventos customizados para coordenação
+ *   - Mantém consistência entre interfaces desktop e mobile
+ * 
+ * # Integração:
+ *   - Instanciado pelo MobileCardsManager
+ *   - Coordena com GoogleSheetFilters.js para dados
+ *   - Sincroniza com PainelResumoUpdates.js
+ *   - Utiliza eventos do MobileCardsEvents.js
  */
 
 class MobileCardsFilters {

@@ -1,11 +1,60 @@
 /**
- * MobileCardsRenderer.js - Renderização de cards para visualização mobile
+ * MobileCardsRenderer.js - Motor de renderização para cards mobile e estruturas de interface
  * 
- * Este módulo é responsável por:
- * - Criar HTML dos cards
- * - Renderizar lista de cards
- * - Formatar dados para exibição
- * - Criar estrutura de filtros mobile
+ * Este script é responsável por:
+ *  - Renderizar lista completa de cards mobile a partir de dados
+ *  - Criar HTML individual de cada card com formatação adequada
+ *  - Gerar estrutura de filtros mobile responsiva
+ *  - Formatar dados para exibição otimizada em dispositivos móveis
+ *  - Aplicar classes CSS e estilos baseados em status e área
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Métodos de Renderização:
+ *   - renderCards(): Renderiza lista completa de cards no container
+ *   - createCard(): Cria HTML de um card individual
+ *   - createFiltersStructure(): Gera estrutura HTML dos filtros mobile
+ *   - prepareAcompanhamentoInfo(): Processa informações de acompanhamento
+ *   - formatStatusDisplay(): Formata exibição de status com emojis
+ * 
+ * # Elementos de Card:
+ *   - Header: Área, valor PCA e botão de detalhes
+ *   - Body: Status, tipo, projeto e prazos
+ *   - Footer: Informações de acompanhamento e tooltips
+ *   - Badges: Indicadores visuais de status e prioridade
+ * 
+ * # Estrutura de Filtros:
+ *   - Container responsivo com toggle para mobile
+ *   - Selects para área, status, tipo e projeto
+ *   - Botão de limpar filtros
+ *   - Badge contador de filtros ativos
+ * 
+ * # Fluxo de Renderização:
+ *   1. Recebe array de dados filtrados
+ *   2. Verifica se container de destino existe
+ *   3. Trata caso de lista vazia com mensagem apropriada
+ *   4. Itera sobre dados criando HTML de cada card
+ *   5. Aplica classes CSS baseadas em status e área
+ *   6. Injeta HTML final no container
+ * 
+ * # Formatação de Dados:
+ *   - Valores monetários: Formatação para moeda brasileira
+ *   - Datas: Formato brasileiro (dd/mm/aaaa)
+ *   - Status: Preservação de emojis e formatação especial
+ *   - Textos longos: Truncamento com reticências quando necessário
+ * 
+ * # Aplicação de Estilos:
+ *   - Classes de status: Baseadas em MobileCardsStyles
+ *   - Classes de área: Mapeamento para cores específicas
+ *   - Classes responsivas: Adaptação automática para diferentes telas
+ *   - Estados visuais: Hover, focus e active states
+ * 
+ * # Integração:
+ *   - Utiliza dados processados pelo MobileCardsData
+ *   - Aplica estilos definidos em MobileCardsStyles
+ *   - Coordena com MobileCardsManager para controle de ciclo
+ *   - Prepara elementos para interação via MobileCardsEvents
+ *   - Integra sistema de tooltips do MobileCardsTooltips
  */
 
 class MobileCardsRenderer {

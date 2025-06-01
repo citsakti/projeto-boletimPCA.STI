@@ -1,11 +1,46 @@
 /**
- * MobileCardsDetails.js - Gerenciamento de expansão de detalhes dos cards
+ * MobileCardsDetails.js - Gerenciamento de expansão e colapso de detalhes dos cards mobile
  * 
- * Este módulo é responsável por:
- * - Expandir detalhes dos cards
- * - Colapsar detalhes dos cards
- * - Gerenciar estado de expansão
- * - Animações de transição
+ * Este script é responsável por:
+ *  - Expandir e colapsar detalhes adicionais dos cards de projeto
+ *  - Gerenciar estado de expansão/colapso entre diferentes cards
+ *  - Implementar animações suaves de transição
+ *  - Renderizar informações detalhadas dos projetos
+ *  - Controlar comportamento de um card expandido por vez
+ * 
+ * =============== ESTRUTURA PRINCIPAL ================
+ * 
+ * # Elementos de Interface:
+ *   - Cards de projeto: Elementos com classe 'project-card'
+ *   - Botão de detalhes: Identificado pela classe 'btn-details'
+ *   - Container de detalhes: Criado dinamicamente com classe 'card-details-expanded'
+ * 
+ * # Métodos Principais:
+ *   - toggleDetails(): Alterna estado de expansão de um card específico
+ *   - expandDetails(): Expande detalhes de um card com animação
+ *   - collapseDetails(): Colapsa detalhes de um card específico
+ *   - collapseAllDetails(): Colapsa todos os cards expandidos
+ *   - createDetailsContent(): Cria o HTML com informações detalhadas
+ * 
+ * # Fluxo de Execução:
+ *   1. Detecta clique no botão de detalhes de um card
+ *   2. Verifica se o card já está expandido
+ *   3. Colapsa outros cards expandidos (comportamento exclusivo)
+ *   4. Expande o card selecionado com animação
+ *   5. Renderiza informações detalhadas do projeto
+ *   6. Atualiza texto do botão para "Recolher"
+ * 
+ * # Comportamento de Expansão:
+ *   - Apenas um card pode estar expandido por vez
+ *   - Animações CSS para transições suaves
+ *   - Informações detalhadas incluem todos os campos do projeto
+ *   - Botão muda de estado entre "Ver Detalhes" e "Recolher"
+ * 
+ * # Integração:
+ *   - Chamado pelo MobileCardsEvents ao detectar clique em botão de detalhes
+ *   - Utiliza dados filtrados fornecidos pelo MobileCardsManager
+ *   - Aplica estilos CSS definidos em MobileCards.css
+ *   - Coordena com sistema de animação geral dos cards
  */
 
 class MobileCardsDetails {

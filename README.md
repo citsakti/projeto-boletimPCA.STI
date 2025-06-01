@@ -39,21 +39,23 @@ Projeto Boletim/
 │   ├── components/
 │   │     Areas.css
 │   │     AtualizacaoAutomatica.css
-│   │     DeviceDetection.css
 │   │     Emojis.css
+│   │     HeaderResponsive.css
 │   │     LimparFiltros.css
 │   │     Orcamento.css
 │   │     PainelResumoCollapsible.css
 │   │     StatusAtrasado.css
+│   │     TableOptimization.css
+│   │     ToolbarResponsive.css
 │   ├── layout/
+│   │     Bootstrap-Custom.css
 │   │     Main.css
 │   │     Tokens.css
 │   ├── mobile/
-│   │     Mobile.css
-│   │     MobileFilters.css
-│   │     MobileGoogleSheetFilters.css
-│   │     MobileMenu.css
+│   │     MobileCards.css
+│   │     MobileResponsive.css
 │   └── pages/
+│         Analytics-Bootstrap.css
 │         Analytics.css
 │
 ├── JS/
@@ -65,6 +67,7 @@ Projeto Boletim/
 │   ├── core/
 │   │     AtualizacaoAutomatica.js
 │   │     Main.js
+│   │     ModalManager.js
 │   │     OrganizacaoDosDados.js
 │   ├── filters/
 │   │     ClearFiltersButton.js
@@ -78,9 +81,15 @@ Projeto Boletim/
 │   │     StatusAtrasado.js
 │   │     UpdateStatus.js
 │   ├── mobile/
-│   │     MobileDeviceDetection.js
-│   │     MobileGoogleSheetFilters.js
-│   │     MobileMenu.js
+│   │     MobileCardsData.js
+│   │     MobileCardsDetails.js
+│   │     MobileCardsEvents.js
+│   │     MobileCardsFilters.js
+│   │     MobileCardsManager.js
+│   │     MobileCardsRenderer.js
+│   │     MobileCardsStyles.js
+│   │     MobileCardsTooltips.js
+│   │     MobileUtils.js
 │   ├── ui/
 │   │     btnAnalytics.js
 │   │     btnCancelados.js
@@ -89,23 +98,21 @@ Projeto Boletim/
 │   │     PainelDeResumos.js
 │   │     PainelResumoCollapsible.js
 │   │     PrintFunction.js
+│   │     ToolbarResponsive.js
 │   └── utils/
 │         AreasClasses.js
+│         BootstrapAdapter.js
+│         BootstrapEnhancements.js
 │         EmojiAnimation.js
 │         OrcamentoClasses.js
+│         ProcessoModal.js
 │         StatusClasses.js
 │         TableFormatters.js
 │
-├── docs/
-│     CHECKLIST_MIGRACAO.md
-│     ESTRUTURA_ORGANIZACIONAL.md
-│     PADRONIZACAO_CAMELCASE.md
-│     REMOCAO_PREFIXO_STYLE.md
-│     RESULTADO_FINAL.md
-│
 └── IMG/
+      favicon.ico
       tribunal.png
-      tribunal1.png      favicon.ico
+      tribunal1.png
 ```
 
 ## Arquitetura e Organização
@@ -121,26 +128,23 @@ O projeto foi reestruturado seguindo uma arquitetura modular e organizada, adota
 ### 📁 Organização das Pastas
 
 #### CSS
-- **`layout/`**: Estilos de estrutura geral e tokens de design
-- **`components/`**: Estilos de componentes específicos e reutilizáveis
-- **`mobile/`**: Estilos dedicados para dispositivos móveis
-- **`pages/`**: Estilos específicos para páginas individuais
+- **`layout/`**: Estilos de estrutura geral, tokens de design e customizações do Bootstrap
+- **`components/`**: Estilos de componentes específicos e reutilizáveis, incluindo otimizações de performance
+- **`mobile/`**: Estilos dedicados para dispositivos móveis, incluindo sistema de cards
+- **`pages/`**: Estilos específicos para páginas individuais com suporte ao Bootstrap
 
 #### JavaScript
-- **`core/`**: Scripts principais e lógica central da aplicação
+- **`core/`**: Scripts principais, lógica central da aplicação e gerenciamento de modais
 - **`analytics/`**: Sistema completo de análise e visualização de dados
 - **`filters/`**: Sistema de filtragem avançado
 - **`handlers/`**: Manipuladores de eventos e dados específicos
-- **`mobile/`**: Funcionalidades otimizadas para dispositivos móveis
-- **`ui/`**: Componentes de interface e controles visuais
-- **`utils/`**: Funções utilitárias e formatadores reutilizáveis
+- **`mobile/`**: Sistema completo de cards para dispositivos móveis
+- **`ui/`**: Componentes de interface, controles visuais e barra de ferramentas responsiva
+- **`utils/`**: Funções utilitárias, formatadores reutilizáveis e integrações com Bootstrap
 
 ### 📋 Documentação
 A pasta `docs/` contém documentação detalhada sobre:
-- Processo de migração e refatoração
-- Estrutura organizacional do projeto
-- Padronização de nomenclatura
-- Resultado final das implementações
+- Funcionalidades específicas para dispositivos móveis (MOBILE_README.md)
 
 ## Como usar
 
@@ -162,31 +166,39 @@ A pasta `docs/` contém documentação detalhada sobre:
 
 ### CSS
 - [`css/layout/Main.css`](css/layout/Main.css): Estilos principais, layout e responsividade geral.
+- [`css/layout/Bootstrap-Custom.css`](css/layout/Bootstrap-Custom.css): Customizações específicas do framework Bootstrap.
 - [`css/layout/Tokens.css`](css/layout/Tokens.css): Define variáveis CSS (cores, fontes, espaçamentos) para padronização do design.
 
 #### Componentes CSS
 - [`css/components/Areas.css`](css/components/Areas.css): Estilos específicos para a visualização das diferentes áreas dos processos.
 - [`css/components/AtualizacaoAutomatica.css`](css/components/AtualizacaoAutomatica.css): Estilos para o modal de notificação de atualização automática.
-- [`css/components/DeviceDetection.css`](css/components/DeviceDetection.css): Estilos para detecção e adaptação de dispositivos.
 - [`css/components/Emojis.css`](css/components/Emojis.css): Estilos para as animações e exibição dos emojis de status.
+- [`css/components/HeaderResponsive.css`](css/components/HeaderResponsive.css): Estilos para o cabeçalho responsivo da aplicação.
 - [`css/components/LimparFiltros.css`](css/components/LimparFiltros.css): Estilos para o botão de limpar filtros.
 - [`css/components/Orcamento.css`](css/components/Orcamento.css): Estilos específicos para os tipos de orçamento dos processos.
 - [`css/components/PainelResumoCollapsible.css`](css/components/PainelResumoCollapsible.css): Estilos para o painel de resumo recolhível.
 - [`css/components/StatusAtrasado.css`](css/components/StatusAtrasado.css): Estilos para destacar processos com status "Atrasado".
+- [`css/components/TableOptimization.css`](css/components/TableOptimization.css): Otimizações de performance e layout para a tabela principal.
+- [`css/components/ToolbarResponsive.css`](css/components/ToolbarResponsive.css): Estilos para a barra de ferramentas responsiva.
+
+#### Layout CSS
+- [`css/layout/Bootstrap-Custom.css`](css/layout/Bootstrap-Custom.css): Customizações específicas do framework Bootstrap para o projeto.
+- [`css/layout/Main.css`](css/layout/Main.css): Estilos principais, layout e responsividade geral.
+- [`css/layout/Tokens.css`](css/layout/Tokens.css): Define variáveis CSS (cores, fontes, espaçamentos) para padronização do design.
 
 #### Mobile CSS
-- [`css/mobile/Mobile.css`](css/mobile/Mobile.css): Estilos principais para dispositivos móveis.
-- [`css/mobile/MobileFilters.css`](css/mobile/MobileFilters.css): Estilos para filtros em dispositivos móveis.
-- [`css/mobile/MobileGoogleSheetFilters.css`](css/mobile/MobileGoogleSheetFilters.css): Filtros Google Sheets otimizados para mobile.
-- [`css/mobile/MobileMenu.css`](css/mobile/MobileMenu.css): Menu responsivo para dispositivos móveis.
+- [`css/mobile/MobileCards.css`](css/mobile/MobileCards.css): Estilos para o sistema de cards otimizado para dispositivos móveis.
+- [`css/mobile/MobileResponsive.css`](css/mobile/MobileResponsive.css): Estilos gerais de responsividade para dispositivos móveis.
 
 #### Páginas CSS
+- [`css/pages/Analytics-Bootstrap.css`](css/pages/Analytics-Bootstrap.css): Estilos Bootstrap específicos para a página de análise.
 - [`css/pages/Analytics.css`](css/pages/Analytics.css): Estilos específicos para a página de dados analíticos.
 
 ### JavaScript
 
 #### Core (Scripts Principais)
 - [`JS/core/Main.js`](JS/core/Main.js): Script principal, responsável pelo carregamento dos dados da planilha, montagem inicial da tabela e inicialização de outras funcionalidades.
+- [`JS/core/ModalManager.js`](JS/core/ModalManager.js): Gerenciador central para todos os modais da aplicação, controlando abertura, fechamento e comportamentos.
 - [`JS/core/OrganizacaoDosDados.js`](JS/core/OrganizacaoDosDados.js): Implementa a funcionalidade de ordenação das colunas da tabela.
 - [`JS/core/AtualizacaoAutomatica.js`](JS/core/AtualizacaoAutomatica.js): Implementa a verificação periódica de atualizações na planilha e atualiza a tabela automaticamente.
 
@@ -210,9 +222,15 @@ A pasta `docs/` contém documentação detalhada sobre:
 - [`JS/handlers/UpdateStatus.js`](JS/handlers/UpdateStatus.js): Atualiza informações de status no rodapé da página (ex: data da última atualização).
 
 #### Mobile (Funcionalidades Mobile)
-- [`JS/mobile/MobileDeviceDetection.js`](JS/mobile/MobileDeviceDetection.js): Detecção e adaptação para dispositivos móveis.
-- [`JS/mobile/MobileGoogleSheetFilters.js`](JS/mobile/MobileGoogleSheetFilters.js): Filtros Google Sheets otimizados para dispositivos móveis.
-- [`JS/mobile/MobileMenu.js`](JS/mobile/MobileMenu.js): Menu responsivo para dispositivos móveis.
+- [`JS/mobile/MobileCardsData.js`](JS/mobile/MobileCardsData.js): Processamento e manipulação de dados para o sistema de cards móveis.
+- [`JS/mobile/MobileCardsDetails.js`](JS/mobile/MobileCardsDetails.js): Gerenciamento de detalhes e informações expandidas nos cards móveis.
+- [`JS/mobile/MobileCardsEvents.js`](JS/mobile/MobileCardsEvents.js): Manipulação de eventos e interações dos cards móveis.
+- [`JS/mobile/MobileCardsFilters.js`](JS/mobile/MobileCardsFilters.js): Sistema de filtros específico para a interface de cards móveis.
+- [`JS/mobile/MobileCardsManager.js`](JS/mobile/MobileCardsManager.js): Gerenciador principal do sistema de cards para dispositivos móveis.
+- [`JS/mobile/MobileCardsRenderer.js`](JS/mobile/MobileCardsRenderer.js): Renderização e montagem visual dos cards móveis.
+- [`JS/mobile/MobileCardsStyles.js`](JS/mobile/MobileCardsStyles.js): Aplicação dinâmica de estilos nos cards móveis.
+- [`JS/mobile/MobileCardsTooltips.js`](JS/mobile/MobileCardsTooltips.js): Sistema de tooltips e informações contextuais para cards móveis.
+- [`JS/mobile/MobileUtils.js`](JS/mobile/MobileUtils.js): Funções utilitárias gerais para dispositivos móveis.
 
 #### UI (Interface do Usuário)
 - [`JS/ui/btnAnalytics.js`](JS/ui/btnAnalytics.js): Controla o botão que leva à página de dados analíticos.
@@ -222,11 +240,15 @@ A pasta `docs/` contém documentação detalhada sobre:
 - [`JS/ui/PainelDeResumos.js`](JS/ui/PainelDeResumos.js): Controla o painel de resumo, atualizando as contagens por status e permitindo o filtro rápido.
 - [`JS/ui/PainelResumoCollapsible.js`](JS/ui/PainelResumoCollapsible.js): Funcionalidade de painel de resumo recolhível.
 - [`JS/ui/PrintFunction.js`](JS/ui/PrintFunction.js): Contém a função para preparar e acionar a impressão otimizada da tabela.
+- [`JS/ui/ToolbarResponsive.js`](JS/ui/ToolbarResponsive.js): Gerenciamento da barra de ferramentas responsiva da aplicação.
 
 #### Utils (Utilitários)
 - [`JS/utils/AreasClasses.js`](JS/utils/AreasClasses.js): Aplica classes CSS às linhas da tabela com base na área do processo.
+- [`JS/utils/BootstrapAdapter.js`](JS/utils/BootstrapAdapter.js): Adaptador para integração e configuração do framework Bootstrap.
+- [`JS/utils/BootstrapEnhancements.js`](JS/utils/BootstrapEnhancements.js): Melhorias e extensões personalizadas para componentes Bootstrap.
 - [`JS/utils/EmojiAnimation.js`](JS/utils/EmojiAnimation.js): Gerencia as animações dos emojis associados aos status dos processos.
 - [`JS/utils/OrcamentoClasses.js`](JS/utils/OrcamentoClasses.js): Aplica classes CSS às linhas da tabela com base no tipo de orçamento.
+- [`JS/utils/ProcessoModal.js`](JS/utils/ProcessoModal.js): Gerenciamento de modais específicos para visualização de detalhes de processos.
 - [`JS/utils/StatusClasses.js`](JS/utils/StatusClasses.js): Aplica classes CSS às linhas da tabela com base no status do processo, permitindo estilização específica.
 - [`JS/utils/TableFormatters.js`](JS/utils/TableFormatters.js): Funções para formatar dados exibidos na tabela (ex: valores monetários, datas).
 
@@ -244,20 +266,26 @@ A pasta `docs/` contém documentação detalhada sobre:
 ### 🔧 Refatoração Estrutural
 - **Reorganização completa** da estrutura de pastas por funcionalidade
 - **Padronização de nomenclatura** com convenção CamelCase
-- **Remoção de prefixos redundantes** nos nomes de arquivos CSS
 - **Separação clara de responsabilidades** entre módulos
+- **Integração do Bootstrap** para componentes modernos e responsivos
 
 ### 📱 Otimizações Mobile
-- **Menu responsivo** adaptado para dispositivos móveis
-- **Filtros móveis otimizados** para melhor usabilidade touch
-- **Detecção automática de dispositivo** para experiência personalizada
-- **Interface adaptativa** que se ajusta ao tamanho da tela
+- **Sistema de Cards Móveis**: Interface completamente redesenhada para dispositivos móveis
+- **Gerenciamento avançado de filtros** otimizado para touch
+- **Renderização otimizada** para performance em dispositivos móveis
+- **Tooltips contextuais** adaptados para interação touch
 
 ### 🎨 Melhorias de Interface
-- **Painel de resumo recolhível** para economia de espaço
-- **Botão "Limpar Filtros"** para reset rápido
-- **Animações e transições suaves** para melhor experiência
-- **Componentes modulares** reutilizáveis em toda a aplicação
+- **Modais centralizados** com gerenciamento unificado
+- **Barra de ferramentas responsiva** adaptável a diferentes tamanhos de tela
+- **Otimizações de performance** na tabela principal
+- **Componentes Bootstrap customizados** para melhor experiência visual
+
+### 🚀 Performance e Funcionalidades
+- **Processamento otimizado** de dados para cards móveis
+- **Sistema de eventos aprimorado** para interações móveis
+- **Adaptadores Bootstrap** para integração seamless
+- **Melhorias nas animações** e transições
 
 ---
 
