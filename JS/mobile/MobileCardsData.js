@@ -56,11 +56,10 @@ class MobileCardsData {
                 projeto: cells[3]?.textContent?.trim() || '',
                 acompanhamento: cells[4]?.textContent?.trim() || '',
                 status: cells[5]?.textContent?.trim() || '',
-                contratarAte: contratarAteText || '',
-                contratarAteDate: contratarAteDate, // Para ordenação
+                contratarAte: contratarAteText || '',                contratarAteDate: contratarAteDate, // Para ordenação
                 valorPca: cells[7]?.getAttribute('data-valor-original') || cells[7]?.textContent?.trim() || '', // Valor total original do CSV
                 orcamento: cells[8]?.textContent?.trim() || '',
-                processo: cells[9]?.textContent?.trim() || '',
+                processo: cells[9]?.textContent?.replace('🔗', '').trim() || '', // Remove emoji duplicado da tabela
                 row: row
             };
             
