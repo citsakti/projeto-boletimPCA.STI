@@ -115,7 +115,7 @@
     align-items: flex-start;
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 3px solid #e9ecef; /* Linha mais grossa */
 }
 
 .card-id {
@@ -149,6 +149,35 @@
     align-items: center;
     margin-bottom: 0.75rem;
 }
+
+/* Seções do card-row */
+.card-left-section {
+    display: flex;
+    flex-direction: column; /* Altera a direção para coluna */
+    align-items: flex-start; /* Alinha itens à esquerda */
+    gap: 0.25rem; /* Espaçamento entre area e valor */
+}
+
+.card-right-section {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+/* Data no canto direito */
+.card-date {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #495057;
+    background: #f8f9fa;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Remover .card-value-row pois não é mais necessário */
 
 .card-area {
     font-weight: 600;
@@ -454,11 +483,23 @@
     .card-content {
         font-size: 1rem;
     }
+      .card-row {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
     
-    .card-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
+    .card-left-section {
+        flex: 1;
+    }
+    
+    .card-right-section {
+        margin-left: 0.5rem;
+    }
+    
+    .card-date {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.5rem;
     }
       .details-modal-content {
         padding: 1rem;

@@ -370,17 +370,20 @@ class MobileCardsManager {
         }
         if (item.status.includes('❗')) {
             statusText = statusText.replace(/❗/g, '<span class="emoji-exclamation">❗</span>');
-        }
-        return `
+        }        return `
             <div class="project-card ${statusClass}" data-project-id="${item.id}">
                 <div class="card-header">
                     <span class="card-id">${item.idPca}</span>
                     <h6 class="card-title" title="${item.projeto}">${item.projeto}</h6>
-                </div>
-                <div class="card-content">
+                </div>                <div class="card-content">
                     <div class="card-row">
-                        <span class="card-area ${areaClass}">${item.area}</span>
-                        <span class="card-value">${valorFormatado}</span>
+                        <div class="card-left-section">
+                            <span class="card-area ${areaClass}">${item.area}</span>
+                            <span class="card-value">${valorFormatado}</span>
+                        </div>
+                        <div class="card-right-section">
+                            <span class="card-date">${item.contratarAte || 'Data não informada'}</span>
+                        </div>
                     </div>
                     <div class="card-status-text ${statusHighlightClass}">
                         ${statusText}
