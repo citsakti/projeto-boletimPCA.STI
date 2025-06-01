@@ -338,108 +338,10 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(err => {
         if (overlay) overlay.style.display = 'none'; // Esconde o overlay mesmo em caso de erro
-        console.error('Erro ao carregar dados:', err);
-      });    // Modal de processo
-    const modalOverlay = document.getElementById('processo-modal-overlay');
-    const modalContent = modalOverlay ? modalOverlay.querySelector('.modal-content') : null;
-    const modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
-    const tableBody = document.querySelector('#detalhes table tbody');    // Função centralizada para fechar modal
-    function closeModals() {
-        if (modalContent) {
-            modalContent.classList.remove('show');
-        }
-        
-        // Otimização: esconder o overlay imediatamente para melhor UX
-        if (modalOverlay) {
-            modalOverlay.style.opacity = '0';
-            modalOverlay.style.pointerEvents = 'none';
-        }
-        
-        setTimeout(() => {
-            if (modalOverlay) {
-                modalOverlay.style.display = 'none';
-                // Restaurar propriedades para próxima abertura
-                modalOverlay.style.opacity = '';
-                modalOverlay.style.pointerEvents = '';
-            }
-            if (modalIframe) {
-                modalIframe.src = 'about:blank';
-                // Limpar também o iframe Bootstrap se existir
-                const bootstrapIframe = document.getElementById('processo-iframe');
-                if (bootstrapIframe) {
-                    bootstrapIframe.src = 'about:blank';
-                }
-            }
-            // Restaurar rolagem da página
-            document.body.style.overflow = '';
-        }, 400);
-    }
-
-    // Event listeners para botões de fechar - usando delegação de eventos
-    document.addEventListener('click', function(event) {
-        if (event.target.id === 'close-modal-btn' || 
-            event.target.id === 'close-modal-btn-legacy' ||
-            event.target.classList.contains('btn-close')) {
-            event.preventDefault();
-            event.stopPropagation();
-            closeModals();
-        }
-    });
-
-    if (tableBody && modalOverlay && modalIframe) {
-        tableBody.addEventListener('click', function(event) {
-            if (event.target.classList.contains('processo-link-icon')) {
-                const td = event.target.closest('td');
-                let processo = td ? td.textContent.replace('🔗', '').trim() : '';
-                if (processo) {
-                    navigator.clipboard.writeText(processo)
-                        .then(() => {
-                            // Monta a URL dinâmica
-                            const url = `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`;
-                            modalIframe.src = url;
-                            modalOverlay.style.display = 'flex';
-                            modalContent.classList.remove('show');
-                            void modalContent.offsetWidth;
-                            modalContent.classList.add('show');
-                            td.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
-                        })
-                        .catch(err => {
-                            console.error('Falha ao copiar para a área de transferência:', err);
-                            // Mesmo se falhar ao copiar, abre a modal com o link dinâmico
-                            const url = `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`;
-                            modalIframe.src = url;
-                            modalOverlay.style.display = 'flex';
-                            modalContent.classList.remove('show');
-                            void modalContent.offsetWidth;
-                            modalContent.classList.add('show');
-                        });
-                } else {
-                    // Se não houver número de processo, pode abrir a página padrão ou mostrar aviso
-                    modalIframe.src = 'https://www.tce.ce.gov.br/contexto-consulta-geral?tipo=processos';
-                    modalOverlay.style.display = 'flex';
-                    modalContent.classList.remove('show');
-                    void modalContent.offsetWidth;
-                    modalContent.classList.add('show');                }
-            }
-        });
-
-        // Fecha TUDO ao clicar fora da modal principal
-        modalOverlay.addEventListener('click', function(event) {
-            if (event.target === modalOverlay) {
-                closeModals();
-            }
-        });
-
-        // Fecha TUDO ao pressionar ESC
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && modalOverlay.style.display === 'flex') {
-                closeModals();
-            }
-        });
-    } else {
-        // Adiciona um log se algum elemento essencial não for encontrado
-        console.error("Erro: Um ou mais elementos da modal não foram encontrados no DOM.");
-    }
+        console.error('Erro ao carregar dados:', err);      });
+    
+    // Modal de processo - funcionalidade movida para ProcessoModal.js
+    // O modal é inicializado automaticamente pelo módulo ProcessoModal
 });
 
 document.addEventListener('tabela-carregada', () => {
@@ -487,25 +389,14 @@ function populateTableDOMWithData(processedDataRows) {
             }
             // Adicione mais formatações conforme necessário
 
-            cell.textContent = cellData;
-
-            // Adiciona classes ou atributos se necessário, por exemplo, para o ícone do processo
+            cell.textContent = cellData;            // Adiciona classes ou atributos se necessário, por exemplo, para o ícone do processo
             if (headerText === "Processo" && cellData) {
                 const icon = document.createElement('span');
-                icon.classList.add('process-icon'); // Adicione uma classe para estilização
-                icon.textContent = ' 📄'; // Exemplo de ícone
+                icon.classList.add('processo-link-icon'); // Usa a mesma classe que o ProcessoModal.js espera
+                icon.textContent = ' 🔗'; // Usa o mesmo ícone
                 icon.style.cursor = 'pointer';
                 icon.title = `Abrir processo ${cellData}`;
-                icon.addEventListener('click', () => {
-                    // Lógica para abrir modal do processo, similar à existente
-                    const modalOverlay = document.getElementById('processo-modal-overlay');
-                    const modalIframe = document.getElementById('processo-iframe');
-                    if (modalOverlay && modalIframe) {
-                        const numeroProcesso = cellData.replace(/[^0-9]/g, '');
-                        modalIframe.src = `https://sei.example.com/sei/controlador.php?acao=protocolo_visualizar&id_protocolo=${numeroProcesso}`;
-                        modalOverlay.style.display = 'flex';
-                    }
-                });
+                // A lógica de click agora é tratada pelo ProcessoModal.js através da classe 'processo-link-icon'
                 cell.appendChild(icon);
             }
         });
@@ -522,11 +413,15 @@ function populateTableDOMWithData(processedDataRows) {
     // if (typeof populateTipoFiltro === 'function') populateTipoFiltro(); // Comentado
     if (typeof assignStatusClasses === 'function') assignStatusClasses();
     if (typeof trimTableEnding === 'function') trimTableEnding();
-    if (typeof aplicarEstiloStatus === 'function') aplicarEstiloStatus();
-    
+    if (typeof aplicarEstiloStatus === 'function') aplicarEstiloStatus();    
     // Reinitialize os novos filtros do Google Sheets se a tabela for repopulada dinamicamente
     if (typeof initializeGoogleSheetFilters === 'function') {
         initializeGoogleSheetFilters();
+    }
+    
+    // Reinicializa o ProcessoModal para capturar novos elementos da tabela
+    if (window.processoModalInstance && typeof window.processoModalInstance.reinitialize === 'function') {
+        window.processoModalInstance.reinitialize();
     }
     // Garante que as cores das linhas sejam aplicadas após a carga/atualização dos dados
     if (typeof alternaCoresLinhas === 'function') {
