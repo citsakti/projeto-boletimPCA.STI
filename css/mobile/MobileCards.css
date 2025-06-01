@@ -146,7 +146,7 @@
 .card-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start; /* Alinha os itens ao topo */
     margin-bottom: 0.75rem;
 }
 
@@ -155,12 +155,12 @@
     display: flex;
     flex-direction: column; /* Altera a direção para coluna */
     align-items: flex-start; /* Alinha itens à esquerda */
-    gap: 0.25rem; /* Espaçamento entre area e valor */
+    gap: 1rem; /* Espaçamento entre area e valor */
 }
 
 .card-right-section {
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Alinha a data ao topo */
     margin-left: auto;
 }
 
@@ -481,11 +481,10 @@
     }
     
     .card-content {
-        font-size: 1rem;
+        font-size: 2rem;
     }
       .card-row {
         flex-direction: row;
-        align-items: center;
         gap: 0.5rem;
     }
     
