@@ -123,7 +123,7 @@ class MobileCardsTooltips {
           // Auto-hide após 2 segundos
         setTimeout(() => {
             this.hideAcompanhamentoTooltip();
-        }, 2000);
+        }, 1000);
     }
     
     /**
