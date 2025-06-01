@@ -19,7 +19,7 @@
 }
 
 .mobile-filters-header {
-    background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+    background: var(--brand-primary) !important;
     color: white !important;
     padding: 0.75rem 1rem;
     cursor: pointer;
@@ -28,7 +28,7 @@
 }
 
 .mobile-filters-header:hover {
-    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    background: var(--brand-primary-dark) !important;
 }
 
 .mobile-filters-header .transition-transform {
@@ -60,7 +60,7 @@
     border-radius: 50%;
     display: none;
     background-color: #ffffff !important;
-    color: #0d6efd !important;
+    color: var(--brand-primary) !important;
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -402,7 +402,7 @@
 }
 
 .mobile-filters-content .form-label i {
-    color: #0d6efd;
+    color: var(--brand-primary);
     font-size: 0.875rem;
 }
 
@@ -414,8 +414,8 @@
 }
 
 .mobile-filters-content .form-select-sm:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 0.2rem rgba(44, 65, 122, 0.25);
 }
 
 /* Media query para iPhone 14 Pro Max e dispositivos similares */

@@ -1,5 +1,13 @@
 /**
- * MobileCards.js - Gerenciamento de cards móveis para o Boletim PCA 2025
+ * MobileCards.js - Gerenciamento de cards        filtersContainer.innerHTML = `
+            <div class="mobile-filters-header card-header text-white d-flex justify-content-between align-items-center py-2" id="mobile-filters-toggle">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-funnel-fill me-2"></i>
+                    <span class="fw-semibold">Filtros</span>
+                    <span class="badge bg-light text-primary ms-2" id="active-filters-count">0</span>
+                </div>
+                <i class="bi bi-chevron-down transition-transform"></i>
+            </div>`ara o Boletim PCA 2025
  * 
  * Este script é responsável por:
  *  - Detectar quando a tela está no tamanho mobile (430px)

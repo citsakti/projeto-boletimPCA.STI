@@ -58,62 +58,62 @@
 /* Cores pastéis específicas para cada status (versão mobile otimizada) */
 @media (max-width: 430px) {
     .project-card.status-autuacao-atrasada {
-        background: linear-gradient(135deg, #e6cff2 0%, #f3e5f5 100%);
+        background: linear-gradient(135deg, #e6cff2 0%, #ffffff 100%);
         border-left: 4px solid #9c27b0;
     }
     
     .project-card.status-em-renovacao {
-        background: linear-gradient(135deg, #0a53a8 0%, #1565c0 100%);
+        background: linear-gradient(135deg, #82bcff 0%, #ffffff 100%);
         border-left: 4px solid #0a53a8;
         color: #fff;
     }
     
     .project-card.status-cancelado {
-        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+        background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
         border-left: 4px solid #9e9e9e;
     }
     
     .project-card.status-em-contratacao {
-        background: linear-gradient(135deg, #0a53a8 0%, #1565c0 100%);
+        background: linear-gradient(135deg, #82bcff 0%, #ffffff 100%);
         border-left: 4px solid #0a53a8;
         color: #fff;
     }
       .project-card.status-aguardando-etp {
-        background: linear-gradient(135deg, #ffe5a0 0%, #fff8e1 100%);
+        background: linear-gradient(135deg, #fcecc0 0%, #ffffff 100%);
         border-left: 4px solid #ffc107;
     }
     
     .project-card.status-aguardando-dfd {
-        background: linear-gradient(135deg, #ffe5a0 0%, #fff8e1 100%);
+        background: linear-gradient(135deg, #fcecc0 0%, #ffffff 100%);
         border-left: 4px solid #ffc107;
     }
     
     .project-card.status-a-iniciar {
-        background: linear-gradient(135deg, #e6e6e6 0%, #f5f5f5 100%);
+        background: linear-gradient(135deg, #e6e6e6 0%, #ffffff 100%);
         border-left: 4px solid #9e9e9e;
     }
     
     .project-card.status-renovado {
-        background: linear-gradient(135deg, #d4edbc 0%, #e8f5e8 100%);
+        background: linear-gradient(135deg, #d4edbc 0%, #ffffff 100%);
         border-left: 4px solid #4caf50;
     }
     
     .project-card.status-contratado {
-        background: linear-gradient(135deg, #d4edbc 0%, #e8f5e8 100%);
+        background: linear-gradient(135deg, #d4edbc 0%, #ffffff 100%);
         border-left: 4px solid #4caf50;
     }
     
     .project-card.status-aguardando-definicao {
-        background: linear-gradient(135deg, #e6cff2 0%, #f3e5f5 100%);
+        background: linear-gradient(135deg, #e6cff2 0%, #ffffff 100%);
         border-left: 4px solid #9c27b0;
     }
       .project-card.status-etp-atrasado {
-        background: linear-gradient(135deg, #ffcfc9 0%, #ffe5dd 100%);
+        background: linear-gradient(135deg, #ffcfc9 0%, #ffffff 100%);
         border-left: 4px solid #f44336;
     }
     
     .project-card.status-dfd-atrasado {
-        background: linear-gradient(135deg, #ffcfc9 0%, #ffe5dd 100%);
+        background: linear-gradient(135deg, #ffcfc9 0%, #ffffff 100%);
         border-left: 4px solid #f44336;
     }
     
@@ -123,17 +123,17 @@
     }
     
     .project-card.status-elaborando-tr {
-        background: linear-gradient(135deg, #bfe1f6 0%, #e1f5fe 100%);
+        background: linear-gradient(135deg, #bfe1f6 0%, #ffffff 100%);
         border-left: 4px solid #2196f3;
     }
     
     .project-card.status-analise-viabilidade {
-        background: linear-gradient(135deg, #bfe1f6 0%, #e1f5fe 100%);
+        background: linear-gradient(135deg, #bfe1f6 0%, #ffffff 100%);
         border-left: 4px solid #2196f3;
     }
     
     .project-card.status-revisao-pca {
-        background: linear-gradient(135deg, #000000 0%, #333333 100%);
+        background: linear-gradient(135deg, #818181 0%, #ffffff 100%);
         border-left: 4px solid #000000;
         color: #ffe5a0;
     }
