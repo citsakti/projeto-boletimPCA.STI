@@ -485,9 +485,31 @@ class MobileCardsManager {
         if (areaLower.includes('dev')) return 'area-dev';
         if (areaLower.includes('analytics')) return 'area-analytics';
         if (areaLower.includes('governança') || areaLower.includes('governanca')) return 'area-governanca';
+          return 'area-geral'; // Classe padrão caso nenhuma corresponda
+    }
+
+    getOrcamentoClass(orcamento) {
+        // Mapeamento de tipos de orçamento para classes CSS
+        // Mantendo consistência com OrcamentoClasses.js e Orcamento.css
+        const orcamentoMap = {
+            'CUSTEIO 💳': 'orcamento-custeio-highlight',
+            'INVESTIMENTO 💵': 'orcamento-investimento-highlight',
+        };
+
+        // Procurar por correspondência exata primeiro (incluindo emoji)
+        if (orcamentoMap[orcamento]) {
+            return orcamentoMap[orcamento];
+        }
+
+        // Fallback para correspondência parcial (sem emoji ou variações)
+        const orcamentoLower = orcamento.toLowerCase();
+        if (orcamentoLower.includes('custeio')) return 'orcamento-custeio-highlight';
+        if (orcamentoLower.includes('investimento')) return 'orcamento-investimento-highlight';
         
-        return 'area-geral'; // Classe padrão caso nenhuma corresponda
-    }    toggleFilters() {
+        return ''; // Sem classe especial se não corresponder
+    }
+
+    toggleFilters() {
         const content = document.getElementById('mobile-filters-content');
         const chevron = document.querySelector('#mobile-filters-toggle .bi-sliders, #mobile-filters-toggle .bi-chevron-up');
         
@@ -535,12 +557,12 @@ class MobileCardsManager {
         // Expandir este card
         this.expandDetails(projectCard, projectId);
     }
-    
-    expandDetails(projectCard, projectId) {
+      expandDetails(projectCard, projectId) {
         const project = this.filteredData.find(item => item.id == projectId);
         if (!project) return;
         
         const detailsButton = projectCard.querySelector('.btn-details');
+        const orcamentoClass = this.getOrcamentoClass(project.orcamento);
         
         // Criar o container de detalhes
         const detailsContainer = document.createElement('div');
@@ -555,7 +577,7 @@ class MobileCardsManager {
             </div>
             <div class="detail-item">
                 <span class="detail-label">Orçamento:</span>
-                <span class="detail-value">${project.orcamento}</span>
+                <span class="detail-value ${orcamentoClass}">${project.orcamento}</span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Processo:</span>
