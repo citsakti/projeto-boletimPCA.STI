@@ -284,8 +284,15 @@
                 });
             }
         }
+          console.log(`Total de projetos com acompanhamento: ${projetosComAcompanhamento.size}`);
         
-        console.log(`Total de projetos com acompanhamento: ${projetosComAcompanhamento.size}`);
+        // Disparar evento para notificar que os dados de acompanhamento foram atualizados
+        document.dispatchEvent(new CustomEvent('acompanhamento-updated', {
+            detail: {
+                totalProjetos: projetosComAcompanhamento.size,
+                timestamp: new Date()
+            }
+        }));
     }
     
     /**
@@ -543,7 +550,55 @@
         });
         html += "</ul>";
         return html;
+    }    /**
+     * Função pública para verificar se um projeto possui acompanhamento
+     * @param {string} nomeProjeto - Nome do projeto para verificar
+     * @returns {Object|null} - Dados de acompanhamento ou null se não houver
+     */
+    function getAcompanhamentoProjeto(nomeProjeto) {
+        if (!nomeProjeto) return null;
+        
+        const projetoLimpo = cleanProjectName(nomeProjeto);
+        
+        if (projetosComAcompanhamento.has(projetoLimpo)) {
+            const acompanhamento = projetosComAcompanhamento.get(projetoLimpo);
+            
+            // Verificar se o acompanhamento é de até 6 dias atrás
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            const dataAcompanhamento = parseDataBrasileira(acompanhamento.data);
+            dataAcompanhamento.setHours(0, 0, 0, 0);
+            
+            const diferencaDias = Math.floor((hoje - dataAcompanhamento) / (1000 * 60 * 60 * 24));
+            
+            // Só retorna se for até 6 dias atrás
+            if (diferencaDias <= 6) {
+                return {
+                    data: acompanhamento.data,
+                    detalhes: acompanhamento.detalhes,
+                    diasAtras: diferencaDias
+                };
+            }
+        }
+        
+        return null;
     }
+    
+    /**
+     * Função pública para verificar se um projeto deve ter acompanhamento bloqueado por status
+     * @param {string} status - Status do projeto
+     * @returns {boolean} - True se o acompanhamento deve ser bloqueado
+     */
+    function isAcompanhamentoBloqueadoPorStatus(status) {
+        return status && (status.includes("CONTRATADO ✅") || status.includes("RENOVADO ✅"));
+    }
+    
+    // Expor funções para uso externo
+    window.AcompanhamentoDeProjetos = {
+        getAcompanhamentoProjeto: getAcompanhamentoProjeto,
+        isAcompanhamentoBloqueadoPorStatus: isAcompanhamentoBloqueadoPorStatus,
+        parseDataBrasileira: parseDataBrasileira
+    };
 
     // Inicializar quando o DOM estiver pronto
     document.addEventListener('DOMContentLoaded', initAcompanhamento);

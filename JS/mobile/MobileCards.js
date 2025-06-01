@@ -29,11 +29,11 @@ class MobileCardsManager {
         };
         
         this.init();
-    }
-      init() {
+    }    init() {
         this.createMobileStructure();
         this.bindEvents();
         this.checkMobileView();
+        this.setupAcompanhamentoTooltips();
         
         // Escutar evento de dados carregados
         document.addEventListener('tabela-carregada', () => {
@@ -48,6 +48,14 @@ class MobileCardsManager {
         // Escutar filtros aplicados pelo painel de resumos
         document.addEventListener('painel-filter-applied', (event) => {
             this.syncWithPainelFilter(event.detail);
+        });
+        
+        // Escutar atualizações do sistema de acompanhamento
+        document.addEventListener('acompanhamento-updated', () => {
+            if (this.isMobileView) {
+                console.log('Sistema de acompanhamento atualizado, recarregando dados dos cards...');
+                this.loadTableData();
+            }
         });
     }
     
@@ -186,7 +194,38 @@ class MobileCardsManager {
         if (cardsContainer) cardsContainer.classList.remove('show');
         if (tableResponsive) tableResponsive.style.display = 'block';
     }
-    
+      /**
+     * Adiciona informações de acompanhamento aos dados do projeto
+     * @param {Object} item - Item de projeto
+     * @returns {Object} - Item com informações de acompanhamento adicionadas
+     */
+    addAcompanhamentoInfo(item) {
+        // Verificar se o sistema de acompanhamento está disponível
+        if (!window.AcompanhamentoDeProjetos) {
+            return item;
+        }
+        
+        // Verificar se o projeto tem acompanhamento bloqueado por status
+        if (window.AcompanhamentoDeProjetos.isAcompanhamentoBloqueadoPorStatus(item.status)) {
+            item.hasAcompanhamento = false;
+            item.acompanhamentoData = null;
+            return item;
+        }
+        
+        // Buscar dados de acompanhamento para o projeto
+        const acompanhamento = window.AcompanhamentoDeProjetos.getAcompanhamentoProjeto(item.projeto);
+        
+        if (acompanhamento) {
+            item.hasAcompanhamento = true;
+            item.acompanhamentoData = acompanhamento;
+        } else {
+            item.hasAcompanhamento = false;
+            item.acompanhamentoData = null;
+        }
+        
+        return item;
+    }
+
     loadTableData() {
         if (!this.isMobileView) return;
         
@@ -206,7 +245,7 @@ class MobileCardsManager {
                     contratarAteDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 }
             }
-            return {
+            let item = {
                 id: index,
                 idPca: cells[0]?.textContent?.trim() || '',
                 area: cells[1]?.textContent?.trim() || '',
@@ -221,6 +260,11 @@ class MobileCardsManager {
                 processo: cells[9]?.textContent?.trim() || '',
                 row: row
             };
+            
+            // Adicionar informações de acompanhamento
+            item = this.addAcompanhamentoInfo(item);
+            
+            return item;
         }).filter(item => item !== null && item.status !== 'CANCELADO ❌'); // Remove cancelados
         this.populateFilters();
         this.applyFilters();
@@ -392,12 +436,12 @@ class MobileCardsManager {
         }
         
         container.innerHTML = this.filteredData.map(item => this.createCard(item)).join('');
-    }
-      createCard(item) {
+    }    createCard(item) {
         const statusClass = this.getStatusClass(item.status);
         const statusHighlightClass = `${statusClass}-highlight`;
         const areaClass = this.getAreaClass(item.area);
         const valorFormatado = MobileUtils ? MobileUtils.formatCurrency(item.valorPca) : item.valorPca;
+        
         // Nome completo do projeto, sem truncar
         let statusText = item.status;
         if (item.status.includes('💣')) {
@@ -408,12 +452,45 @@ class MobileCardsManager {
         }
         if (item.status.includes('❗')) {
             statusText = statusText.replace(/❗/g, '<span class="emoji-exclamation">❗</span>');
-        }        return `
-            <div class="project-card ${statusClass}" data-project-id="${item.id}">
+        }
+        
+        // Preparar informações de acompanhamento
+        let acompanhamentoEmojiHtml = '';
+        let acompanhamentoTooltipData = '';
+        
+        if (item.hasAcompanhamento && item.acompanhamentoData) {
+            // Formatar a data para exibição
+            let dataFormatada = item.acompanhamentoData.data;
+            let diaDaSemana = "";
+            
+            // Usar regex para extrair apenas o formato DD/MM/AAAA
+            const regexData = /(\d{2})\/(\d{2})\/(\d{4})/;
+            const match = item.acompanhamentoData.data.match(regexData);
+            
+            if (match && window.AcompanhamentoDeProjetos) {
+                try {
+                    const dataObj = window.AcompanhamentoDeProjetos.parseDataBrasileira(item.acompanhamentoData.data);
+                    if (!isNaN(dataObj.getTime())) {
+                        const diasDaSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+                        diaDaSemana = diasDaSemana[dataObj.getDay()];
+                        dataFormatada = `${diaDaSemana}, ${match[0]}`;
+                    }
+                } catch (e) {
+                    console.warn("Erro ao formatar data de acompanhamento:", e);
+                }
+            }
+            
+            acompanhamentoEmojiHtml = ' <span class="acompanhamento-emoji" title="Projeto com acompanhamento recente">📩</span>';
+            acompanhamentoTooltipData = `data-acompanhamento-tooltip="${dataFormatada}: ${item.acompanhamentoData.detalhes.replace(/"/g, '&quot;')}"`;
+        }
+        
+        return `
+            <div class="project-card ${statusClass}" data-project-id="${item.id}" ${acompanhamentoTooltipData}>
                 <div class="card-header">
                     <span class="card-id">${item.idPca}</span>
-                    <h6 class="card-title" title="${item.projeto}">${item.projeto}</h6>
-                </div>                <div class="card-content">
+                    <h6 class="card-title" title="${item.projeto}">${item.projeto}${acompanhamentoEmojiHtml}</h6>
+                </div>
+                <div class="card-content">
                     <div class="card-row">
                         <div class="card-left-section">
                             <span class="card-area ${areaClass}">${item.area}</span>
@@ -427,7 +504,8 @@ class MobileCardsManager {
                         ${statusText}
                     </div>
                 </div>
-                <div class="card-footer">                    <button class="btn-details" onclick="MobileUtils && MobileUtils.hapticFeedback('light')">
+                <div class="card-footer">
+                    <button class="btn-details" onclick="MobileUtils && MobileUtils.hapticFeedback('light')">
                         <i class="fas fa-chevron-down"></i> Detalhar
                     </button>
                 </div>
@@ -556,25 +634,75 @@ class MobileCardsManager {
         
         // Expandir este card
         this.expandDetails(projectCard, projectId);
-    }
-      expandDetails(projectCard, projectId) {
+    }    expandDetails(projectCard, projectId) {
         const project = this.filteredData.find(item => item.id == projectId);
         if (!project) return;
         
         const detailsButton = projectCard.querySelector('.btn-details');
         const orcamentoClass = this.getOrcamentoClass(project.orcamento);
         
+        // Preparar informações de acompanhamento para os detalhes
+        let acompanhamentoHtml = '';
+        if (project.hasAcompanhamento && project.acompanhamentoData) {
+            // Formatar a data para exibição
+            let dataFormatada = project.acompanhamentoData.data;
+            let infoAdicional = '';
+            
+            // Usar regex para extrair apenas o formato DD/MM/AAAA
+            const regexData = /(\d{2})\/(\d{2})\/(\d{4})/;
+            const match = project.acompanhamentoData.data.match(regexData);
+            
+            if (match && window.AcompanhamentoDeProjetos) {
+                try {
+                    const dataObj = window.AcompanhamentoDeProjetos.parseDataBrasileira(project.acompanhamentoData.data);
+                    if (!isNaN(dataObj.getTime())) {
+                        const diasDaSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+                        const diaDaSemana = diasDaSemana[dataObj.getDay()];
+                        dataFormatada = `${diaDaSemana}, ${match[0]}`;
+                        
+                        // Adicionar informação sobre quantos dias atrás
+                        if (project.acompanhamentoData.diasAtras === 0) {
+                            infoAdicional = ' (hoje)';
+                        } else if (project.acompanhamentoData.diasAtras === 1) {
+                            infoAdicional = ' (ontem)';
+                        } else {
+                            infoAdicional = ` (${project.acompanhamentoData.diasAtras} dias atrás)`;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Erro ao formatar data de acompanhamento:", e);
+                }
+            }
+            
+            acompanhamentoHtml = `
+                <div class="detail-item acompanhamento-detail">
+                    <span class="detail-label">📩 Último Acompanhamento:</span>
+                    <div class="detail-value acompanhamento-info">
+                        <div class="acompanhamento-data">${dataFormatada}${infoAdicional}</div>
+                        <div class="acompanhamento-detalhes">${project.acompanhamentoData.detalhes}</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Mostrar informação básica de acompanhamento da tabela
+            acompanhamentoHtml = `
+                <div class="detail-item">
+                    <span class="detail-label">Acompanhamento:</span>
+                    <span class="detail-value">${project.acompanhamento || 'Nenhum acompanhamento recente'}</span>
+                </div>
+            `;
+        }
+        
         // Criar o container de detalhes
         const detailsContainer = document.createElement('div');
-        detailsContainer.className = 'card-details-expanded';        detailsContainer.innerHTML = `
+        detailsContainer.className = 'card-details-expanded';
+        
+        detailsContainer.innerHTML = `
             <div class="detail-item">
                 <span class="detail-label">Tipo:</span>
                 <span class="detail-value">${project.tipo}</span>
             </div>
-            <div class="detail-item">
-                <span class="detail-label">Acompanhamento:</span>
-                <span class="detail-value">${project.acompanhamento}</span>
-            </div>
+            ${acompanhamentoHtml}
             <div class="detail-item">
                 <span class="detail-label">Orçamento:</span>
                 <span class="detail-value ${orcamentoClass}">${project.orcamento}</span>
@@ -628,7 +756,111 @@ class MobileCardsManager {
         expandedCards.forEach(card => {
             this.collapseDetails(card);
         });
-    }}
+    }
+      /**
+     * Configura os tooltips de acompanhamento para os cards mobile
+     */
+    setupAcompanhamentoTooltips() {
+        // Criar elemento de tooltip se não existir
+        if (!document.querySelector('.mobile-acompanhamento-tooltip')) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'mobile-acompanhamento-tooltip';
+            document.body.appendChild(tooltip);
+        }
+        
+        // Remover event listeners antigos
+        document.removeEventListener('click', this.handleTooltipClick);
+        document.removeEventListener('touchstart', this.handleTooltipTouch);
+        
+        // Adicionar event listeners para cards com acompanhamento
+        this.handleTooltipClick = this.handleTooltipClick.bind(this);
+        this.handleTooltipTouch = this.handleTooltipTouch.bind(this);
+        
+        document.addEventListener('click', this.handleTooltipClick);
+        document.addEventListener('touchstart', this.handleTooltipTouch);
+    }
+    
+    /**
+     * Manipula cliques nos cards para mostrar tooltips de acompanhamento
+     */
+    handleTooltipClick(event) {
+        const card = event.target.closest('.project-card[data-acompanhamento-tooltip]');
+        const emojiElement = event.target.closest('.acompanhamento-emoji');
+        
+        if (emojiElement && card) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.showAcompanhamentoTooltip(card, event);
+        } else {
+            this.hideAcompanhamentoTooltip();
+        }
+    }
+    
+    /**
+     * Manipula toques nos dispositivos móveis
+     */
+    handleTooltipTouch(event) {
+        const card = event.target.closest('.project-card[data-acompanhamento-tooltip]');
+        const emojiElement = event.target.closest('.acompanhamento-emoji');
+        
+        if (emojiElement && card) {
+            event.preventDefault();
+            this.showAcompanhamentoTooltip(card, event);
+        } else {
+            this.hideAcompanhamentoTooltip();
+        }
+    }
+    
+    /**
+     * Mostra o tooltip de acompanhamento para um card
+     */
+    showAcompanhamentoTooltip(card, event) {
+        const tooltipText = card.getAttribute('data-acompanhamento-tooltip');
+        if (!tooltipText) return;
+        
+        const tooltip = document.querySelector('.mobile-acompanhamento-tooltip');
+        if (!tooltip) return;
+        
+        tooltip.textContent = tooltipText;
+        tooltip.classList.add('show');
+        
+        // Posicionar o tooltip
+        const rect = card.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+        
+        // Calcular posição central do card
+        const cardCenterX = rect.left + (rect.width / 2);
+        const cardTop = rect.top;
+        
+        // Posicionar tooltip acima do card
+        tooltip.style.left = (cardCenterX + scrollLeft - (tooltip.offsetWidth / 2)) + 'px';
+        tooltip.style.top = (cardTop + scrollTop - tooltip.offsetHeight - 15) + 'px';
+        
+        // Verificar se o tooltip está fora da tela e ajustar
+        const tooltipRect = tooltip.getBoundingClientRect();
+        if (tooltipRect.left < 10) {
+            tooltip.style.left = (scrollLeft + 10) + 'px';
+        } else if (tooltipRect.right > window.innerWidth - 10) {
+            tooltip.style.left = (scrollLeft + window.innerWidth - tooltip.offsetWidth - 10) + 'px';
+        }
+        
+        // Auto-hide após 5 segundos
+        setTimeout(() => {
+            this.hideAcompanhamentoTooltip();
+        }, 5000);
+    }
+    
+    /**
+     * Esconde o tooltip de acompanhamento
+     */
+    hideAcompanhamentoTooltip() {
+        const tooltip = document.querySelector('.mobile-acompanhamento-tooltip');
+        if (tooltip) {
+            tooltip.classList.remove('show');
+        }
+    }
+}
 
 // Inicializar quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
