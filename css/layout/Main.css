@@ -301,15 +301,15 @@ table tbody tr.contratacao-atrasada {
 }
 
 /* highlights de status */
-.status-autuacao-atrasada-highlight     { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-autuacao-atrasada-highlight     { background: #d29eee; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-contratacao-atrasada-highlight  { background: #b10202; border-radius:6px; padding:2px 6px; display:inline-block; color: #fff; white-space: normal; }
 .status-aguardando-dfd-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-etp-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-elaborando-tr-highlight         { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-aguardando-definicao-highlight  { background: #e6cff2; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-analise-viabilidade-highlight   { background: #bfe1f6; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-elaborando-tr-highlight         { background: #afdcf8; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-aguardando-definicao-highlight  { background: #d29eee; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-analise-viabilidade-highlight   { background: #afdcf8; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-em-contratacao-highlight        { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
 .status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
 .status-renovado-highlight              { background: #11734b; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }

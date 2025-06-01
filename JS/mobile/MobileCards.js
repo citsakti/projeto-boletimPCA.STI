@@ -42,43 +42,56 @@ class MobileCardsManager {
     createMobileStructure() {
         const detalhesSection = document.getElementById('detalhes');
         if (!detalhesSection) return;
-        
-        // Criar container de filtros móveis
+          // Criar container de filtros móveis
         const filtersContainer = document.createElement('div');
-        filtersContainer.className = 'mobile-filters-container';
+        filtersContainer.className = 'mobile-filters-container card shadow-sm mb-3';
         filtersContainer.innerHTML = `
-            <div class="mobile-filters-header" id="mobile-filters-toggle">
-                <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtros</h6>
-                <i class="bi bi-chevron-down"></i>
+            <div class="mobile-filters-header card-header bg-primary text-white d-flex justify-content-between align-items-center py-2" id="mobile-filters-toggle">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-funnel-fill me-2"></i>
+                    <span class="fw-semibold">Filtros</span>
+                    <span class="badge bg-light text-primary ms-2" id="active-filters-count">0</span>
+                </div>
+                <i class="bi bi-chevron-down transition-transform"></i>
             </div>
-            <div class="mobile-filters-content" id="mobile-filters-content">
-                <div class="mobile-filter-group">
-                    <label for="mobile-filter-area">Área:</label>
-                    <select id="mobile-filter-area" class="form-select">
-                        <option value="">Todas as áreas</option>
-                    </select>
+            <div class="mobile-filters-content card-body collapse" id="mobile-filters-content">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="mobile-filter-area" class="form-label text-muted fw-semibold">
+                            <i class="bi bi-building me-1"></i>Área
+                        </label>
+                        <select id="mobile-filter-area" class="form-select form-select-sm">
+                            <option value="">Todas as áreas</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="mobile-filter-status" class="form-label text-muted fw-semibold">
+                            <i class="bi bi-clock-history me-1"></i>Status
+                        </label>
+                        <select id="mobile-filter-status" class="form-select form-select-sm">
+                            <option value="">Todos os status</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="mobile-filter-tipo" class="form-label text-muted fw-semibold">
+                            <i class="bi bi-tag me-1"></i>Tipo
+                        </label>
+                        <select id="mobile-filter-tipo" class="form-select form-select-sm">
+                            <option value="">Todos os tipos</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="mobile-filter-projeto" class="form-label text-muted fw-semibold">
+                            <i class="bi bi-folder me-1"></i>Projeto
+                        </label>
+                        <select id="mobile-filter-projeto" class="form-select form-select-sm">
+                            <option value="">Todos os projetos</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="mobile-filter-group">
-                    <label for="mobile-filter-status">Status:</label>
-                    <select id="mobile-filter-status" class="form-select">
-                        <option value="">Todos os status</option>
-                    </select>
-                </div>
-                <div class="mobile-filter-group">
-                    <label for="mobile-filter-tipo">Tipo:</label>
-                    <select id="mobile-filter-tipo" class="form-select">
-                        <option value="">Todos os tipos</option>
-                    </select>
-                </div>
-                <div class="mobile-filter-group">
-                    <label for="mobile-filter-projeto">Projeto:</label>
-                    <select id="mobile-filter-projeto" class="form-select">
-                        <option value="">Todos os projetos</option>
-                    </select>
-                </div>
-                <div class="mt-3">
+                <div class="d-grid mt-3">
                     <button class="btn btn-outline-danger btn-sm" id="mobile-clear-filters">
-                        <i class="bi bi-trash me-1"></i>Limpar Filtros
+                        <i class="bi bi-x-circle me-1"></i>Limpar Filtros
                     </button>
                 </div>
             </div>
@@ -259,8 +272,7 @@ class MobileCardsManager {
             }
         });
     }
-    
-    applyFilters() {
+      applyFilters() {
         this.filteredData = this.currentData.filter(item => {
             return (!this.filters.area || item.area.includes(this.filters.area)) &&
                    (!this.filters.status || item.status.includes(this.filters.status)) &&
@@ -268,6 +280,7 @@ class MobileCardsManager {
                    (!this.filters.projeto || item.projeto.toLowerCase().includes(this.filters.projeto.toLowerCase()));
         });
         this.sortData();
+        this.updateActiveFiltersCount();
         this.renderCards();
     }
     sortData() {
@@ -295,8 +308,7 @@ class MobileCardsManager {
             return dateA - dateB;
         });
     }
-    
-    clearFilters() {
+      clearFilters() {
         this.filters = { area: '', status: '', tipo: '', projeto: '' };
         
         document.getElementById('mobile-filter-area').value = '';
@@ -305,7 +317,18 @@ class MobileCardsManager {
         document.getElementById('mobile-filter-projeto').value = '';
         
         this.filteredData = [...this.currentData];
+        this.updateActiveFiltersCount();
         this.renderCards();
+    }
+    
+    updateActiveFiltersCount() {
+        const activeCount = Object.values(this.filters).filter(value => value !== '').length;
+        const badge = document.getElementById('active-filters-count');
+        
+        if (badge) {
+            badge.textContent = activeCount;
+            badge.style.display = activeCount > 0 ? 'inline-block' : 'none';
+        }
     }
     
     renderCards() {
@@ -416,18 +439,35 @@ class MobileCardsManager {
         if (areaLower.includes('governança') || areaLower.includes('governanca')) return 'area-governanca';
         
         return 'area-geral'; // Classe padrão caso nenhuma corresponda
-    }
-    
-    toggleFilters() {
+    }    toggleFilters() {
         const content = document.getElementById('mobile-filters-content');
-        const toggle = document.querySelector('#mobile-filters-toggle i');
+        const chevron = document.querySelector('#mobile-filters-toggle .bi-chevron-down, #mobile-filters-toggle .bi-chevron-up');
         
-        if (content.classList.contains('show')) {
-            content.classList.remove('show');
-            toggle.className = 'bi bi-chevron-down';
+        if (!content) return;
+        
+        // Verificar se Bootstrap está disponível
+        if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+            // Usar Bootstrap collapse para animação suave
+            let bsCollapse = bootstrap.Collapse.getOrCreateInstance(content, {
+                toggle: false
+            });
+            
+            if (content.classList.contains('show')) {
+                bsCollapse.hide();
+                if (chevron) chevron.className = 'bi bi-chevron-down transition-transform';
+            } else {
+                bsCollapse.show();
+                if (chevron) chevron.className = 'bi bi-chevron-up transition-transform';
+            }
         } else {
-            content.classList.add('show');
-            toggle.className = 'bi bi-chevron-up';
+            // Fallback sem Bootstrap
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                if (chevron) chevron.className = 'bi bi-chevron-down transition-transform';
+            } else {
+                content.classList.add('show');
+                if (chevron) chevron.className = 'bi bi-chevron-up transition-transform';
+            }
         }
     }
     
