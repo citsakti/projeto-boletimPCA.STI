@@ -120,11 +120,10 @@ class MobileCardsTooltips {
         } else if (tooltipRect.right > window.innerWidth - 10) {
             tooltip.style.left = (scrollLeft + window.innerWidth - tooltip.offsetWidth - 10) + 'px';
         }
-        
-        // Auto-hide após 5 segundos
+          // Auto-hide após 2 segundos
         setTimeout(() => {
             this.hideAcompanhamentoTooltip();
-        }, 5000);
+        }, 2000);
     }
     
     /**
@@ -212,12 +211,11 @@ class MobileCardsTooltips {
         
         this.statusTooltip.style.top = top + 'px';
         this.statusTooltip.style.left = left + 'px';
-        
-        // Auto-hide após 5 segundos
+          // Auto-hide após 2,5 segundos
         clearTimeout(this.statusTooltipTimeout);
         this.statusTooltipTimeout = setTimeout(() => {
             this.hideStatusTooltip();
-        }, 5000);
+        }, 2500);
     }
     
     /**
