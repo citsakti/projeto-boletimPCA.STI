@@ -289,6 +289,17 @@ document.head.appendChild(toastStyles);
 document.addEventListener('DOMContentLoaded', () => {
     MobileUtils.addMobileClasses();
     MobileUtils.setupMobileEventListeners();
+    
+    // Verificação específica para página de analytics
+    if (document.getElementById('analytics-dashboard')) {
+        // Aguardar um pouco mais para garantir que os dados sejam carregados
+        setTimeout(() => {
+            // Disparar evento para indicar que a página está pronta para mobile
+            window.dispatchEvent(new CustomEvent('mobile-analytics-ready', {
+                detail: { deviceType: MobileUtils.getDeviceType() }
+            }));
+        }, 500);
+    }
 });
 
 // Exportar para uso global
