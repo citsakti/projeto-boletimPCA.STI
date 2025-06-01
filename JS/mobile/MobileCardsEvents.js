@@ -43,11 +43,17 @@ class MobileCardsEvents {
             if (e.target.closest('#btnLimparFiltros')) {
                 this.manager.clearFilters();
             }
-            
-            // Expandir/colapsar detalhes do card
+              // Expandir/colapsar detalhes do card
             if (e.target.closest('.btn-details')) {
                 const cardId = e.target.closest('.project-card').dataset.projectId;
                 window.MobileCardsDetails.toggleDetails(cardId, this.manager.filteredData);
+            }
+            
+            // Clique no ícone de processo nos cards mobile
+            if (e.target.classList.contains('mobile-processo-icon')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleMobileProcessoClick(e.target);
             }
         });
     }
@@ -175,9 +181,7 @@ class MobileCardsEvents {
      */
     isTouchDevice() {
         return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    }
-
-    /**
+    }    /**
      * Adiciona event listener com debounce
      * @param {HTMLElement} element - Elemento alvo
      * @param {string} eventType - Tipo do evento
@@ -190,6 +194,70 @@ class MobileCardsEvents {
             clearTimeout(timeout);
             timeout = setTimeout(() => callback(event), delay);
         });
+    }
+
+    /**
+     * Manipula clique no ícone de processo dos cards mobile
+     * @param {HTMLElement} target - Elemento clicado
+     */
+    handleMobileProcessoClick(target) {
+        const processo = target.dataset.processo;
+        
+        if (processo && processo.trim() !== '' && processo !== 'N/A') {
+            // Adiciona feedback tátil se disponível
+            if (window.MobileUtils && window.MobileUtils.hapticFeedback) {
+                window.MobileUtils.hapticFeedback('light');
+            }
+            
+            // Tenta copiar o número do processo para área de transferência
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(processo)
+                    .then(() => {
+                        this.openMobileProcessoModal(processo);
+                        // Atualiza o tooltip para indicar que foi copiado
+                        target.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
+                        
+                        // Feedback visual temporário
+                        target.style.filter = 'grayscale(0.5)';
+                        setTimeout(() => {
+                            target.style.filter = '';
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        console.error('Falha ao copiar para a área de transferência:', err);
+                        // Mesmo se falhar ao copiar, abre a modal
+                        this.openMobileProcessoModal(processo);
+                    });
+            } else {
+                // Fallback se clipboard API não estiver disponível
+                this.openMobileProcessoModal(processo);
+            }
+        } else {
+            // Se não houver número de processo válido, abre a página padrão
+            this.openMobileProcessoModal('');
+        }
+    }
+
+    /**
+     * Abre o modal de processo usando a instância global do ProcessoModal
+     * @param {string} processo - Número do processo
+     */
+    openMobileProcessoModal(processo = '') {
+        // Usa a instância global do ProcessoModal se estiver disponível
+        if (window.processoModalInstance) {
+            window.processoModalInstance.openModal(processo);
+        } else if (window.ProcessoModal) {
+            // Fallback: cria nova instância se a global não estiver disponível
+            const modalInstance = new window.ProcessoModal();
+            modalInstance.openModal(processo);
+        } else {
+            console.error('ProcessoModal não está disponível. Certifique-se de que o script está carregado.');
+            // Fallback: abre diretamente no TCE em nova janela
+            const url = processo 
+                ? `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`
+                : 'https://www.tce.ce.gov.br/contexto-consulta-geral?tipo=processos';
+            window.open(url, '_blank');
+        }
     }
 }
 

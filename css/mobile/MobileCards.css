@@ -852,4 +852,70 @@
     .mobile-status-tooltip::before {
         border-color: rgba(255, 255, 255, 0.95) transparent transparent transparent;
     }
+    
+    .mobile-processo-icon {
+        color: #4dabf7;
+    }
+    
+    .mobile-processo-icon:hover {
+        color: #74c0fc;
+        background-color: rgba(77, 171, 247, 0.1);
+    }
+}
+
+/* Ícone de processo nos cards mobile */
+.mobile-processo-icon {
+    margin-left: 8px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 1.1em;
+    color: var(--brand-primary, #007bff);
+    transition: all 0.2s ease;
+    padding: 2px 4px;
+    border-radius: 3px;
+    position: relative;
+}
+
+.mobile-processo-icon:hover {
+    color: var(--brand-primary-dark, #0056b3);
+    background-color: rgba(0, 123, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.mobile-processo-icon:active {
+    transform: scale(0.95);
+    background-color: rgba(0, 123, 255, 0.2);
+}
+
+/* Animação para feedback visual quando copiado */
+.mobile-processo-icon.copied {
+    animation: processoIconPulse 0.5s ease-in-out;
+}
+
+@keyframes processoIconPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); }
+}
+
+/* Responsividade do ícone de processo para telas muito pequenas */
+@media (max-width: 360px) {
+    .mobile-processo-icon {
+        font-size: 1em;
+        margin-left: 6px;
+        padding: 1px 3px;
+    }
+}
+
+/* Modo escuro - se implementado no futuro */
+@media (prefers-color-scheme: dark) {
+    .mobile-status-tooltip {
+        background: rgba(255, 255, 255, 0.95);
+        color: #000;
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+    }
+    
+    .mobile-status-tooltip::before {
+        border-color: rgba(255, 255, 255, 0.95) transparent transparent transparent;
+    }
 }
