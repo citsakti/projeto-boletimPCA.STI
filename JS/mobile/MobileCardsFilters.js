@@ -73,13 +73,13 @@ class MobileCardsFilters {
                 }
             }
         }
-    }
-
-    /**
+    }    /**
      * Sincroniza status selecionado com o painel de resumos
      * @param {string} statusValue - Valor do status selecionado
      */
     syncStatusWithPainel(statusValue) {
+        console.log(`📱 Sincronizando status mobile com painel: ${statusValue || 'TODOS'}`);
+        
         // Sincroniza com o painel de resumos atualizando o destaque
         const statusElements = document.querySelectorAll('.status-option');
         statusElements.forEach(item => {
@@ -94,11 +94,16 @@ class MobileCardsFilters {
             if (activeElement) {
                 activeElement.style.backgroundColor = '#fa8c16';
                 activeElement.style.fontWeight = 'bold';
+                console.log(`✅ Status "${targetStatus}" destacado no painel`);
             }
+            
+            // Atualiza o status global
+            window.painelFilterStatus = targetStatus;
             
             // Sincroniza com os filtros Google Sheets
             if (typeof aplicarFiltroStatusProcesso === 'function') {
                 aplicarFiltroStatusProcesso(targetStatus);
+                console.log(`🔄 Filtro Google Sheets aplicado para: ${targetStatus}`);
             }
         } else {
             // Se não há filtro, destaca "TODOS"
@@ -106,13 +111,26 @@ class MobileCardsFilters {
             if (todosElement) {
                 todosElement.style.backgroundColor = '#fa8c16';
                 todosElement.style.fontWeight = 'bold';
+                console.log('✅ Status "TODOS" destacado no painel');
             }
+            
+            // Atualiza o status global
+            window.painelFilterStatus = 'TODOS';
             
             // Remove filtros dos Google Sheets
             if (typeof resetPainelFilterStatus === 'function') {
                 resetPainelFilterStatus();
+                console.log('🔄 Filtros Google Sheets resetados');
             }
         }
+        
+        // Dispara evento para notificar outras partes do sistema
+        document.dispatchEvent(new CustomEvent('mobile-status-sync', {
+            detail: { 
+                status: statusValue || 'TODOS',
+                source: 'mobileCards'
+            }
+        }));
     }
 
     /**
@@ -222,7 +240,10 @@ class MobileCardsFilters {
     }
 }
 
-// Exportar para uso global
+// Exportar para uso global e criar instância global
 window.MobileCardsFilters = MobileCardsFilters;
+if (typeof window.mobileCardsFiltersInstance === 'undefined') {
+    window.mobileCardsFiltersInstance = new MobileCardsFilters();
+}
 
-console.log('MobileCardsFilters.js carregado');
+console.log('MobileCardsFilters.js carregado e instância criada.');

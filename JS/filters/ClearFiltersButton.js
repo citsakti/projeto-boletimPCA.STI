@@ -14,23 +14,37 @@ document.addEventListener('tabela-carregada', setupClearFiltersButtonObserver);
  */
 function setupClearFiltersButtonObserver() {
     const limparBtn = document.getElementById("btnLimparFiltros");
-    if (!limparBtn) return;
+    // Adiciona o botão de limpar filtros mobile
+    const limparBtnMobile = document.getElementById("mobile-clear-filters-btn"); 
+
+    if (!limparBtn && !limparBtnMobile) return;
 
     // Função para verificar se existem filtros ativos
     function checkActiveFilters() {
         const activeFilterButtons = document.querySelectorAll('.google-sheet-filter-btn.filter-active, .google-sheet-filter-btn[data-active-filters]');
-        
-        // Verifica se há filtros ativos do painel de resumo
         const painelFilterAtivo = window.painelFilterStatus && window.painelFilterStatus !== 'TODOS';
         
-        console.log('Verificando filtros ativos - Filtros de coluna:', activeFilterButtons.length, 'Filtro do painel:', painelFilterAtivo);
-        
-        if (activeFilterButtons.length > 0 || painelFilterAtivo) {
-            // Há filtros ativos, destaca o botão
-            limparBtn.classList.add('filters-active');
-        } else {
-            // Não há filtros ativos, remove o destaque
-            limparBtn.classList.remove('filters-active');
+        // Verifica filtros ativos no mobile através da instância de MobileCardsFilters
+        let mobileFiltersAtivos = false;
+        if (window.mobileCardsFiltersInstance && typeof window.mobileCardsFiltersInstance.hasActiveFilters === 'function') {
+            mobileFiltersAtivos = window.mobileCardsFiltersInstance.hasActiveFilters();
+        }
+
+        const hasActiveFilters = activeFilterButtons.length > 0 || painelFilterAtivo || mobileFiltersAtivos;
+
+        if (limparBtn) {
+            if (hasActiveFilters) {
+                limparBtn.classList.add('filters-active');
+            } else {
+                limparBtn.classList.remove('filters-active');
+            }
+        }
+        if (limparBtnMobile) {
+            if (hasActiveFilters) {
+                limparBtnMobile.classList.add('filters-active'); // Supondo uma classe similar para o botão mobile
+            } else {
+                limparBtnMobile.classList.remove('filters-active');
+            }
         }
     }
 
@@ -55,7 +69,78 @@ function setupClearFiltersButtonObserver() {
     
     // Adiciona listener para o evento personalizado do painel de filtros
     document.addEventListener('painel-filter-applied', checkActiveFilters);
+    // Adiciona listener para o evento de atualização de filtros mobile
+    document.addEventListener('mobile-filters-updated', checkActiveFilters);
 
     // Também verifica periodicamente (como backup)
     setInterval(checkActiveFilters, 2000);
+
+    // Adiciona listeners para os botões de limpar filtros
+    if (limparBtn) {
+        limparBtn.addEventListener('click', () => {
+            // Lógica para limpar filtros web (Google Sheets, Painel de Resumo)
+            if (typeof resetPainelFilterStatus === 'function') {
+                resetPainelFilterStatus(); // Reseta o painel de resumo, que deve chamar masterFilterFunction
+            }
+            // Adicionalmente, reseta os filtros do Google Sheets diretamente se necessário
+            const filterButtons = document.querySelectorAll('.google-sheet-filter-btn');
+            filterButtons.forEach(button => {
+                button.classList.remove('filter-active');
+                button.removeAttribute('data-active-filters');
+            });
+            if (typeof masterFilterFunction === 'function') {
+                masterFilterFunction(); // Garante que a tabela seja atualizada
+            }
+
+            // Limpa filtros mobile
+            if (window.mobileCardsFiltersInstance && typeof window.mobileCardsFiltersInstance.clearFilters === 'function') {
+                window.mobileCardsFiltersInstance.clearFilters();
+                window.mobileCardsFiltersInstance.updateActiveFiltersCount();
+                 // Notifica o MobileCardsManager para reaplicar os filtros (mostrar todos os cards)
+                document.dispatchEvent(new CustomEvent('mobile-filters-updated', {
+                    detail: { 
+                        source: 'clearFiltersButton', 
+                        newFilters: window.mobileCardsFiltersInstance.getFilters() 
+                    }
+                }));
+                if (window.mobileCardsManager && typeof window.mobileCardsManager.applyFilters === 'function') {
+                    window.mobileCardsManager.applyFilters(); 
+                }
+            }
+            checkActiveFilters(); // Atualiza o estado do botão
+        });
+    }
+
+    if (limparBtnMobile) {
+        limparBtnMobile.addEventListener('click', () => {
+            // Lógica para limpar filtros mobile
+            if (window.mobileCardsFiltersInstance && typeof window.mobileCardsFiltersInstance.clearFilters === 'function') {
+                window.mobileCardsFiltersInstance.clearFilters();
+                window.mobileCardsFiltersInstance.updateActiveFiltersCount();
+                document.dispatchEvent(new CustomEvent('mobile-filters-updated', {
+                    detail: { 
+                        source: 'clearFiltersButtonMobile', 
+                        newFilters: window.mobileCardsFiltersInstance.getFilters() 
+                    }
+                }));
+                if (window.mobileCardsManager && typeof window.mobileCardsManager.applyFilters === 'function') {
+                    window.mobileCardsManager.applyFilters(); 
+                }
+            }
+
+            // Limpa filtros web (Google Sheets, Painel de Resumo)
+            if (typeof resetPainelFilterStatus === 'function') {
+                resetPainelFilterStatus();
+            }
+            const filterButtons = document.querySelectorAll('.google-sheet-filter-btn');
+            filterButtons.forEach(button => {
+                button.classList.remove('filter-active');
+                button.removeAttribute('data-active-filters');
+            });
+            if (typeof masterFilterFunction === 'function') {
+                masterFilterFunction();
+            }
+            checkActiveFilters(); // Atualiza o estado do botão
+        });
+    }
 }

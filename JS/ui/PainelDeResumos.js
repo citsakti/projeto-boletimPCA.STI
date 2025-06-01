@@ -178,41 +178,72 @@ function filterTable() {
 
 // Função para sincronizar filtros com MobileCardsManager
 function syncMobileFilters(statusSelecionado) {
-    // Acessa o MobileCardsManager global se disponível
-    if (window.mobileCardsManager) {
-        if (statusSelecionado === 'TODOS') {
-            // Limpa o filtro de status mobile
-            window.mobileCardsManager.filters.status = '';
-            const mobileSelect = document.getElementById('mobile-filter-status');
-            if (mobileSelect) {
-                mobileSelect.value = '';
-            }
-        } else {
-            // Aplica o filtro de status mobile
-            window.mobileCardsManager.filters.status = statusSelecionado;
-            const mobileSelect = document.getElementById('mobile-filter-status');
-            if (mobileSelect) {
-                mobileSelect.value = statusSelecionado;
-            }
-        }
-        // Reaplica os filtros mobile
-        window.mobileCardsManager.applyFilters();
-    }
+    console.log(`🔄 Sincronizando filtros mobile com status: ${statusSelecionado}`);
     
-    // Dispara evento personalizado para notificar sobre mudança de filtro do painel
-    document.dispatchEvent(new CustomEvent('painel-filter-applied', {
-        detail: { status: statusSelecionado }
-    }));
+    // Tenta interagir com a instância global de MobileCardsFilters
+    if (window.mobileCardsFiltersInstance && 
+        typeof window.mobileCardsFiltersInstance.updateFilter === 'function' &&
+        typeof window.mobileCardsFiltersInstance.getFilters === 'function' && 
+        typeof window.mobileCardsFiltersInstance.updateActiveFiltersCount === 'function') {
+        
+        const newStatus = (statusSelecionado === 'TODOS') ? '' : statusSelecionado;
+
+        // Atualiza o filtro de status nos cards mobile
+        window.mobileCardsFiltersInstance.updateFilter('status', newStatus); 
+        window.mobileCardsFiltersInstance.updateActiveFiltersCount();
+
+        // Atualiza a interface do select mobile
+        const mobileStatusSelect = document.getElementById('mobile-filter-status');
+        if (mobileStatusSelect) {
+            mobileStatusSelect.value = newStatus;
+            console.log(`📱 Select mobile atualizado para: ${newStatus || 'Todos os status'}`);
+        }
+
+        // Notifica o MobileCardsManager para reaplicar os filtros
+        document.dispatchEvent(new CustomEvent('mobile-filters-updated', {
+            detail: { 
+                source: 'painelResumo', 
+                status: statusSelecionado,
+                newFilters: window.mobileCardsFiltersInstance.getFilters() 
+            }
+        }));
+        
+        // Aplica os filtros diretamente se o manager estiver disponível
+        if (window.mobileCardsManager && typeof window.mobileCardsManager.applyFilters === 'function') {
+            window.mobileCardsManager.applyFilters();
+            console.log(`✅ Filtros aplicados nos cards mobile`);
+        }
+
+        // Dispara evento customizado para notificar outras partes do sistema
+        document.dispatchEvent(new CustomEvent('painel-filter-applied', {
+            detail: { 
+                status: statusSelecionado,
+                source: 'painelResumo'
+            }
+        }));
+
+    } else {
+        console.warn('⚠️ Instância de MobileCardsFilters não encontrada para sincronização.');
+    }
 }
 
 // Função para resetar o filtro do painel de resumos
 function resetPainelFilterStatus() {
+    console.log('🔄 Resetando filtro do painel de resumos');
+    
     // Remove o destaque de todos os elementos de status
     const statusElements = document.querySelectorAll('.status-option');
     statusElements.forEach(item => {
         item.style.backgroundColor = '';
         item.style.fontWeight = '';
     });
+    
+    // Destaca "TODOS" como ativo
+    const todosElement = document.querySelector('.status-option[data-status="TODOS"]');
+    if (todosElement) {
+        todosElement.style.backgroundColor = '#fa8c16';
+        todosElement.style.fontWeight = 'bold';
+    }
     
     // Remove o filtro ativo da coluna Status do Processo via GoogleSheetFilters
     const filterButton = document.querySelector('.google-sheet-filter-btn[data-col-index="5"]');
@@ -221,16 +252,27 @@ function resetPainelFilterStatus() {
         filterButton.classList.remove('filter-active');
     }
     
+    // Reseta o status global
+    window.painelFilterStatus = 'TODOS';
+    
     // Sincroniza com os filtros mobile - limpa o filtro de status
     syncMobileFilters('TODOS');
     
     // Chama a função master de filtragem para atualizar a tabela
     if (typeof masterFilterFunction === 'function') {
         masterFilterFunction();
+        console.log('✅ Filtros resetados e função master executada');
     }
     
     // Dispara um evento personalizado para notificar que o filtro do painel foi resetado
-    document.dispatchEvent(new CustomEvent('painel-filter-applied'));
+    document.dispatchEvent(new CustomEvent('painel-filter-applied', {
+        detail: { 
+            status: 'TODOS',
+            source: 'painelResumoReset'
+        }
+    }));
+    
+    console.log('🎉 Reset do painel concluído');
 }
 
 // Função para resetar as contagens originais (chamada quando a tabela é recarregada)
@@ -241,15 +283,21 @@ function resetOriginalCounts() {
 
 // Função para aplicar filtro de status através do sistema GoogleSheetFilters
 function aplicarFiltroStatusProcesso(statusSelecionado) {
+    console.log(`🎯 Aplicando filtro de status: ${statusSelecionado}`);
+    
     // Encontra o botão de filtro da coluna "Status do Processo" (índice 5)
     const filterButton = document.querySelector('.google-sheet-filter-btn[data-col-index="5"]');
     
     if (!filterButton) {
-        console.warn('Botão de filtro da coluna Status do Processo não encontrado');
+        console.warn('⚠️ Botão de filtro da coluna Status do Processo não encontrado');
         return;
     }
-      // Encontra também o filtro mobile correspondente
+      
+    // Encontra também o filtro mobile correspondente
     const mobileFilterButton = document.getElementById('mobile-filter-status-processo');
+    
+    // Define o status global para outros sistemas
+    window.painelFilterStatus = statusSelecionado;
     
     if (statusSelecionado === 'TODOS') {
         // Remove o filtro ativo da coluna Status do Processo
@@ -264,7 +312,7 @@ function aplicarFiltroStatusProcesso(statusSelecionado) {
         // Sincroniza com os filtros mobile do MobileCardsManager
         syncMobileFilters('TODOS');
         
-        console.log('Removendo filtro da coluna Status do Processo - mostrando todos');
+        console.log('✅ Removendo filtro da coluna Status do Processo - mostrando todos');
     } else {
         // Aplica o filtro com o status selecionado
         const filtroValor = [statusSelecionado.toLowerCase()];
@@ -279,15 +327,21 @@ function aplicarFiltroStatusProcesso(statusSelecionado) {
         // Sincroniza com os filtros mobile do MobileCardsManager
         syncMobileFilters(statusSelecionado);
         
-        console.log(`Aplicando filtro na coluna Status do Processo: ${statusSelecionado}`);
+        console.log(`✅ Aplicando filtro na coluna Status do Processo: ${statusSelecionado}`);
     }
     
     // Chama a função master de filtragem do GoogleSheetFilters
     if (typeof masterFilterFunction === 'function') {
         masterFilterFunction();
+        console.log('🔄 Função master de filtragem executada');
     } else {
-        console.warn('masterFilterFunction não encontrada');
+        console.warn('⚠️ masterFilterFunction não encontrada');
     }
+    
+    // Pequeno delay para garantir que as mudanças visuais sejam processadas
+    setTimeout(() => {
+        console.log(`🎉 Sincronização concluída para status: ${statusSelecionado}`);
+    }, 100);
 }
 
     

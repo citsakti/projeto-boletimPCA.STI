@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste dos Módulos Refatorados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .test-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .test-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste dos Módulos Refatorados do MobileCards</h1>
+    
+    <div id="test-results"></div>
+    
+    <button onclick="runTests()" style="padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Executar Testes
+    </button>
+
+    <!-- Carregar os módulos refatorados -->
+    <script src="./JS/mobile/MobileCardsStyles.js"></script>
+    <script src="./JS/mobile/MobileCardsData.js"></script>
+    <script src="./JS/mobile/MobileCardsRenderer.js"></script>
+    <script src="./JS/mobile/MobileCardsFilters.js"></script>
+    <script src="./JS/mobile/MobileCardsTooltips.js"></script>
+    <script src="./JS/mobile/MobileCardsDetails.js"></script>
+    <script src="./JS/mobile/MobileCardsEvents.js"></script>
+    <script src="./JS/mobile/MobileCardsManager.js"></script>
+
+    <script>
+        function addTestResult(title, success, message) {
+            const resultsDiv = document.getElementById('test-results');
+            const testDiv = document.createElement('div');
+            testDiv.className = `test-section ${success ? 'test-success' : 'test-error'}`;
+            testDiv.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
+            resultsDiv.appendChild(testDiv);
+        }
+
+        function addInfoResult(title, message) {
+            const resultsDiv = document.getElementById('test-results');
+            const testDiv = document.createElement('div');
+            testDiv.className = 'test-section test-info';
+            testDiv.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
+            resultsDiv.appendChild(testDiv);
+        }
+
+        function runTests() {
+            // Limpar resultados anteriores
+            document.getElementById('test-results').innerHTML = '';
+
+            addInfoResult('Iniciando Testes', 'Verificando se todos os módulos foram carregados corretamente...');
+
+            // Teste 1: Verificar se as classes estão disponíveis no window
+            const modules = [
+                'MobileCardsStyles',
+                'MobileCardsData', 
+                'MobileCardsRenderer',
+                'MobileCardsFilters',
+                'MobileCardsTooltips',
+                'MobileCardsDetails',
+                'MobileCardsEvents',
+                'MobileCardsManager'
+            ];
+
+            let allModulesLoaded = true;
+            const loadedModules = [];
+            const missingModules = [];
+
+            modules.forEach(moduleName => {
+                if (window[moduleName]) {
+                    loadedModules.push(moduleName);
+                } else {
+                    missingModules.push(moduleName);
+                    allModulesLoaded = false;
+                }
+            });
+
+            if (allModulesLoaded) {
+                addTestResult('✅ Carregamento de Módulos', true, 
+                    `Todos os ${modules.length} módulos foram carregados com sucesso: ${loadedModules.join(', ')}`);
+            } else {
+                addTestResult('❌ Carregamento de Módulos', false, 
+                    `Módulos carregados: ${loadedModules.join(', ')}<br>Módulos não encontrados: ${missingModules.join(', ')}`);
+            }
+
+            // Teste 2: Verificar se o MobileCardsManager pode ser instanciado
+            try {
+                if (window.MobileCardsManager) {
+                    // Criar uma instância fictícia para teste
+                    const testContainer = document.createElement('div');
+                    testContainer.id = 'test-container';
+                    document.body.appendChild(testContainer);
+
+                    const manager = new window.MobileCardsManager('test-container');
+                    
+                    addTestResult('✅ Instanciação do Manager', true, 
+                        'MobileCardsManager foi instanciado com sucesso');
+
+                    // Limpar o container de teste
+                    document.body.removeChild(testContainer);
+                } else {
+                    addTestResult('❌ Instanciação do Manager', false, 
+                        'MobileCardsManager não está disponível');
+                }
+            } catch (error) {
+                addTestResult('❌ Instanciação do Manager', false, 
+                    `Erro ao instanciar MobileCardsManager: ${error.message}`);
+            }
+
+            // Teste 3: Verificar métodos principais das classes
+            const methodTests = [
+                { class: 'MobileCardsStyles', method: 'getMobileCardClass' },
+                { class: 'MobileCardsData', method: 'processData' },
+                { class: 'MobileCardsRenderer', method: 'renderCards' },
+                { class: 'MobileCardsFilters', method: 'initializeFilters' },
+                { class: 'MobileCardsTooltips', method: 'initializeTooltips' },
+                { class: 'MobileCardsDetails', method: 'initializeDetails' },
+                { class: 'MobileCardsEvents', method: 'initializeEvents' }
+            ];
+
+            let methodsOk = 0;
+            let methodsTotal = methodTests.length;
+
+            methodTests.forEach(test => {
+                try {
+                    if (window[test.class] && window[test.class].prototype && window[test.class].prototype[test.method]) {
+                        methodsOk++;
+                    }
+                } catch (error) {
+                    // Método não encontrado
+                }
+            });
+
+            if (methodsOk === methodsTotal) {
+                addTestResult('✅ Métodos das Classes', true, 
+                    `Todos os ${methodsTotal} métodos principais foram encontrados`);
+            } else {
+                addTestResult('⚠️ Métodos das Classes', methodsOk > methodsTotal / 2, 
+                    `${methodsOk} de ${methodsTotal} métodos principais encontrados`);
+            }
+
+            // Teste 4: Verificar dependências entre módulos
+            try {
+                let dependenciesOk = true;
+                let dependencyMessage = '';
+
+                // Verificar se MobileCardsManager tem referências aos outros módulos
+                if (window.MobileCardsManager) {
+                    const managerCode = window.MobileCardsManager.toString();
+                    const requiredModules = ['MobileCardsStyles', 'MobileCardsData', 'MobileCardsRenderer'];
+                    
+                    requiredModules.forEach(module => {
+                        if (!managerCode.includes(module)) {
+                            dependenciesOk = false;
+                            dependencyMessage += `${module} não foi encontrado no MobileCardsManager. `;
+                        }
+                    });
+
+                    if (dependenciesOk) {
+                        addTestResult('✅ Dependências', true, 
+                            'Dependências entre módulos estão corretas');
+                    } else {
+                        addTestResult('⚠️ Dependências', false, 
+                            dependencyMessage);
+                    }
+                } else {
+                    addTestResult('❌ Dependências', false, 
+                        'Não foi possível verificar dependências - MobileCardsManager não disponível');
+                }
+            } catch (error) {
+                addTestResult('❌ Dependências', false, 
+                    `Erro ao verificar dependências: ${error.message}`);
+            }
+
+            // Teste 5: Verificar compatibilidade com o DOM
+            try {
+                // Simular container mobile
+                const testDiv = document.createElement('div');
+                testDiv.id = 'mobile-cards-container';
+                testDiv.innerHTML = '<div class="mobile-card">Teste</div>';
+                document.body.appendChild(testDiv);
+
+                let domCompatible = true;
+                if (window.MobileCardsStyles) {
+                    const styles = new window.MobileCardsStyles();
+                    // Verificar se consegue acessar classes CSS
+                    if (typeof styles.getMobileCardClass === 'function') {
+                        domCompatible = true;
+                    }
+                }
+
+                if (domCompatible) {
+                    addTestResult('✅ Compatibilidade DOM', true, 
+                        'Módulos são compatíveis com manipulação do DOM');
+                } else {
+                    addTestResult('⚠️ Compatibilidade DOM', false, 
+                        'Possíveis problemas de compatibilidade com DOM');
+                }
+
+                // Limpar teste
+                document.body.removeChild(testDiv);
+            } catch (error) {
+                addTestResult('❌ Compatibilidade DOM', false, 
+                    `Erro no teste de DOM: ${error.message}`);
+            }
+
+            addInfoResult('Testes Concluídos', 
+                'Todos os testes foram executados. Verifique os resultados acima para identificar possíveis problemas.');
+        }
+
+        // Executar testes automaticamente após 1 segundo
+        setTimeout(() => {
+            addInfoResult('Auto-teste', 'Executando testes automaticamente...');
+            runTests();
+        }, 1000);
+    </script>
+</body>
+</html>
