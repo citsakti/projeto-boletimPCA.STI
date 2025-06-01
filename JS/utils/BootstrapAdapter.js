@@ -181,31 +181,11 @@
                     };
                 }
             }
-        }
-          // Função para adaptar controles do painel de resumo
+        }        // Função para adaptar controles do painel de resumo
         function adaptPainelResumo() {
-            const painelContainer = document.getElementById('painel-resumo-container');
-            const painelCloseBtn = document.getElementById('painel-close-btn');
-            const arrowIcon = painelCloseBtn ? painelCloseBtn.querySelector('.arrow-icon') : null;
-            
-            if (painelCloseBtn && arrowIcon) {
-                painelCloseBtn.addEventListener('click', function() {
-                    if (painelContainer) {
-                        painelContainer.classList.toggle('collapsed');
-                          // Atualiza o ícone da seta usando Bootstrap Icons
-                        if (painelContainer.classList.contains('collapsed')) {
-                            arrowIcon.className = 'bi bi-layout-sidebar-inset arrow-icon';
-                        } else {
-                            arrowIcon.className = 'bi bi-layout-sidebar arrow-icon';
-                        }
-                        
-                        // Dispatch evento customizado para compatibilidade
-                        const event = new CustomEvent('painel-resumo-toggled', {
-                            detail: { expanded: !painelContainer.classList.contains('collapsed') }
-                        });                        document.dispatchEvent(event);
-                    }
-                });
-            }
+            // Funcionalidade movida para PainelResumoCollapsible.js
+            // para evitar conflitos de event listeners
+            console.log('PainelResumo adaptado - funcionalidade delegada para PainelResumoCollapsible.js');
         }
         
         // Executa as adaptações

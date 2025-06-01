@@ -62,19 +62,21 @@ class PainelResumoCollapsible {    constructor() {
                 this.collapse();
             }
         });    }
-    
-    toggle() {
+      toggle() {
+        console.log('Toggle chamado - Estado atual:', this.isExpanded);
+        
         // Força uma verificação do estado atual antes do toggle
         this.refreshState();
         
+        console.log('Após refreshState - Estado:', this.isExpanded);
+        
         if (this.isExpanded) {
+            console.log('Chamando collapse...');
             this.collapse();
         } else {
+            console.log('Chamando expand...');
             this.expand();
         }
-        
-        // Salva o novo estado
-        this.saveState();
     }
     
     refreshState() {
