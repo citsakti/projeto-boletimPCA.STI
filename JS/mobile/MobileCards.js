@@ -272,12 +272,27 @@ class MobileCardsManager {
     }
     sortData() {
         this.filteredData.sort((a, b) => {
+            const statusA = a.status.toUpperCase();
+            const statusB = b.status.toUpperCase();
+            const isAConcluido = statusA.includes('CONTRATADO') || statusA.includes('RENOVADO') || statusA.includes('CONCLUÍDO');
+            const isBConcluido = statusB.includes('CONTRATADO') || statusB.includes('RENOVADO') || statusB.includes('CONCLUÍDO');
+
+            if (isAConcluido && !isBConcluido) {
+                return 1; // Mover A para o final
+            }
+            if (!isAConcluido && isBConcluido) {
+                return -1; // Mover B para o final
+            }
+
             const dateA = a.contratarAteDate;
             const dateB = b.contratarAteDate;
+
             if (!dateA && !dateB) return 0;
-            if (!dateA) return 1;
+            if (!dateA) return 1; 
             if (!dateB) return -1;
-            return dateB - dateA; // Mais recente primeiro
+
+            // Ordenar por data mais antiga primeiro (ascendente)
+            return dateA - dateB;
         });
     }
     
