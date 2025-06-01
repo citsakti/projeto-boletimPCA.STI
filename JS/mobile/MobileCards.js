@@ -30,8 +30,7 @@ class MobileCardsManager {
         
         this.init();
     }
-    
-    init() {
+      init() {
         this.createMobileStructure();
         this.bindEvents();
         this.checkMobileView();
@@ -44,6 +43,11 @@ class MobileCardsManager {
         // Escutar redimensionamento da tela
         window.addEventListener('resize', () => {
             this.checkMobileView();
+        });
+        
+        // Escutar filtros aplicados pelo painel de resumos
+        document.addEventListener('painel-filter-applied', (event) => {
+            this.syncWithPainelFilter(event.detail);
         });
     }
     
@@ -134,13 +138,17 @@ class MobileCardsManager {
                 this.toggleDetails(cardId);
             }
         });
-        
-        // Filtros
+          // Filtros
         document.addEventListener('change', (e) => {
             if (e.target.id.startsWith('mobile-filter-')) {
                 const filterType = e.target.id.replace('mobile-filter-', '');
                 this.filters[filterType] = e.target.value;
                 this.applyFilters();
+                
+                // Se foi o filtro de status, sincroniza com o painel de resumos
+                if (filterType === 'status') {
+                    this.syncStatusWithPainel(e.target.value);
+                }
             }
         });
     }
@@ -246,9 +254,30 @@ class MobileCardsManager {
                 optionElement.textContent = option;
                 select.appendChild(optionElement);
             }
-        });
+        });    }
+    
+    syncWithPainelFilter(detail) {
+        if (!this.isMobileView) return;
+        
+        if (detail && detail.status) {
+            if (detail.status === 'TODOS') {
+                this.filters.status = '';
+                const mobileSelect = document.getElementById('mobile-filter-status');
+                if (mobileSelect) {
+                    mobileSelect.value = '';
+                }
+            } else {
+                this.filters.status = detail.status;
+                const mobileSelect = document.getElementById('mobile-filter-status');
+                if (mobileSelect) {
+                    mobileSelect.value = detail.status;
+                }
+            }
+            this.applyFilters();
+        }
     }
-      applyFilters() {
+    
+    applyFilters() {
         this.filteredData = this.currentData.filter(item => {
             return (!this.filters.area || item.area.includes(this.filters.area)) &&
                    (!this.filters.status || item.status.includes(this.filters.status)) &&
@@ -282,9 +311,45 @@ class MobileCardsManager {
 
             // Ordenar por data mais antiga primeiro (ascendente)
             return dateA - dateB;
+        });    }
+    
+    syncStatusWithPainel(statusValue) {
+        if (!this.isMobileView) return;
+        
+        // Sincroniza com o painel de resumos atualizando o destaque
+        const statusElements = document.querySelectorAll('.status-option');
+        statusElements.forEach(item => {
+            item.style.backgroundColor = '';
+            item.style.fontWeight = '';
         });
-    }
-      clearFilters() {
+        
+        if (statusValue) {
+            // Encontra e destaca o status selecionado no painel
+            const targetStatus = statusValue === '' ? 'TODOS' : statusValue;
+            const activeElement = document.querySelector(`.status-option[data-status="${targetStatus}"]`);
+            if (activeElement) {
+                activeElement.style.backgroundColor = '#fa8c16';
+                activeElement.style.fontWeight = 'bold';
+            }
+            
+            // Sincroniza com os filtros Google Sheets
+            if (typeof aplicarFiltroStatusProcesso === 'function') {
+                aplicarFiltroStatusProcesso(targetStatus);
+            }
+        } else {
+            // Se não há filtro, destaca "TODOS"
+            const todosElement = document.querySelector('.status-option[data-status="TODOS"]');
+            if (todosElement) {
+                todosElement.style.backgroundColor = '#fa8c16';
+                todosElement.style.fontWeight = 'bold';
+            }
+            
+            // Remove filtros dos Google Sheets
+            if (typeof resetPainelFilterStatus === 'function') {
+                resetPainelFilterStatus();
+            }
+        }
+    }    clearFilters() {
         this.filters = { area: '', status: '', tipo: '', projeto: '' };
         
         document.getElementById('mobile-filter-area').value = '';
@@ -292,7 +357,12 @@ class MobileCardsManager {
         document.getElementById('mobile-filter-tipo').value = '';
         document.getElementById('mobile-filter-projeto').value = '';
         
+        // Sincroniza com o painel de resumos - reseta para "TODOS"
+        this.syncStatusWithPainel('');
+        
         this.filteredData = [...this.currentData];
+        // Importante: chama sortData() para manter a ordenação correta
+        this.sortData();
         this.updateActiveFiltersCount();
         this.renderCards();
     }

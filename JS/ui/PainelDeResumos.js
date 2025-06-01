@@ -176,6 +176,35 @@ function filterTable() {
     document.dispatchEvent(new CustomEvent('painel-filter-applied'));
 }
 
+// Função para sincronizar filtros com MobileCardsManager
+function syncMobileFilters(statusSelecionado) {
+    // Acessa o MobileCardsManager global se disponível
+    if (window.mobileCardsManager) {
+        if (statusSelecionado === 'TODOS') {
+            // Limpa o filtro de status mobile
+            window.mobileCardsManager.filters.status = '';
+            const mobileSelect = document.getElementById('mobile-filter-status');
+            if (mobileSelect) {
+                mobileSelect.value = '';
+            }
+        } else {
+            // Aplica o filtro de status mobile
+            window.mobileCardsManager.filters.status = statusSelecionado;
+            const mobileSelect = document.getElementById('mobile-filter-status');
+            if (mobileSelect) {
+                mobileSelect.value = statusSelecionado;
+            }
+        }
+        // Reaplica os filtros mobile
+        window.mobileCardsManager.applyFilters();
+    }
+    
+    // Dispara evento personalizado para notificar sobre mudança de filtro do painel
+    document.dispatchEvent(new CustomEvent('painel-filter-applied', {
+        detail: { status: statusSelecionado }
+    }));
+}
+
 // Função para resetar o filtro do painel de resumos
 function resetPainelFilterStatus() {
     // Remove o destaque de todos os elementos de status
@@ -191,6 +220,9 @@ function resetPainelFilterStatus() {
         filterButton.removeAttribute('data-active-filters');
         filterButton.classList.remove('filter-active');
     }
+    
+    // Sincroniza com os filtros mobile - limpa o filtro de status
+    syncMobileFilters('TODOS');
     
     // Chama a função master de filtragem para atualizar a tabela
     if (typeof masterFilterFunction === 'function') {
@@ -229,6 +261,9 @@ function aplicarFiltroStatusProcesso(statusSelecionado) {
             mobileFilterButton.classList.remove('filter-active');
         }
         
+        // Sincroniza com os filtros mobile do MobileCardsManager
+        syncMobileFilters('TODOS');
+        
         console.log('Removendo filtro da coluna Status do Processo - mostrando todos');
     } else {
         // Aplica o filtro com o status selecionado
@@ -240,6 +275,9 @@ function aplicarFiltroStatusProcesso(statusSelecionado) {
         if (mobileFilterButton) {
             mobileFilterButton.classList.add('filter-active');
         }
+        
+        // Sincroniza com os filtros mobile do MobileCardsManager
+        syncMobileFilters(statusSelecionado);
         
         console.log(`Aplicando filtro na coluna Status do Processo: ${statusSelecionado}`);
     }
