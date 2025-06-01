@@ -453,26 +453,6 @@
     box-shadow: 0 0 0 3px rgba(255, 213, 107, 0.3);
 }
 
-/* Estados de loading */
-.btn-toolbar.loading {
-    pointer-events: none;
-    opacity: 0.7;
-    position: relative;
-}
-
-.btn-toolbar.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 16px;
-    height: 16px;
-    margin: -8px 0 0 -8px;
-    border: 2px solid transparent;
-    border-top: 2px solid currentColor;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
 
 /* Animação de rotação */
 @keyframes spin {
@@ -626,21 +606,6 @@
     .btn-toolbar:hover {
         transform: translateY(-2px) scale(var(--hover-scale, 1.02));
     }
-}
-
-/* Estados de loading aprimorados */
-.btn-toolbar.loading {
-    pointer-events: none;
-    position: relative;
-    opacity: 0.7;
-}
-
-.btn-toolbar.loading .btn-text {
-    opacity: 0.5;
-}
-
-.btn-toolbar.loading i {
-    opacity: 0.3;
 }
 
 /* Indicador de overflow */

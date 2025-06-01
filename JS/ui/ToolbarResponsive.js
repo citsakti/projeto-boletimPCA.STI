@@ -129,21 +129,6 @@ class ToolbarResponsive {
     }
     
     /**
-     * Aplica efeito de loading no botão
-     */
-    addLoadingEffect(button) {
-        if (button.classList.contains('loading')) return;
-        
-        button.classList.add('loading');
-        button.setAttribute('disabled', 'true');
-        
-        // Remove loading após 2 segundos (tempo máximo)
-        setTimeout(() => {
-            this.removeLoadingEffect(button);
-        }, 2000);
-    }
-    
-    /**
      * Remove efeito de loading
      */
     removeLoadingEffect(button) {
