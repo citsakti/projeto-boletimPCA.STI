@@ -53,14 +53,13 @@ class MobileCardsManager {
           // Criar container de filtros móveis
         const filtersContainer = document.createElement('div');
         filtersContainer.className = 'mobile-filters-container card shadow-sm mb-3';
-        filtersContainer.innerHTML = `
-            <div class="mobile-filters-header card-header bg-primary text-white d-flex justify-content-between align-items-center py-2" id="mobile-filters-toggle">
+        filtersContainer.innerHTML = `            <div class="mobile-filters-header card-header bg-primary text-white d-flex justify-content-between align-items-center py-2" id="mobile-filters-toggle">
                 <div class="d-flex align-items-center">
                     <i class="bi bi-funnel-fill me-2"></i>
                     <span class="fw-semibold">Filtros</span>
                     <span class="badge bg-light text-primary ms-2" id="active-filters-count">0</span>
                 </div>
-                <i class="bi bi-chevron-down transition-transform"></i>
+                <i class="bi bi-sliders transition-transform"></i>
             </div>
             <div class="mobile-filters-content card-body collapse" id="mobile-filters-content">
                 <div class="row g-3">
@@ -109,37 +108,12 @@ class MobileCardsManager {
         const cardsContainer = document.createElement('div');
         cardsContainer.className = 'mobile-cards-container';
         cardsContainer.id = 'mobile-cards-container';
-        
-        // Inserir antes da tabela
+          // Inserir antes da tabela
         const tableResponsive = detalhesSection.querySelector('.table-responsive');
         if (tableResponsive) {
             detalhesSection.insertBefore(filtersContainer, tableResponsive);
             detalhesSection.insertBefore(cardsContainer, tableResponsive);
         }
-        
-        // Criar modal de detalhes
-        this.createDetailsModal();
-    }
-    
-    createDetailsModal() {
-        const modal = document.createElement('div');
-        modal.className = 'details-modal';
-        modal.id = 'details-modal';
-        modal.innerHTML = `
-            <div class="details-modal-content">
-                <div class="details-modal-header">
-                    <h5 class="details-modal-title">Detalhes do Projeto</h5>
-                    <button class="details-modal-close" id="details-modal-close">
-                        <i class="bi bi-x"></i>
-                    </button>
-                </div>
-                <div class="details-modal-body" id="details-modal-body">
-                    <!-- Conteúdo será inserido dinamicamente -->
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
     }
       bindEvents() {
         // Toggle de filtros
@@ -155,15 +129,9 @@ class MobileCardsManager {
             // Responder ao botão principal "Limpar Filtros"
             if (e.target.closest('#btnLimparFiltros')) {
                 this.clearFilters();
-            }
-            
-            if (e.target.closest('.btn-details')) {
+            }            if (e.target.closest('.btn-details')) {
                 const cardId = e.target.closest('.project-card').dataset.projectId;
-                this.showDetails(cardId);
-            }
-            
-            if (e.target.closest('#details-modal-close') || e.target.classList.contains('details-modal')) {
-                this.hideDetails();
+                this.toggleDetails(cardId);
             }
         });
         
@@ -389,9 +357,8 @@ class MobileCardsManager {
                         ${statusText}
                     </div>
                 </div>
-                <div class="card-footer">
-                    <button class="btn-details" onclick="MobileUtils && MobileUtils.hapticFeedback('light')">
-                        <i class="bi bi-eye me-1"></i>Detalhes
+                <div class="card-footer">                    <button class="btn-details" onclick="MobileUtils && MobileUtils.hapticFeedback('light')">
+                        <i class="fas fa-chevron-down"></i> Detalhar
                     </button>
                 </div>
             </div>
@@ -452,7 +419,7 @@ class MobileCardsManager {
         return 'area-geral'; // Classe padrão caso nenhuma corresponda
     }    toggleFilters() {
         const content = document.getElementById('mobile-filters-content');
-        const chevron = document.querySelector('#mobile-filters-toggle .bi-chevron-down, #mobile-filters-toggle .bi-chevron-up');
+        const chevron = document.querySelector('#mobile-filters-toggle .bi-sliders, #mobile-filters-toggle .bi-chevron-up');
         
         if (!content) return;
         
@@ -462,65 +429,59 @@ class MobileCardsManager {
             let bsCollapse = bootstrap.Collapse.getOrCreateInstance(content, {
                 toggle: false
             });
-            
-            if (content.classList.contains('show')) {
+              if (content.classList.contains('show')) {
                 bsCollapse.hide();
-                if (chevron) chevron.className = 'bi bi-chevron-down transition-transform';
+                if (chevron) chevron.className = 'bi bi-sliders transition-transform';
             } else {
                 bsCollapse.show();
                 if (chevron) chevron.className = 'bi bi-chevron-up transition-transform';
             }
-        } else {
-            // Fallback sem Bootstrap
+        } else {            // Fallback sem Bootstrap
             if (content.classList.contains('show')) {
                 content.classList.remove('show');
-                if (chevron) chevron.className = 'bi bi-chevron-down transition-transform';
+                if (chevron) chevron.className = 'bi bi-sliders transition-transform';
             } else {
                 content.classList.add('show');
                 if (chevron) chevron.className = 'bi bi-chevron-up transition-transform';
             }
         }
     }
+      toggleDetails(projectId) {
+        const projectCard = document.querySelector(`.project-card[data-project-id="${projectId}"]`);
+        if (!projectCard) return;
+        
+        const existingDetails = projectCard.querySelector('.card-details-expanded');
+        const detailsButton = projectCard.querySelector('.btn-details');
+        
+        // Se os detalhes já estão expandidos, recolher
+        if (existingDetails) {
+            this.collapseDetails(projectCard);
+            return;
+        }
+        
+        // Recolher qualquer outro card expandido
+        this.collapseAllDetails();
+        
+        // Expandir este card
+        this.expandDetails(projectCard, projectId);
+    }
     
-    showDetails(projectId) {
+    expandDetails(projectCard, projectId) {
         const project = this.filteredData.find(item => item.id == projectId);
         if (!project) return;
         
-        const modal = document.getElementById('details-modal');
-        const body = document.getElementById('details-modal-body');
+        const detailsButton = projectCard.querySelector('.btn-details');
         
-        body.innerHTML = `
-            <div class="detail-item">
-                <span class="detail-label">ID PCA:</span>
-                <span class="detail-value">${project.idPca}</span>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Área:</span>
-                <span class="detail-value">${project.area}</span>
-            </div>
+        // Criar o container de detalhes
+        const detailsContainer = document.createElement('div');
+        detailsContainer.className = 'card-details-expanded';        detailsContainer.innerHTML = `
             <div class="detail-item">
                 <span class="detail-label">Tipo:</span>
                 <span class="detail-value">${project.tipo}</span>
             </div>
             <div class="detail-item">
-                <span class="detail-label">Projeto de Aquisição:</span>
-                <span class="detail-value">${project.projeto}</span>
-            </div>
-            <div class="detail-item">
                 <span class="detail-label">Acompanhamento:</span>
                 <span class="detail-value">${project.acompanhamento}</span>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Status do Processo:</span>
-                <span class="detail-value">${project.status}</span>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Contratar Até:</span>
-                <span class="detail-value">${project.contratarAte}</span>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Valor PCA:</span>
-                <span class="detail-value">${project.valorPca}</span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Orçamento:</span>
@@ -532,16 +493,50 @@ class MobileCardsManager {
             </div>
         `;
         
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
+        // Adicionar o container ao card
+        projectCard.appendChild(detailsContainer);
+        
+        // Adicionar classe para indicar que está expandido
+        projectCard.classList.add('expanded');
+        
+        // Atualizar o texto do botão
+        detailsButton.innerHTML = '<i class="fas fa-chevron-up"></i> Recolher';
+        
+        // Trigger da animação
+        requestAnimationFrame(() => {
+            detailsContainer.classList.add('show');
+        });
     }
     
-    hideDetails() {
-        const modal = document.getElementById('details-modal');
-        modal.classList.remove('show');
-        document.body.style.overflow = '';
+    collapseDetails(projectCard) {
+        const detailsContainer = projectCard.querySelector('.card-details-expanded');
+        const detailsButton = projectCard.querySelector('.btn-details');
+        
+        if (!detailsContainer) return;
+        
+        // Remover classe de expansão
+        projectCard.classList.remove('expanded');
+        
+        // Animar saída
+        detailsContainer.classList.remove('show');
+        
+        // Atualizar o texto do botão
+        detailsButton.innerHTML = '<i class="fas fa-chevron-down"></i> Detalhar';
+        
+        // Remover o elemento após a animação
+        setTimeout(() => {
+            if (detailsContainer.parentNode) {
+                detailsContainer.parentNode.removeChild(detailsContainer);
+            }
+        }, 300);
     }
-}
+    
+    collapseAllDetails() {
+        const expandedCards = document.querySelectorAll('.project-card.expanded');
+        expandedCards.forEach(card => {
+            this.collapseDetails(card);
+        });
+    }}
 
 // Inicializar quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {

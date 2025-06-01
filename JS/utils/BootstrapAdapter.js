@@ -192,12 +192,11 @@
                 painelCloseBtn.addEventListener('click', function() {
                     if (painelContainer) {
                         painelContainer.classList.toggle('collapsed');
-                        
-                        // Atualiza o ícone da seta usando Bootstrap Icons
+                          // Atualiza o ícone da seta usando Bootstrap Icons
                         if (painelContainer.classList.contains('collapsed')) {
-                            arrowIcon.className = 'bi bi-chevron-down arrow-icon';
+                            arrowIcon.className = 'bi bi-layout-sidebar-inset arrow-icon';
                         } else {
-                            arrowIcon.className = 'bi bi-chevron-up arrow-icon';
+                            arrowIcon.className = 'bi bi-layout-sidebar arrow-icon';
                         }
                         
                         // Dispatch evento customizado para compatibilidade

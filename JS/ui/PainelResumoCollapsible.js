@@ -152,13 +152,17 @@ class PainelResumoCollapsible {    constructor() {
             this.updateArrowIcon('↓');
         }
     }
-    
-    updateArrowIcon(direction) {
+      updateArrowIcon(direction) {
         const arrowIcon = this.closeBtn?.querySelector('.arrow-icon');
         if (arrowIcon) {
-            arrowIcon.textContent = direction;
-            // Pequena rotação suave para dar feedback visual
-            arrowIcon.style.transform = direction === '↑' ? 'rotate(180deg) scale(1.1)' : 'rotate(0deg) scale(1)';
+            // Usa ícones Bootstrap Icons mais semânticos
+            if (direction === '↑') {
+                arrowIcon.className = 'bi bi-layout-sidebar arrow-icon';
+                arrowIcon.style.transform = 'scale(1.1)';
+            } else {
+                arrowIcon.className = 'bi bi-layout-sidebar-inset arrow-icon';
+                arrowIcon.style.transform = 'scale(1)';
+            }
         }
     }
       addExpandEffect() {

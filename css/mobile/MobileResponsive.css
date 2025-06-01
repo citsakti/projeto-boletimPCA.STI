@@ -248,7 +248,7 @@
     .btn-details,
     .mobile-filters-header,
     .details-modal-close {
-        min-height: 44px;
+        min-height: 36px; /* Reduzido de 44px para ser consistente */
         min-width: 44px;
     }
     
