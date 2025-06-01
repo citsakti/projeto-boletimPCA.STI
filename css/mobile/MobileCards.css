@@ -717,11 +717,139 @@
     }
 }
 
-/* Responsividade do tooltip */
+/* Tooltips de status para mobile */
+.mobile-status-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+    max-width: 280px;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    word-wrap: break-word;
+    white-space: normal;
+    text-align: left;
+}
+
+.mobile-status-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+}
+
+/* Indicadores visuais para elementos com tooltip */
+.project-card .card-status-text.has-status-tooltip {
+    position: relative;
+    cursor: pointer !important;
+    transition: all 0.2s ease;
+}
+
+.project-card .card-status-text.has-status-tooltip:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+.project-card .card-status-text.has-status-tooltip::after {
+    content: '💬';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.project-card .card-status-text.has-status-tooltip:active::after {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.2);
+}
+
+/* Animação para indicar que o elemento é tocável */
+@keyframes pulse-tooltip {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+.project-card .card-status-text.has-status-tooltip.pulse::after {
+    animation: pulse-tooltip 1.5s infinite;
+}
+
+/* Estilos específicos para diferentes status com tooltip */
+.status-autuacao-atrasada .card-status-text.has-status-tooltip {
+    border-left: 3px solid #dc3545;
+    padding-left: 8px;
+}
+
+.status-contratacao-atrasada .card-status-text.has-status-tooltip {
+    border-left: 3px solid #fd7e14;
+    padding-left: 8px;
+}
+
+.status-em-contratacao .card-status-text.has-status-tooltip,
+.status-em-renovacao .card-status-text.has-status-tooltip {
+    border-left: 3px solid #0d6efd;
+    padding-left: 8px;
+}
+
+.status-aguardando-dfd .card-status-text.has-status-tooltip,
+.status-aguardando-etp .card-status-text.has-status-tooltip,
+.status-dfd-atrasado .card-status-text.has-status-tooltip,
+.status-etp-atrasado .card-status-text.has-status-tooltip,
+.status-elaborando-tr .card-status-text.has-status-tooltip,
+.status-analise-viabilidade .card-status-text.has-status-tooltip {
+    border-left: 3px solid #6f42c1;
+    padding-left: 8px;
+}
+
+/* Responsividade para telas muito pequenas */
 @media (max-width: 360px) {
-    .mobile-acompanhamento-tooltip {
-        max-width: 250px;
-        font-size: 0.75rem;
-        padding: 0.6rem;
+    .mobile-status-tooltip {
+        max-width: 260px;
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+    
+    .project-card .card-status-text.has-status-tooltip::after {
+        right: -15px;
+        font-size: 10px;
+    }
+}
+
+/* Acessibilidade - modo alto contraste */
+@media (prefers-contrast: high) {
+    .mobile-status-tooltip {
+        background: #000;
+        border: 2px solid #fff;
+        color: #fff;
+    }
+    
+    .project-card .card-status-text.has-status-tooltip {
+        border-left-width: 4px;
+    }
+}
+
+/* Modo escuro - se implementado no futuro */
+@media (prefers-color-scheme: dark) {
+    .mobile-status-tooltip {
+        background: rgba(255, 255, 255, 0.95);
+        color: #000;
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+    }
+    
+    .mobile-status-tooltip::before {
+        border-color: rgba(255, 255, 255, 0.95) transparent transparent transparent;
     }
 }

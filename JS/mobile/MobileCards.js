@@ -28,12 +28,30 @@ class MobileCardsManager {
             projeto: ''
         };
         
+        // Lista de status especiais para tooltips (similar ao StatusAtrasado.js)
+        this.statusList = [
+            'AUTUAÇÃO ATRASADA 💣',
+            'CONTRATAÇÃO ATRASADA ⚠️',
+            'AGUARDANDO DFD ⏳',
+            'AGUARDANDO ETP ⏳',
+            'DFD ATRASADO❗',
+            'ETP ATRASADO❗',
+            'ELABORANDO TR📝',
+            'ANÁLISE DE VIABILIDADE 📝',
+            'EM CONTRATAÇÃO 🤝',
+            'EM RENOVAÇÃO 🔄'
+        ];
+        
+        // Tooltip de status para mobile
+        this.statusTooltip = null;
+        
         this.init();
     }    init() {
         this.createMobileStructure();
         this.bindEvents();
         this.checkMobileView();
         this.setupAcompanhamentoTooltips();
+        this.setupStatusTooltips(); // Adicionar configuração de tooltips de status
         
         // Escutar evento de dados carregados
         document.addEventListener('tabela-carregada', () => {
@@ -225,6 +243,77 @@ class MobileCardsManager {
         
         return item;
     }
+    /**
+     * Adiciona informações de status aos dados do projeto para tooltips
+     * @param {Object} item - Item de projeto
+     * @returns {Object} - Item com informações de status adicionadas
+     */
+    addStatusInfo(item) {
+        if (!item.row) return item;
+        
+        const statusCell = item.row.querySelector('td:nth-child(6)'); // Coluna de status
+        if (!statusCell) return item;
+        
+        const statusText = item.status;
+        let tooltipText = '';
+        let hasStatusTooltip = false;
+        
+        // Verificar se é um status especial que precisa de tooltip
+        const foundStatus = this.statusList.find(status => statusText.includes(status));
+        
+        if (foundStatus) {
+            hasStatusTooltip = true;
+            
+            if (statusText.includes('AUTUAÇÃO ATRASADA 💣')) {
+                const detalhe = statusCell.dataset.detalheAutuacao;
+                tooltipText = detalhe ? detalhe : 'Autuação Atrasada (informação adicional não disponível)';
+            } 
+            else if (statusText.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
+                const detalhe = statusCell.dataset.detalheContratacao;
+                tooltipText = detalhe ? detalhe : 'Contratação Atrasada (informação adicional não disponível)';
+            }
+            // Trata os status 'EM CONTRATAÇÃO' e 'EM RENOVAÇÃO'
+            else if (statusText.includes('EM CONTRATAÇÃO 🤝') || statusText.includes('EM RENOVAÇÃO 🔄')) {
+                const detalhe = statusCell.dataset.detalheContratacaoRenovacao; 
+                if (detalhe) {
+                    if (statusText.includes('EM RENOVAÇÃO 🔄')) {
+                        if (/^\d+$/.test(detalhe)) {
+                            tooltipText = `Faltam ${detalhe} dias para o Vencimento da Renovação.`;
+                        } else {
+                            tooltipText = detalhe;
+                        }
+                    } else if (statusText.includes('EM CONTRATAÇÃO 🤝')) {
+                        if (/^\d+$/.test(detalhe)) {
+                            tooltipText = `Faltam ${detalhe} dias para a Contratação.`;
+                        } else {
+                            tooltipText = detalhe;
+                        }
+                    }
+                } else {
+                    tooltipText = 'Informação adicional não disponível (detalheContratacaoRenovacao ausente).';
+                }
+            }
+            // Para os outros status da lista, usar o data-detalhe-status-geral
+            else if (this.statusList.slice(2, 8).some(s => statusText.includes(s))) { 
+                const detalhe = statusCell.dataset.detalheStatusGeral; 
+                if (detalhe) {
+                    if (/^\d+$/.test(detalhe)) {
+                        tooltipText = `Faltam ${detalhe} dias para a Autuação do Processo.`;
+                    } else {
+                        tooltipText = detalhe;
+                    }
+                } else {
+                    tooltipText = 'Informação adicional não disponível (detalheStatusGeral ausente).';
+                }
+            }
+        }
+        
+        // Adicionar informações ao item
+        item.hasStatusTooltip = hasStatusTooltip;
+        item.statusTooltipText = tooltipText;
+        
+        return item;
+    }
 
     loadTableData() {
         if (!this.isMobileView) return;
@@ -263,6 +352,9 @@ class MobileCardsManager {
             
             // Adicionar informações de acompanhamento
             item = this.addAcompanhamentoInfo(item);
+            
+            // Adicionar informações de status para tooltips
+            item = this.addStatusInfo(item);
             
             return item;
         }).filter(item => item !== null && item.status !== 'CANCELADO ❌'); // Remove cancelados
@@ -420,8 +512,7 @@ class MobileCardsManager {
             badge.style.display = activeCount > 0 ? 'inline-block' : 'none';
         }
     }
-    
-    renderCards() {
+      renderCards() {
         const container = document.getElementById('mobile-cards-container');
         if (!container) return;
         
@@ -436,7 +527,10 @@ class MobileCardsManager {
         }
         
         container.innerHTML = this.filteredData.map(item => this.createCard(item)).join('');
-    }    createCard(item) {
+        
+        // Configurar event listeners para tooltips de status
+        this.setupStatusCardListeners();
+    }createCard(item) {
         const statusClass = this.getStatusClass(item.status);
         const statusHighlightClass = `${statusClass}-highlight`;
         const areaClass = this.getAreaClass(item.area);
@@ -453,8 +547,7 @@ class MobileCardsManager {
         if (item.status.includes('❗')) {
             statusText = statusText.replace(/❗/g, '<span class="emoji-exclamation">❗</span>');
         }
-        
-        // Preparar informações de acompanhamento
+          // Preparar informações de acompanhamento
         let acompanhamentoEmojiHtml = '';
         let acompanhamentoTooltipData = '';
         
@@ -484,8 +577,15 @@ class MobileCardsManager {
             acompanhamentoTooltipData = `data-acompanhamento-tooltip="${dataFormatada}: ${item.acompanhamentoData.detalhes.replace(/"/g, '&quot;')}"`;
         }
         
-        return `
-            <div class="project-card ${statusClass}" data-project-id="${item.id}" ${acompanhamentoTooltipData}>
+        // Preparar atributos de tooltip de status
+        let statusTooltipClass = '';
+        let statusTooltipData = '';
+        if (item.hasStatusTooltip) {
+            statusTooltipClass = ' has-status-tooltip';
+            statusTooltipData = `data-status-tooltip="${item.statusTooltipText.replace(/"/g, '&quot;')}"`;
+        }
+          return `
+            <div class="project-card ${statusClass}${statusTooltipClass}" data-project-id="${item.id}" ${acompanhamentoTooltipData} ${statusTooltipData}>
                 <div class="card-header">
                     <span class="card-id">${item.idPca}</span>
                     <h6 class="card-title" title="${item.projeto}">${item.projeto}${acompanhamentoEmojiHtml}</h6>
@@ -500,7 +600,7 @@ class MobileCardsManager {
                             <span class="card-date">${item.contratarAte || 'Data não informada'}</span>
                         </div>
                     </div>
-                    <div class="card-status-text ${statusHighlightClass}">
+                    <div class="card-status-text ${statusHighlightClass}${statusTooltipClass}" ${statusTooltipData}>
                         ${statusText}
                     </div>
                 </div>
@@ -859,6 +959,168 @@ class MobileCardsManager {
         if (tooltip) {
             tooltip.classList.remove('show');
         }
+    }
+      /**
+     * Configura os tooltips de status para os cards mobile
+     */
+    setupStatusTooltips() {
+        // Criar elemento de tooltip se não existir
+        if (!this.statusTooltip) {
+            this.statusTooltip = document.createElement('div');
+            this.statusTooltip.className = 'mobile-status-tooltip';
+            this.statusTooltip.style.cssText = `
+                position: absolute;
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 14px;
+                line-height: 1.4;
+                max-width: 280px;
+                z-index: 1000;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                word-wrap: break-word;
+            `;
+            document.body.appendChild(this.statusTooltip);
+        }
+        
+        // Adicionar listener global para esconder tooltip ao tocar fora
+        document.addEventListener('touchstart', (e) => {
+            if (!e.target.closest('.has-status-tooltip') && !e.target.closest('.mobile-status-tooltip')) {
+                this.hideStatusTooltip();
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.has-status-tooltip') && !e.target.closest('.mobile-status-tooltip')) {
+                this.hideStatusTooltip();
+            }
+        });
+    }
+    
+    /**
+     * Manipula toques/cliques nos cards para mostrar tooltips de status
+     */
+    handleStatusTooltip(event, item) {
+        if (!this.isMobileView || !item.hasStatusTooltip) return;
+        
+        event.preventDefault();
+        event.stopPropagation();
+        
+        this.showStatusTooltip(event.currentTarget, item.statusTooltipText, event);
+    }
+    
+    /**
+     * Mostra o tooltip de status para um card
+     */
+    showStatusTooltip(card, tooltipText, event) {
+        if (!tooltipText || !this.statusTooltip) return;
+        
+        this.statusTooltip.textContent = tooltipText;
+        this.statusTooltip.style.opacity = '1';
+        
+        // Posicionamento responsivo
+        const rect = card.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        
+        // Calcular posição inicial
+        let top = rect.top + scrollTop - this.statusTooltip.offsetHeight - 10;
+        let left = rect.left + scrollLeft + (rect.width / 2) - (this.statusTooltip.offsetWidth / 2);
+        
+        // Ajustar se estiver fora da viewport
+        if (top < scrollTop + 10) {
+            // Se não cabe acima, mostrar abaixo
+            top = rect.bottom + scrollTop + 10;
+        }
+        
+        if (left < scrollLeft + 10) {
+            left = scrollLeft + 10;
+        } else if (left + this.statusTooltip.offsetWidth > scrollLeft + viewportWidth - 10) {
+            left = scrollLeft + viewportWidth - this.statusTooltip.offsetWidth - 10;
+        }
+        
+        this.statusTooltip.style.top = top + 'px';
+        this.statusTooltip.style.left = left + 'px';
+        
+        // Auto-hide após 5 segundos
+        clearTimeout(this.statusTooltipTimeout);
+        this.statusTooltipTimeout = setTimeout(() => {
+            this.hideStatusTooltip();
+        }, 5000);
+    }
+    
+    /**
+     * Esconde o tooltip de status
+     */
+    hideStatusTooltip() {
+        if (this.statusTooltip) {
+            this.statusTooltip.style.opacity = '0';
+        }
+        clearTimeout(this.statusTooltipTimeout);
+    }
+    
+    /**
+     * Configura event listeners para tooltips de status nos cards
+     */
+    setupStatusCardListeners() {
+        if (!this.isMobileView) return;
+        
+        const statusElements = document.querySelectorAll('.project-card .card-status-text.has-status-tooltip');
+        
+        statusElements.forEach(element => {
+            const card = element.closest('.project-card');
+            const projectId = card.getAttribute('data-project-id');
+            const item = this.filteredData.find(i => i.id == projectId);
+            
+            if (item && item.hasStatusTooltip) {
+                // Remover event listeners antigos
+                element.removeEventListener('touchstart', this.handleStatusTooltipTouch);
+                element.removeEventListener('click', this.handleStatusTooltipClick);
+                
+                // Adicionar novos event listeners
+                element.addEventListener('touchstart', (e) => this.handleStatusTooltipTouch(e, item), { passive: false });
+                element.addEventListener('click', (e) => this.handleStatusTooltipClick(e, item));
+                
+                // Adicionar indicador visual de que é tocável
+                element.style.cursor = 'pointer';
+                element.setAttribute('title', 'Toque para ver detalhes do status');
+            }
+        });
+    }
+    
+    /**
+     * Manipula toques nos elementos de status
+     */
+    handleStatusTooltipTouch(event, item) {
+        if (!this.isMobileView || !item.hasStatusTooltip) return;
+        
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Haptic feedback se disponível
+        if (window.MobileUtils && MobileUtils.hapticFeedback) {
+            MobileUtils.hapticFeedback('light');
+        }
+        
+        this.showStatusTooltip(event.currentTarget, item.statusTooltipText, event);
+    }
+    
+    /**
+     * Manipula cliques nos elementos de status
+     */
+    handleStatusTooltipClick(event, item) {
+        if (!this.isMobileView || !item.hasStatusTooltip) return;
+        
+        event.preventDefault();
+        event.stopPropagation();
+        
+        this.showStatusTooltip(event.currentTarget, item.statusTooltipText, event);
     }
 }
 

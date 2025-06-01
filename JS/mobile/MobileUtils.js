@@ -127,10 +127,6 @@ class MobileUtils {
             'dev': '#d4edbc',
             'analytics': '#ffc8aa',
             'governanca': '#e8eaed',
-            // Cores antigas mantidas para compatibilidade
-            'administrativa': '#28a745',
-            'judiciaria': '#dc3545',
-            'geral': '#6c757d'
         };
         
         const areaKey = area.toLowerCase();
