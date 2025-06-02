@@ -58,7 +58,7 @@ Projeto Boletim/
 │         Analytics-Bootstrap.css
 │         Analytics.css
 │
-├── JS/
+├── script/
 │   ├── analytics/
 │   │     Analytics.js
 │   │     AnalyticsContratos.js
@@ -142,6 +142,8 @@ O projeto foi reestruturado seguindo uma arquitetura modular e organizada, adota
 - **`ui/`**: Componentes de interface, controles visuais e barra de ferramentas responsiva
 - **`utils/`**: Funções utilitárias, formatadores reutilizáveis e integrações com Bootstrap
 
+> **📝 Nota:** A pasta de scripts foi renomeada de "JS" para "script" para um visual mais profissional e padronização com convenções modernas de desenvolvimento web.
+
 ### 📋 Documentação
 A pasta `docs/` contém documentação detalhada sobre:
 - Funcionalidades específicas para dispositivos móveis (MOBILE_README.md)
@@ -197,69 +199,70 @@ A pasta `docs/` contém documentação detalhada sobre:
 ### JavaScript
 
 #### Core (Scripts Principais)
-- [`JS/core/Main.js`](JS/core/Main.js): Script principal, responsável pelo carregamento dos dados da planilha, montagem inicial da tabela e inicialização de outras funcionalidades.
-- [`JS/core/ModalManager.js`](JS/core/ModalManager.js): Gerenciador central para todos os modais da aplicação, controlando abertura, fechamento e comportamentos.
-- [`JS/core/OrganizacaoDosDados.js`](JS/core/OrganizacaoDosDados.js): Implementa a funcionalidade de ordenação das colunas da tabela.
-- [`JS/core/AtualizacaoAutomatica.js`](JS/core/AtualizacaoAutomatica.js): Implementa a verificação periódica de atualizações na planilha e atualiza a tabela automaticamente.
+- [`script/core/Main.js`](script/core/Main.js): Script principal, responsável pelo carregamento dos dados da planilha, montagem inicial da tabela e inicialização de outras funcionalidades.
+- [`script/core/ModalManager.js`](script/core/ModalManager.js): Gerenciador central para todos os modais da aplicação, controlando abertura, fechamento e comportamentos.
+- [`script/core/OrganizacaoDosDados.js`](script/core/OrganizacaoDosDados.js): Implementa a funcionalidade de ordenação das colunas da tabela.
+- [`script/core/AtualizacaoAutomatica.js`](script/core/AtualizacaoAutomatica.js): Implementa a verificação periódica de atualizações na planilha e atualiza a tabela automaticamente.
 
 #### Analytics (Análise de Dados)
-- [`JS/analytics/Analytics.js`](JS/analytics/Analytics.js): Processa os dados brutos do CSV para gerar dados analíticos, como contagens e valores totais por diversas categorias.
-- [`JS/analytics/AnalyticsContratos.js`](JS/analytics/AnalyticsContratos.js): Script auxiliar para análises focadas em contratos.
-- [`JS/analytics/AnalyticsDetails.js`](JS/analytics/AnalyticsDetails.js): Fornece funções para renderizar visualizações detalhadas dos dados processados.
-- [`JS/analytics/AnalyticsRender.js`](JS/analytics/AnalyticsRender.js): Contém funções para renderizar as diferentes seções da página de análise de dados.
+- [`script/analytics/Analytics.js`](script/analytics/Analytics.js): Processa os dados brutos do CSV para gerar dados analíticos, como contagens e valores totais por diversas categorias.
+- [`script/analytics/AnalyticsContratos.js`](script/analytics/AnalyticsContratos.js): Script auxiliar para análises focadas em contratos.
+- [`script/analytics/AnalyticsDetails.js`](script/analytics/AnalyticsDetails.js): Fornece funções para renderizar visualizações detalhadas dos dados processados.
+- [`script/analytics/AnalyticsRender.js`](script/analytics/AnalyticsRender.js): Contém funções para renderizar as diferentes seções da página de análise de dados.
 
 #### Filters (Sistema de Filtros)
-- [`JS/filters/FilterControls.js`](JS/filters/FilterControls.js): Gerencia a lógica dos filtros (dropdowns, pesquisa, datas) e a atualização da tabela com base neles.
-- [`JS/filters/GoogleSheetFilters.js`](JS/filters/GoogleSheetFilters.js): Filtros específicos para dados do Google Sheets.
-- [`JS/filters/ClearFiltersButton.js`](JS/filters/ClearFiltersButton.js): Funcionalidade do botão para limpar todos os filtros.
+- [`script/filters/FilterControls.js`](script/filters/FilterControls.js): Gerencia a lógica dos filtros (dropdowns, pesquisa, datas) e a atualização da tabela com base neles.
+- [`script/filters/GoogleSheetFilters.js`](script/filters/GoogleSheetFilters.js): Filtros específicos para dados do Google Sheets.
+- [`script/filters/ClearFiltersButton.js`](script/filters/ClearFiltersButton.js): Funcionalidade do botão para limpar todos os filtros.
 
 #### Handlers (Manipuladores de Dados)
-- [`JS/handlers/AcompanhamentoDeProjetos.js`](JS/handlers/AcompanhamentoDeProjetos.js): Gerencia a exibição de informações de acompanhamento dos projetos, buscando dados de uma aba específica da planilha e mostrando tooltips.
-- [`JS/handlers/InformacoesDeContratos.js`](JS/handlers/InformacoesDeContratos.js): Adiciona tooltips e interatividade para exibir detalhes de contratos na tabela.
-- [`JS/handlers/PainelResumoUpdates.js`](JS/handlers/PainelResumoUpdates.js): Atualizações do painel de resumo com dados dinâmicos.
-- [`JS/handlers/RenovacaoAtrasada.js`](JS/handlers/RenovacaoAtrasada.js): Destaca visualmente projetos com renovação próxima do vencimento ou vencida.
-- [`JS/handlers/StatusAtrasado.js`](JS/handlers/StatusAtrasado.js): Adiciona tooltips ou indicadores visuais para processos com status "Atrasado", fornecendo mais contexto ao usuário.
-- [`JS/handlers/UpdateStatus.js`](JS/handlers/UpdateStatus.js): Atualiza informações de status no rodapé da página (ex: data da última atualização).
+- [`script/handlers/AcompanhamentoDeProjetos.js`](script/handlers/AcompanhamentoDeProjetos.js): Gerencia a exibição de informações de acompanhamento dos projetos, buscando dados de uma aba específica da planilha e mostrando tooltips.
+- [`script/handlers/InformacoesDeContratos.js`](script/handlers/InformacoesDeContratos.js): Adiciona tooltips e interatividade para exibir detalhes de contratos na tabela.
+- [`script/handlers/PainelResumoUpdates.js`](script/handlers/PainelResumoUpdates.js): Atualizações do painel de resumo com dados dinâmicos.
+- [`script/handlers/RenovacaoAtrasada.js`](script/handlers/RenovacaoAtrasada.js): Destaca visualmente projetos com renovação próxima do vencimento ou vencida.
+- [`script/handlers/StatusAtrasado.js`](script/handlers/StatusAtrasado.js): Adiciona tooltips ou indicadores visuais para processos com status "Atrasado", fornecendo mais contexto ao usuário.
+- [`script/handlers/UpdateStatus.js`](script/handlers/UpdateStatus.js): Atualiza informações de status no rodapé da página (ex: data da última atualização).
 
 #### Mobile (Funcionalidades Mobile)
-- [`JS/mobile/MobileCardsData.js`](JS/mobile/MobileCardsData.js): Processamento e manipulação de dados para o sistema de cards móveis.
-- [`JS/mobile/MobileCardsDetails.js`](JS/mobile/MobileCardsDetails.js): Gerenciamento de detalhes e informações expandidas nos cards móveis.
-- [`JS/mobile/MobileCardsEvents.js`](JS/mobile/MobileCardsEvents.js): Manipulação de eventos e interações dos cards móveis.
-- [`JS/mobile/MobileCardsFilters.js`](JS/mobile/MobileCardsFilters.js): Sistema de filtros específico para a interface de cards móveis.
-- [`JS/mobile/MobileCardsManager.js`](JS/mobile/MobileCardsManager.js): Gerenciador principal do sistema de cards para dispositivos móveis.
-- [`JS/mobile/MobileCardsRenderer.js`](JS/mobile/MobileCardsRenderer.js): Renderização e montagem visual dos cards móveis.
-- [`JS/mobile/MobileCardsStyles.js`](JS/mobile/MobileCardsStyles.js): Aplicação dinâmica de estilos nos cards móveis.
-- [`JS/mobile/MobileCardsTooltips.js`](JS/mobile/MobileCardsTooltips.js): Sistema de tooltips e informações contextuais para cards móveis.
-- [`JS/mobile/MobileUtils.js`](JS/mobile/MobileUtils.js): Funções utilitárias gerais para dispositivos móveis.
+- [`script/mobile/MobileCardsData.js`](script/mobile/MobileCardsData.js): Processamento e manipulação de dados para o sistema de cards móveis.
+- [`script/mobile/MobileCardsDetails.js`](script/mobile/MobileCardsDetails.js): Gerenciamento de detalhes e informações expandidas nos cards móveis.
+- [`script/mobile/MobileCardsEvents.js`](script/mobile/MobileCardsEvents.js): Manipulação de eventos e interações dos cards móveis.
+- [`script/mobile/MobileCardsFilters.js`](script/mobile/MobileCardsFilters.js): Sistema de filtros específico para a interface de cards móveis.
+- [`script/mobile/MobileCardsManager.js`](script/mobile/MobileCardsManager.js): Gerenciador principal do sistema de cards para dispositivos móveis.
+- [`script/mobile/MobileCardsRenderer.js`](script/mobile/MobileCardsRenderer.js): Renderização e montagem visual dos cards móveis.
+- [`script/mobile/MobileCardsStyles.js`](script/mobile/MobileCardsStyles.js): Aplicação dinâmica de estilos nos cards móveis.
+- [`script/mobile/MobileCardsTooltips.js`](script/mobile/MobileCardsTooltips.js): Sistema de tooltips e informações contextuais para cards móveis.
+- [`script/mobile/MobileUtils.js`](script/mobile/MobileUtils.js): Funções utilitárias gerais para dispositivos móveis.
 
 #### UI (Interface do Usuário)
-- [`JS/ui/btnAnalytics.js`](JS/ui/btnAnalytics.js): Controla o botão que leva à página de dados analíticos.
-- [`JS/ui/btnCancelados.js`](JS/ui/btnCancelados.js): Controla a funcionalidade de ocultar e revelar processos cancelados.
-- [`JS/ui/btnFonteDeDados.js`](JS/ui/btnFonteDeDados.js): Gerencia a funcionalidade do botão que leva à fonte de dados.
-- [`JS/ui/btnPCAPublicada.js`](JS/ui/btnPCAPublicada.js): Controla a funcionalidade do botão "PCA Publicada", incluindo a exibição de uma modal com informações relevantes.
-- [`JS/ui/PainelDeResumos.js`](JS/ui/PainelDeResumos.js): Controla o painel de resumo, atualizando as contagens por status e permitindo o filtro rápido.
-- [`JS/ui/PainelResumoCollapsible.js`](JS/ui/PainelResumoCollapsible.js): Funcionalidade de painel de resumo recolhível.
-- [`JS/ui/PrintFunction.js`](JS/ui/PrintFunction.js): Contém a função para preparar e acionar a impressão otimizada da tabela.
-- [`JS/ui/ToolbarResponsive.js`](JS/ui/ToolbarResponsive.js): Gerenciamento da barra de ferramentas responsiva da aplicação.
+- [`script/ui/btnAnalytics.js`](script/ui/btnAnalytics.js): Controla o botão que leva à página de dados analíticos.
+- [`script/ui/btnCancelados.js`](script/ui/btnCancelados.js): Controla a funcionalidade de ocultar e revelar processos cancelados.
+- [`script/ui/btnFonteDeDados.js`](script/ui/btnFonteDeDados.js): Gerencia a funcionalidade do botão que leva à fonte de dados.
+- [`script/ui/btnPCAPublicada.js`](script/ui/btnPCAPublicada.js): Controla a funcionalidade do botão "PCA Publicada", incluindo a exibição de uma modal com informações relevantes.
+- [`script/ui/PainelDeResumos.js`](script/ui/PainelDeResumos.js): Controla o painel de resumo, atualizando as contagens por status e permitindo o filtro rápido.
+- [`script/ui/PainelResumoCollapsible.js`](script/ui/PainelResumoCollapsible.js): Funcionalidade de painel de resumo recolhível.
+- [`script/ui/PrintFunction.js`](script/ui/PrintFunction.js): Contém a função para preparar e acionar a impressão otimizada da tabela.
+- [`script/ui/ToolbarResponsive.js`](script/ui/ToolbarResponsive.js): Gerenciamento da barra de ferramentas responsiva da aplicação.
 
 #### Utils (Utilitários)
-- [`JS/utils/AreasClasses.js`](JS/utils/AreasClasses.js): Aplica classes CSS às linhas da tabela com base na área do processo.
-- [`JS/utils/BootstrapAdapter.js`](JS/utils/BootstrapAdapter.js): Adaptador para integração e configuração do framework Bootstrap.
-- [`JS/utils/BootstrapEnhancements.js`](JS/utils/BootstrapEnhancements.js): Melhorias e extensões personalizadas para componentes Bootstrap.
-- [`JS/utils/EmojiAnimation.js`](JS/utils/EmojiAnimation.js): Gerencia as animações dos emojis associados aos status dos processos.
-- [`JS/utils/OrcamentoClasses.js`](JS/utils/OrcamentoClasses.js): Aplica classes CSS às linhas da tabela com base no tipo de orçamento.
-- [`JS/utils/ProcessoModal.js`](JS/utils/ProcessoModal.js): Gerenciamento de modais específicos para visualização de detalhes de processos.
-- [`JS/utils/StatusClasses.js`](JS/utils/StatusClasses.js): Aplica classes CSS às linhas da tabela com base no status do processo, permitindo estilização específica.
-- [`JS/utils/TableFormatters.js`](JS/utils/TableFormatters.js): Funções para formatar dados exibidos na tabela (ex: valores monetários, datas).
+- [`script/utils/AreasClasses.js`](script/utils/AreasClasses.js): Aplica classes CSS às linhas da tabela com base na área do processo.
+- [`script/utils/BootstrapAdapter.js`](script/utils/BootstrapAdapter.js): Adaptador para integração e configuração do framework Bootstrap.
+- [`script/utils/BootstrapEnhancements.js`](script/utils/BootstrapEnhancements.js): Melhorias e extensões personalizadas para componentes Bootstrap.
+- [`script/utils/EmojiAnimation.js`](script/utils/EmojiAnimation.js): Gerencia as animações dos emojis associados aos status dos processos.
+- [`script/utils/OrcamentoClasses.js`](script/utils/OrcamentoClasses.js): Aplica classes CSS às linhas da tabela com base no tipo de orçamento.
+- [`script/utils/ProcessoModal.js`](script/utils/ProcessoModal.js): Gerenciamento de modais específicos para visualização de detalhes de processos.
+- [`script/utils/StatusClasses.js`](script/utils/StatusClasses.js): Aplica classes CSS às linhas da tabela com base no status do processo, permitindo estilização específica.
+- [`script/utils/TableFormatters.js`](script/utils/TableFormatters.js): Funções para formatar dados exibidos na tabela (ex: valores monetários, datas).
 
 ## Observações
 
 - O projeto depende de conexão com a internet para buscar os dados do Google Sheets.
-- Para personalizar os filtros ou colunas, ajuste os arquivos JS e HTML conforme necessário.
+- Para personalizar os filtros ou colunas, ajuste os arquivos JavaScript e HTML conforme necessário.
 - O overlay de carregamento é exibido até que todos os dados estejam prontos para visualização.
 - A nova arquitetura modular facilita a manutenção e extensão do projeto.
 - Todos os arquivos seguem a convenção CamelCase para consistência.
 - A interface é totalmente responsiva, adaptando-se automaticamente a diferentes dispositivos.
+- A nomenclatura profissional da pasta `script` segue as melhores práticas de desenvolvimento web moderno.
 
 ## Melhorias Implementadas
 
@@ -268,6 +271,7 @@ A pasta `docs/` contém documentação detalhada sobre:
 - **Padronização de nomenclatura** com convenção CamelCase
 - **Separação clara de responsabilidades** entre módulos
 - **Integração do Bootstrap** para componentes modernos e responsivos
+- **Rename profissional** da pasta "JS" para "script" para maior profissionalismo
 
 ### 📱 Otimizações Mobile
 - **Sistema de Cards Móveis**: Interface completamente redesenhada para dispositivos móveis
