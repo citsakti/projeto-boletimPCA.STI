@@ -151,10 +151,13 @@ function initAnalytics() {
             // Adicionar os event listeners para os botões de produtividade
             if (typeof addProdutividadeExpandListeners === 'function') {
                 addProdutividadeExpandListeners();
-            }
-            // Chamar setup de tooltips de contrato após renderização inicial e configuração de listeners
+            }            // Chamar setup de tooltips de contrato após renderização inicial e configuração de listeners
+            console.log('🔍 Analytics.js: Tentando chamar setupAnalyticsTooltips...');
             if (typeof window.setupAnalyticsTooltips === 'function') {
+                console.log('🔍 Analytics.js: setupAnalyticsTooltips existe, chamando agora...');
                 window.setupAnalyticsTooltips();
+            } else {
+                console.error('🔍 Analytics.js: setupAnalyticsTooltips não está disponível!');
             }
         })        .catch(err => {
             console.error('Erro ao processar dados analíticos:', err);

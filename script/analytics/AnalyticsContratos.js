@@ -5,57 +5,27 @@
  *  - Criar e gerenciar tooltips para exibir números de contratos
  *  - Implementar funcionalidade de modal para visualização de contratos
  *  - Fornecer interface unificada para integração com o sistema de analytics
- * 
- * =============== ESTRUTURA PRINCIPAL ================
- * 
- * # Componentes de Interface:
- *   - Tooltip: Elemento flutuante que mostra número do contrato ao passar o mouse
- *   - Modal: Janela de visualização que carrega o contrato do TCE-CE via iframe
- * 
- * # Funções Principais:
- *   - showAnalyticsTooltip(): Exibe tooltip com número do contrato
- *   - hideAnalyticsTooltip(): Oculta o tooltip
- *   - openAnalyticsContractModal(): Abre modal com iframe do contrato
- *   - closeAnalyticsModal(): Fecha o modal com animação
- *   - setupAnalyticsTooltips(): Função global para configurar tooltips em células de tabela
- * 
- * # Fluxo de Execução:
- *   1. O script cria elementos de UI reutilizáveis (tooltip)
- *   2. Captura referências para elementos do modal no DOM
- *   3. Define funções de manipulação de eventos
- *   4. Expõe função global para configuração de tooltips
- *   5. Configura listeners para fechamento do modal (clique, ESC)
- * 
- * # Integração:
- *   - Exporta setupAnalyticsTooltips como método global (window)
- *   - Responde a eventos de mouse em células com atributo data-contrato
- *   - Utiliza classes CSS existentes (status-tooltip) para estilização
- *   - Adiciona ícone 📄 para indicar contratos visualizáveis
- * 
- * # Interação com Usuário:
- *   - Hover: Exibe tooltip com número do contrato
- *   - Clique: Abre modal para visualização completa do contrato
- *   - ESC/clique externo/botão fechar: Fecha o modal
- * 
- * # Tratamento de Erros:
- *   - Fallback para abrir em nova aba caso modal não esteja disponível
- *   - Verificações de null/empty para evitar erros em atributos ausentes
- *   - Limpeza do iframe após fechamento para prevenir problemas de memória
  */
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🟢 AnalyticsContratos.js carregado');
+    
     // Criar elemento de tooltip que será reutilizado
     const tooltip = document.createElement('div');
-    tooltip.className = 'status-tooltip'; // Reutilize a classe CSS existente
+    tooltip.className = 'status-tooltip';
     document.body.appendChild(tooltip);
-      // Referências aos elementos do modal (assumindo que existem em DadosAnaliticos.html)
+
+    // Referências aos elementos do modal
     const modalOverlay = document.getElementById('processo-modal-overlay');
     const modalContent = modalOverlay ? modalOverlay.querySelector('.modal-content') : null;
     const modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-
-    /**
+    const closeModalBtn = document.getElementById('close-modal-btn-legacy') || document.getElementById('close-modal-btn');
+    
+    console.log('🔧 Elementos do modal encontrados:');
+    console.log('🔧 modalOverlay:', modalOverlay);
+    console.log('🔧 modalContent:', modalContent);
+    console.log('🔧 modalIframe:', modalIframe);
+    console.log('🔧 closeModalBtn:', closeModalBtn);    /**
      * Exibe tooltip com número do contrato
-     * @param {Event} event - Evento de mouse que acionou a função
      */
     function showAnalyticsTooltip(event) {
         const numeroContrato = this.getAttribute('data-contrato');
@@ -80,72 +50,95 @@ document.addEventListener('DOMContentLoaded', function() {
     
     /**
      * Abre o modal com iframe do contrato
-     * Se o modal não estiver disponível, abre em nova aba como fallback
      */
     function openAnalyticsContractModal() {
+        console.log('🔵 openAnalyticsContractModal chamada');
+        console.log('🔵 this:', this);
+        console.log('🔵 data-registro:', this.getAttribute('data-registro'));
+        console.log('🔵 data-contrato:', this.getAttribute('data-contrato'));
+        
         const numeroRegistro = this.getAttribute('data-registro');
-        if (!numeroRegistro || numeroRegistro.trim() === '') return;
+        if (!numeroRegistro || numeroRegistro.trim() === '') {
+            console.log('❌ Número de registro não encontrado ou vazio');
+            return;
+        }
+        
+        console.log('🔵 modalIframe:', modalIframe);
+        console.log('🔵 modalOverlay:', modalOverlay);
+        console.log('🔵 modalContent:', modalContent);
         
         if (!modalIframe || !modalOverlay || !modalContent) {
             console.error('Elementos do modal não encontrados. Verifique o HTML de DadosAnaliticos.html.');
-            // Fallback para abrir em nova aba se o modal não estiver configurado
             const fallbackContractUrl = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
+            console.log('🔵 Abrindo fallback URL:', fallbackContractUrl);
             window.open(fallbackContractUrl, '_blank');
             return;
         }
-          const contractUrl = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
+
+        const contractUrl = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
+        console.log('🔵 Abrindo URL do contrato:', contractUrl);
         
         // Sincronizar com o iframe Bootstrap se existir
         const bootstrapIframe = document.getElementById('processo-iframe');
         if (bootstrapIframe) {
+            console.log('🔵 Configurando iframe Bootstrap');
             bootstrapIframe.src = contractUrl;
         }
         
+        console.log('🔵 Configurando modalIframe.src =', contractUrl);
         modalIframe.src = contractUrl;
-        modalOverlay.style.display = 'flex';
         
-        modalContent.classList.remove('show');
-        void modalContent.offsetWidth; 
-        modalContent.classList.add('show');
+        console.log('🔵 Exibindo modal overlay');
+        modalOverlay.style.display = 'flex';
+        modalOverlay.classList.remove('d-none');
+        
+        if (modalContent) {
+            modalContent.classList.remove('show');
+            void modalContent.offsetWidth; 
+            modalContent.classList.add('show');
+        }
         
         document.body.style.overflow = 'hidden';
-    }    /**
+        console.log('✅ Modal aberto com sucesso');
+    }
+
+    /**
      * Fecha o modal com animação
-     * Limpa o iframe para economizar recursos
      */    
     function closeAnalyticsModal() {
+        console.log('🔴 closeAnalyticsModal chamada');
         if (modalOverlay && modalContent && modalIframe) {
             modalContent.classList.remove('show');
             
-            // Otimização: esconder o overlay imediatamente para melhor UX
             modalOverlay.style.opacity = '0';
             modalOverlay.style.pointerEvents = 'none';
             
             setTimeout(() => {
                 modalOverlay.style.display = 'none';
-                // Restaurar propriedades para próxima abertura
+                modalOverlay.classList.add('d-none');
                 modalOverlay.style.opacity = '';
                 modalOverlay.style.pointerEvents = '';
                 
-                modalIframe.src = 'about:blank'; // Limpa o iframe legacy
-                // Limpar também o iframe Bootstrap se existir
+                modalIframe.src = 'about:blank';
                 const bootstrapIframe = document.getElementById('processo-iframe');
                 if (bootstrapIframe) {
                     bootstrapIframe.src = 'about:blank';
                 }
-            }, 400); // Tempo da transição CSS (ajuste se necessário)
-            document.body.style.overflow = ''; // Restaura a rolagem da página
+            }, 400);
+            document.body.style.overflow = '';
+            console.log('✅ Modal fechado com sucesso');
         }
     }
 
     // Event listeners para fechar o modal
     if (closeModalBtn) {
+        console.log('🔧 Adicionando listener ao botão de fechar');
         closeModalBtn.addEventListener('click', closeAnalyticsModal);
     }
 
     if (modalOverlay) {
+        console.log('🔧 Adicionando listener ao overlay');
         modalOverlay.addEventListener('click', function(event) {
-            // Fecha o modal se o clique for no overlay (fora do conteúdo)
             if (event.target === modalOverlay) {
                 closeAnalyticsModal();
             }
@@ -153,7 +146,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.addEventListener('keydown', function(event) {
-        // Fecha o modal ao pressionar a tecla ESC
         if (event.key === 'Escape' && modalOverlay && modalOverlay.style.display === 'flex') {
             closeAnalyticsModal();
         }
@@ -161,12 +153,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /**
      * Função global para configurar tooltips e modais nas células de tabela
-     * Exposta como método global para ser chamada após carregamento de dados
      */
     window.setupAnalyticsTooltips = function() {
-        const projetoCells = document.querySelectorAll('.project-details-table td[data-contrato]');
+        console.log('🔍 setupAnalyticsTooltips: Iniciando configuração...');
         
-        projetoCells.forEach(cell => {
+        // Tentar diferentes seletores para encontrar as células
+        let projetoCells = document.querySelectorAll('.project-details-table td[data-contrato]');
+        console.log(`🔍 setupAnalyticsTooltips: Encontradas ${projetoCells.length} células com seletor .project-details-table td[data-contrato]`);
+        
+        // Se não encontrou, tentar um seletor mais amplo
+        if (projetoCells.length === 0) {
+            projetoCells = document.querySelectorAll('td[data-contrato]');
+            console.log(`🔍 setupAnalyticsTooltips: Encontradas ${projetoCells.length} células com seletor td[data-contrato]`);
+        }
+        
+        // Debug: mostrar todas as tabelas encontradas
+        const allTables = document.querySelectorAll('table');
+        console.log(`🔍 setupAnalyticsTooltips: Total de tabelas na página: ${allTables.length}`);
+        allTables.forEach((table, index) => {
+            console.log(`🔍 Tabela ${index + 1}: classes="${table.className}", id="${table.id}"`);
+        });
+        
+        projetoCells.forEach((cell, index) => {
+            console.log(`🔍 Configurando célula ${index + 1}: "${cell.textContent.slice(0, 50)}..."`);
+            console.log(`🔍 data-contrato: ${cell.getAttribute('data-contrato')}`);
+            console.log(`🔍 data-registro: ${cell.getAttribute('data-registro')}`);
+            
             // Remover handlers antigos para evitar duplicação
             cell.removeEventListener('mouseenter', showAnalyticsTooltip);
             cell.removeEventListener('mouseleave', hideAnalyticsTooltip);
@@ -181,26 +193,57 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Adicionar ícone se ainda não existir
             if (!cell.querySelector('.contract-link-icon')) {
-                // Preservar conteúdo existente e adicionar o ícone
                 let currentHTML = cell.innerHTML;
-                // Evitar adicionar o ícone dentro de outros elementos HTML que possam estar no texto do projeto
                 const textNode = Array.from(cell.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
                 if (textNode) {
-                     // Adiciona o ícone após o texto principal. Se houver HTML complexo, isso pode precisar de ajuste.
                     cell.innerHTML = currentHTML + ' <span class="contract-link-icon" title="Abrir contrato">📄</span>';
-                } else if (!currentHTML.includes('contract-link-icon')) { // Fallback se não houver nó de texto direto
+                } else if (!currentHTML.includes('contract-link-icon')) {
                     cell.innerHTML = currentHTML + ' <span class="contract-link-icon" title="Abrir contrato">📄</span>';
                 }
             }
         });
+        
+        console.log(`✅ setupAnalyticsTooltips: Configuração concluída para ${projetoCells.length} células`);
     };
 
-    // Configuração inicial para o caso de algum conteúdo já estar visível (pouco provável aqui, mas seguro)
+    // Configurar MutationObserver para detectar quando novas tabelas são adicionadas
+    const observer = new MutationObserver(function(mutations) {
+        let shouldResetup = false;
+        
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        if (node.classList && node.classList.contains('project-details-table') ||
+                            node.querySelector && node.querySelector('.project-details-table') ||
+                            node.querySelector && node.querySelector('td[data-contrato]')) {
+                            shouldResetup = true;
+                        }
+                    }
+                });
+            }
+        });
+        
+        if (shouldResetup) {
+            console.log('🔄 MutationObserver: Detectadas novas tabelas, reconfigurando tooltips...');
+            setTimeout(() => {
+                if (typeof window.setupAnalyticsTooltips === 'function') {
+                    window.setupAnalyticsTooltips();
+                }
+            }, 100);
+        }
+    });
+
+    // Iniciar observação do DOM
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    // Configuração inicial para o caso de algum conteúdo já estar visível
     if (document.readyState === 'complete') {
         if (typeof window.setupAnalyticsTooltips === 'function') {
             window.setupAnalyticsTooltips();
         }
-    } else {
-        // Normalmente, initAnalytics chamará isso após o carregamento dos dados.
     }
 });

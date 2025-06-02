@@ -48,20 +48,6 @@ header {
     border-bottom-left-radius: var(--radius-md);
 }
 
-/* Linha decorativa do header */
-header::after {
-    content: '';
-    display: none; /* Esconde a linha do header, pois será usada separadamente */
-}
-
-/* Nova linha decorativa reutilizável */
-.linha-decorativa {
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
-    margin-bottom: 0; /* Sem margem inferior */
-}
-
 /* Painel resumo - LEGADO - Mantido para compatibilidade mas sobrescrito pelo novo sistema */
 .painel-resumo {
     display: flex;
