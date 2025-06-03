@@ -291,9 +291,7 @@
                 <iframe id="processo-iframe-legacy" src="about:blank" style="width: 100%; height: 100%; border: none;" frameborder="0"></iframe>
             </div>
         </div>
-    </div>
-
-    <!-- Modal para Notificação de Atualização -->
+    </div>    <!-- Modal para Notificação de Atualização -->
     <div class="modal fade" id="update-notification-modal" tabindex="-1" aria-labelledby="updateNotificationLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -310,6 +308,17 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Overlay para Notificação de Atualização (compatibilidade com sistema existente) -->
+    <div id="update-notification-overlay" class="update-notification-overlay">
+        <div class="update-notification-content">
+            <h3>🔄 Atualizações Detectadas</h3>
+            <div id="update-notification-details">
+                <!-- Detalhes das atualizações serão inseridos aqui pelo JS -->
+            </div>
+            <button id="update-notification-close-btn">Fechar</button>
         </div>
     </div>
 

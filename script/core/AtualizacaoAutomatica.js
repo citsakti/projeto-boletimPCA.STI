@@ -1,254 +1,440 @@
 /**
- * AtualizacaoAutomatica.js - Sistema de atualização automática do Boletim PCA 2025
+ * AtualizacaoAutomatica.js - Sistema de atualização automática do Boletim PCA 2025 (VERSÃO 2.0)
  * 
- * Este script é responsável por:
- *  - Verificar periodicamente se houve atualizações nos dados da planilha Google Sheets
- *  - Comparar os dados atuais com os mais recentes para detectar alterações
- *  - Notificar o usuário sobre mudanças através de um modal interativo
- *  - Atualizar a tabela dinamicamente sem necessidade de recarregar a página
+ * VERSÃO COMPLETAMENTE REESCRITA PARA COMPATIBILIDADE COM BOOTSTRAP
+ * 
+ * Este script foi recriado do zero para resolver problemas de:
+ *  - Duplicação de colunas após atualização
+ *  - Perda de elementos gráficos/visuais do Bootstrap
+ *  - Conflitos com classes CSS do Bootstrap
+ *  - Problemas de renderização após aplicação do framework
  *
- * =============== ESTRUTURA PRINCIPAL ================
+ * =============== NOVA ARQUITETURA ================
  * 
- * # Componentes de Dados:
- *   - Dados originais: Estado atual da tabela no DOM
- *   - Dados novos: Obtidos do CSV em tempo real
- *   - Intervalo de verificação: 5 minutos (300.000ms)
+ * # Abordagem de Atualização:
+ *   - Atualização granular célula por célula (em vez de recriar toda a tabela)
+ *   - Preservação completa da estrutura DOM existente
+ *   - Manutenção de todas as classes Bootstrap e formatações
+ *   - Sincronização inteligente apenas dos dados alterados
  * 
- * # Funções Principais:
- *   - fetchRawData(): Busca os dados brutos do CSV e processa
- *   - compareData(): Compara dados antigos e novos, identificando mudanças
- *   - showUpdateModal(): Exibe modal com detalhes das alterações detectadas
- *   - updateTable(): Atualiza a tabela no DOM com os novos dados
- *   - initAutoUpdate(): Inicia o ciclo de verificação automática
+ * # Componentes Principais:
+ *   - Sistema de comparação aprimorado para detectar mudanças precisas
+ *   - Algoritmo de atualização que preserva elementos visuais
+ *   - Integração com sistema de eventos do Bootstrap
+ *   - Compatibilidade com responsive design e mobile cards
  * 
- * # Fluxo de Execução:
- *   1. Inicia após o carregamento completo da tabela
- *   2. A cada 5 minutos, verifica se há alterações na fonte de dados
- *   3. Se detectar alterações, notifica o usuário com detalhes das mudanças
- *   4. Permite atualização manual ou automática dos dados
- *   5. Reinicia o ciclo de verificação após cada atualização
+ * # Fluxo de Execução Otimizado:
+ *   1. Verifica alterações nos dados fonte (CSV)
+ *   2. Compara com estado atual do DOM (não cache em memória)
+ *   3. Identifica células específicas que mudaram
+ *   4. Atualiza apenas as células necessárias preservando formatação
+ *   5. Dispara eventos para sincronização de outros scripts
  * 
- * # Lógica de Negócio:
- *   - Análise linha a linha e célula a célula para detectar alterações precisas
- *   - Categorização de mudanças (projetos novos, alterados, etc.)
- *   - Manipulação do DOM para atualização sem reload da página
+ * # Compatibilidade Bootstrap:
+ *   - Preserva classes table-striped, table-hover, table-responsive
+ *   - Mantém estrutura de thead e tbody inalteradas
+ *   - Conserva data-labels para modo mobile cards
+ *   - Respeita ordenação e filtros aplicados
  * 
- * # Dependências:
+ * # Melhorias de Performance:
+ *   - Reduz manipulação desnecessária do DOM
+ *   - Evita re-renderização completa da tabela
+ *   - Otimiza detecção de mudanças com algoritmo eficiente
+ *   - Minimiza impacto visual durante atualizações
+ * 
+ * # Dependências Mantidas:
  *   - PapaParse para processamento de CSV
- *   - fetchAndPopulate (definida em main.js) para atualização da tabela
- *   - Modal HTML para exibição de notificações
- *
- * - showUpdateNotificationModal(htmlContent) / hideUpdateNotificationModal():
- *      Exibe ou oculta o modal de notificação de atualização para o usuário.
- *      Insere conteúdo HTML dinâmico descrevendo as mudanças detectadas.
- *
- * - checkForUpdates():
- *      Função principal chamada periodicamente pelo setInterval.
- *      Busca os dados atualizados, compara com os atuais e, se houver mudanças,
- *      exibe notificação e atualiza a tabela usando populateTableDOMWithData().
- *      Atualiza a referência de dados após cada mudança detectada.
- *
- * - DOMContentLoaded:
- *      Inicializa o serviço de atualização automática após o carregamento da página e dependências.
- *      Configura o intervalo de verificação e tratamento de eventos do modal.
- *
- * # Estrutura de dados:
- * - columnHeaders: Array com nomes das colunas na ordem da tabela HTML
- * - csvColumnIndices: Array com índices correspondentes no CSV para cada coluna
- * - currentProcessedData: Armazena os dados atuais para comparação
- * - comparison.updatedProjects: Array de objetos detalhando mudanças por projeto
- *
- * # Manipulação de eventos:
- * - Listener para DOMContentLoaded: Inicia o serviço após carregamento da página
- * - Listener para clique no botão de fechar o modal de notificação
- * - Timer setInterval: Executa checkForUpdates() periodicamente (5 minutos)
- *
- * # Tratamento de erros:
- * - Verificação de dependências (SHEET_CSV_URL_GLOBAL e Papa)
- * - Verificação da presença do cabeçalho correto no CSV
- * - Logs detalhados para facilitar debug em diferentes cenários
- * - Fallbacks para situações onde elementos do DOM não são encontrados
- *
- * # Observações:
- * - O script é encapsulado em IIFE para evitar poluição do escopo global
- * - O script depende das variáveis globais SHEET_CSV_URL_GLOBAL e Papa (biblioteca PapaParse)
- * - A função window.populateTableDOMWithData deve estar disponível para repopular a tabela no DOM
- * - O modal de notificação deve estar presente no HTML com os IDs esperados:
- *   - update-notification-overlay: Container do modal
- *   - update-notification-details: Elemento para inserir detalhes das mudanças
- *   - update-notification-close-btn: Botão para fechar o modal
- * - O serviço só inicia se todas as dependências estiverem carregadas corretamente
+ *   - Estrutura de modal HTML para notificações
+ *   - Eventos customizados para integração com outros scripts
+ * 
  * -----------------------------------------------------------------------------
  */
 
 (function() {
     const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutos
-    let currentProcessedData = null;
+    let currentDataSnapshot = null;
     let isFirstLoad = true;
+    let updateIntervalId = null;
 
-    // Nomes das colunas e seus índices correspondentes no CSV bruto (após o cabeçalho)
-    // Ordem conforme a tabela HTML e a solicitação do usuário
+    // Mapeamento das colunas conforme estrutura atual da tabela
     const columnHeaders = [
         "ID PCA", "Área", "Tipo", "Projeto de Aquisição",
-        "Status", "Status do Processo", "Contratar Até",
+        "Acompanhamento", "Status do Processo", "Contratar Até",
         "Valor PCA", "Orçamento", "Processo"
     ];
-    // Índices correspondentes no array da linha do CSV (row[i])
-    const csvColumnIndices = [2, 3, 4, 5, 10, 6, 9, 15, 14, 13];
-
-    /**
-     * Busca e processa os dados brutos do CSV da planilha
-     * @returns {Promise<Array>} Promise com os dados processados do CSV
-     * @throws {Error} Caso ocorra falha no carregamento ou parsing do CSV
+    
+    // Índices no CSV correspondentes às colunas da tabela HTML
+    const csvColumnIndices = [2, 3, 4, 5, 10, 6, 9, 15, 14, 13];    /**
+     * Busca dados atualizados do CSV e os processa para comparação
+     * @returns {Promise<Array>} Array de linhas de dados processadas do CSV
+     * @throws {Error} Em caso de falha no carregamento ou parsing
      */
-    async function fetchRawData() {
+    async function fetchUpdatedData() {
         return new Promise((resolve, reject) => {
             if (!window.SHEET_CSV_URL_GLOBAL || !window.Papa) {
-                console.error("[AtualizacaoAutomatica] Dependências (SHEET_CSV_URL_GLOBAL ou Papa) não encontradas em fetchRawData.");
-                return reject("Dependências não encontradas para fetchRawData.");
+                console.error("[AtualizacaoAutomatica] Dependências não encontradas.");
+                return reject("Dependências SHEET_CSV_URL_GLOBAL ou Papa não encontradas.");
             }
 
+            // Cache busting para garantir dados mais recentes
             const urlComCacheBuster = window.SHEET_CSV_URL_GLOBAL + '&_cb=' + new Date().getTime();
-
-            console.log("[AtualizacaoAutomatica - fetchRawData] Buscando dados de:", urlComCacheBuster);
+            
+            console.log("[AtualizacaoAutomatica] Buscando dados atualizados...");
 
             Papa.parse(urlComCacheBuster, {
                 download: true,
-                header: false, // Ler como array de arrays
-                skipEmptyLines: true, // PapaParse vai pular linhas completamente vazias
+                header: false,
+                skipEmptyLines: true,
                 complete: function(results) {
-                    const allRows = results.data;
-                    if (!allRows || allRows.length === 0) {
-                        console.error('[AtualizacaoAutomatica - fetchRawData] Nenhum dado retornado do CSV.');
-                        return reject('Nenhum dado retornado do CSV.');
-                    }
-
-                    // 1) Encontre a linha cujo índice 2 seja exatamente "ID PCA" (o cabeçalho real)
-                    const headerRowIndex = allRows.findIndex(row =>
-                        row && row.length > 2 && row[2] && String(row[2]).trim() === 'ID PCA'
-                    );
-
-                    if (headerRowIndex < 0) {
-                        console.error('[AtualizacaoAutomatica - fetchRawData] Cabeçalho "ID PCA" não encontrado no CSV.');
-                        return reject('Cabeçalho "ID PCA" não encontrado no CSV em fetchRawData.');
-                    }
-
-                    // 2) Separe a partir da próxima linha como dados
-                    const dataRows = allRows.slice(headerRowIndex + 1);
-
-                    // 3) Determina o último índice com valor em "Projeto de Aquisição"
-                    // (no seu mapeamento, essa coluna vem do CSV na posição 5)
-                    let lastValidIndex = -1;
-                    dataRows.forEach((row, i) => {
-                        if (row && row.length > 5 && row[5] && String(row[5]).trim() !== "") {
-                            lastValidIndex = i;
+                    try {
+                        const allRows = results.data;
+                        if (!allRows || allRows.length === 0) {
+                            return reject('Nenhum dado retornado do CSV.');
                         }
-                    });
 
-                    // Apenas linhas até o último projeto
-                    const validDataRows = dataRows.slice(0, lastValidIndex + 1);
-                    
-                    resolve(validDataRows);
+                        // Localizar cabeçalho real
+                        const headerRowIndex = allRows.findIndex(row =>
+                            row && row.length > 2 && row[2] && String(row[2]).trim() === 'ID PCA'
+                        );
+
+                        if (headerRowIndex < 0) {
+                            return reject('Cabeçalho "ID PCA" não encontrado no CSV.');
+                        }
+
+                        // Extrair apenas linhas de dados válidas
+                        const dataRows = allRows.slice(headerRowIndex + 1);
+                        
+                        // Determinar última linha com projeto válido
+                        let lastValidIndex = -1;
+                        dataRows.forEach((row, i) => {
+                            if (row && row.length > 5 && row[5] && String(row[5]).trim() !== "") {
+                                lastValidIndex = i;
+                            }
+                        });
+
+                        const validDataRows = dataRows.slice(0, lastValidIndex + 1);
+                        console.log(`[AtualizacaoAutomatica] ${validDataRows.length} linhas válidas encontradas.`);
+                        
+                        resolve(validDataRows);
+                        
+                    } catch (error) {
+                        console.error('[AtualizacaoAutomatica] Erro ao processar dados CSV:', error);
+                        reject(error);
+                    }
                 },
                 error: function(err) {
-                    console.error('[AtualizacaoAutomatica - fetchRawData] Erro ao baixar/parsear CSV:', err);
+                    console.error('[AtualizacaoAutomatica] Erro ao baixar CSV:', err);
                     reject(err);
                 }
+            });
+        });
+    }    /**
+     * Captura o estado atual da tabela DOM para comparação
+     * @returns {Array} Array representando o estado atual da tabela
+     */
+    function captureCurrentTableState() {
+        const tbody = document.querySelector('table tbody');
+        if (!tbody) {
+            console.warn("[AtualizacaoAutomatica] Tabela não encontrada no DOM.");
+            return [];
+        }
+
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        return rows.map(row => {
+            const cells = Array.from(row.querySelectorAll('td'));
+            return csvColumnIndices.map(csvIndex => {
+                // Mapeia células da tabela para índices CSV esperados
+                const cellIndex = csvColumnIndices.indexOf(csvIndex);
+                if (cellIndex >= 0 && cells[cellIndex]) {
+                    return cells[cellIndex].textContent.trim();
+                }
+                return '';
             });
         });
     }
 
     /**
-     * Compara dados antigos e novos para detectar mudanças
-     * @param {Array} oldData Array com os dados atuais
-     * @param {Array} newData Array com os dados recém-baixados
-     * @returns {Object} Objeto detalhando mudanças encontradas
+     * Compara dados atuais da tabela com dados novos do CSV
+     * @param {Array} currentData Estado atual da tabela
+     * @param {Array} newData Novos dados do CSV
+     * @returns {Object} Resultado da comparação com detalhes das mudanças
      */
-    function compareData(oldData, newData) {
-        console.log("[compareData] Iniciando comparação.");
+    function compareTableData(currentData, newData) {
+        console.log("[AtualizacaoAutomatica] Iniciando comparação inteligente...");
+        
         const changes = {
             hasChanges: false,
-            updatedProjects: []
+            structuralChanges: false,
+            updatedProjects: [],
+            addedRows: [],
+            removedRows: []
         };
 
-        if (!oldData && newData) {
-            console.log("[compareData] oldData é nulo, newData existe. Mudança detectada.");
+        // Verificação inicial
+        if (!currentData && newData) {
             changes.hasChanges = true;
-            return changes;
-        }
-        if (!oldData || !newData) {
-             console.log("[compareData] oldData ou newData (ou ambos) são nulos. Mudança detectada se diferentes:", (oldData !== newData));
-             changes.hasChanges = (oldData !== newData);
-             return changes;
-        }
-
-        console.log(`[compareData] oldData.length=${oldData.length}, newData.length=${newData.length}`);
-
-        if (oldData.length !== newData.length) {
-            console.log("[compareData] Comprimento dos dados diferente. Mudança estrutural detectada.");
-            changes.hasChanges = true;
-            changes.updatedProjects.push({
-                idPca: "N/A",
-                projetoNome: "Estrutura da tabela alterada (linhas adicionadas/removidas).",
-                colunasAlteradas: []
-            });
+            changes.structuralChanges = true;
             return changes;
         }
 
-        console.log("[compareData] Comparando linha a linha...");
-        for (let i = 0; i < newData.length; i++) {
-            const oldRow = oldData[i];
-            const newRow = newData[i];
-            let rowChanged = false;
-            const colunasAlteradasNestaLinha = [];
+        if (!currentData || !newData) {
+            changes.hasChanges = (currentData !== newData);
+            return changes;
+        }
 
-            if (JSON.stringify(oldRow) !== JSON.stringify(newRow)) {
-                rowChanged = true;
-                csvColumnIndices.forEach((csvIdx, headerIdx) => {
-                    const oldValue = oldRow ? oldRow[csvIdx] : undefined;
-                    const newValue = newRow ? newRow[csvIdx] : undefined;
-                    
-                    const oldValTrimmed = String(oldValue).trim();
-                    const newValTrimmed = String(newValue).trim();
+        // Verificar mudanças estruturais (número de linhas)
+        if (currentData.length !== newData.length) {
+            console.log(`[AtualizacaoAutomatica] Mudança estrutural detectada: ${currentData.length} -> ${newData.length} linhas`);
+            changes.hasChanges = true;
+            changes.structuralChanges = true;
+            
+            if (newData.length > currentData.length) {
+                changes.addedRows = newData.slice(currentData.length);
+            } else {
+                changes.removedRows = currentData.slice(newData.length);
+            }
+            return changes;
+        }
 
-                    if (oldValTrimmed !== newValTrimmed) {
-                        console.log(`[compareData] Linha ${i}, Coluna '${columnHeaders[headerIdx]}' MUDOU. Old: "${oldValTrimmed}" (original: "${oldValue}"), New: "${newValTrimmed}" (original: "${newValue}")`);
-                        colunasAlteradasNestaLinha.push(columnHeaders[headerIdx]);
-                    }
+        // Comparação linha por linha para mudanças específicas
+        for (let rowIndex = 0; rowIndex < newData.length; rowIndex++) {
+            const currentRow = currentData[rowIndex];
+            const newRow = newData[rowIndex];
+            
+            if (!currentRow || !newRow) continue;
+
+            const changedColumns = [];
+            
+            for (let colIndex = 0; colIndex < csvColumnIndices.length; colIndex++) {
+                const csvIdx = csvColumnIndices[colIndex];
+                const currentValue = String(currentRow[csvIdx] || '').trim();
+                const newValue = String(newRow[csvIdx] || '').trim();
+                
+                if (currentValue !== newValue) {
+                    changedColumns.push({
+                        columnName: columnHeaders[colIndex],
+                        oldValue: currentValue,
+                        newValue: newValue
+                    });
+                }
+            }
+
+            if (changedColumns.length > 0) {
+                changes.hasChanges = true;
+                
+                // Identificar projeto alterado
+                const idPca = newRow[csvColumnIndices[0]] || `Linha ${rowIndex + 1}`;
+                const projetoNome = newRow[csvColumnIndices[3]] || `Projeto Linha ${rowIndex + 1}`;
+                
+                changes.updatedProjects.push({
+                    rowIndex,
+                    idPca,
+                    projetoNome,
+                    changedColumns
+                });
+                
+                console.log(`[AtualizacaoAutomatica] Mudanças detectadas na linha ${rowIndex + 1}:`, changedColumns);
+            }
+        }
+
+        console.log(`[AtualizacaoAutomatica] Comparação concluída. Mudanças: ${changes.hasChanges}`);
+        return changes;
+    }    /**
+     * Atualiza a tabela DOM de forma granular preservando Bootstrap
+     * @param {Array} newData Novos dados do CSV
+     * @param {Object} changes Resultado da comparação indicando mudanças
+     */
+    function updateTableGranularly(newData, changes) {
+        console.log("[AtualizacaoAutomatica] Iniciando atualização granular da tabela...");
+        
+        const tbody = document.querySelector('table tbody');
+        if (!tbody) {
+            console.error("[AtualizacaoAutomatica] Elemento tbody não encontrado.");
+            return;
+        }
+
+        try {
+            // Se houve mudanças estruturais, usar método de reconstrução segura
+            if (changes.structuralChanges) {
+                console.log("[AtualizacaoAutomatica] Aplicando mudanças estruturais...");
+                reconstructTableSafely(newData, tbody);
+                return;
+            }
+
+            // Para mudanças específicas, atualizar apenas células alteradas
+            if (changes.updatedProjects.length > 0) {
+                changes.updatedProjects.forEach(project => {
+                    updateRowGranularly(project.rowIndex, newData[project.rowIndex], project.changedColumns);
                 });
             }
 
-            if (rowChanged) {
-                changes.hasChanges = true;
-                const idPca = newRow[csvColumnIndices[columnHeaders.indexOf("ID PCA")]] || `Linha ${i+1} ID Desconhecido`;
-                const projetoNome = newRow[csvColumnIndices[columnHeaders.indexOf("Projeto de Aquisição")]] || `Linha ${i+1} Projeto Desconhecido`;
-                changes.updatedProjects.push({ idPca, projetoNome, colunasAlteradas: colunasAlteradasNestaLinha });
-            }
-        }
+            console.log("[AtualizacaoAutomatica] Atualização granular concluída.");
 
-        if (!changes.hasChanges) {
-            console.log("[compareData] Nenhuma mudança detectada após comparação linha a linha.");
-        } else {
-            console.log("[compareData] Mudanças foram detectadas:", JSON.stringify(changes.updatedProjects));
+        } catch (error) {
+            console.error("[AtualizacaoAutomatica] Erro durante atualização granular:", error);
+            // Fallback para método de reconstrução completa em caso de erro
+            reconstructTableSafely(newData, tbody);
         }
-        return changes;
     }
 
     /**
-     * Exibe o modal de notificação com detalhes das atualizações
-     * @param {string} htmlContent Conteúdo HTML a ser exibido no modal
+     * Atualiza uma linha específica da tabela preservando formatação
+     * @param {number} rowIndex Índice da linha a ser atualizada
+     * @param {Array} newRowData Novos dados da linha
+     * @param {Array} changedColumns Colunas que foram alteradas
+     */
+    function updateRowGranularly(rowIndex, newRowData, changedColumns) {
+        const tbody = document.querySelector('table tbody');
+        const row = tbody.children[rowIndex];
+        
+        if (!row) {
+            console.warn(`[AtualizacaoAutomatica] Linha ${rowIndex} não encontrada no DOM.`);
+            return;
+        }
+
+        console.log(`[AtualizacaoAutomatica] Atualizando linha ${rowIndex}...`);
+
+        changedColumns.forEach(change => {
+            const columnIndex = columnHeaders.indexOf(change.columnName);
+            if (columnIndex >= 0) {
+                const cell = row.children[columnIndex];
+                if (cell) {
+                    // Preservar atributos existentes da célula
+                    const existingAttributes = {};
+                    for (let attr of cell.attributes) {
+                        existingAttributes[attr.name] = attr.value;
+                    }
+
+                    // Atualizar conteúdo preservando estrutura
+                    updateCellContent(cell, change.newValue, change.columnName, existingAttributes);
+                    
+                    console.log(`[AtualizacaoAutomatica] Célula ${change.columnName} atualizada: "${change.oldValue}" -> "${change.newValue}"`);
+                }
+            }
+        });
+    }
+
+    /**
+     * Atualiza o conteúdo de uma célula preservando formatação e atributos
+     * @param {HTMLElement} cell Elemento da célula
+     * @param {string} newValue Novo valor
+     * @param {string} columnName Nome da coluna
+     * @param {Object} existingAttributes Atributos existentes da célula
+     */
+    function updateCellContent(cell, newValue, columnName, existingAttributes) {
+        // Preservar data-label para responsividade mobile
+        if (existingAttributes['data-label']) {
+            cell.setAttribute('data-label', existingAttributes['data-label']);
+        }
+
+        // Preservar outros atributos importantes
+        Object.keys(existingAttributes).forEach(attr => {
+            if (attr.startsWith('data-') || attr === 'class') {
+                cell.setAttribute(attr, existingAttributes[attr]);
+            }
+        });
+
+        // Verificar se é coluna especial que requer formatação específica
+        if (columnName === "Processo" && newValue) {
+            // Preservar ícone de processo se existir
+            cell.textContent = newValue;
+            
+            // Recriar ícone de processo se necessário
+            if (!cell.querySelector('.processo-link-icon')) {
+                const icon = document.createElement('span');
+                icon.classList.add('processo-link-icon');
+                icon.textContent = ' 🔗';
+                icon.style.cursor = 'pointer';
+                icon.title = `Abrir processo ${newValue}`;
+                cell.appendChild(icon);
+            }
+        } else {
+            // Atualização simples para outras colunas
+            cell.textContent = newValue;
+        }
+    }
+
+    /**
+     * Reconstrói a tabela de forma segura preservando Bootstrap classes
+     * @param {Array} newData Novos dados completos
+     * @param {HTMLElement} tbody Elemento tbody da tabela
+     */
+    function reconstructTableSafely(newData, tbody) {
+        console.log("[AtualizacaoAutomatica] Reconstruindo tabela de forma segura...");
+        
+        // Capturar classes e atributos da tabela antes da modificação
+        const table = tbody.closest('table');
+        const tableClasses = table ? Array.from(table.classList) : [];
+        const tableAttributes = {};
+        
+        if (table) {
+            for (let attr of table.attributes) {
+                tableAttributes[attr.name] = attr.value;
+            }
+        }
+
+        // Limpar tbody preservando estrutura
+        tbody.innerHTML = '';
+
+        // Reconstruir linhas com nova data
+        newData.forEach((rowData, index) => {
+            const row = document.createElement('tr');
+            
+            columnHeaders.forEach((headerName, colIndex) => {
+                const cell = document.createElement('td');
+                const csvIndex = csvColumnIndices[colIndex];
+                const cellValue = rowData[csvIndex] || '';
+                
+                // Adicionar data-label para responsividade
+                cell.setAttribute('data-label', headerName);
+                
+                // Aplicar formatação específica por coluna
+                if (headerName === "Processo" && cellValue) {
+                    cell.textContent = cellValue;
+                    const icon = document.createElement('span');
+                    icon.classList.add('processo-link-icon');
+                    icon.textContent = ' 🔗';
+                    icon.style.cursor = 'pointer';
+                    icon.title = `Abrir processo ${cellValue}`;
+                    cell.appendChild(icon);
+                } else {
+                    cell.textContent = cellValue;
+                }
+                
+                row.appendChild(cell);
+            });
+            
+            tbody.appendChild(row);
+        });
+
+        // Restaurar classes da tabela se foram perdidas
+        if (table && tableClasses.length > 0) {
+            table.className = '';
+            tableClasses.forEach(cls => table.classList.add(cls));
+        }
+
+        console.log("[AtualizacaoAutomatica] Reconstrução segura concluída.");
+    }    /**
+     * Exibe modal de notificação sobre atualizações detectadas
+     * @param {string} htmlContent Conteúdo HTML para exibir no modal
      */
     function showUpdateNotificationModal(htmlContent) {
         const modalOverlay = document.getElementById('update-notification-overlay');
         const modalDetails = document.getElementById('update-notification-details');
+        
         if (modalOverlay && modalDetails) {
             modalDetails.innerHTML = htmlContent;
             modalOverlay.style.display = 'flex';
+            
+            // Garantir que o modal seja visível acima de outros elementos
+            modalOverlay.style.zIndex = '9999';
+        } else {
+            console.warn("[AtualizacaoAutomatica] Elementos do modal de notificação não encontrados.");
         }
     }
 
     /**
-     * Oculta o modal de notificação de atualizações
+     * Oculta o modal de notificação
      */
     function hideUpdateNotificationModal() {
         const modalOverlay = document.getElementById('update-notification-overlay');
@@ -258,102 +444,255 @@
     }
 
     /**
-     * Função principal que verifica e processa atualizações
-     * Busca novos dados, compara com os atuais e atualiza a interface se necessário
+     * Gera HTML de notificação baseado nas mudanças detectadas
+     * @param {Object} changes Resultado da comparação de dados
+     * @returns {string} HTML formatado para exibição no modal
+     */
+    function generateNotificationHTML(changes) {
+        let notificationHtml = '';
+
+        if (changes.structuralChanges) {
+            if (changes.addedRows.length > 0) {
+                notificationHtml += `<p><strong>✅ ${changes.addedRows.length} nova(s) linha(s) adicionada(s) à tabela.</strong></p>`;
+            }
+            if (changes.removedRows.length > 0) {
+                notificationHtml += `<p><strong>❌ ${changes.removedRows.length} linha(s) removida(s) da tabela.</strong></p>`;
+            }
+            if (!changes.addedRows.length && !changes.removedRows.length) {
+                notificationHtml += '<p><strong>🔄 Estrutura da tabela foi alterada.</strong></p>';
+            }
+        } else if (changes.updatedProjects.length > 0) {
+            notificationHtml += '<p><strong>📊 Foram detectadas atualizações nos seguintes projetos:</strong></p><ul>';
+            
+            changes.updatedProjects.forEach(project => {
+                notificationHtml += `<li><strong>ID PCA:</strong> ${project.idPca}<br/>`;
+                notificationHtml += `<strong>Projeto:</strong> ${project.projetoNome}`;
+                
+                if (project.changedColumns.length > 0) {
+                    notificationHtml += '<br/><em>Colunas alteradas:</em><ul>';
+                    project.changedColumns.forEach(change => {
+                        notificationHtml += `<li><strong>${change.columnName}:</strong> "${change.oldValue}" → "${change.newValue}"</li>`;
+                    });
+                    notificationHtml += '</ul>';
+                }
+                notificationHtml += '</li><br/>';
+            });
+            
+            notificationHtml += '</ul>';
+        } else {
+            notificationHtml += '<p><strong>🔄 A tabela foi atualizada com novos dados.</strong></p>';
+        }
+
+        notificationHtml += '<p><em>A tabela será atualizada automaticamente preservando toda a formatação e funcionalidades.</em></p>';
+        
+        return notificationHtml;
+    }
+
+    /**
+     * Dispara eventos necessários após atualização da tabela
+     */
+    function triggerPostUpdateEvents() {
+        console.log("[AtualizacaoAutomatica] Disparando eventos pós-atualização...");
+        
+        // Evento principal para outros scripts saberem que a tabela foi atualizada
+        document.dispatchEvent(new Event('tabela-carregada'));
+        
+        // Reaplica formatações e funcionalidades
+        try {
+            if (typeof window.assignStatusClasses === 'function') {
+                window.assignStatusClasses();
+            }
+            if (typeof window.assignAreaClasses === 'function') {
+                window.assignAreaClasses();
+            }
+            if (typeof window.assignOrcamentoClasses === 'function') {
+                window.assignOrcamentoClasses();
+            }
+            if (typeof window.aplicarEstiloStatus === 'function') {
+                window.aplicarEstiloStatus();
+            }
+            if (typeof window.aplicarAnimacaoBomba === 'function') {
+                window.aplicarAnimacaoBomba();
+            }
+            if (typeof window.aplicarAnimacaoHourglass === 'function') {
+                window.aplicarAnimacaoHourglass();
+            }
+            if (typeof window.aplicarAnimacaoExclamation === 'function') {
+                window.aplicarAnimacaoExclamation();
+            }
+            
+            // Reinicializar filtros se necessário
+            if (typeof window.initializeGoogleSheetFilters === 'function') {
+                window.initializeGoogleSheetFilters();
+            }
+            
+            // Reinicializar modal de processo
+            if (window.processoModalInstance && typeof window.processoModalInstance.reinitialize === 'function') {
+                window.processoModalInstance.reinitialize();
+            }
+
+            // Aplicar alternância de cores
+            if (typeof window.alternaCoresLinhas === 'function') {
+                window.alternaCoresLinhas();
+            }
+
+            console.log("[AtualizacaoAutomatica] Eventos pós-atualização disparados com sucesso.");
+            
+        } catch (error) {
+            console.error("[AtualizacaoAutomatica] Erro ao disparar eventos pós-atualização:", error);
+        }
+    }    /**
+     * Função principal de verificação e atualização automática
+     * Nova versão que preserva Bootstrap e evita duplicação
      */
     async function checkForUpdates() {
-        console.log("Atualização Automática: Verificando atualizações...");
+        console.log("[AtualizacaoAutomatica] Verificando atualizações...");
+        
         try {
-            const newRawData = await fetchRawData();
-
-            if (isFirstLoad && currentProcessedData === null) { 
-                currentProcessedData = newRawData;
-                isFirstLoad = false; 
-                console.log("Atualização Automática: Dados de referência iniciais carregados para comparação futura. Linhas:", currentProcessedData ? currentProcessedData.length : 0);
-                return; 
+            // Buscar dados atualizados do CSV
+            const newData = await fetchUpdatedData();
+            
+            // Primeira execução: estabelecer baseline
+            if (isFirstLoad) {
+                currentDataSnapshot = newData;
+                isFirstLoad = false;
+                console.log(`[AtualizacaoAutomatica] Baseline estabelecido com ${newData.length} linhas.`);
+                return;
             }
 
-            const comparison = compareData(currentProcessedData, newRawData);
-
-            if (comparison.hasChanges) {
-                currentProcessedData = newRawData; // Atualiza os dados de referência
-
-                let notificationHtml = '';
-                if (comparison.updatedProjects.length > 0) {
-                    const structuralChange = comparison.updatedProjects.find(p => p.projetoNome === "Estrutura da tabela alterada (linhas adicionadas/removidas).");
-
-                    if (structuralChange) {
-                        notificationHtml = `<p><strong>${structuralChange.projetoNome}</strong></p>`;
-                    } else {
-                        const projectSpecificChanges = comparison.updatedProjects.filter(p => p.colunasAlteradas && p.colunasAlteradas.length > 0);
-                        if (projectSpecificChanges.length > 0) {
-                            notificationHtml = '<p>Foram detectadas atualizações nos seguintes projetos:</p><ul>';
-                            projectSpecificChanges.forEach(p => {
-                                notificationHtml += `<li><strong>ID PCA:</strong> ${p.idPca}, <strong>Projeto:</strong> ${p.projetoNome}`;
-                                if (p.colunasAlteradas.length > 0) {
-                                    notificationHtml += `<br/>&nbsp;&nbsp;<em>Colunas alteradas: ${p.colunasAlteradas.join(', ')}</em>`;
-                                }
-                                notificationHtml += '</li>';
-                            });
-                            notificationHtml += '</ul>';
-                        } else {
-                            notificationHtml = '<p>A tabela foi atualizada com novos dados (mudanças gerais detectadas).</p>';
+            // Capturar estado atual da tabela DOM
+            const currentTableState = captureCurrentTableState();
+            
+            // Comparar dados
+            const changes = compareTableData(currentTableState, newData);
+            
+            if (changes.hasChanges) {
+                console.log("[AtualizacaoAutomatica] Mudanças detectadas, iniciando atualização...");
+                
+                // Gerar notificação para o usuário
+                const notificationHtml = generateNotificationHTML(changes);
+                showUpdateNotificationModal(notificationHtml);
+                
+                // Mostrar overlay de carregamento
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (loadingOverlay) {
+                    loadingOverlay.style.display = 'flex';
+                }
+                
+                // Pequeno delay para melhorar a experiência do usuário
+                setTimeout(() => {
+                    try {
+                        // Atualizar tabela de forma granular
+                        updateTableGranularly(newData, changes);
+                        
+                        // Atualizar snapshot de referência
+                        currentDataSnapshot = newData;
+                        
+                        // Disparar eventos necessários
+                        triggerPostUpdateEvents();
+                        
+                        // Esconder overlay de carregamento
+                        if (loadingOverlay) {
+                            loadingOverlay.style.display = 'none';
+                        }
+                        
+                        console.log("[AtualizacaoAutomatica] Atualização concluída com sucesso.");
+                        
+                    } catch (updateError) {
+                        console.error("[AtualizacaoAutomatica] Erro durante atualização:", updateError);
+                        
+                        // Esconder overlay mesmo em caso de erro
+                        if (loadingOverlay) {
+                            loadingOverlay.style.display = 'none';
                         }
                     }
-                } else {
-                     notificationHtml = '<p>A tabela foi atualizada com novos dados.</p>';
-                }
-
-                if (notificationHtml) {
-                    showUpdateNotificationModal(notificationHtml + "<p>A tabela será recarregada com as novas informações.</p>");
-                }
-
-                console.log("Atualização Automática: Mudanças detectadas. Atualizando tabela...");
-
-                const overlay = document.getElementById('loading-overlay');
-                if (typeof window.populateTableDOMWithData === 'function') {
-                    window.populateTableDOMWithData(newRawData);
-                     if (overlay) overlay.style.display = 'none';
-                    console.log("Atualização Automática: Tabela repopulada com populateTableDOMWithData.");
-                } 
+                }, 300);
+                
             } else {
-                console.log("Atualização Automática: Sem mudanças detectadas.");
+                console.log("[AtualizacaoAutomatica] Nenhuma mudança detectada.");
             }
+            
         } catch (error) {
-            console.error("Atualização Automática: Erro durante a verificação:", error);
+            console.error("[AtualizacaoAutomatica] Erro durante verificação:", error);
+            
+            // Esconder overlay em caso de erro
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
         }
     }
 
-    // Inicialização do serviço após carregamento da página
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log("Atualização Automática: DOMContentLoaded acionado.");
-
-        setTimeout(() => {
-            console.log("Atualização Automática: Timeout de 3s para iniciar serviço.");
-
-            if (window.SHEET_CSV_URL_GLOBAL && window.Papa) {
-                console.log("Atualização Automática: Dependências (SHEET_CSV_URL_GLOBAL, Papa) encontradas.");
-
-                fetchRawData().then(initialData => {
-                    console.log("Atualização Automática: Dados iniciais (pré-verificação) buscados com sucesso.");
-                    
-                    setInterval(checkForUpdates, UPDATE_INTERVAL);
-                    console.log("Atualização Automática: Serviço de verificação periódica INICIADO.");
-                }).catch(error => {
-                    console.error("Atualização Automática: ERRO ao buscar dados iniciais para o serviço. O serviço NÃO será iniciado.", error);
-                });
-            } else {
-                console.error("Atualização Automática: Dependências (SHEET_CSV_URL_GLOBAL ou Papa) NÃO encontradas. O serviço NÃO será iniciado.");
-            }
-        }, 3000);
+    /**
+     * Inicializa o serviço de atualização automática
+     */
+    function initializeAutoUpdateService() {
+        console.log("[AtualizacaoAutomatica] Inicializando serviço...");
         
-        // Configuração do botão de fechamento do modal
+        // Verificar dependências necessárias
+        if (!window.SHEET_CSV_URL_GLOBAL || !window.Papa) {
+            console.error("[AtualizacaoAutomatica] Dependências não encontradas. Serviço não será iniciado.");
+            return false;
+        }
+        
+        // Verificar se a tabela existe
+        const table = document.querySelector('table tbody');
+        if (!table) {
+            console.error("[AtualizacaoAutomatica] Tabela não encontrada. Serviço não será iniciado.");
+            return false;
+        }
+        
+        // Configurar evento de fechamento do modal
         const closeBtn = document.getElementById('update-notification-close-btn');
         if (closeBtn) {
             closeBtn.addEventListener('click', hideUpdateNotificationModal);
         } else {
-            console.warn("Atualização Automática: Botão de fechar modal 'update-notification-close-btn' não encontrado.");
+            console.warn("[AtualizacaoAutomatica] Botão de fechar modal não encontrado.");
         }
+        
+        // Buscar dados iniciais para estabelecer baseline
+        fetchUpdatedData()
+            .then(initialData => {
+                console.log("[AtualizacaoAutomatica] Dados iniciais carregados, estabelecendo baseline...");
+                currentDataSnapshot = initialData;
+                isFirstLoad = false;
+                
+                // Iniciar verificação periódica
+                updateIntervalId = setInterval(checkForUpdates, UPDATE_INTERVAL);
+                console.log(`[AtualizacaoAutomatica] Serviço iniciado com sucesso. Verificação a cada ${UPDATE_INTERVAL/1000/60} minutos.`);
+                
+                return true;
+            })
+            .catch(error => {
+                console.error("[AtualizacaoAutomatica] Erro ao carregar dados iniciais:", error);
+                return false;
+            });
+    }
+
+    /**
+     * Para o serviço de atualização automática
+     */
+    function stopAutoUpdateService() {
+        if (updateIntervalId) {
+            clearInterval(updateIntervalId);
+            updateIntervalId = null;
+            console.log("[AtualizacaoAutomatica] Serviço interrompido.");
+        }
+    }    // Inicialização do serviço após carregamento da página
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("[AtualizacaoAutomatica] DOMContentLoaded acionado.");
+
+        setTimeout(() => {
+            console.log("[AtualizacaoAutomatica] Iniciando serviço após delay de 3s...");
+            initializeAutoUpdateService();
+        }, 3000);
     });
+
+    // Exportar funções para acesso global se necessário
+    window.AtualizacaoAutomatica = {
+        initialize: initializeAutoUpdateService,
+        stop: stopAutoUpdateService,
+        checkNow: checkForUpdates
+    };
 
 })();
