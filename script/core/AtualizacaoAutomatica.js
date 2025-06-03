@@ -1,6 +1,8 @@
 /**
  * AtualizacaoAutomatica.js - Sistema de atualização automática do Boletim PCA 2025 (VERSÃO 2.0)
  * 
+ * ⚠️  SISTEMA ATUALMENTE INABILITADO PARA REAVALIAÇÃO ⚠️
+ * 
  * VERSÃO COMPLETAMENTE REESCRITA PARA COMPATIBILIDADE COM BOOTSTRAP
  * 
  * Este script foi recriado do zero para resolver problemas de:
@@ -656,10 +658,9 @@
                 console.log("[AtualizacaoAutomatica] Dados iniciais carregados, estabelecendo baseline...");
                 currentDataSnapshot = initialData;
                 isFirstLoad = false;
-                
-                // Iniciar verificação periódica
-                updateIntervalId = setInterval(checkForUpdates, UPDATE_INTERVAL);
-                console.log(`[AtualizacaoAutomatica] Serviço iniciado com sucesso. Verificação a cada ${UPDATE_INTERVAL/1000/60} minutos.`);
+                  // INABILITADO: Iniciar verificação periódica
+                // updateIntervalId = setInterval(checkForUpdates, UPDATE_INTERVAL);
+                console.log(`[AtualizacaoAutomatica] Serviço INABILITADO para reavaliação. Verificação automática suspensa.`);
                 
                 return true;
             })
@@ -678,7 +679,8 @@
             updateIntervalId = null;
             console.log("[AtualizacaoAutomatica] Serviço interrompido.");
         }
-    }    // Inicialização do serviço após carregamento da página
+    }    // INABILITADO: Inicialização do serviço após carregamento da página
+    /*
     document.addEventListener('DOMContentLoaded', () => {
         console.log("[AtualizacaoAutomatica] DOMContentLoaded acionado.");
 
@@ -687,12 +689,23 @@
             initializeAutoUpdateService();
         }, 3000);
     });
+    */
 
-    // Exportar funções para acesso global se necessário
+    // INABILITADO: Exportar funções para acesso global se necessário
+    /*
     window.AtualizacaoAutomatica = {
         initialize: initializeAutoUpdateService,
         stop: stopAutoUpdateService,
         checkNow: checkForUpdates
     };
+    */
+
+    console.log("[AtualizacaoAutomatica] ⚠️  SISTEMA INABILITADO - Funções disponíveis mas não executam automaticamente");
+    console.log("[AtualizacaoAutomatica] Para reativar, descomentar as seções no final do arquivo");
+
+    // PARA REATIVAR O SISTEMA: Descomentar as seguintes funções no final do arquivo:
+    // 1. document.addEventListener('DOMContentLoaded', ...)
+    // 2. window.AtualizacaoAutomatica = {...}
+    // 3. setInterval(checkForUpdates, UPDATE_INTERVAL) na função initializeAutoUpdateService
 
 })();
