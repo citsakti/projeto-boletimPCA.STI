@@ -152,14 +152,17 @@ function renderSituacionalDetails(categoria) {
             </thead>
             <tbody>
     `;
-    
-    projetos.forEach(projeto => {
+      projetos.forEach(projeto => {
         let contratoAttrs = '';
         if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
             contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
         }
         if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
             contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
+        }        // Renderizar tag de dias de atraso para categoria autuacaoAtrasada
+        let statusComDiasAtraso = formatStatusWithClasses(projeto.status);
+        if (categoria === 'autuacaoAtrasada' && projeto.diasAtraso && typeof renderDiasAtrasoTag === 'function') {
+            statusComDiasAtraso += renderDiasAtrasoTag(projeto.diasAtraso);
         }
 
         html += `
@@ -167,7 +170,7 @@ function renderSituacionalDetails(categoria) {
                 <td>${projeto.idPca}</td>
                 <td>${formatAreaWithClasses(projeto.area)}</td>
                 <td${contratoAttrs}>${projeto.projeto}</td>
-                <td>${formatStatusWithClasses(projeto.status)}</td>
+                <td>${statusComDiasAtraso}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${projeto.numProcesso}</td>

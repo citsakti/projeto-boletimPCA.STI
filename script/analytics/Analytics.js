@@ -223,8 +223,7 @@ function fetchCSVData() {
  * Função para processar os dados brutos do CSV
  * @param {Object} rawData Objeto contendo headers e data
  */
-function processData(rawData) {
-    // Mapear índices das colunas necessárias
+function processData(rawData) {    // Mapear índices das colunas necessárias
     const columnIndices = {
         idPca: 2,        // Coluna C - ID PCA
         area: 3,         // Coluna D - Área
@@ -236,6 +235,7 @@ function processData(rawData) {
         valorPca: 15,    // Coluna P - Valor PCA
         dataProcesso: 9,  // Coluna J - Data do processo
         dataInicio: 8,    // Coluna I - Data de início (AUTUAR EM:)
+        diasAtraso: 11,  // Coluna L - Dias de atraso para autuação
         numeroContrato: 21, // Coluna V - Número do Contrato
         numeroRegistro: 22  // Coluna W - Número de Registro do Contrato
     };
@@ -260,8 +260,8 @@ function processData(rawData) {
             .replace(/,/g, '.')
             .trim();
         const valor = parseFloat(valorStr) || 0;
-        const dataProcesso = row[columnIndices.dataProcesso] || '';
-        const dataInicio = row[columnIndices.dataInicio] || ''; // Capturando a data de início
+        const dataProcesso = row[columnIndices.dataProcesso] || '';        const dataInicio = row[columnIndices.dataInicio] || ''; // Capturando a data de início
+        const diasAtraso = row[columnIndices.diasAtraso] || ''; // Capturando os dias de atraso (coluna L)
         const numeroContrato = String(row[columnIndices.numeroContrato] || '').trim();
         const numeroRegistro = String(row[columnIndices.numeroRegistro] || '').trim();
         
@@ -276,6 +276,7 @@ function processData(rawData) {
             status: statusProcesso, // Adicionando o status ao objeto
             i: dataInicio,   // Apenas armazenando a data de início (coluna I - AUTUAR EM)
             dataProcesso, // Adicionar esta linha para incluir a data de "Contratar Até"
+            diasAtraso,   // Adicionar os dias de atraso para status "AUTUAÇÃO ATRASADA 💣"
             numeroContrato, // Adicionar número do contrato
             numeroRegistro  // Adicionar número de registro
         };
