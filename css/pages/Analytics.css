@@ -1115,3 +1115,16 @@
 .status-contratacao-atrasada-highlight {
     animation: none !important;
 }
+
+/* =======================
+   SEÇÃO: Correções Específicas para Seções
+   ======================= */
+/* Remove negrito da coluna de Status (4ª coluna) nas tabelas project-details-table 
+   da seção "3.1 Análise Interna" para anular a regra geral do Main.css linha 246 */
+.situacional-table .project-details-table td:nth-child(4) {
+    font-weight: normal !important;
+}
+
+.situacional-table .project-details-table td:nth-child(4) {
+    font-weight: normal !important;
+}
