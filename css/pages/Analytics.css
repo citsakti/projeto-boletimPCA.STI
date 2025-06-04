@@ -1081,6 +1081,32 @@
     overflow-y: auto;
 }
 
+/* Permitir quebra de linha nas células da tabela dentro do project-details */
+.project-details .table td,
+.project-details .table th {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Aplicar também para project-details-table */
+.project-details-table td,
+.project-details-table th {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    word-wrap: break-word;
+}
+
+/* Manter comportamento no-wrap apenas para células específicas marcadas */
+.project-details .no-wrap-cell {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
 .no-wrap-cell {
     white-space: nowrap !important;
 }

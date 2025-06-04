@@ -295,7 +295,7 @@ table tbody tr.contratacao-atrasada {
 .status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-elaborando-tr-highlight         { background: #afdcf8; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
 .status-aguardando-definicao-highlight  { background: #d29eee; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-analise-viabilidade-highlight   { background: #afdcf8; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-analise-viabilidade-highlight   { background: #afdcf8; border-radius:6px; padding:2px 6px; display:inline-block; white-space: nowrap; }
 .status-em-contratacao-highlight        { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
 .status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
 .status-renovado-highlight              { background: #11734b; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }

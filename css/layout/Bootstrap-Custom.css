@@ -540,6 +540,16 @@ header h1 {
     vertical-align: middle;
 }
 
+/* Exceção para tabelas dentro de project-details - permitir quebra de linha */
+.project-details .table td,
+.project-details .table th,
+.project-details-table td,
+.project-details-table th {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+}
+
 .table td[data-label="Projeto de Aquisição"],
 .table th[data-label="Projeto de Aquisição"] {
     max-width: 300px;
