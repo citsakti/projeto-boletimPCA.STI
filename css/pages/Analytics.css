@@ -650,8 +650,16 @@
     padding: 0.75rem;
     background: rgba(255, 255, 255, 0.7);
     border-radius: 6px;
-    border: 1px solid rgba(var(--brand-primary-rgb), 0.08);
+    border: 1px solid rgba(var(--brand-primary-rgb), 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Linha de separação mais visível entre os itens */
+.percentual-item + .percentual-item {
+    border-top: 2px solid rgba(var(--brand-primary-rgb), 0.3);
+    margin-top: 0.5rem;
 }
 
 .percentual-item:hover {
