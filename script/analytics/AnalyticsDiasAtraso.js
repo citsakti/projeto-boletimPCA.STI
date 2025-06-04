@@ -39,7 +39,7 @@ function renderDiasAtrasoTag(diasAtraso) {
     
     if (!isNaN(diasNumerico) && diasNumerico > 0) {
         // Se for um número válido, mostrar como "[X] dias Atrasado"
-        textoTag = `[${diasNumerico}] dias Atrasado`;
+        textoTag = `${diasNumerico} dias`;
     } else {
         // Se não for um número, mostrar a informação como está
         textoTag = String(diasAtraso);
