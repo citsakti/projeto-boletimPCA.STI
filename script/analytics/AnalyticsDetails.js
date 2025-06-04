@@ -587,8 +587,7 @@ function renderProdutividadeProjetosTable(projetos) {
     if (projetos.length === 0) {
         return '<p>Nenhum projeto encontrado nesta categoria.</p>';
     }
-    
-    let html = `
+      let html = `
         <table class="project-details-table">
             <thead>
                 <tr>
@@ -597,6 +596,7 @@ function renderProdutividadeProjetosTable(projetos) {
                     <th>Tipo</th>
                     <th>Projeto</th>
                     <th>Status</th>
+                    <th>Data PCA</th>
                     <th>Valor (R$)</th>
                     <th>Processo</th>
                 </tr>
@@ -618,15 +618,14 @@ function renderProdutividadeProjetosTable(projetos) {
         }
         if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
             contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
-        }
-
-        html += `
+        }        html += `
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${formatAreaWithClasses(projeto.area)}</td>
                 <td class="${tdTipoClass}">${tipoCellContent}</td>
                 <td${contratoAttrs}>${projeto.projeto}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
+                <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${projeto.numProcesso}</td>
             </tr>
