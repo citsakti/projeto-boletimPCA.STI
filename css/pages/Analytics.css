@@ -660,6 +660,34 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
+/* Estilos para informações de meta */
+.meta-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.meta-atingida {
+    color: #28a745;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(40, 167, 69, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.processos-faltam {
+    color: #dc3545;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
 .percentual-label {
     font-weight: 600;
     color: var(--brand-primary);

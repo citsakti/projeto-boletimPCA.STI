@@ -561,11 +561,14 @@ function calcularProdutividade(dataInicio, dataFim) {
     
     // Calcula a quantidade de processos autuados
     const projetosAutuados = projetosAutuadosArray.length;
-    
-    // Calcula a "Porcentagem de Conclusão", que é (Processos Autuados / Total de processos a serem autuados) * 100.
+      // Calcula a "Porcentagem de Conclusão", que é (Processos Autuados / Total de processos a serem autuados) * 100.
     const percentualConclusao = totalProjetos > 0 
         ? Math.round((projetosAutuados / totalProjetos) * 100) 
         : 0;
+    
+    // Calcula quantos processos faltam para atingir a meta de 80%
+    const metaProcessos = Math.ceil(totalProjetos * 0.8); // Arredonda para cima
+    const processosFaltamMeta = Math.max(0, metaProcessos - projetosAutuados);
     
     return {
         aquisicao, // Contagem de aquisições no período
@@ -574,7 +577,9 @@ function calcularProdutividade(dataInicio, dataFim) {
         projetosAutuados, // Total de processos efetivamente autuados no período
         percentualConclusao, // Percentual de conclusão
         projetosAutuadosArray, // Array com projetos autuados
-        projetosNaoAutuadosArray // Array com projetos não autuados
+        projetosNaoAutuadosArray, // Array com projetos não autuados
+        metaProcessos, // Quantos processos precisam estar autuados para atingir 80%
+        processosFaltamMeta // Quantos processos faltam para atingir a meta de 80%
     };
 }
 
@@ -706,10 +711,17 @@ function renderProdutividadeDetalhada() {
                             <div class="percentual-item">
                                 <span class="percentual-label">✅ Total de Processos Autuados</span>
                                 <span class="percentual-value">${produtividade2025_1.projetosAutuados}</span>
-                            </div>
-                            <div class="percentual-item">
+                            </div>                            <div class="percentual-item">
                                 <span class="percentual-label">⏳ Total de Processos Não Autuados</span>
                                 <span class="percentual-value">${produtividade2025_1.projetosNaoAutuadosArray.length}</span>
+                            </div>                            <div class="percentual-item">
+                                <span class="percentual-label">🎯 Processos para Meta de 80%</span>
+                                <span class="percentual-value meta-info">
+                                    ${produtividade2025_1.processosFaltamMeta === 0 
+                                        ? '<span class="meta-atingida">✅ Meta atingida, Parabéns!</span>' 
+                                        : `<span class="processos-faltam">${produtividade2025_1.processosFaltamMeta === 1 ? 'Falta' : 'Faltam'} ${produtividade2025_1.processosFaltamMeta} processo${produtividade2025_1.processosFaltamMeta > 1 ? 's' : ''}</span>`
+                                    }
+                                </span>
                             </div>
                             <div class="percentual-item">
                                 <span class="percentual-label">🎯 Porcentagem de Conclusão para 2025.1</span>
@@ -781,10 +793,17 @@ function renderProdutividadeDetalhada() {
                             <div class="percentual-item">
                                 <span class="percentual-label">✅ Total de Processos Autuados</span>
                                 <span class="percentual-value">${produtividade2025_2.projetosAutuados}</span>
-                            </div>
-                            <div class="percentual-item">
+                            </div>                            <div class="percentual-item">
                                 <span class="percentual-label">⏳ Total de Processos Não Autuados</span>
                                 <span class="percentual-value">${produtividade2025_2.projetosNaoAutuadosArray.length}</span>
+                            </div>                            <div class="percentual-item">
+                                <span class="percentual-label">🎯 Processos para Meta de 80%</span>
+                                <span class="percentual-value meta-info">
+                                    ${produtividade2025_2.processosFaltamMeta === 0 
+                                        ? '<span class="meta-atingida">✅ Meta atingida, Parabéns!</span>' 
+                                        : `<span class="processos-faltam">${produtividade2025_2.processosFaltamMeta === 1 ? 'Falta' : 'Faltam'} ${produtividade2025_2.processosFaltamMeta} processo${produtividade2025_2.processosFaltamMeta > 1 ? 's' : ''}</span>`
+                                    }
+                                </span>
                             </div>
                             <div class="percentual-item">
                                 <span class="percentual-label">🎯 Porcentagem de Conclusão para 2025.2</span>
