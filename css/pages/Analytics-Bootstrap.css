@@ -222,11 +222,11 @@
 }
 
 /* Customizações específicas mantendo Bootstrap */
-.valor-area-table .table td:nth-child(4) {
+.valor-area-table .analytics-table td:nth-child(4) {
     font-weight: normal !important;
 }
 
-.valor-area-table .table td:nth-child(2) {
+.valor-area-table .analytics-table td:nth-child(2) {
     font-weight: normal !important;
 }
 
