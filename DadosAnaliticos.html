@@ -25,12 +25,14 @@
       <!-- Utils -->
     <script src="./script/utils/TableFormatters.js"></script>
     <script src="./script/utils/BootstrapAdapter.js"></script>
+    <script src="./script/utils/ProcessoModal.js"></script>
     
     <!-- Filters -->
     <script src="./script/filters/FilterControls.js"></script>
     
     <!-- UI -->
     <script src="./script/ui/btnAnalytics.js"></script>
+    <script src="./script/ui/btnFonteDeDados.js"></script>
     
     <!-- Core -->
     <script src="./script/core/ModalManager.js"></script>
@@ -72,6 +74,10 @@
                 <div class="d-flex flex-wrap gap-2 toolbar p-3 bg-light rounded">
                     <button class="btn btn-primary" id="btnVoltar" onclick="window.location.href='index.html'">
                         <i class="bi bi-arrow-left me-1"></i>Voltar ao Boletim
+                    </button>
+                    <button class="btn btn-info btn-toolbar" id="btnFonteDeDados">
+                        <i class="bi bi-graph-up me-1"></i>
+                        <span class="btn-text">Fonte de Dados</span>
                     </button>
                     <button class="btn btn-outline-dark btn-print" id="btnPrint">
                         <i class="bi bi-printer me-1"></i>Imprimir

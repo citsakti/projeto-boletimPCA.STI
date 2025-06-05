@@ -476,9 +476,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         url: 'https://www.tce.ce.gov.br/component/jdownloads/send/324-plano-de-contratacoes-anual-2025/4631-pca-2025-1-revisao'
                     });
                 });
-            }
-
-            // Integração com btnFonteDeDados.js
+            }            // Integração com btnFonteDeDados.js - DESABILITADO para evitar conflito
+            // O event listener está sendo gerenciado pelo script btnFonteDeDados.js
+            /*
             const btnFonteDeDados = document.getElementById('btnFonteDeDados');
             if (btnFonteDeDados) {
                 btnFonteDeDados.addEventListener('click', function(e) {
@@ -488,6 +488,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 });
             }
+            */
 
             // Integração com cliques em processos (Main.js)
             document.addEventListener('click', function(event) {

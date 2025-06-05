@@ -30,35 +30,64 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const btnFonteDeDados = document.getElementById('btnFonteDeDados');    // Reutiliza os elementos do modal existentes definidos em btnPCAPublicada.js ou no HTML
+    console.log('btnFonteDeDados.js: Inicializando script');
+      const btnFonteDeDados = document.getElementById('btnFonteDeDados');
     const modalOverlay = document.getElementById('processo-modal-overlay');
     const iframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
-    const modalContent = document.querySelector('.modal-content'); // Usado para a animação 'show'
+    const modalContent = modalOverlay ? modalOverlay.querySelector('.modal-content') : null; // Busca específica no overlay
 
-    const fonteDeDadosUrl = 'https://docs.google.com/spreadsheets/d/1ZYquCMfNlBvYYoZ3uxZrW2Vewejcet43FeD3HBh8oLM/edit?usp=sharing';    function openFonteDeDadosModal() {
-        if (iframe && modalOverlay && modalContent) {
+    console.log('btnFonteDeDados.js: Elementos encontrados:', {
+        botao: !!btnFonteDeDados,
+        overlay: !!modalOverlay,
+        iframe: !!iframe,
+        modalContent: !!modalContent
+    });
+
+    const fonteDeDadosUrl = 'https://docs.google.com/spreadsheets/d/1ZYquCMfNlBvYYoZ3uxZrW2Vewejcet43FeD3HBh8oLM/edit?usp=sharing';
+
+    function openFonteDeDadosModal() {
+        console.log('btnFonteDeDados.js: Tentando abrir modal');        if (iframe && modalOverlay && modalContent) {
+            console.log('btnFonteDeDados.js: Todos os elementos encontrados, abrindo modal');
+            
             // Sincronizar com o iframe Bootstrap se existir
             const bootstrapIframe = document.getElementById('processo-iframe');
             if (bootstrapIframe) {
                 bootstrapIframe.src = fonteDeDadosUrl;
+                console.log('btnFonteDeDados.js: URL definida no iframe Bootstrap');
             }
             
             iframe.src = fonteDeDadosUrl;
+            console.log('btnFonteDeDados.js: URL definida no iframe legacy');
+            
+            // Remove classe d-none se existir e define display flex
+            modalOverlay.classList.remove('d-none');
             modalOverlay.style.display = 'flex';
+            console.log('btnFonteDeDados.js: Modal overlay exibido');
+            
             // Adiciona a classe 'show' para a animação de entrada
             setTimeout(() => {
                 modalContent.classList.add('show');
+                console.log('btnFonteDeDados.js: Classe show adicionada');
             }, 10); // Pequeno atraso para garantir que a transição CSS seja aplicada
-            document.body.style.overflow = 'hidden'; // Previne rolagem da página de fundo
-        } else {
-            console.error('Elementos do modal não foram encontrados. Verifique os IDs no HTML e no script btnPCAPublicada.js.');
+            
+            document.body.style.overflow = 'hidden'; // Previne rolagem da página de fundo} else {
+            console.error('btnFonteDeDados.js: Elementos do modal não foram encontrados:', {
+                iframe: !!iframe,
+                modalOverlay: !!modalOverlay,
+                modalContent: !!modalContent
+            });
         }
     }
 
     if (btnFonteDeDados) {
-        btnFonteDeDados.addEventListener('click', openFonteDeDadosModal);
+        console.log('btnFonteDeDados.js: Adicionando event listener ao botão');
+        btnFonteDeDados.addEventListener('click', function(e) {
+            console.log('btnFonteDeDados.js: Botão clicado');
+            e.preventDefault();
+            openFonteDeDadosModal();
+        });
     } else {
-        console.error('Botão com ID "btnFonteDeDados" não encontrado no HTML.');
+        console.error('btnFonteDeDados.js: Botão com ID "btnFonteDeDados" não encontrado no HTML.');
     }
 
     // A lógica para fechar o modal (clique no botão de fechar, clique fora, tecla ESC)
