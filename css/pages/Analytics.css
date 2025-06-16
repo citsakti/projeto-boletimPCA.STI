@@ -960,6 +960,8 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     /* Garantir que ocupe toda a largura quando expandido */
     width: 100%;
+    /* Adicionar scroll se o conteúdo for muito grande */
+    overflow-y: auto;
 }
 
 .detalhes-produtividade h4 {
@@ -975,6 +977,8 @@
 .detalhes-produtividade .project-details {
     width: 100%;
     overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px); /* Limita a altura para permitir scroll */
 }
 
 .detalhes-produtividade .project-details-table {
@@ -1021,6 +1025,26 @@
         transform: none;
     }
     
+    /* Ajustes específicos para detalhes de produtividade em mobile */
+    .detalhes-produtividade {
+        margin: 1rem 0;
+        padding: 0.75rem;
+    }
+    
+    .detalhes-produtividade.expanded {
+        max-height: calc(100vh - 150px); /* Altura mais generosa em mobile */
+    }
+    
+    .detalhes-produtividade .project-details {
+        max-height: calc(100vh - 200px); /* Ajustar altura máxima para mobile */
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+    
+    .detalhes-produtividade .project-details-table {
+        min-width: 600px; /* Reduzir largura mínima em mobile */
+        font-size: 0.875rem; /* Texto um pouco menor em mobile */
+    }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -1079,6 +1103,29 @@
 .project-details {
     padding: 1rem;
     overflow-y: auto;
+    /* Garantir que o scroll seja sempre visível quando necessário */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--brand-primary) rgba(var(--brand-primary-rgb), 0.1); /* Firefox */
+}
+
+/* Estilizar scrollbar para WebKit browsers */
+.project-details::-webkit-scrollbar {
+    width: 8px;
+}
+
+.project-details::-webkit-scrollbar-track {
+    background: rgba(var(--brand-primary-rgb), 0.1);
+    border-radius: 4px;
+}
+
+.project-details::-webkit-scrollbar-thumb {
+    background: var(--brand-primary);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.project-details::-webkit-scrollbar-thumb:hover {
+    background: var(--brand-primary-dark);
 }
 
 /* Permitir quebra de linha nas células da tabela dentro do project-details */
