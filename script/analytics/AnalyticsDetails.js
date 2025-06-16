@@ -592,7 +592,35 @@ function renderProdutividadeProjetosTable(projetos) {
     if (projetos.length === 0) {
         return '<p>Nenhum projeto encontrado nesta categoria.</p>';
     }
-      let html = `
+    
+    // Ordenar projetos para que os concluídos e renovados apareçam no final
+    const projetosOrdenados = [...projetos].sort((a, b) => {
+        const statusA = a.status || '';
+        const statusB = b.status || '';
+        
+        // Verificar se são status concluídos/renovados
+        const isAConcluido = statusA.includes('CONTRATADO ✅') || statusA.includes('RENOVADO ✅');
+        const isBConcluido = statusB.includes('CONTRATADO ✅') || statusB.includes('RENOVADO ✅');
+        
+        // Se ambos são concluídos ou ambos não são, manter ordem original
+        if (isAConcluido === isBConcluido) {
+            return 0;
+        }
+        
+        // Se apenas A é concluído, vai para o final (retorna 1)
+        if (isAConcluido && !isBConcluido) {
+            return 1;
+        }
+        
+        // Se apenas B é concluído, A vem primeiro (retorna -1)
+        if (!isAConcluido && isBConcluido) {
+            return -1;
+        }
+        
+        return 0;
+    });
+    
+    let html = `
         <table class="project-details-table">
             <thead>
                 <tr>
@@ -609,7 +637,7 @@ function renderProdutividadeProjetosTable(projetos) {
             <tbody>
     `;
     
-    projetos.forEach(projeto => {
+    projetosOrdenados.forEach(projeto => {
         let tipoCellContent = projeto.tipo;
         let tdTipoClass = '';
 
