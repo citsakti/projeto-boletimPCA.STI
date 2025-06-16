@@ -652,15 +652,6 @@ td[data-contrato]:hover {
     box-shadow: 0 4px 12px rgba(200,0,0,0.10);
 }
 
-/* Estilo para linhas pares e ímpares */
-tbody tr.row-even {
-    background-color: var(--brand-neutral);
-}
-
-tbody tr.row-odd {
-    background-color: #fff;
-}
-
 /* Estilos para os novos botões de filtro e o dropdown de filtro */
 .google-sheet-filter-btn {
     background-color: #f8f9fa;
@@ -751,15 +742,6 @@ tbody tr.row-odd {
 
 .google-sheet-filter-dropdown button:last-child:hover {
     background-color: #545b62;
-}
-
-/* Estilos para linhas par e ímpar */
-#detalhes table tbody tr.linha-par td {
-    background-color: #f9f9f9; /* Cor para linhas pares */
-}
-
-#detalhes table tbody tr.linha-impar td {
-    background-color: #ffffff; /* Cor para linhas ímpares */
 }
 
 /* Estilos específicos para modais Bootstrap com 90% da página */
