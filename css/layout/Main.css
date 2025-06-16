@@ -517,8 +517,6 @@ input[type="checkbox"]:hover {
     padding: 20px;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
-    width: 90% !important;
-    height: 90% !important;
     max-width: none !important;
     max-height: none !important;
     display: flex;

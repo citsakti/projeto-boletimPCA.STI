@@ -850,8 +850,7 @@ header h1 {
 }
 
 #processo-modal-overlay .modal-content {
-    width: 95vw;
-    height: 90vh;
+    width: 98vw;
     max-width: 1200px;
     background: white;
     border-radius: var(--radius-lg);
