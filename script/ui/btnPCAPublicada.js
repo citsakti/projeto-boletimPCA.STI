@@ -32,14 +32,29 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('btnPCAPublicada.js: Script carregado');
+    
     // Referência ao botão PCA Publicada
     const btnPCAPublicada = document.getElementById('btnPCAPublicada');
+    
+    if (!btnPCAPublicada) {
+        console.error('btnPCAPublicada.js: Botão PCA Publicada não encontrado!');
+        return;
+    }
+    
+    console.log('btnPCAPublicada.js: Botão encontrado');
     
     // Referências aos elementos do modal
     const modalOverlay = document.getElementById('processo-modal-overlay');
     const iframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
-    const closeButton = document.getElementById('close-modal-btn');
-    const modalContent = document.querySelector('.modal-content');
+    const closeButton = document.getElementById('close-modal-btn-legacy') || document.getElementById('close-modal-btn');
+    const modalContent = document.querySelector('#processo-modal-overlay .modal-content') || document.querySelector('.modal-content');
+    
+    // Debug dos elementos encontrados
+    console.log('btnPCAPublicada.js: Modal Overlay:', modalOverlay);
+    console.log('btnPCAPublicada.js: Iframe:', iframe);
+    console.log('btnPCAPublicada.js: Close Button:', closeButton);
+    console.log('btnPCAPublicada.js: Modal Content:', modalContent);
     
     // URL do documento PCA 2025
     const pcaUrl = 'https://www.tce.ce.gov.br/component/jdownloads/send/324-plano-de-contratacoes-anual-2025/4631-pca-2025-1-revisao';
@@ -58,15 +73,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fun��o para abrir o modal
     function openPCAModal() {
+        console.log('btnPCAPublicada.js: Tentando abrir modal');
+        
+        if (!modalOverlay) {
+            console.error('btnPCAPublicada.js: Modal overlay não encontrado!');
+            // Fallback: abrir PDF em nova aba
+            window.open(pcaUrl, '_blank');
+            return;
+        }
+        
         // Adiciona um indicador de carregamento antes de carregar o PDF
         const loadingElement = document.createElement('div');
         loadingElement.id = 'pdf-loading';
         loadingElement.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #333; font-weight: bold; z-index: 1001;';
         loadingElement.innerText = 'Carregando PDF...';
-        modalContent.appendChild(loadingElement);
+        
+        if (modalContent) {
+            modalContent.appendChild(loadingElement);
+        }
         
         // Exibe o overlay
         modalOverlay.style.display = 'flex';
+        modalOverlay.classList.remove('d-none');
+        
+        console.log('btnPCAPublicada.js: Modal aberto');
         
         if (isMobileDevice) {
             // Em dispositivos móveis, mostra apenas o botão de download/abertura em nova aba
@@ -79,6 +109,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Função para exibir o PDF usando PDF.js em desktop
         function exibirPdfComPdfJs() {
             try {
+                if (!iframe) {
+                    console.error('btnPCAPublicada.js: Iframe não encontrado!');
+                    mostrarBotaoDownload();
+                    return;
+                }
+                
                 // Usar a visualização do Google Drive como primeira opção
                 const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pcaUrl)}&embedded=true`;
                 
@@ -87,6 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 iframe.style.height = '80vh';
                 iframe.style.border = 'none';
                 iframe.src = googleDocsUrl;
+                
+                console.log('btnPCAPublicada.js: PDF carregado no iframe');
                 
                 // Evento para remover o indicador de carregamento
                 iframe.onload = function() {
@@ -184,24 +222,32 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fun��o para fechar o modal
     function closePCAModal() {
+        console.log('btnPCAPublicada.js: Fechando modal');
+        
+        if (!modalOverlay) {
+            console.error('btnPCAPublicada.js: Modal overlay não encontrado para fechar!');
+            return;
+        }
+        
         // Remove a classe de anima��o
-        modalContent.classList.remove('show');
+        if (modalContent) {
+            modalContent.classList.remove('show');
+        }
         
         // Otimiza��o: esconder o overlay imediatamente para melhor UX
-        if (modalOverlay) {
-            modalOverlay.style.opacity = '0';
-            modalOverlay.style.pointerEvents = 'none';
-        }
+        modalOverlay.style.opacity = '0';
+        modalOverlay.style.pointerEvents = 'none';
         
         // Atraso para ocultar o modal ap�s a anima��o
         setTimeout(() => {
             modalOverlay.style.display = 'none';
+            modalOverlay.classList.add('d-none');
             // Restaurar propriedades para pr�xima abertura
             modalOverlay.style.opacity = '';
             modalOverlay.style.pointerEvents = '';
             
             // Limpa o conteúdo da área do PDF
-            const container = modalContent.querySelector('.iframe-container') || modalContent;
+            const container = modalContent ? (modalContent.querySelector('.iframe-container') || modalContent) : null;
             
             // Remover qualquer conteúdo dinâmico adicionado
             const pdfLoading = document.getElementById('pdf-loading');
@@ -217,8 +263,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (iframe) {
                 iframe.src = 'about:blank';
                 // Limpa qualquer elemento filho adicionado ao iframe
-                if (iframe.contentDocument) {
-                    iframe.contentDocument.body.innerHTML = '';
+                try {
+                    if (iframe.contentDocument) {
+                        iframe.contentDocument.body.innerHTML = '';
+                    }
+                } catch (e) {
+                    // Ignora erros de cross-origin
                 }
             }
             
@@ -233,22 +283,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Event listener para abrir o modal ao clicar no bot�o
-    btnPCAPublicada.addEventListener('click', openPCAModal);
+    if (btnPCAPublicada) {
+        btnPCAPublicada.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('btnPCAPublicada.js: Botão clicado');
+            openPCAModal();
+        });
+        console.log('btnPCAPublicada.js: Event listener adicionado ao botão');
+    }
     
     // Event listeners para fechar o modal
-    closeButton.addEventListener('click', closePCAModal);
+    if (closeButton) {
+        closeButton.addEventListener('click', closePCAModal);
+        console.log('btnPCAPublicada.js: Event listener adicionado ao botão de fechar');
+    }
     
     // Fecha o modal ao clicar fora do conte�do
-    modalOverlay.addEventListener('click', function(event) {
-        if (event.target === modalOverlay) {
-            closePCAModal();
-        }
-    });
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', function(event) {
+            if (event.target === modalOverlay) {
+                closePCAModal();
+            }
+        });
+        console.log('btnPCAPublicada.js: Event listener adicionado ao overlay');
+    }
     
     // Fecha o modal ao pressionar a tecla ESC
     document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && modalOverlay.style.display === 'flex') {
+        if (event.key === 'Escape' && modalOverlay && modalOverlay.style.display === 'flex') {
             closePCAModal();
         }
     });
+    
+    console.log('btnPCAPublicada.js: Todos os event listeners configurados');
 });
