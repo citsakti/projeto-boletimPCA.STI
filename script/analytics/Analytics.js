@@ -487,11 +487,18 @@ function classifyProjectBySituation(projetoObj, statusProcesso, area) {
         analyticData.situacional.elaboracaoInterna++;
         analyticData.projetosPorSituacao.elaboracaoInterna.push(projetoObj);
     }
-    
-    // Contratação atrasada fora da STI
+      // Contratação atrasada fora da STI
     if (statusProcesso.includes('CONTRATAÇÃO ATRASADA') && !area.includes('STI')) {
         analyticData.situacional.contratacaoAtrasadaForaSTI++;
         analyticData.projetosPorSituacao.contratacaoAtrasadaForaSTI.push(projetoObj);
+    }
+    
+    // Contratação atrasada da STI - garantir que seja incluída nos cálculos de produtividade
+    if (statusProcesso.includes('CONTRATAÇÃO ATRASADA') && area.includes('STI')) {
+        // Adicionar à categoria de processos concluídos para que seja contabilizado na produtividade
+        // mesmo que esteja atrasado, pois já foi autuado
+        analyticData.situacional.processosConcluidos++;
+        analyticData.projetosPorSituacao.processosConcluidos.push(projetoObj);
     }
     
     // Processos concluídos
