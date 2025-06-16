@@ -1150,6 +1150,14 @@
     white-space: nowrap !important;
 }
 
+/* Evitar quebra de linha na coluna "Processo" (8ª coluna) das tabelas de Processos Autuados */
+.project-details-table th:nth-child(8),
+.project-details-table td:nth-child(8) {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
 /* Remove animação de piscar em analytics */
 .status-contratacao-atrasada-highlight {
     animation: none !important;

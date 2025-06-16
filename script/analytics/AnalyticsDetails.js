@@ -660,7 +660,7 @@ function renderProdutividadeProjetosTable(projetos) {
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${projeto.numProcesso}</td>
+                <td class="no-wrap-cell">${projeto.numProcesso}</td>
             </tr>
         `;
     });
