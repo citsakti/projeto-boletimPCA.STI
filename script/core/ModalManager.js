@@ -377,13 +377,15 @@ class ModalManager {
      * Manipula cliques em overlays
      */
     handleOverlayClick(event) {
+        // Chama o fechamento padrão de botões de fechar para garantir consistência
+        this.handleCloseButtonClick(event);
+        // (mantém a lógica antiga caso precise de fallback ou logging)
         const overlay = event.target;
         const modalId = overlay.getAttribute('data-modal-id');
-        
         if (modalId && modalId !== 'loading') {
             // Só fecha se clicou diretamente no overlay, não no conteúdo
             if (event.target === overlay) {
-                this.closeModal(modalId);
+                // this.closeModal(modalId); // Comentado para evitar duplo fechamento
             }
         }
     }
