@@ -1570,6 +1570,35 @@ header h1 {
     margin-bottom: 0;
 }
 
+/* Torna o botão de fechar do modal maior e mais visível */
+#close-modal-btn, .modal-header .btn-close {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    font-size: 2.2rem !important;
+    color: #fff !important;
+    background: #c00 !important;
+    border-radius: 50% !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, box-shadow 0.2s;
+    opacity: 0.95;
+}
+#close-modal-btn:hover, .modal-header .btn-close:hover {
+    background: #a00 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 16px rgba(200,0,0,0.18);
+    opacity: 1;
+}
+#close-modal-btn:focus, .modal-header .btn-close:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
 /* ===== RESPONSIVIDADE ADICIONAL ===== */
 
 /* Para tablets */
