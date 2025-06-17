@@ -65,13 +65,6 @@ class ProcessoModal {
             }
         });
 
-        // Fecha modal ao clicar fora dela
-        this.modalOverlay.addEventListener('click', (event) => {
-            if (event.target === this.modalOverlay) {
-                this.closeModal();
-            }
-        });
-
         // Fecha modal ao pressionar ESC
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && this.modalOverlay.style.display === 'flex') {

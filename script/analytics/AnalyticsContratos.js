@@ -137,12 +137,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (modalOverlay) {
-        console.log('🔧 Adicionando listener ao overlay');
-        modalOverlay.addEventListener('click', function(event) {
-            if (event.target === modalOverlay) {
-                closeAnalyticsModal();
-            }
-        });
+        // (Removido) Fechamento ao clicar fora do overlay
+        // modalOverlay.addEventListener('click', function(event) {
+        //     if (event.target === modalOverlay) {
+        //         closeAnalyticsModal();
+        //     }
+        // });
     }
 
     document.addEventListener('keydown', function(event) {

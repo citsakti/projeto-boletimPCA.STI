@@ -298,16 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('btnPCAPublicada.js: Event listener adicionado ao botão de fechar');
     }
     
-    // Fecha o modal ao clicar fora do conte�do
-    if (modalOverlay) {
-        modalOverlay.addEventListener('click', function(event) {
-            if (event.target === modalOverlay) {
-                closePCAModal();
-            }
-        });
-        console.log('btnPCAPublicada.js: Event listener adicionado ao overlay');
-    }
-    
     // Fecha o modal ao pressionar a tecla ESC
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape' && modalOverlay && modalOverlay.style.display === 'flex') {
