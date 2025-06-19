@@ -156,6 +156,7 @@ function filterTableByStatus(statusSelecionado) {
             row.style.display = (status === statusSelecionado) ? '' : 'none';
         }
     });
+    if (typeof alternaCoresLinhas === 'function') alternaCoresLinhas();
 }
 
 // Função que serve como intermediária para aplicar o filtro atual

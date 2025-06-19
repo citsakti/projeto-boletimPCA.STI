@@ -81,3 +81,6 @@ function filterTableMobile() {
 
 // É importante garantir que `alternaCoresLinhas` seja chamada após qualquer operação de filtragem.
 // No novo sistema, `masterFilterFunction` em `google-sheet-filters.js` já chama `alternaCoresLinhas`.
+
+// Se alternaCoresLinhas for mantida, chame-a após qualquer filtro manual.
+// Isso garante que, se a função ainda estiver em uso, ela sempre aplique a alternância correta nas linhas.

@@ -51,6 +51,11 @@ header h1 {
     background-color: var(--brand-neutral);
 }
 
+/* Desativa o listrado padrão do Bootstrap para não bagunçar a alternância JS */
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-bg-type: initial !important;
+}
+
 /* Cards customizados */
 .card {
     border-radius: var(--radius-md);

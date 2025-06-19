@@ -10,7 +10,7 @@ body {
     font-family: var(--font-primary);
     line-height: var(--line-height-base);
     margin: 0;
-    background-color: var(--brand-neutral);
+    background-color: white;
     color: #333;
     padding: 0 var(--space-3); /* Adicionado para afastar o conteúdo das bordas */
     padding-top: 10px; /* Espaço superior para destacar o header */
@@ -773,4 +773,12 @@ td[data-contrato]:hover {
     width: 100% !important;
     height: 100% !important;
     border: none !important;
+}
+
+/* Alternância de cor para linhas visíveis após filtro */
+.linha-par > td, .linha-par > th {
+  background-color: #e9ecef;
+}
+.linha-impar > td, .linha-impar > th {
+  background-color: #fff !important;
 }
