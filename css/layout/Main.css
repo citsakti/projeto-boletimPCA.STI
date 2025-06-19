@@ -541,6 +541,11 @@ input[type="checkbox"]:hover {
     height: 100%;
 }
 
+/* Adiciona o cursor de ponteiro ao overlay do modal para indicar que é clicável */
+#processo-modal-overlay {
+    cursor: pointer;
+}
+
 /* Estilo para o ícone de link na tabela */
 .processo-link-icon {
     margin-left: 5px; /* Espaço entre o número e o ícone */

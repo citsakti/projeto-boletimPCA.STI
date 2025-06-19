@@ -38,7 +38,7 @@ class ProcessoModal {
         this.modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
         this.tableBody = document.querySelector('#detalhes table tbody');
 
-        if (!this.modalOverlay || !this.modalIframe || !this.tableBody) {
+        if (!this.modalOverlay || !this.modalIframe) {
             console.error("ProcessoModal: Elementos essenciais do modal não foram encontrados no DOM.");
             return;
         }
@@ -58,16 +58,25 @@ class ProcessoModal {
             }
         });
 
-        // Event listener para clique no ícone de processo
-        this.tableBody.addEventListener('click', (event) => {
-            if (event.target.classList.contains('processo-link-icon')) {
-                this.handleProcessoClick(event);
-            }
-        });
+        // Event listener para clique no ícone de processo, se a tabela existir
+        if (this.tableBody) {
+            this.tableBody.addEventListener('click', (event) => {
+                if (event.target.classList.contains('processo-link-icon')) {
+                    this.handleProcessoClick(event);
+                }
+            });
+        }
 
         // Fecha modal ao pressionar ESC
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && this.modalOverlay.style.display === 'flex') {
+                this.closeModal();
+            }
+        });
+
+        // Fecha modal ao clicar no overlay
+        this.modalOverlay.addEventListener('click', (event) => {
+            if (event.target === this.modalOverlay) {
                 this.closeModal();
             }
         });
