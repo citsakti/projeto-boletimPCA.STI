@@ -34,9 +34,11 @@
  */
 
 (function() {
-    // URL para a aba de acompanhamento do CSV
-    const ACOMPANHAMENTO_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1961352255&single=true&output=csv';
+    // URL para a aba de acompanhamento do CSV (variável global para permitir alteração pelo seletor de ano)
+    let ACOMPANHAMENTO_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1961352255&single=true&output=csv';
     
+    // Disponibiliza a variável globalmente para permitir acesso pelo YearSelector
+    window.ACOMPANHAMENTO_CSV_URL = ACOMPANHAMENTO_CSV_URL;
     // Cache dos dados de acompanhamento para evitar download repetido
     let acompanhamentoData = null;
     
@@ -146,6 +148,13 @@
      */
     function fetchAcompanhamentoData(forceRefresh = false) {
         return new Promise((resolve, reject) => {
+            // Atualiza a URL com base no ano selecionado, se disponível
+            if (window.getYearUrls && typeof window.getYearUrls === 'function') {
+                const urls = window.getYearUrls();
+                ACOMPANHAMENTO_CSV_URL = urls.acompanhamento;
+                window.ACOMPANHAMENTO_CSV_URL = ACOMPANHAMENTO_CSV_URL;
+            }
+
             if (acompanhamentoData && !forceRefresh) {
                 // Se temos dados em cache e não estamos forçando a atualização,
                 // processa os dados cacheados.

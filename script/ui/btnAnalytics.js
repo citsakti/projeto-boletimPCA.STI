@@ -42,9 +42,19 @@ document.addEventListener('DOMContentLoaded', function() {
     /**
      * Função para redirecionar o usuário para a página de dados analíticos
      * Utiliza window.location.href para navegação completa da página
+     * Passa o ano selecionado como parâmetro de URL
      */
     function redirectToDadosAnaliticos() {
-        window.location.href = dadosAnaliticosUrl;
+        // Verifica se existe um ano selecionado e passa como parâmetro
+        let url = dadosAnaliticosUrl;
+        
+        if (window.getSelectedYear && typeof window.getSelectedYear === 'function') {
+            const selectedYear = window.getSelectedYear();
+            // Adiciona o ano como parâmetro de URL
+            url += `?ano=${selectedYear}`;
+        }
+        
+        window.location.href = url;
     }
     
     // Adiciona o evento de clique ao botão se ele existir

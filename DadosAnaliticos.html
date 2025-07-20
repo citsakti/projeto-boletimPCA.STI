@@ -18,7 +18,8 @@
     <link rel="stylesheet" href="./css/components/Areas.css">
     <link rel="stylesheet" href="./css/components/Orcamento.css">
     <link rel="stylesheet" href="./css/components/StatusAtrasado.css">
-    <link rel="stylesheet" href="./css/components/AtualizacaoAutomatica.css">    <!-- Mobile -->
+    <link rel="stylesheet" href="./css/components/AtualizacaoAutomatica.css">
+    <link rel="stylesheet" href="./css/components/YearSelector.css">    <!-- Mobile -->
       <!-- Pages -->
     <link rel="stylesheet" href="./css/pages/Analytics.css">
     <link rel="stylesheet" href="./css/pages/Analytics-Bootstrap.css"><script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>    <!-- Mobile Utils - Adicionar ANTES dos outros scripts -->
@@ -36,7 +37,10 @@
     
     <!-- Core -->
     <script src="./script/core/ModalManager.js"></script>
+    <script src="./script/core/YearSelector.js"></script>
       <!-- Analytics -->
+    <script src="./script/analytics/AnalyticsYearSelector.js"></script>
+    <script src="./script/analytics/AnalyticsYearSelectorUI.js"></script>
     <script src="./script/analytics/Analytics.js"></script>
     <script src="./script/analytics/AnalyticsDiasAtraso.js"></script>
     <script src="./script/analytics/AnalyticsDetails.js"></script>
@@ -71,9 +75,15 @@
     <!-- Toolbar para botões -->
         <div class="row mb-3">
             <div class="col-12">                <div class="d-flex flex-wrap gap-2 toolbar p-3 bg-light rounded">
-                    <button class="btn btn-primary" id="btnVoltar" onclick="window.location.href='index.html'">
+                    <button class="btn btn-primary" id="btnVoltar">
                         <i class="bi bi-arrow-left me-1"></i>Voltar ao Boletim
                     </button>
+                    <script>
+                        document.getElementById('btnVoltar').addEventListener('click', function() {
+                            window.location.href = 'index.html';
+                            // Não precisamos passar o ano na URL, pois já está no localStorage
+                        });
+                    </script>
                     <button class="btn btn-info btn-toolbar" id="btnFonteDeDados">
                         <i class="bi bi-graph-up me-1"></i>
                         <span class="btn-text">Fonte de Dados</span>

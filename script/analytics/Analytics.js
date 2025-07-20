@@ -49,8 +49,8 @@
  *   - Event listeners para interatividade
  */
 
-// URL da planilha CSV (mesma do main.js)
-const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1123542137&single=true&output=csv';
+// URL da planilha CSV (mesma do main.js) - variável global para permitir alteração pelo seletor de ano
+let SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1123542137&single=true&output=csv';
 
 // Objeto para armazenar os dados processados
 const analyticData = {
@@ -175,6 +175,12 @@ function initAnalytics() {
  */
 function fetchCSVData() {
     return new Promise((resolve, reject) => {
+        // Atualiza a URL com base no ano selecionado, se disponível
+        if (window.getYearUrls && typeof window.getYearUrls === 'function') {
+            const urls = window.getYearUrls();
+            SHEET_CSV_URL = urls.main;
+        }
+        
         Papa.parse(SHEET_CSV_URL, {
             download: true,
             header: false,
