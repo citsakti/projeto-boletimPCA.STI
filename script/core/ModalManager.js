@@ -474,9 +474,19 @@ document.addEventListener('DOMContentLoaded', function() {
             if (btnPCAPublicada) {
                 btnPCAPublicada.addEventListener('click', function(e) {
                     e.preventDefault();
-                    window.modalManager.openModal('processo-modal', {
-                        url: 'https://www.tce.ce.gov.br/component/jdownloads/send/324-plano-de-contratacoes-anual-2025/4631-pca-2025-1-revisao'
-                    });
+                    
+                    // Determina o URL com base no ano selecionado
+                    let url;
+                    const selectedYear = window.getSelectedYear ? window.getSelectedYear() : '2025';
+                    
+                    if (selectedYear === '2026') {
+                        url = 'https://www.tce.ce.gov.br/component/jdownloads/send/334-plano-de-contratacoes-anual-2026/4644-pca-2026';
+                    } else {
+                        // Padrão para 2025
+                        url = 'https://www.tce.ce.gov.br/component/jdownloads/send/324-plano-de-contratacoes-anual-2025/4631-pca-2025-1-revisao';
+                    }
+                    
+                    window.modalManager.openModal('processo-modal', { url });
                 });
             }            // Integração com btnFonteDeDados.js - DESABILITADO para evitar conflito
             // O event listener está sendo gerenciado pelo script btnFonteDeDados.js

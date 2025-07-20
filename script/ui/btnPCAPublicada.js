@@ -57,6 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('btnPCAPublicada.js: Modal Content:', modalContent);
     
     // URL do documento PCA 2025
+    // ATENÇÃO: Este URL é apenas para referência! A URL real que será usada está definida no arquivo ModalManager.js
+    // Alterar aqui NÃO terá efeito. Para mudar o URL do documento, é necessário modificar no ModalManager.js
+    // que implementa a seleção do ano (2025/2026) e determina automaticamente qual URL deve ser aberta
     const pcaUrl = 'https://www.tce.ce.gov.br/component/jdownloads/send/324-plano-de-contratacoes-anual-2025/4631-pca-2025-1-revisao';
     
     // URL do PDF.js viewer - usando a versão CDN mais estável
