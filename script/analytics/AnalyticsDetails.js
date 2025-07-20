@@ -678,16 +678,21 @@ function renderProdutividadeProjetosTable(projetos) {
  * Renomeada para evitar conflito com a função em AnalyticsRender.js
  */
 function renderProdutividadeDetalhada() {
-    // Calcular produtividade para 2025.1 (Janeiro a Junho)
-    const produtividade2025_1 = calcularProdutividade(
-        new Date(2024, 10, 1), // 01/11/2024 (mês é base 0: novembro = 10)
-        new Date(2025, 5, 30)  // 30/06/2025
+    // Obter o ano selecionado pelo usuário
+    const selectedYear = window.getSelectedYear ? window.getSelectedYear() : '2025';
+    const year = parseInt(selectedYear, 10);
+    const prevYear = year - 1;
+    
+    // Calcular produtividade para o primeiro semestre (Janeiro a Junho)
+    const produtividade_1 = calcularProdutividade(
+        new Date(prevYear, 9, 1), // 01/11/ano anterior (mês é base 0: novembro = 10)
+        new Date(year, 5, 30)      // 30/06/ano atual
     );
     
-    // Calcular produtividade para 2025.2 (Julho a Dezembro)
-    const produtividade2025_2 = calcularProdutividade(
-        new Date(2025, 6, 1),  // 01/07/2025
-        new Date(2025, 11, 31) // 31/12/2025
+    // Calcular produtividade para o segundo semestre (Julho a Dezembro)
+    const produtividade_2 = calcularProdutividade(
+        new Date(year, 6, 1),    // 01/07/ano atual
+        new Date(year, 11, 31)   // 31/12/ano atual
     );
 
     // Função para determinar classe de performance baseada no percentual
@@ -704,33 +709,33 @@ function renderProdutividadeDetalhada() {
         return { text: 'Abaixo da Meta', icon: '🔴', class: 'baixo' };
     }
 
-    const status2025_1 = getStatusText(produtividade2025_1.percentualConclusao);
-    const status2025_2 = getStatusText(produtividade2025_2.percentualConclusao);
+    const status_1 = getStatusText(produtividade_1.percentualConclusao);
+    const status_2 = getStatusText(produtividade_2.percentualConclusao);
     
     let html = `
     <div class="analytics-section">
         <h2>4. Produtividade Aquisições T.I.</h2>
         
         <div class="analytics-subsection">
-            <h3>4.1 Índice de Produtividade | Meta 80%</h3>
+            <h3>4.1 Índice de Produtividade ${year} | Meta 80%</h3>
         
             <div class="tipo-grid">
-                <!-- Quadro 1: Produtividade 2025.1 -->
+                <!-- Quadro 1: Produtividade do primeiro semestre -->
                 <div class="produtividade-box">
-                    <h3>Produtividade 2025.1</h3>
+                    <h3 data-period="${year}.1">Produtividade ${year}.1</h3>
                     <div class="produtividade-content">
                         <div class="produtividade-tipos">
                             <div class="tipo-item">
                                 <span class="tipo-label">🛒 Aquisição</span>
-                                <span class="tipo-value">${produtividade2025_1.aquisicao}</span>
+                                <span class="tipo-value">${produtividade_1.aquisicao}</span>
                             </div>
                             <div class="tipo-item">
                                 <span class="tipo-label">🔄 Renovação</span>
-                                <span class="tipo-value">${produtividade2025_1.renovacao}</span>
+                                <span class="tipo-value">${produtividade_1.renovacao}</span>
                             </div>
                             <div class="tipo-item total">
                                 <span class="tipo-label">Total</span>
-                                <span class="tipo-value">${produtividade2025_1.total}</span>
+                                <span class="tipo-value">${produtividade_1.total}</span>
                             </div>
                         </div>
                         
@@ -738,81 +743,81 @@ function renderProdutividadeDetalhada() {
                             <h4>📊 Produtividade em %</h4>
                             <div class="percentual-item">
                                 <span class="percentual-label">✅ Total de Processos Autuados</span>
-                                <span class="percentual-value">${produtividade2025_1.projetosAutuados}</span>
+                                <span class="percentual-value">${produtividade_1.projetosAutuados}</span>
                             </div>                            <div class="percentual-item">
                                 <span class="percentual-label">⏳ Total de Processos Não Autuados</span>
-                                <span class="percentual-value">${produtividade2025_1.projetosNaoAutuadosArray.length}</span>
+                                <span class="percentual-value">${produtividade_1.projetosNaoAutuadosArray.length}</span>
                             </div>                            <div class="percentual-item">
                                 <span class="percentual-label">🎯 Processos para Meta de 80%</span>
                                 <span class="percentual-value meta-info">
-                                    ${produtividade2025_1.processosFaltamMeta === 0 
+                                    ${produtividade_1.processosFaltamMeta === 0 
                                         ? '<span class="meta-atingida">✅ Meta atingida, Parabéns!</span>' 
-                                        : `<span class="processos-faltam">${produtividade2025_1.processosFaltamMeta === 1 ? 'Falta' : 'Faltam'} ${produtividade2025_1.processosFaltamMeta} processo${produtividade2025_1.processosFaltamMeta > 1 ? 's' : ''}</span>`
+                                        : `<span class="processos-faltam">${produtividade_1.processosFaltamMeta === 1 ? 'Falta' : 'Faltam'} ${produtividade_1.processosFaltamMeta} processo${produtividade_1.processosFaltamMeta > 1 ? 's' : ''}</span>`
                                     }
                                 </span>
                             </div>
                             <div class="percentual-item">
-                                <span class="percentual-label">🎯 Porcentagem de Conclusão para 2025.1</span>
+                                <span class="percentual-label">🎯 Porcentagem de Conclusão para ${year}.1</span>
                                 <div class="percentual-value percentual-progress">
                                     <div class="progress-container">
-                                        <div class="progress-bar ${getPerformanceClass(produtividade2025_1.percentualConclusao)}" 
-                                             style="--progress-width: ${produtividade2025_1.percentualConclusao}%; width: ${produtividade2025_1.percentualConclusao}%">
+                                        <div class="progress-bar ${getPerformanceClass(produtividade_1.percentualConclusao)}" 
+                                             style="--progress-width: ${produtividade_1.percentualConclusao}%; width: ${produtividade_1.percentualConclusao}%">
                                         </div>
                                     </div>
                                     <div class="progress-text">
-                                        <span class="progress-percentage">${produtividade2025_1.percentualConclusao}%</span>
-                                        <span class="progress-status ${status2025_1.class}">
-                                            ${status2025_1.icon} ${status2025_1.text}
+                                        <span class="progress-percentage">${produtividade_1.percentualConclusao}%</span>
+                                        <span class="progress-status ${status_1.class}">
+                                            ${status_1.icon} ${status_1.text}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div>                        
                         <div class="produtividade-botoes">
-                            <button class="btn prod-expand-btn" data-period="2025_1" data-type="autuados">
+                            <button class="btn prod-expand-btn" data-period="${year}_1" data-type="autuados">
                                 📋 Ver Processos Autuados
                                 <span class="expand-icon">▼</span>
                             </button>
-                            <button class="btn prod-expand-btn" data-period="2025_1" data-type="nao-autuados">
+                            <button class="btn prod-expand-btn" data-period="${year}_1" data-type="nao-autuados">
                                 ⏸️ Ver Processos Não Autuados
                                 <span class="expand-icon">▼</span>
                             </button>
                         </div>
                         
-                        <!-- Container para detalhes dos processos autuados 2025.1 -->
-                        <div id="detalhes-2025_1-autuados" class="detalhes-produtividade" style="display:none;">
-                            <h4>📋 Processos Autuados 2025.1</h4>
+                        <!-- Container para detalhes dos processos autuados -->
+                        <div id="detalhes-${year}_1-autuados" class="detalhes-produtividade" style="display:none;">
+                            <h4>📋 Processos Autuados ${year}.1</h4>
                             <div class="project-details">
-                                ${renderProdutividadeProjetosTable(produtividade2025_1.projetosAutuadosArray)}
+                                ${renderProdutividadeProjetosTable(produtividade_1.projetosAutuadosArray)}
                             </div>
                         </div>
                         
-                        <!-- Container para detalhes dos processos não autuados 2025.1 -->
-                        <div id="detalhes-2025_1-nao-autuados" class="detalhes-produtividade" style="display:none;">
-                            <h4>⏸️ Processos Não Autuados 2025.1</h4>
+                        <!-- Container para detalhes dos processos não autuados -->
+                        <div id="detalhes-${year}_1-nao-autuados" class="detalhes-produtividade" style="display:none;">
+                            <h4>⏸️ Processos Não Autuados ${year}.1</h4>
                             <div class="project-details">
-                                ${renderProdutividadeProjetosTable(produtividade2025_1.projetosNaoAutuadosArray)}
+                                ${renderProdutividadeProjetosTable(produtividade_1.projetosNaoAutuadosArray)}
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Quadro 2: Produtividade 2025.2 -->
+                <!-- Quadro 2: Produtividade do segundo semestre -->
                 <div class="produtividade-box">
-                    <h3>Produtividade 2025.2</h3>
+                    <h3 data-period="${year}.2">Produtividade ${year}.2</h3>
                     <div class="produtividade-content">
                         <div class="produtividade-tipos">
                             <div class="tipo-item">
                                 <span class="tipo-label">🛒 Aquisição</span>
-                                <span class="tipo-value">${produtividade2025_2.aquisicao}</span>
+                                <span class="tipo-value">${produtividade_2.aquisicao}</span>
                             </div>
                             <div class="tipo-item">
                                 <span class="tipo-label">🔄 Renovação</span>
-                                <span class="tipo-value">${produtividade2025_2.renovacao}</span>
+                                <span class="tipo-value">${produtividade_2.renovacao}</span>
                             </div>
                             <div class="tipo-item total">
                                 <span class="tipo-label">Total</span>
-                                <span class="tipo-value">${produtividade2025_2.total}</span>
+                                <span class="tipo-value">${produtividade_2.total}</span>
                             </div>
                         </div>
                         
@@ -820,31 +825,31 @@ function renderProdutividadeDetalhada() {
                             <h4>📊 Produtividade em %</h4>
                             <div class="percentual-item">
                                 <span class="percentual-label">✅ Total de Processos Autuados</span>
-                                <span class="percentual-value">${produtividade2025_2.projetosAutuados}</span>
+                                <span class="percentual-value">${produtividade_2.projetosAutuados}</span>
                             </div>                            <div class="percentual-item">
                                 <span class="percentual-label">⏳ Total de Processos Não Autuados</span>
-                                <span class="percentual-value">${produtividade2025_2.projetosNaoAutuadosArray.length}</span>
+                                <span class="percentual-value">${produtividade_2.projetosNaoAutuadosArray.length}</span>
                             </div>                            <div class="percentual-item">
                                 <span class="percentual-label">🎯 Processos para Meta de 80%</span>
                                 <span class="percentual-value meta-info">
-                                    ${produtividade2025_2.processosFaltamMeta === 0 
+                                    ${produtividade_2.processosFaltamMeta === 0 
                                         ? '<span class="meta-atingida">✅ Meta atingida, Parabéns!</span>' 
-                                        : `<span class="processos-faltam">${produtividade2025_2.processosFaltamMeta === 1 ? 'Falta' : 'Faltam'} ${produtividade2025_2.processosFaltamMeta} processo${produtividade2025_2.processosFaltamMeta > 1 ? 's' : ''}</span>`
+                                        : `<span class="processos-faltam">${produtividade_2.processosFaltamMeta === 1 ? 'Falta' : 'Faltam'} ${produtividade_2.processosFaltamMeta} processo${produtividade_2.processosFaltamMeta > 1 ? 's' : ''}</span>`
                                     }
                                 </span>
                             </div>
                             <div class="percentual-item">
-                                <span class="percentual-label">🎯 Porcentagem de Conclusão para 2025.2</span>
+                                <span class="percentual-label">🎯 Porcentagem de Conclusão para ${year}.2</span>
                                 <div class="percentual-value percentual-progress">
                                     <div class="progress-container">
-                                        <div class="progress-bar ${getPerformanceClass(produtividade2025_2.percentualConclusao)}" 
-                                             style="--progress-width: ${produtividade2025_2.percentualConclusao}%; width: ${produtividade2025_2.percentualConclusao}%">
+                                        <div class="progress-bar ${getPerformanceClass(produtividade_2.percentualConclusao)}" 
+                                             style="--progress-width: ${produtividade_2.percentualConclusao}%; width: ${produtividade_2.percentualConclusao}%">
                                         </div>
                                     </div>
                                     <div class="progress-text">
-                                        <span class="progress-percentage">${produtividade2025_2.percentualConclusao}%</span>
-                                        <span class="progress-status ${status2025_2.class}">
-                                            ${status2025_2.icon} ${status2025_2.text}
+                                        <span class="progress-percentage">${produtividade_2.percentualConclusao}%</span>
+                                        <span class="progress-status ${status_2.class}">
+                                            ${status_2.icon} ${status_2.text}
                                         </span>
                                     </div>
                                 </div>
@@ -852,29 +857,29 @@ function renderProdutividadeDetalhada() {
                         </div>
                         
                         <div class="produtividade-botoes">
-                            <button class="btn prod-expand-btn" data-period="2025_2" data-type="autuados">
+                            <button class="btn prod-expand-btn" data-period="${year}_2" data-type="autuados">
                                 📋 Ver Processos Autuados
                                 <span class="expand-icon">▼</span>
                             </button>
-                            <button class="btn prod-expand-btn" data-period="2025_2" data-type="nao-autuados">
+                            <button class="btn prod-expand-btn" data-period="${year}_2" data-type="nao-autuados">
                                 ⏸️ Ver Processos Não Autuados
                                 <span class="expand-icon">▼</span>
                             </button>
                         </div>
                         
-                        <!-- Container para detalhes dos processos autuados 2025.2 -->
-                        <div id="detalhes-2025_2-autuados" class="detalhes-produtividade" style="display:none;">
-                            <h4>📋 Processos Autuados 2025.2</h4>
+                        <!-- Container para detalhes dos processos autuados -->
+                        <div id="detalhes-${year}_2-autuados" class="detalhes-produtividade" style="display:none;">
+                            <h4>📋 Processos Autuados ${year}.2</h4>
                             <div class="project-details">
-                                ${renderProdutividadeProjetosTable(produtividade2025_2.projetosAutuadosArray)}
+                                ${renderProdutividadeProjetosTable(produtividade_2.projetosAutuadosArray)}
                             </div>
                         </div>
                         
-                        <!-- Container para detalhes dos processos não autuados 2025.2 -->
-                        <div id="detalhes-2025_2-nao-autuados" class="detalhes-produtividade" style="display:none;">
-                            <h4>⏸️ Processos Não Autuados 2025.2</h4>
+                        <!-- Container para detalhes dos processos não autuados -->
+                        <div id="detalhes-${year}_2-nao-autuados" class="detalhes-produtividade" style="display:none;">
+                            <h4>⏸️ Processos Não Autuados ${year}.2</h4>
                             <div class="project-details">
-                                ${renderProdutividadeProjetosTable(produtividade2025_2.projetosNaoAutuadosArray)}
+                                ${renderProdutividadeProjetosTable(produtividade_2.projetosNaoAutuadosArray)}
                             </div>
                         </div>
                     </div>
