@@ -277,6 +277,11 @@ class ModalManager {
      */
     configureModalContent(modalId, config, options) {
         if (config.type === 'iframe' && options.url) {
+            // Restaura conteúdo original se o modal de calendários foi usado antes
+            if (typeof window.restoreCalendarModalContent === 'function') {
+                window.restoreCalendarModalContent();
+            }
+            
             // Configura iframe
             config.iframe.forEach(iframeId => {
                 const iframe = document.getElementById(iframeId);

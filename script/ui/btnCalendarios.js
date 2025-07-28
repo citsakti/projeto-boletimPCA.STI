@@ -50,6 +50,20 @@ document.addEventListener('DOMContentLoaded', function() {
         modalContent: !!modalContent
     });
 
+    // Salva o conteúdo original do modal para restaurar depois
+    let originalModalContent = null;
+    if (modalContent) {
+        originalModalContent = modalContent.innerHTML;
+    }
+
+    // Expõe função global para o ModalManager poder chamar
+    window.restoreCalendarModalContent = function() {
+        if (modalContent && originalModalContent) {
+            modalContent.innerHTML = originalModalContent;
+            console.log('btnCalendarios.js: Conteúdo original restaurado via função global');
+        }
+    };
+
     // URLs dos calendários embeded
     const CALENDARIOS = {
         'inicio': {
@@ -153,6 +167,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
+     * Restaura o conteúdo original do modal
+     */
+    function restoreOriginalModalContent() {
+        if (modalContent && originalModalContent) {
+            modalContent.innerHTML = originalModalContent;
+            console.log('btnCalendarios.js: Conteúdo original do modal restaurado');
+        }
+    }
+
+    /**
      * Abre o modal de calendários
      */
     function openCalendariosModal() {
@@ -161,6 +185,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!modalOverlay || !modalContent) {
             console.error('btnCalendarios.js: Elementos do modal não encontrados');
             return;
+        }
+
+        // Salva o conteúdo atual se ainda não foi salvo (para casos onde outros modais foram abertos)
+        if (!originalModalContent) {
+            originalModalContent = modalContent.innerHTML;
         }
 
         // Cria o conteúdo do modal
@@ -200,6 +229,57 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error('btnCalendarios.js: Botão com ID "btnCalendarios" não encontrado no HTML.');
     }
+
+    // Event listeners para outros botões para restaurar o conteúdo original
+    const otherModalButtons = [
+        'btnFonteDeDados',
+        'btnPCAPublicada'
+    ];
+
+    otherModalButtons.forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.addEventListener('click', function() {
+                console.log(`btnCalendarios.js: Outro botão (${buttonId}) clicado, restaurando conteúdo original`);
+                restoreOriginalModalContent();
+            });
+        }
+    });
+
+    // Event listener para fechamento do modal via ESC ou botão X
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && modalOverlay && modalOverlay.style.display === 'flex') {
+            const calendarIframe = document.getElementById('calendar-iframe');
+            if (calendarIframe) {
+                console.log('btnCalendarios.js: Modal de calendários fechado via ESC, restaurando conteúdo');
+                restoreOriginalModalContent();
+            }
+        }
+    });
+
+    // Event listener para clicks no overlay (fechar modal)
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', function(event) {
+            if (event.target === modalOverlay) {
+                const calendarIframe = document.getElementById('calendar-iframe');
+                if (calendarIframe) {
+                    console.log('btnCalendarios.js: Modal de calendários fechado via click overlay, restaurando conteúdo');
+                    restoreOriginalModalContent();
+                }
+            }
+        });
+    }
+
+    // Event listener para o botão de fechar (X)
+    document.addEventListener('click', function(event) {
+        if (event.target && event.target.id === 'close-modal-btn') {
+            const calendarIframe = document.getElementById('calendar-iframe');
+            if (calendarIframe) {
+                console.log('btnCalendarios.js: Modal de calendários fechado via botão X, restaurando conteúdo');
+                restoreOriginalModalContent();
+            }
+        }
+    });
 
     console.log('btnCalendarios.js: Script carregado com sucesso');
 });
