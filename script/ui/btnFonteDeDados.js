@@ -33,7 +33,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('btnFonteDeDados.js: Inicializando script');
-      const btnFonteDeDados = document.getElementById('btnFonteDeDados');
+    const btnFonteDeDados = document.getElementById('btnFonteDeDados');
     const modalOverlay = document.getElementById('processo-modal-overlay');
     const iframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
     const modalContent = modalOverlay ? modalOverlay.querySelector('.modal-content') : null; // Busca específica no overlay
@@ -63,7 +63,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openFonteDeDadosModal() {
-        console.log('btnFonteDeDados.js: Tentando abrir modal');        if (iframe && modalOverlay && modalContent) {
+        console.log('btnFonteDeDados.js: Tentando abrir modal');
+        
+        if (iframe && modalOverlay && modalContent) {
             console.log('btnFonteDeDados.js: Todos os elementos encontrados, abrindo modal');
             
             // Obtém a URL atual com base no ano selecionado
@@ -91,7 +93,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('btnFonteDeDados.js: Classe show adicionada');
             }, 10); // Pequeno atraso para garantir que a transição CSS seja aplicada
             
-            document.body.style.overflow = 'hidden'; // Previne rolagem da página de fundo} else {
+            document.body.style.overflow = 'hidden'; // Previne rolagem da página de fundo
+        } else {
             console.error('btnFonteDeDados.js: Elementos do modal não foram encontrados:', {
                 iframe: !!iframe,
                 modalOverlay: !!modalOverlay,
@@ -100,6 +103,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Event listener temporariamente desabilitado - funcionalidade transferida para ModalManager.js
+    /*
     if (btnFonteDeDados) {
         console.log('btnFonteDeDados.js: Adicionando event listener ao botão');
         btnFonteDeDados.addEventListener('click', function(e) {
@@ -107,6 +112,14 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             openFonteDeDadosModal();
         });
+    } else {
+        console.error('btnFonteDeDados.js: Botão com ID "btnFonteDeDados" não encontrado no HTML.');
+    }
+    */
+    
+    // Apenas log para verificar que o script está carregando
+    if (btnFonteDeDados) {
+        console.log('btnFonteDeDados.js: Botão encontrado - funcionalidade gerenciada pelo ModalManager.js');
     } else {
         console.error('btnFonteDeDados.js: Botão com ID "btnFonteDeDados" não encontrado no HTML.');
     }

@@ -493,19 +493,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     window.modalManager.openModal('processo-modal', { url });
                 });
-            }            // Integração com btnFonteDeDados.js - DESABILITADO para evitar conflito
-            // O event listener está sendo gerenciado pelo script btnFonteDeDados.js
-            /*
+            }
+            
+            // Integração com btnFonteDeDados.js
             const btnFonteDeDados = document.getElementById('btnFonteDeDados');
             if (btnFonteDeDados) {
                 btnFonteDeDados.addEventListener('click', function(e) {
                     e.preventDefault();
-                    window.modalManager.openModal('processo-modal', {
-                        url: 'https://docs.google.com/spreadsheets/d/1ZYquCMfNlBvYYoZ3uxZrW2Vewejcet43FeD3HBh8oLM/edit?usp=sharing'
-                    });
+                    
+                    // Determina a URL com base no ano selecionado
+                    const selectedYear = window.getSelectedYear ? window.getSelectedYear() : '2025';
+                    const PLANILHAS_POR_ANO = {
+                        '2025': '1ZYquCMfNlBvYYoZ3uxZrW2Vewejcet43FeD3HBh8oLM',
+                        '2026': '1xfZL69sWXUCDFz5049jx_y1LpG1r1ufa6V750b0IpFQ'
+                    };
+                    
+                    const planilhaId = PLANILHAS_POR_ANO[selectedYear] || PLANILHAS_POR_ANO['2025'];
+                    const url = `https://docs.google.com/spreadsheets/d/${planilhaId}/edit?usp=sharing`;
+                    
+                    window.modalManager.openModal('processo-modal', { url });
                 });
             }
-            */
 
             // Integração com cliques em processos (Main.js)
             document.addEventListener('click', function(event) {
