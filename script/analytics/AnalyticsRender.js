@@ -604,7 +604,7 @@ function renderAreaValorDetails(projetos) {
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${projeto.numProcesso}</td>
+                <td>${renderProcessCell(projeto.numProcesso)}</td>
             </tr>
         `;
     });
@@ -615,6 +615,13 @@ function renderAreaValorDetails(projetos) {
     `;
     
     return html;
+}
+
+/** Helper para renderizar célula de processo com ícone clicável */
+function renderProcessCell(processValue) {
+    const val = (processValue || '').toString().trim();
+    if (!val || val === 'N/A' || val === '-') return val || '-';
+    return `${val} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
 }
 
 /**
@@ -855,7 +862,7 @@ function renderStatusDetails(status) {
                 <td>${projeto.objeto || 'N/A'}</td>
                 <td>${projeto.contratar_ate || 'N/A'}</td>
                 <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
-                <td>${projeto.numeroProcesso || 'N/A'}</td>
+                <td>${renderProcessCell(projeto.numeroProcesso || 'N/A')}</td>
             </tr>
         `;
     });
@@ -908,7 +915,7 @@ function renderTipoDetails(tipo) {
                 <td>${projeto.objeto || 'N/A'}</td>
                 <td>${projeto.contratar_ate || 'N/A'}</td>
                 <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
-                <td>${projeto.numeroProcesso || 'N/A'}</td>
+                <td>${renderProcessCell(projeto.numeroProcesso || 'N/A')}</td>
             </tr>
         `;
     });
