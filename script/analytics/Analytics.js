@@ -536,3 +536,30 @@ function formatCurrency(value) {
 
 // Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', initAnalytics);
+
+// Função para recarregar dados analíticos dinamicamente ao mudar de ano
+window.reloadAnalyticsForYear = function(newYear) {
+    try {
+        // Atualiza armazenamento e config global se existir
+        localStorage.setItem('selectedYear', newYear);
+        if (window.yearSelectorConfig) {
+            window.yearSelectorConfig.currentYear = newYear;
+        }
+        // Atualizar título e header da página analítica
+        const title = document.querySelector('title');
+        if (title) {
+            title.textContent = title.textContent.replace(/(2025|2026)/, newYear);
+        }
+        const header = document.querySelector('h1');
+        if (header && header.textContent.includes('Relatório Analítico')) {
+            header.textContent = header.textContent.replace(/(2025|2026)/, newYear);
+        }
+        // Limpa o dashboard antes de recarregar
+        const container = document.getElementById('analytics-dashboard');
+        if (container) container.innerHTML = '';
+        // Reexecuta pipeline
+        initAnalytics();
+    } catch (e) {
+        console.error('Erro ao recarregar analytics para ano', newYear, e);
+    }
+};
