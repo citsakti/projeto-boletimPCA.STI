@@ -604,7 +604,7 @@ function renderAreaValorDetails(projetos) {
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${renderProcessCell(projeto.numProcesso)}</td>
+                <td>${renderProcessCell(projeto.numProcesso, projeto.modalidadeX, projeto.numeroY)}</td>
             </tr>
         `;
     });
@@ -617,11 +617,18 @@ function renderAreaValorDetails(projetos) {
     return html;
 }
 
-/** Helper para renderizar célula de processo com ícone clicável */
-function renderProcessCell(processValue) {
+/** Helper para renderizar célula de processo com ícone clicável e ícone 🛍️ (Comprasgov) quando disponível */
+function renderProcessCell(processValue, modalidadeX = '', numeroY = '') {
     const val = (processValue || '').toString().trim();
     if (!val || val === 'N/A' || val === '-') return val || '-';
-    return `${val} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+    let html = `${val} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+    const hasNumeroY = typeof numeroY === 'string' ? numeroY.trim() !== '' && numeroY.trim() !== '-' : !!numeroY;
+    if (hasNumeroY) {
+        const x = (modalidadeX || '').toString().trim();
+        const y = (numeroY || '').toString().trim();
+        html += ` <span class="comprasgov-link-icon" title="Abrir acompanhamento no Comprasnet" data-x="${x}" data-y="${y}">🛍️</span>`;
+    }
+    return html;
 }
 
 /**
@@ -862,7 +869,7 @@ function renderStatusDetails(status) {
                 <td>${projeto.objeto || 'N/A'}</td>
                 <td>${projeto.contratar_ate || 'N/A'}</td>
                 <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
-                <td>${renderProcessCell(projeto.numeroProcesso || 'N/A')}</td>
+                <td>${renderProcessCell(projeto.numeroProcesso || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
             </tr>
         `;
     });
@@ -915,7 +922,7 @@ function renderTipoDetails(tipo) {
                 <td>${projeto.objeto || 'N/A'}</td>
                 <td>${projeto.contratar_ate || 'N/A'}</td>
                 <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
-                <td>${renderProcessCell(projeto.numeroProcesso || 'N/A')}</td>
+                <td>${renderProcessCell(projeto.numeroProcesso || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
             </tr>
         `;
     });

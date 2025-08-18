@@ -242,8 +242,10 @@ function processData(rawData) {    // Mapear índices das colunas necessárias
         dataProcesso: 9,  // Coluna J - Data do processo
         dataInicio: 8,    // Coluna I - Data de início (AUTUAR EM:)
         diasAtraso: 11,  // Coluna L - Dias de atraso para autuação
-        numeroContrato: 21, // Coluna V - Número do Contrato
-        numeroRegistro: 22  // Coluna W - Número de Registro do Contrato
+    numeroContrato: 21, // Coluna V - Número do Contrato
+    numeroRegistro: 22,  // Coluna W - Número de Registro do Contrato
+    modalidadeX: 23,   // Coluna X - Modalidade (para Comprasgov)
+    numeroY: 24        // Coluna Y - Número/Identificador (para Comprasgov)
     };
     
     // Resetar contadores e arrays
@@ -268,8 +270,10 @@ function processData(rawData) {    // Mapear índices das colunas necessárias
         const valor = parseFloat(valorStr) || 0;
         const dataProcesso = row[columnIndices.dataProcesso] || '';        const dataInicio = row[columnIndices.dataInicio] || ''; // Capturando a data de início
         const diasAtraso = row[columnIndices.diasAtraso] || ''; // Capturando os dias de atraso (coluna L)
-        const numeroContrato = String(row[columnIndices.numeroContrato] || '').trim();
-        const numeroRegistro = String(row[columnIndices.numeroRegistro] || '').trim();
+    const numeroContrato = String(row[columnIndices.numeroContrato] || '').trim();
+    const numeroRegistro = String(row[columnIndices.numeroRegistro] || '').trim();
+    const modalidadeX = String(row[columnIndices.modalidadeX] || '').trim();
+    const numeroY = String(row[columnIndices.numeroY] || '').trim();
         
         // Criar objeto de projeto para uso em detalhamentos
         const projetoObj = {
@@ -284,7 +288,9 @@ function processData(rawData) {    // Mapear índices das colunas necessárias
             dataProcesso, // Adicionar esta linha para incluir a data de "Contratar Até"
             diasAtraso,   // Adicionar os dias de atraso para status "AUTUAÇÃO ATRASADA 💣"
             numeroContrato, // Adicionar número do contrato
-            numeroRegistro  // Adicionar número de registro
+            numeroRegistro,  // Adicionar número de registro
+            modalidadeX,    // Modalidade (X) para Comprasgov
+            numeroY         // Número (Y) para Comprasgov
         };
         
         // Processar contadores e categorias
@@ -380,7 +386,9 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
             contratar_ate: projetoObj.dataProcesso,
             valor: projetoObj.valor,
             numeroProcesso: projetoObj.numProcesso,
-            numeroContrato: projetoObj.numeroContrato
+            numeroContrato: projetoObj.numeroContrato,
+            modalidadeX: projetoObj.modalidadeX,
+            numeroY: projetoObj.numeroY
         });
         
         analyticData.situacional.total++;
@@ -396,7 +404,9 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
             contratar_ate: projetoObj.dataProcesso,
             valor: projetoObj.valor,
             numeroProcesso: projetoObj.numProcesso,
-            numeroContrato: projetoObj.numeroContrato
+            numeroContrato: projetoObj.numeroContrato,
+            modalidadeX: projetoObj.modalidadeX,
+            numeroY: projetoObj.numeroY
         });
     } else if (tipo === '🔄 Renovação') {
         analyticData.tipoCounts["🔄 Renovação"]++;
@@ -407,7 +417,9 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
             contratar_ate: projetoObj.dataProcesso,
             valor: projetoObj.valor,
             numeroProcesso: projetoObj.numProcesso,
-            numeroContrato: projetoObj.numeroContrato
+            numeroContrato: projetoObj.numeroContrato,
+            modalidadeX: projetoObj.modalidadeX,
+            numeroY: projetoObj.numeroY
         });
     }
     

@@ -42,7 +42,7 @@ class Comprasgov {
     }
 
     setupListeners() {
-        // Clique no ícone 🛍️ via delegação no tbody
+        // Clique no ícone 🛍️ via delegação no tbody principal
         if (this.tableBody) {
             this.tableBody.addEventListener('click', (event) => {
                 if (event.target.classList.contains('comprasgov-link-icon')) {
@@ -50,6 +50,13 @@ class Comprasgov {
                 }
             });
         }
+        // Captura global para ícones inseridos dinamicamente nas tabelas analíticas
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target && target.classList && target.classList.contains('comprasgov-link-icon')) {
+                this.handleComprasgovClick(event);
+            }
+        });
 
         // Fecha modal ao pressionar ESC
         document.addEventListener('keydown', (event) => {

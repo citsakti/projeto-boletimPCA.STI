@@ -72,11 +72,18 @@ function formatAreaWithClasses(area) {
 }
 
 // Usa helper global se disponível para célula de processo
-function _renderProcessCell(value){
-    if (typeof renderProcessCell === 'function') return renderProcessCell(value);
+function _renderProcessCell(value, modalidadeX = '', numeroY = ''){
+    if (typeof renderProcessCell === 'function') return renderProcessCell(value, modalidadeX, numeroY);
     const val = (value || '').toString().trim();
     if (!val || val === 'N/A' || val === '-') return val || '-';
-    return `${val} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+    let html = `${val} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+    const hasNumeroY = typeof numeroY === 'string' ? numeroY.trim() !== '' && numeroY.trim() !== '-' : !!numeroY;
+    if (hasNumeroY) {
+        const x = (modalidadeX || '').toString().trim();
+        const y = (numeroY || '').toString().trim();
+        html += ` <span class="comprasgov-link-icon" title="Abrir acompanhamento no Comprasnet" data-x="${x}" data-y="${y}">🛍️</span>`;
+    }
+    return html;
 }
 
 /**
@@ -121,7 +128,7 @@ function renderProjectDetails(categoria) {
                 <td${contratoAttrs}>${projeto.projeto}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${_renderProcessCell(projeto.numProcesso)}</td>
+                <td>${_renderProcessCell(projeto.numProcesso, projeto.modalidadeX, projeto.numeroY)}</td>
             </tr>
         `;
     });
@@ -181,7 +188,7 @@ function renderSituacionalDetails(categoria) {
                 <td>${statusComDiasAtraso}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${_renderProcessCell(projeto.numProcesso)}</td>
+                <td>${_renderProcessCell(projeto.numProcesso, projeto.modalidadeX, projeto.numeroY)}</td>
             </tr>
         `;
     });
@@ -242,7 +249,7 @@ function renderAreaDetails(area) {
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${_renderProcessCell(projeto.numProcesso)}</td>
+                <td>${_renderProcessCell(projeto.numProcesso, projeto.modalidadeX, projeto.numeroY)}</td>
             </tr>
         `;
     });
@@ -668,7 +675,7 @@ function renderProdutividadeProjetosTable(projetos) {
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td class="no-wrap-cell">${_renderProcessCell(projeto.numProcesso)}</td>
+                <td class="no-wrap-cell">${_renderProcessCell(projeto.numProcesso, projeto.modalidadeX, projeto.numeroY)}</td>
             </tr>
         `;
     });

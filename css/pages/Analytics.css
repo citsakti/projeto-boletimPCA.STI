@@ -1,3 +1,8 @@
+/* Tornar o ícone 🛍️ claramente clicável nas tabelas analíticas */
+.comprasgov-link-icon {
+    cursor: pointer;
+}
+
 /* =======================
    ANALYTICS.CSS - BOOTSTRAP PATTERN
    ======================= */
