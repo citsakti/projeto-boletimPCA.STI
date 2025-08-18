@@ -148,11 +148,31 @@ function fetchAndPopulate() {
                                 value = '<Não Orçado>';
                             }
                         } else if (colIndex === 9) {
-                            // Coluna "Processo": se vazio, substitui por "*", senão adiciona emoji de link
+                            // Coluna "Processo":
+                            // - Se vazio, substitui por "*"
+                            // - Se houver valor, adiciona o ícone 🔗 (processo)
+                            // - Se a coluna Y (CSV índice 24) tiver valor, adiciona também o ícone 🛍️ (Comprasgov)
                             if (value.trim() === '') {
                                 td.textContent = '*';
                             } else {
+                                // Ícone de processo (TCE)
                                 td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+                                // Ícone Comprasgov quando existir valor na coluna Y
+                                const modalidadeX = row[23] || ''; // Coluna X do CSV (índice 23)
+                                const numeroY = row[24] || '';     // Coluna Y do CSV (índice 24)
+                                if (numeroY && String(numeroY).trim() !== '' && String(numeroY).trim() !== '-') {
+                                    // Guarda os dados também no TD para que atualizações dinâmicas possam reutilizar
+                                    td.setAttribute('data-x', String(modalidadeX).trim());
+                                    td.setAttribute('data-y', String(numeroY).trim());
+                                    const span = document.createElement('span');
+                                    span.className = 'comprasgov-link-icon';
+                                    span.title = 'Abrir acompanhamento no Comprasnet';
+                                    span.textContent = ' 🛍️';
+                                    span.style.cursor = 'pointer';
+                                    span.setAttribute('data-x', String(modalidadeX).trim());
+                                    span.setAttribute('data-y', String(numeroY).trim());
+                                    td.appendChild(span);
+                                }
                             }
                             tr.appendChild(td);
                             return; // Já adicionou o td, pula para o próximo
@@ -403,6 +423,20 @@ function populateTableDOMWithData(processedDataRows) {
                 icon.title = `Abrir processo ${cellData}`;
                 // A lógica de click agora é tratada pelo ProcessoModal.js através da classe 'processo-link-icon'
                 cell.appendChild(icon);
+
+                // Tentativa de manter compatibilidade: adicionar 🛍️ se data-x/y estiverem no tr ou dataRow
+                const modalidadeX = tr.getAttribute('data-x') || '';
+                const numeroY = tr.getAttribute('data-y') || '';
+                if (numeroY) {
+                    const comprasIcon = document.createElement('span');
+                    comprasIcon.className = 'comprasgov-link-icon';
+                    comprasIcon.textContent = ' 🛍️';
+                    comprasIcon.title = 'Abrir acompanhamento no Comprasnet';
+                    comprasIcon.style.cursor = 'pointer';
+                    comprasIcon.setAttribute('data-x', modalidadeX);
+                    comprasIcon.setAttribute('data-y', numeroY);
+                    cell.appendChild(comprasIcon);
+                }
             }
         });
     });

@@ -350,6 +350,19 @@
                 icon.title = `Abrir processo ${newValue}`;
                 cell.appendChild(icon);
             }
+            // Ícone Comprasgov (🛍️) se a linha possuir data-x/y ou se existirem atributos herdados
+            const modalidadeX = existingAttributes['data-x'] || cell.closest('tr')?.getAttribute('data-x') || '';
+            const numeroY = (existingAttributes['data-y'] || cell.closest('tr')?.getAttribute('data-y') || '').trim();
+            if (numeroY && numeroY !== '-' && !cell.querySelector('.comprasgov-link-icon')) {
+                const comprasIcon = document.createElement('span');
+                comprasIcon.className = 'comprasgov-link-icon';
+                comprasIcon.textContent = ' 🛍️';
+                comprasIcon.style.cursor = 'pointer';
+                comprasIcon.title = 'Abrir acompanhamento no Comprasnet';
+                comprasIcon.setAttribute('data-x', modalidadeX);
+                comprasIcon.setAttribute('data-y', numeroY);
+                cell.appendChild(comprasIcon);
+            }
         } else {
             // Atualização simples para outras colunas
             cell.textContent = newValue;
@@ -399,6 +412,19 @@
                     icon.style.cursor = 'pointer';
                     icon.title = `Abrir processo ${cellValue}`;
                     cell.appendChild(icon);
+                    // Adiciona o ícone 🛍️ quando a coluna Y (índice 24) tiver valor
+                    const modalidadeX = rowData[23] || '';
+                    const numeroY = rowData[24] || '';
+                    if (numeroY && String(numeroY).trim() !== '' && String(numeroY).trim() !== '-') {
+                        const comprasIcon = document.createElement('span');
+                        comprasIcon.className = 'comprasgov-link-icon';
+                        comprasIcon.textContent = ' 🛍️';
+                        comprasIcon.style.cursor = 'pointer';
+                        comprasIcon.title = 'Abrir acompanhamento no Comprasnet';
+                        comprasIcon.setAttribute('data-x', String(modalidadeX).trim());
+                        comprasIcon.setAttribute('data-y', String(numeroY).trim());
+                        cell.appendChild(comprasIcon);
+                    }
                 } else {
                     cell.textContent = cellValue;
                 }
