@@ -69,11 +69,19 @@ class Comprasgov {
 
         // Botões de fechar padrão (compatível com estrutura existente)
         document.addEventListener('click', (event) => {
-            if (event.target.id === 'close-modal-btn' || 
+            const isCloseBtn = (
+                event.target.id === 'close-modal-btn' ||
                 event.target.id === 'close-modal-btn-legacy' ||
-                event.target.classList.contains('btn-close')) {
-                event.preventDefault();
-                event.stopPropagation();
+                event.target.classList.contains('btn-close')
+            );
+
+            if (isCloseBtn) {
+                // Aplicar mesma lógica do clique no overlay: não interromper propagação.
+                // Apenas evitar navegação caso seja um link.
+                const tag = (event.target.tagName || '').toLowerCase();
+                if (tag === 'a') {
+                    event.preventDefault();
+                }
                 this.closeModal();
             }
         });
@@ -104,10 +112,25 @@ class Comprasgov {
     }
 
     openModal(url) {
+        // Preferir o ModalManager para manter consistência com outros modais
+        if (window.modalManager && typeof window.modalManager.openModal === 'function') {
+            window.modalManager.openModal('processo-modal', { url });
+            return;
+        }
+
         if (!this.modalOverlay || !this.modalIframe || !this.modalContent) {
             console.error('Comprasgov: elementos do modal não encontrados.');
             return;
         }
+
+        // Caso o ModalManager tenha fechado anteriormente, o overlay pode ter recebido 'd-none'
+        if (this.modalOverlay.classList.contains('d-none')) {
+            this.modalOverlay.classList.remove('d-none');
+        }
+
+        // Reset de estilos possivelmente definidos no fechamento
+        this.modalOverlay.style.opacity = '';
+        this.modalOverlay.style.pointerEvents = '';
 
         this.modalIframe.src = url;
         this.modalOverlay.style.display = 'flex';
@@ -120,6 +143,12 @@ class Comprasgov {
     }
 
     closeModal() {
+        // Preferir o ModalManager para manter consistência com outros modais
+        if (window.modalManager && typeof window.modalManager.closeModal === 'function') {
+            window.modalManager.closeModal('processo-modal');
+            return;
+        }
+
         if (!this.modalOverlay || !this.modalContent) return;
         this.modalContent.classList.remove('show');
         this.modalOverlay.style.opacity = '0';
