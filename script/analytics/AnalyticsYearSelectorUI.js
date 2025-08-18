@@ -41,10 +41,17 @@
             // Adiciona evento de mudança
             select.addEventListener('change', function() {
                 const newYear = this.value;
+                // Atualiza storage
                 localStorage.setItem('selectedYear', newYear);
-                
-                // Recarrega a página para aplicar as mudanças
-                window.location.reload();
+                if (window.yearSelectorConfig) {
+                    window.yearSelectorConfig.currentYear = newYear;
+                }
+                // Se existir função de recarga dinâmica, usa; caso contrário fallback para reload completo
+                if (typeof window.reloadAnalyticsForYear === 'function') {
+                    window.reloadAnalyticsForYear(newYear);
+                } else {
+                    window.location.search = '?ano=' + newYear; // mantém parâmetro para consistência
+                }
             });
             
             yearSelectorDiv.appendChild(label);

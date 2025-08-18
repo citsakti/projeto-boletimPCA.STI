@@ -143,6 +143,10 @@ class ModalManager {
             return false;
         }
 
+        // FIX: garantir que a classe 'd-none' seja removida (problema na DadosAnaliticos.html onde o overlay inicia oculto por 'd-none').
+        if (overlay.classList.contains('d-none')) {
+            overlay.classList.remove('d-none');
+        }
         // Resetar estilos do overlay ANTES de exibi-lo e antes de configurar o conteúdo
         overlay.style.opacity = ''; // Garante que a opacidade padrão (1) seja aplicada
         overlay.style.pointerEvents = ''; // Garante que o overlay seja clicável se necessário (para fechar ao clicar fora)
@@ -352,7 +356,10 @@ class ModalManager {
         // Apenas oculta o overlay. Opacidade e pointerEvents já foram tratados
         // pela applyModalAnimation e serão resetados na próxima abertura.
         overlay.style.display = 'none';
-        
+        // Adiciona 'd-none' para cobrir caso outro CSS force exibição
+        if (!overlay.classList.contains('d-none')) {
+            overlay.classList.add('d-none');
+        }
         // Limpa iframes se necessário
         if (config.type === 'iframe') {
             config.iframe.forEach(iframeId => {

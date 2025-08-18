@@ -71,6 +71,14 @@ function formatAreaWithClasses(area) {
     return area;
 }
 
+// Usa helper global se disponível para célula de processo
+function _renderProcessCell(value){
+    if (typeof renderProcessCell === 'function') return renderProcessCell(value);
+    const val = (value || '').toString().trim();
+    if (!val || val === 'N/A' || val === '-') return val || '-';
+    return `${val} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+}
+
 /**
  * Função para renderizar detalhes dos projetos por categoria
  * @param {string} categoria Nome da categoria 
@@ -113,7 +121,7 @@ function renderProjectDetails(categoria) {
                 <td${contratoAttrs}>${projeto.projeto}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${projeto.numProcesso}</td>
+                <td>${_renderProcessCell(projeto.numProcesso)}</td>
             </tr>
         `;
     });
@@ -173,7 +181,7 @@ function renderSituacionalDetails(categoria) {
                 <td>${statusComDiasAtraso}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${projeto.numProcesso}</td>
+                <td>${_renderProcessCell(projeto.numProcesso)}</td>
             </tr>
         `;
     });
@@ -234,7 +242,7 @@ function renderAreaDetails(area) {
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${projeto.numProcesso}</td>
+                <td>${_renderProcessCell(projeto.numProcesso)}</td>
             </tr>
         `;
     });
@@ -660,7 +668,7 @@ function renderProdutividadeProjetosTable(projetos) {
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td class="no-wrap-cell">${projeto.numProcesso}</td>
+                <td class="no-wrap-cell">${_renderProcessCell(projeto.numProcesso)}</td>
             </tr>
         `;
     });
