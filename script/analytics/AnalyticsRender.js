@@ -857,16 +857,20 @@ function renderStatusDetails(status) {
     `;
     
     projetos.forEach(projeto => {
+        // Atributos de contrato/registro na célula do Projeto (compatível com AnalyticsContratos.js)
         let contratoAttrs = '';
         if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
             contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
         }
+        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
+            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
+        }
         
         html += `
-            <tr${contratoAttrs}>
+            <tr>
                 <td>${projeto.id || 'N/A'}</td>
                 <td>${formatAreaWithClasses(projeto.area || 'N/A')}</td>
-                <td>${projeto.objeto || 'N/A'}</td>
+                <td${contratoAttrs}>${projeto.objeto || 'N/A'}</td>
                 <td>${projeto.contratar_ate || 'N/A'}</td>
                 <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
                 <td>${renderProcessCell(projeto.numeroProcesso || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
@@ -910,16 +914,20 @@ function renderTipoDetails(tipo) {
     `;
     
     projetos.forEach(projeto => {
+        // Atributos de contrato/registro na célula do Projeto (compatível com AnalyticsContratos.js)
         let contratoAttrs = '';
         if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
             contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
         }
+        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
+            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
+        }
         
         html += `
-            <tr${contratoAttrs}>
+            <tr>
                 <td>${projeto.id || 'N/A'}</td>
                 <td>${formatAreaWithClasses(projeto.area || 'N/A')}</td>
-                <td>${projeto.objeto || 'N/A'}</td>
+                <td${contratoAttrs}>${projeto.objeto || 'N/A'}</td>
                 <td>${projeto.contratar_ate || 'N/A'}</td>
                 <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
                 <td>${renderProcessCell(projeto.numeroProcesso || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>

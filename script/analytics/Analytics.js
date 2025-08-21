@@ -387,6 +387,7 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
             valor: projetoObj.valor,
             numeroProcesso: projetoObj.numProcesso,
             numeroContrato: projetoObj.numeroContrato,
+            numeroRegistro: projetoObj.numeroRegistro,
             modalidadeX: projetoObj.modalidadeX,
             numeroY: projetoObj.numeroY
         });
@@ -405,6 +406,7 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
             valor: projetoObj.valor,
             numeroProcesso: projetoObj.numProcesso,
             numeroContrato: projetoObj.numeroContrato,
+            numeroRegistro: projetoObj.numeroRegistro,
             modalidadeX: projetoObj.modalidadeX,
             numeroY: projetoObj.numeroY
         });
@@ -418,6 +420,7 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
             valor: projetoObj.valor,
             numeroProcesso: projetoObj.numProcesso,
             numeroContrato: projetoObj.numeroContrato,
+            numeroRegistro: projetoObj.numeroRegistro,
             modalidadeX: projetoObj.modalidadeX,
             numeroY: projetoObj.numeroY
         });
