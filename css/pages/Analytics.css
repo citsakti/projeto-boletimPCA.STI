@@ -1203,6 +1203,31 @@
     font-weight: bold !important;
 }
 
+/* ====== Ordenação de Tabelas (TableSorter) ====== */
+.project-details-table thead th {
+    position: relative;
+    cursor: pointer; /* mãozinha para indicar ordenável */
+    user-select: none;
+}
+.project-details-table thead th::after {
+    content: '\25B4'; /* triângulo up */
+    position: absolute;
+    right: 8px;
+    opacity: 0.35;
+    transform: translateY(1px) rotate(180deg); /* seta default apagada */
+    font-size: 0.8em;
+}
+.project-details-table thead th.th-sort-asc::after {
+    content: '\25B4'; /* ▲ */
+    opacity: 0.9;
+    transform: none;
+}
+.project-details-table thead th.th-sort-desc::after {
+    content: '\25BE'; /* ▼ */
+    opacity: 0.9;
+    transform: none;
+}
+
 /* Remove negrito da coluna "Contratar Até" (4ª coluna) nas tabelas da seção "2.1 Valores por Orçamento e Tipo" */
 .valor-table .project-details-table td:nth-child(4) {
     font-weight: normal !important;
