@@ -127,8 +127,20 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="processoModalLabel">Acompanhamento Processual</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal-btn"></button>
-                </div>                <div class="modal-body p-0" style="height: 90vh;">
-                    <iframe id="processo-iframe" src="about:blank" style="width: 100%; height: 100%; border: none;" frameborder="0"></iframe>
+                </div>
+                <div class="modal-body p-0" style="height: 90vh; display: flex; flex-direction: column;">
+                    <!-- Barra visível com a URL atual do iframe -->
+                    <div id="processo-url-container" class="bg-body-tertiary border-bottom px-3 py-2" style="display: none;">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                            <div class="form-control form-control-sm bg-white d-flex align-items-center">
+                                <a id="processo-url-link" href="#" target="_blank" rel="noopener noreferrer" class="small text-truncate d-block text-decoration-underline" style="max-width: 100%;"></a>
+                            </div>
+                            <button class="btn btn-outline-secondary" type="button" id="processo-url-copy" title="Copiar URL"><i class="bi bi-clipboard"></i></button>
+                            <a class="btn btn-primary" id="processo-url-open" href="#" target="_blank" rel="noopener noreferrer" title="Abrir em nova guia"><i class="bi bi-box-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+                    <iframe id="processo-iframe" src="about:blank" style="flex: 1 1 auto; width: 100%; border: none;" frameborder="0"></iframe>
                 </div>
             </div>
         </div>
@@ -139,8 +151,19 @@
                 <h5 class="mb-0 text-white">Acompanhamento Processual</h5>
                 <button id="close-modal-btn-legacy" class="btn-close btn-close-white" type="button" aria-label="Close" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
             </div>
-            <div class="flex-fill p-0 position-relative">
-                <iframe id="processo-iframe-legacy" src="about:blank" class="w-100 h-100 border-0" frameborder="0"></iframe>
+            <div class="flex-fill p-0 position-relative" style="display: flex; flex-direction: column;">
+                <!-- Barra de URL (legado) estilizada com Bootstrap -->
+                <div id="processo-url-container-legacy" class="bg-body-tertiary border-bottom px-3 py-2" style="display: none;">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                        <div class="form-control form-control-sm bg-white d-flex align-items-center">
+                            <a id="processo-url-link-legacy" href="#" target="_blank" rel="noopener noreferrer" class="small text-truncate d-block text-decoration-underline" style="max-width: 100%;"></a>
+                        </div>
+                        <button class="btn btn-outline-secondary" type="button" id="processo-url-copy-legacy" title="Copiar URL"><i class="bi bi-clipboard"></i></button>
+                        <a class="btn btn-primary" id="processo-url-open-legacy" href="#" target="_blank" rel="noopener noreferrer" title="Abrir em nova guia"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                </div>
+                <iframe id="processo-iframe-legacy" src="about:blank" class="w-100 border-0" style="flex: 1 1 auto;" frameborder="0"></iframe>
             </div>
         </div>
     </div>

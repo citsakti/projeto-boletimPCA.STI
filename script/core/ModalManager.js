@@ -281,18 +281,23 @@ class ModalManager {
      */
     configureModalContent(modalId, config, options) {
         if (config.type === 'iframe' && options.url) {
-            // Restaura conteúdo original se o modal de calendários foi usado antes
+            // Restaura conteúdo original se um modal anterior tiver customizado conteúdo
             if (typeof window.restoreCalendarModalContent === 'function') {
-                window.restoreCalendarModalContent();
+                try { window.restoreCalendarModalContent(); } catch (e) {}
             }
-            
-            // Configura iframe
+            // Define a URL no(s) iframe(s)
             config.iframe.forEach(iframeId => {
                 const iframe = document.getElementById(iframeId);
                 if (iframe) {
                     iframe.src = options.url;
                 }
             });
+
+            // Atualiza/mostra a barra de URL
+            this.updateProcessoUrlBoxes(options.url);
+
+            // Observa mudanças futuras (src + navegação interna via 'load')
+            this.observeIframeSrcChanges(config.iframe);
         } else if (config.type === 'content' && options.content) {
             // Configura conteúdo HTML
             const overlay = document.getElementById(config.overlay);
@@ -304,6 +309,105 @@ class ModalManager {
                     contentElement.appendChild(options.content);
                 }
             }
+        }
+    }
+
+    /**
+     * Observa mudanças no atributo src e evento 'load' dos iframes para refletir na caixa de URL
+     */
+    observeIframeSrcChanges(iframeIds = []) {
+        if (!this._iframeObservers) this._iframeObservers = new Map();
+        if (!this._iframeLoadHandlers) this._iframeLoadHandlers = new Map();
+
+        const callback = (mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+                    const el = mutation.target;
+                    const url = el.src || el.getAttribute('src');
+                    if (url && url !== 'about:blank') {
+                        this.updateProcessoUrlBoxes(url);
+                    }
+                }
+            }
+        };
+
+        iframeIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            // Observer de atributo 'src'
+            let obs = this._iframeObservers.get(id);
+            if (!obs) {
+                obs = new MutationObserver(callback);
+                this._iframeObservers.set(id, obs);
+            } else {
+                obs.disconnect();
+            }
+            obs.observe(el, { attributes: true, attributeFilter: ['src'] });
+
+            // Evento 'load' para navegação interna
+            const existingHandler = this._iframeLoadHandlers.get(id);
+            if (existingHandler) {
+                el.removeEventListener('load', existingHandler);
+            }
+            const onLoad = () => {
+                try {
+                    const currentUrl = el.src;
+                    if (currentUrl && currentUrl !== 'about:blank') {
+                        this.updateProcessoUrlBoxes(currentUrl);
+                    }
+                } catch (e) {
+                    // Ignora erros de cross-origin
+                }
+            };
+            this._iframeLoadHandlers.set(id, onLoad);
+            el.addEventListener('load', onLoad);
+        });
+    }
+
+    /**
+     * Atualiza/mostra as caixas de URL sob "Acompanhamento Processual"
+     */
+    updateProcessoUrlBoxes(url) {
+        try {
+            // Normaliza para URL absoluta
+            const a = document.createElement('a');
+            a.href = url;
+            const finalUrl = a.href;
+
+            const box = document.getElementById('processo-url-container');
+            const link = document.getElementById('processo-url-link');
+            const btnCopy = document.getElementById('processo-url-copy');
+            const btnOpen = document.getElementById('processo-url-open');
+            if (box && link) {
+                link.textContent = finalUrl;
+                link.href = finalUrl;
+                box.style.display = '';
+                if (btnOpen) btnOpen.href = finalUrl;
+                if (btnCopy) {
+                    btnCopy.onclick = async () => {
+                        try { await navigator.clipboard.writeText(finalUrl); } catch (e) {}
+                    };
+                }
+            }
+
+            const boxLegacy = document.getElementById('processo-url-container-legacy');
+            const linkLegacy = document.getElementById('processo-url-link-legacy');
+            const btnCopyLegacy = document.getElementById('processo-url-copy-legacy');
+            const btnOpenLegacy = document.getElementById('processo-url-open-legacy');
+            if (boxLegacy && linkLegacy) {
+                linkLegacy.textContent = finalUrl;
+                linkLegacy.href = finalUrl;
+                boxLegacy.style.display = '';
+                if (btnOpenLegacy) btnOpenLegacy.href = finalUrl;
+                if (btnCopyLegacy) {
+                    btnCopyLegacy.onclick = async () => {
+                        try { await navigator.clipboard.writeText(finalUrl); } catch (e) {}
+                    };
+                }
+            }
+        } catch (e) {
+            // Se a URL for inválida, apenas não atualiza
         }
     }
     
@@ -368,6 +472,29 @@ class ModalManager {
                     iframe.src = 'about:blank';
                 }
             });
+            // Oculta as barras de URL
+            const box = document.getElementById('processo-url-container');
+            const link = document.getElementById('processo-url-link');
+            const btnCopy = document.getElementById('processo-url-copy');
+            const btnOpen = document.getElementById('processo-url-open');
+            if (box && link) {
+                box.style.display = 'none';
+                link.textContent = '';
+                link.removeAttribute('href');
+                if (btnOpen) btnOpen.removeAttribute('href');
+                if (btnCopy) btnCopy.onclick = null;
+            }
+            const boxLegacy = document.getElementById('processo-url-container-legacy');
+            const linkLegacy = document.getElementById('processo-url-link-legacy');
+            const btnCopyLegacy = document.getElementById('processo-url-copy-legacy');
+            const btnOpenLegacy = document.getElementById('processo-url-open-legacy');
+            if (boxLegacy && linkLegacy) {
+                boxLegacy.style.display = 'none';
+                linkLegacy.textContent = '';
+                linkLegacy.removeAttribute('href');
+                if (btnOpenLegacy) btnOpenLegacy.removeAttribute('href');
+                if (btnCopyLegacy) btnCopyLegacy.onclick = null;
+            }
         }
     }
     
