@@ -26,12 +26,12 @@
     const SHEET_URLS = {
         '2025': {
             // main atualizado para endpoint Apps Script (CSV 2025)
-            main: 'https://script.google.com/macros/s/AKfycbxZaj-7gO4Roel995_Wq12-OK2Lu0Zzf-61JBbj9UagpRO6B55Mpa60IEi5aGUSQjCrwg/exec',
+            main: 'https://script.google.com/macros/s/AKfycbz4sHQdov5Yc26OIEga8Mg5yThXdm2SF1UMF7cG8rXPW49Z1s-KDoGh8yjCkOVKpFzUAQ/exec',
             acompanhamento: 'https://script.google.com/macros/s/AKfycbwQpJtT3GBpGdBaNdODF7NQDDb3ZFW8ZEAS9323oPsph8f2eGQgyOWgB0RXUq4eecLh/exec'
         },
         '2026': {
             // Atualizado para endpoint Apps Script (CSV 2026) conforme solicitação
-            main: 'https://script.google.com/macros/s/AKfycbxoTk6ia1337zdHr0KfSYB3cdh8vjctwlCIpIYN5EHile0ZYemMASWNbVn5HlfY9hCVRQ/exec',
+            main: 'https://script.google.com/macros/s/AKfycbzQwBm8v7PCrSE6UbqezxD6dLYymPA6dhL64Eoy82FAdoGO26yhh6XlfaC8SlVwtY_uYw/exec',
             acompanhamento: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcOu9JPRm1oGxkBBEgpZ-hOfictNMZblU1qATZqosqAbMc6bbUASRNRyXVe-dWAK9gGJwvg-jduUFv/pub?gid=1961352255&single=true&output=csv'
         }
     };
