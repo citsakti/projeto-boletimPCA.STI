@@ -49,8 +49,18 @@
  *   - Event listeners para interatividade
  */
 
-// URL da planilha CSV (mesma do main.js) - variável global para permitir alteração pelo seletor de ano
-let SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1123542137&single=true&output=csv';
+// URL da planilha CSV (mesma do main.js) - inicial 2025 apontando para Apps Script atualizado
+// Ajuste: se o ano 2026 já estiver selecionado antes do YearSelector inicializar,
+// usamos diretamente a nova fonte (Apps Script 2026) solicitada pelo usuário.
+const __URL_2025__ = 'https://script.google.com/macros/s/AKfycbxZaj-7gO4Roel995_Wq12-OK2Lu0Zzf-61JBbj9UagpRO6B55Mpa60IEi5aGUSQjCrwg/exec';
+const __URL_2026__ = 'https://script.google.com/macros/s/AKfycbxoTk6ia1337zdHr0KfSYB3cdh8vjctwlCIpIYN5EHile0ZYemMASWNbVn5HlfY9hCVRQ/exec';
+let SHEET_CSV_URL = (function(){
+    try {
+        const storedYear = localStorage.getItem('selectedYear');
+        if (storedYear === '2026') return __URL_2026__;
+    } catch(e) { /* ignore */ }
+    return __URL_2025__;
+})();
 
 // Objeto para armazenar os dados processados
 const analyticData = {

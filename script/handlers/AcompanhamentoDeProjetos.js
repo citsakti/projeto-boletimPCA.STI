@@ -35,7 +35,7 @@
 
 (function() {
     // URL para a aba de acompanhamento do CSV (variável global para permitir alteração pelo seletor de ano)
-    let ACOMPANHAMENTO_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1961352255&single=true&output=csv';
+    let ACOMPANHAMENTO_CSV_URL = 'https://script.google.com/macros/s/AKfycbwQpJtT3GBpGdBaNdODF7NQDDb3ZFW8ZEAS9323oPsph8f2eGQgyOWgB0RXUq4eecLh/exec';
     
     // Disponibiliza a variável globalmente para permitir acesso pelo YearSelector
     window.ACOMPANHAMENTO_CSV_URL = ACOMPANHAMENTO_CSV_URL;

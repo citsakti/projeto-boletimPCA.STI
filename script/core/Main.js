@@ -51,7 +51,8 @@
  */
 
 // Definindo a URL da planilha como variável global para permitir alteração pelo seletor de ano
-let SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1123542137&single=true&output=csv';
+// Atualizado (2025) para usar endpoint Apps Script solicitado pelo usuário
+let SHEET_CSV_URL = 'https://script.google.com/macros/s/AKfycbwkIh-zsINPjuUp97sZo2wpHS5A2qlMoD-r9tzMIXQHjWbOwPZw9xuISkl8A7s0AQcvPA/exec';
 
 // Busca dados da planilha e preenche a tabela
 function fetchAndPopulate() {

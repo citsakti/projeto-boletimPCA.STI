@@ -25,11 +25,13 @@
     // URLs das planilhas para cada ano
     const SHEET_URLS = {
         '2025': {
-            main: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1123542137&single=true&output=csv',
-            acompanhamento: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1961352255&single=true&output=csv'
+            // main atualizado para endpoint Apps Script (CSV 2025)
+            main: 'https://script.google.com/macros/s/AKfycbxZaj-7gO4Roel995_Wq12-OK2Lu0Zzf-61JBbj9UagpRO6B55Mpa60IEi5aGUSQjCrwg/exec',
+            acompanhamento: 'https://script.google.com/macros/s/AKfycbwQpJtT3GBpGdBaNdODF7NQDDb3ZFW8ZEAS9323oPsph8f2eGQgyOWgB0RXUq4eecLh/exec'
         },
         '2026': {
-            main: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcOu9JPRm1oGxkBBEgpZ-hOfictNMZblU1qATZqosqAbMc6bbUASRNRyXVe-dWAK9gGJwvg-jduUFv/pub?gid=1123542137&single=true&output=csv',
+            // Atualizado para endpoint Apps Script (CSV 2026) conforme solicitação
+            main: 'https://script.google.com/macros/s/AKfycbxoTk6ia1337zdHr0KfSYB3cdh8vjctwlCIpIYN5EHile0ZYemMASWNbVn5HlfY9hCVRQ/exec',
             acompanhamento: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcOu9JPRm1oGxkBBEgpZ-hOfictNMZblU1qATZqosqAbMc6bbUASRNRyXVe-dWAK9gGJwvg-jduUFv/pub?gid=1961352255&single=true&output=csv'
         }
     };
@@ -161,6 +163,10 @@
         // Atualiza as URLs globais para que outros scripts possam usar
         if (window.SHEET_CSV_URL !== undefined) {
             window.SHEET_CSV_URL = SHEET_URLS[year].main;
+        }
+        // Mantém sincronizado para scripts de atualização automática
+        if (window.SHEET_CSV_URL_GLOBAL !== undefined) {
+            window.SHEET_CSV_URL_GLOBAL = SHEET_URLS[year].main;
         }
         
         if (window.ACOMPANHAMENTO_CSV_URL !== undefined) {

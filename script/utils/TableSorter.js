@@ -160,11 +160,105 @@
     }
   }
 
+  // =====================
+  // Formatação de Moeda BRL (Coluna "Valor PCA")
+  // =====================
+  function parseNumeric(text){
+    if(!text) return null;
+    let s = text.replace(/[^0-9,.-]/g,'').trim();
+    if(!s) return null;
+    if(s.indexOf(',') !== -1){
+      s = s.replace(/\./g,'').replace(',', '.');
+    }
+    const n = Number(s);
+    return isNaN(n) ? null : n;
+  }
+
+  function formatBRL(n){
+    return 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function findColumnIndexByHeader(table, headerMatch){
+    const thead = table.tHead;
+    if(!thead || !thead.rows.length) return -1;
+    // Primeira linha de cabeçalho sem considerar linha de filtros
+    const headerRow = thead.rows[0];
+    for(let i=0;i<headerRow.cells.length;i++){
+      const txt = normalizeText(headerRow.cells[i]).toLowerCase();
+      if(txt === headerMatch.toLowerCase()) return i;
+    }
+    return -1;
+  }
+
+  function formatCurrencyCell(cell){
+    if(!cell || cell.dataset.currencyFormatted) return;
+    const raw = normalizeText(cell);
+    const n = parseNumeric(raw);
+    if(n === null) return; // mantém como está
+    cell.textContent = formatBRL(n);
+    cell.dataset.currencyFormatted = '1';
+  }
+
+  function formatCurrencyColumn(table, headerText){
+    if(!table) return;
+    const colIndex = findColumnIndexByHeader(table, headerText || 'Valor PCA');
+    if(colIndex === -1) return;
+    const tbody = table.tBodies[0];
+    if(!tbody) return;
+    // Formata linhas existentes
+    Array.from(tbody.rows).forEach(tr => {
+      if(colIndex < tr.cells.length){
+        formatCurrencyCell(tr.cells[colIndex]);
+      }
+    });
+    // Observa novas linhas adicionadas
+    if(!tbody.__currencyObserver){
+      const obs = new MutationObserver(muts => {
+        muts.forEach(m => {
+          m.addedNodes && m.addedNodes.forEach(node => {
+            if(node.nodeType === 1 && node.tagName === 'TR'){
+              if(colIndex < node.cells.length){
+                formatCurrencyCell(node.cells[colIndex]);
+              }
+            }
+          });
+        });
+      });
+      obs.observe(tbody, {childList:true});
+      tbody.__currencyObserver = obs;
+    }
+  }
+
+  function autoInitCurrencyFormatting(){
+    // Tenta várias vezes pois os dados podem chegar assincronamente
+    let attempts = 0;
+    const maxAttempts = 40; // ~20s se intervalo 500ms
+    const interval = setInterval(()=>{
+      attempts++;
+      const tables = document.querySelectorAll('table');
+      let applied = false;
+      tables.forEach(tbl => {
+        if(findColumnIndexByHeader(tbl, 'Valor PCA') !== -1){
+          formatCurrencyColumn(tbl, 'Valor PCA');
+          applied = true;
+        }
+      });
+      if(applied || attempts >= maxAttempts){
+        clearInterval(interval);
+      }
+    }, 500);
+  }
+
   // Expose
-  window.TableSorter = { sortTable, enableTableSorting };
+  window.TableSorter = { 
+    sortTable, 
+    enableTableSorting,
+    formatCurrencyColumn
+  };
 
   // Auto-enable after DOM ready
   document.addEventListener('DOMContentLoaded', function(){
     enableTableSorting(document);
+    autoInitCurrencyFormatting();
   });
 })();
