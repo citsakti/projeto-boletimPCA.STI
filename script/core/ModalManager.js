@@ -655,25 +655,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     event.preventDefault();
                     const td = event.target.closest('td');
                     let processo = td ? td.textContent.replace('🔗', '').trim() : '';
-                    const projectName = (function extractProjectName(){
+                    const { projectName, idPca } = (function extractProjectInfo(){
                         try {
                             const tr = event.target.closest('tr');
-                            if (!tr) return '';
+                            if (!tr) return { projectName: '', idPca: '' };
                             const table = tr.closest('table');
                             let indexProjeto = -1;
+                            let indexId = -1;
                             if (table) {
                                 const ths = Array.from(table.querySelectorAll('thead th'));
                                 indexProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
-                                if (indexProjeto >= 0 && tr.children[indexProjeto]) {
-                                    return tr.children[indexProjeto].textContent.trim();
-                                }
+                                indexId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
+                                const nameVal = (indexProjeto >= 0 && tr.children[indexProjeto]) ? tr.children[indexProjeto].textContent.trim() : '';
+                                const idVal = (indexId >= 0 && tr.children[indexId]) ? tr.children[indexId].textContent.trim() : '';
+                                return { projectName: nameVal, idPca: idVal };
                             }
                             // fallback por data-label
                             const candidato = Array.from(tr.children).find(c => /projeto/i.test(c.dataset.label || ''));
-                            if (candidato) return candidato.textContent.trim();
-                            return '';
+                            const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test(c.dataset.label || ''));
+                            return {
+                                projectName: candidato ? candidato.textContent.trim() : '',
+                                idPca: idCand ? idCand.textContent.trim() : ''
+                            };
                         } catch(e){
-                            return '';
+                            return { projectName: '', idPca: '' };
                         }
                     })();
                     const applyTitle = (titleTxt) => {
@@ -682,9 +687,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             window.setProcessoModalTitle(titleTxt);
                         }
                     };
+                    const computedTitle = (idPca ? (idPca + ' - ') : '') + projectName;
                     const openWithTitle = (url) => {
-                        window.modalManager.openModal('processo-modal', { url, title: projectName });
-                        applyTitle(projectName);
+                        window.modalManager.openModal('processo-modal', { url, title: computedTitle });
+                        applyTitle(computedTitle);
                     };
                     if (processo) {
                         navigator.clipboard.writeText(processo)
@@ -711,29 +717,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (contractCell && contractCell.dataset.registro) {
                     const numeroRegistro = contractCell.dataset.registro;
                     const url = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
-                    // Extrair nome do projeto da mesma linha
+                    // Extrair nome do projeto e ID PCA da mesma linha
                     let projectName = '';
+                    let idPca = '';
                     try {
                         const tr = contractCell.closest('tr');
                         if (tr) {
                             const table = tr.closest('table');
                             let idxProjeto = -1;
+                            let idxId = -1;
                             if (table) {
                                 const ths = Array.from(table.querySelectorAll('thead th'));
                                 idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
+                                idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
                                 if (idxProjeto >= 0 && tr.children[idxProjeto]) {
                                     projectName = tr.children[idxProjeto].textContent.trim();
+                                }
+                                if (idxId >= 0 && tr.children[idxId]) {
+                                    idPca = tr.children[idxId].textContent.trim();
                                 }
                             }
                             if (!projectName) {
                                 const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
                                 if (candidato) projectName = candidato.textContent.trim();
                             }
+                            if (!idPca) {
+                                const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset.label||'')));
+                                if (idCand) idPca = idCand.textContent.trim();
+                            }
                         }
                     } catch(e) { /* ignore */ }
-                    window.modalManager.openModal('processo-modal', { url, title: projectName });
+                    const finalTitle = (idPca ? (idPca + ' - ') : '') + projectName;
+                    window.modalManager.openModal('processo-modal', { url, title: finalTitle });
                     if (projectName && typeof window.setProcessoModalTitle === 'function') {
-                        window.setProcessoModalTitle(projectName);
+                        window.setProcessoModalTitle(finalTitle);
                     }
                 }
             });

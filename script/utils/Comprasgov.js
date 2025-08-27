@@ -102,21 +102,27 @@ class Comprasgov {
 
         // Capturar nome do projeto (mesma linha)
         let projectName = '';
+        let idPca = '';
         try {
             const tr = icon.closest('tr');
             if (tr) {
                 const table = tr.closest('table');
                 let idxProjeto = -1;
+                let idxId = -1;
                 if (table) {
                     const ths = Array.from(table.querySelectorAll('thead th'));
                     idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
-                    if (idxProjeto >= 0 && tr.children[idxProjeto]) {
-                        projectName = tr.children[idxProjeto].textContent.trim();
-                    }
+                    idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
+                    if (idxProjeto >= 0 && tr.children[idxProjeto]) projectName = tr.children[idxProjeto].textContent.trim();
+                    if (idxId >= 0 && tr.children[idxId]) idPca = tr.children[idxId].textContent.trim();
                 }
                 if (!projectName) {
                     const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
                     if (candidato) projectName = candidato.textContent.trim();
+                }
+                if (!idPca) {
+                    const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset.label||'')));
+                    if (idCand) idPca = idCand.textContent.trim();
                 }
             }
         } catch(e) { /* ignore */ }
@@ -128,7 +134,8 @@ class Comprasgov {
 
         const yy = this.mapYY(modalidadeX);
     const url = `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra/item/1?compra=925467${yy}${numeroY}`;
-    this.openModal(url, projectName);
+    const finalTitle = (idPca ? (idPca + ' - ') : '') + projectName;
+    this.openModal(url, finalTitle);
     }
 
     mapYY(modalidadeX) {
@@ -139,12 +146,12 @@ class Comprasgov {
         return '06';
     }
 
-    openModal(url, projectName = '') {
+    openModal(url, projectTitle = '') {
         // Preferir o ModalManager para manter consistência com outros modais
         if (window.modalManager && typeof window.modalManager.openModal === 'function') {
-            window.modalManager.openModal('processo-modal', { url, title: projectName });
-            if (projectName && typeof window.setProcessoModalTitle === 'function') {
-                window.setProcessoModalTitle(projectName);
+            window.modalManager.openModal('processo-modal', { url, title: projectTitle });
+            if (projectTitle && typeof window.setProcessoModalTitle === 'function') {
+                window.setProcessoModalTitle(projectTitle);
             }
             return;
         }
@@ -172,8 +179,8 @@ class Comprasgov {
         this.modalContent.classList.add('show');
         document.body.style.overflow = 'hidden';
 
-        if (projectName && typeof window.setProcessoModalTitle === 'function') {
-            window.setProcessoModalTitle(projectName);
+        if (projectTitle && typeof window.setProcessoModalTitle === 'function') {
+            window.setProcessoModalTitle(projectTitle);
         }
     }
 

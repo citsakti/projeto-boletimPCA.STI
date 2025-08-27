@@ -110,15 +110,34 @@ document.addEventListener('DOMContentLoaded', function() {
         const contractUrl = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
             // Extrair nome do projeto (conteúdo textual da célula sem ícones)
             let projectName = '';
+            let idPca = '';
             try {
                 projectName = this.cloneNode(true).textContent.replace(/📄/g, '').trim();
+                // Tentar localizar a linha para pegar ID PCA
+                const tr = this.closest('tr');
+                if (tr) {
+                    const table = tr.closest('table');
+                    if (table) {
+                        const ths = Array.from(table.querySelectorAll('thead th'));
+                        const idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
+                        if (idxId >= 0 && tr.children[idxId]) {
+                            idPca = tr.children[idxId].textContent.trim();
+                        }
+                    }
+                    if (!idPca) {
+                        const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset.label||'')));
+                        if (idCand) idPca = idCand.textContent.trim();
+                    }
+                }
             } catch(e) { /* ignore */ }
+
+            const finalTitle = (idPca ? (idPca + ' - ') : '') + projectName;
 
             // Preferir ModalManager se disponível para unificar comportamento
             if (window.modalManager && typeof window.modalManager.openModal === 'function') {
-                window.modalManager.openModal('processo-modal', { url: contractUrl, title: projectName });
-                if (projectName && typeof window.setProcessoModalTitle === 'function') {
-                    window.setProcessoModalTitle(projectName);
+                window.modalManager.openModal('processo-modal', { url: contractUrl, title: finalTitle });
+                if (finalTitle && typeof window.setProcessoModalTitle === 'function') {
+                    window.setProcessoModalTitle(finalTitle);
                 }
                 return;
             }
@@ -133,14 +152,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 void modalContent.offsetWidth;
                 modalContent.classList.add('show');
                 document.body.style.overflow = 'hidden';
-                if (projectName) {
+                if (finalTitle) {
                     if (typeof window.setProcessoModalTitle === 'function') {
-                        window.setProcessoModalTitle(projectName);
+                        window.setProcessoModalTitle(finalTitle);
                     } else {
                         const legacyTitle = document.querySelector('#processo-modal-overlay .modal-header h5');
-                        if (legacyTitle) legacyTitle.textContent = projectName;
+                        if (legacyTitle) legacyTitle.textContent = finalTitle;
                         const bsTitle = document.querySelector('#processo-modal .modal-title');
-                        if (bsTitle) bsTitle.textContent = projectName;
+                        if (bsTitle) bsTitle.textContent = finalTitle;
                     }
                 }
             } else {

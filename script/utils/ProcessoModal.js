@@ -148,8 +148,31 @@ class ProcessoModal {
         document.body.style.overflow = 'hidden';
 
         // Ajustar título via helper global se disponível
-        if (projectName && typeof window.setProcessoModalTitle === 'function') {
-            window.setProcessoModalTitle(projectName);
+        if (projectName) {
+            // Tentar obter ID PCA da mesma linha onde o ícone foi clicado (armazenado previamente? não temos aqui) – tentamos localizar última linha ativa via seleção
+            let idPca = '';
+            try {
+                const activeSelection = document.activeElement;
+                const tr = activeSelection ? activeSelection.closest('tr') : null;
+                if (tr) {
+                    const table = tr.closest('table');
+                    if (table) {
+                        const ths = Array.from(table.querySelectorAll('thead th'));
+                        const idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
+                        if (idxId >= 0 && tr.children[idxId]) {
+                            idPca = tr.children[idxId].textContent.trim();
+                        }
+                    }
+                    if (!idPca) {
+                        const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset.label||'')));
+                        if (idCand) idPca = idCand.textContent.trim();
+                    }
+                }
+            } catch(e) { /* ignore */ }
+            const finalTitle = (idPca ? (idPca + ' - ') : '') + projectName;
+            if (typeof window.setProcessoModalTitle === 'function') {
+                window.setProcessoModalTitle(finalTitle);
+            }
         }
     }
 
