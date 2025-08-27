@@ -655,18 +655,52 @@ document.addEventListener('DOMContentLoaded', function() {
                     event.preventDefault();
                     const td = event.target.closest('td');
                     let processo = td ? td.textContent.replace('🔗', '').trim() : '';
+                    const projectName = (function extractProjectName(){
+                        try {
+                            const tr = event.target.closest('tr');
+                            if (!tr) return '';
+                            const table = tr.closest('table');
+                            let indexProjeto = -1;
+                            if (table) {
+                                const ths = Array.from(table.querySelectorAll('thead th'));
+                                indexProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
+                                if (indexProjeto >= 0 && tr.children[indexProjeto]) {
+                                    return tr.children[indexProjeto].textContent.trim();
+                                }
+                            }
+                            // fallback por data-label
+                            const candidato = Array.from(tr.children).find(c => /projeto/i.test(c.dataset.label || ''));
+                            if (candidato) return candidato.textContent.trim();
+                            return '';
+                        } catch(e){
+                            return '';
+                        }
+                    })();
+                    const applyTitle = (titleTxt) => {
+                        if (!titleTxt) return;
+                        if (typeof window.setProcessoModalTitle === 'function') {
+                            window.setProcessoModalTitle(titleTxt);
+                        }
+                    };
+                    const openWithTitle = (url) => {
+                        window.modalManager.openModal('processo-modal', { url, title: projectName });
+                        applyTitle(projectName);
+                    };
                     if (processo) {
                         navigator.clipboard.writeText(processo)
                             .then(() => {
                                 const url = `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`;
-                                window.modalManager.openModal('processo-modal', { url });
-                                td.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
+                                openWithTitle(url);
+                                if (td) td.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
                             })
                             .catch(err => {
                                 console.error('Falha ao copiar para a área de transferência:', err);
                                 const url = `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`;
-                                window.modalManager.openModal('processo-modal', { url });
+                                openWithTitle(url);
                             });
+                    } else if (td) {
+                        const url = 'https://www.tce.ce.gov.br/contexto-consulta-geral?tipo=processos';
+                        openWithTitle(url);
                     }
                 }
             });
@@ -677,7 +711,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (contractCell && contractCell.dataset.registro) {
                     const numeroRegistro = contractCell.dataset.registro;
                     const url = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
-                    window.modalManager.openModal('processo-modal', { url });
+                    // Extrair nome do projeto da mesma linha
+                    let projectName = '';
+                    try {
+                        const tr = contractCell.closest('tr');
+                        if (tr) {
+                            const table = tr.closest('table');
+                            let idxProjeto = -1;
+                            if (table) {
+                                const ths = Array.from(table.querySelectorAll('thead th'));
+                                idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
+                                if (idxProjeto >= 0 && tr.children[idxProjeto]) {
+                                    projectName = tr.children[idxProjeto].textContent.trim();
+                                }
+                            }
+                            if (!projectName) {
+                                const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
+                                if (candidato) projectName = candidato.textContent.trim();
+                            }
+                        }
+                    } catch(e) { /* ignore */ }
+                    window.modalManager.openModal('processo-modal', { url, title: projectName });
+                    if (projectName && typeof window.setProcessoModalTitle === 'function') {
+                        window.setProcessoModalTitle(projectName);
+                    }
                 }
             });
 
@@ -685,6 +742,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 100);
 });
+
+// Helper global para ajustar o título do modal de processo
+if (!window.setProcessoModalTitle) {
+    window.setProcessoModalTitle = function(title) {
+        try {
+            if (!title || !title.trim()) return;
+            const sane = title.trim();
+            // Modal Bootstrap (DadosAnaliticos.html)
+            let titleEl = document.querySelector('#processo-modal .modal-title');
+            if (!titleEl) {
+                // Se a modal-header existir mas não tiver título, cria um
+                const header = document.querySelector('#processo-modal .modal-header');
+                if (header && !header.querySelector('.modal-title')) {
+                    titleEl = document.createElement('h5');
+                    titleEl.className = 'modal-title';
+                    header.prepend(titleEl);
+                }
+            }
+            if (titleEl) {
+                titleEl.textContent = sane;
+            }
+            // Modal Legacy Overlay (index.html & DadosAnaliticos.html)
+            const legacyTitle = document.querySelector('#processo-modal-overlay .modal-header h5');
+            if (legacyTitle) legacyTitle.textContent = sane;
+        } catch(e) {
+            console.warn('Falha ao definir título do modal de processo:', e);
+        }
+    };
+}
 
 // Exporta a classe para uso externo se necessário
 if (typeof module !== 'undefined' && module.exports) {

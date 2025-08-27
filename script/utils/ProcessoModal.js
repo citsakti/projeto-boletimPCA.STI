@@ -85,26 +85,46 @@ class ProcessoModal {
     handleProcessoClick(event) {
         const td = event.target.closest('td');
         let processo = td ? td.textContent.replace('🔗', '').trim() : '';
+        // Capturar nome do projeto na mesma linha
+        const tr = event.target.closest('tr');
+        let projectName = '';
+        if (tr) {
+            try {
+                const table = tr.closest('table');
+                let idxProjeto = -1;
+                if (table) {
+                    const ths = Array.from(table.querySelectorAll('thead th'));
+                    idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
+                    if (idxProjeto >= 0 && tr.children[idxProjeto]) {
+                        projectName = tr.children[idxProjeto].textContent.trim();
+                    }
+                }
+                if (!projectName) {
+                    const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
+                    if (candidato) projectName = candidato.textContent.trim();
+                }
+            } catch(e) { /* ignore */ }
+        }
         
         if (processo) {
             // Tenta copiar o número do processo para área de transferência
             navigator.clipboard.writeText(processo)
                 .then(() => {
-                    this.openModal(processo);
+                    this.openModal(processo, projectName);
                     td.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
                 })
                 .catch(err => {
                     console.error('Falha ao copiar para a área de transferência:', err);
                     // Mesmo se falhar ao copiar, abre a modal
-                    this.openModal(processo);
+                    this.openModal(processo, projectName);
                 });
         } else {
             // Se não houver número de processo, abre a página padrão
-            this.openModal('');
+            this.openModal('', projectName);
         }
     }
 
-    openModal(processo = '') {
+    openModal(processo = '', projectName = '') {
         if (!this.modalOverlay || !this.modalIframe || !this.modalContent) {
             console.error("ProcessoModal: Elementos do modal não encontrados.");
             return;
@@ -116,7 +136,7 @@ class ProcessoModal {
             : 'https://www.tce.ce.gov.br/contexto-consulta-geral?tipo=processos';
 
         // Configura o iframe e abre o modal
-        this.modalIframe.src = url;
+    this.modalIframe.src = url;
         this.modalOverlay.style.display = 'flex';
         
         // Animação de abertura
@@ -126,6 +146,11 @@ class ProcessoModal {
         
         // Previne scroll da página de fundo
         document.body.style.overflow = 'hidden';
+
+        // Ajustar título via helper global se disponível
+        if (projectName && typeof window.setProcessoModalTitle === 'function') {
+            window.setProcessoModalTitle(projectName);
+        }
     }
 
     closeModal() {

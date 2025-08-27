@@ -100,14 +100,35 @@ class Comprasgov {
         const modalidadeX = (icon.getAttribute('data-x') || '').trim();
         const numeroY = (icon.getAttribute('data-y') || '').trim();
 
+        // Capturar nome do projeto (mesma linha)
+        let projectName = '';
+        try {
+            const tr = icon.closest('tr');
+            if (tr) {
+                const table = tr.closest('table');
+                let idxProjeto = -1;
+                if (table) {
+                    const ths = Array.from(table.querySelectorAll('thead th'));
+                    idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
+                    if (idxProjeto >= 0 && tr.children[idxProjeto]) {
+                        projectName = tr.children[idxProjeto].textContent.trim();
+                    }
+                }
+                if (!projectName) {
+                    const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
+                    if (candidato) projectName = candidato.textContent.trim();
+                }
+            }
+        } catch(e) { /* ignore */ }
+
         if (!numeroY || numeroY === '-') {
             console.warn('Comprasgov: valor da coluna Y ausente ou inválido (\'-\'), não é possível montar o link.');
             return;
         }
 
         const yy = this.mapYY(modalidadeX);
-        const url = `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra/item/1?compra=925467${yy}${numeroY}`;
-        this.openModal(url);
+    const url = `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra/item/1?compra=925467${yy}${numeroY}`;
+    this.openModal(url, projectName);
     }
 
     mapYY(modalidadeX) {
@@ -118,10 +139,13 @@ class Comprasgov {
         return '06';
     }
 
-    openModal(url) {
+    openModal(url, projectName = '') {
         // Preferir o ModalManager para manter consistência com outros modais
         if (window.modalManager && typeof window.modalManager.openModal === 'function') {
-            window.modalManager.openModal('processo-modal', { url });
+            window.modalManager.openModal('processo-modal', { url, title: projectName });
+            if (projectName && typeof window.setProcessoModalTitle === 'function') {
+                window.setProcessoModalTitle(projectName);
+            }
             return;
         }
 
@@ -147,6 +171,10 @@ class Comprasgov {
         void this.modalContent.offsetWidth;
         this.modalContent.classList.add('show');
         document.body.style.overflow = 'hidden';
+
+        if (projectName && typeof window.setProcessoModalTitle === 'function') {
+            window.setProcessoModalTitle(projectName);
+        }
     }
 
     closeModal() {

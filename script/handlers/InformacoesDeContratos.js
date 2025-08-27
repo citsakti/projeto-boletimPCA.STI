@@ -100,30 +100,51 @@ document.addEventListener('DOMContentLoaded', function() {
     function openContractModal() {
         const numeroRegistro = this.getAttribute('data-registro');
         if (!numeroRegistro || numeroRegistro.trim() === '') return;
+
+    // Evitar abrir duas vezes se o ModalManager já capturou o clique (usa flag curta durante 100ms)
+    if (this.dataset.mmHandled === '1') return;
+    this.dataset.mmHandled = '1';
+    setTimeout(() => { delete this.dataset.mmHandled; }, 120);
         
         // Construir a URL com o número de registro (não com o número do contrato)
         const contractUrl = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
-          // Configurar e abrir o modal
-        if (modalIframe && modalOverlay && modalContent) {
-            // Sincronizar com o iframe Bootstrap se existir
-            const bootstrapIframe = document.getElementById('processo-iframe');
-            if (bootstrapIframe) {
-                bootstrapIframe.src = contractUrl;
+            // Extrair nome do projeto (conteúdo textual da célula sem ícones)
+            let projectName = '';
+            try {
+                projectName = this.cloneNode(true).textContent.replace(/📄/g, '').trim();
+            } catch(e) { /* ignore */ }
+
+            // Preferir ModalManager se disponível para unificar comportamento
+            if (window.modalManager && typeof window.modalManager.openModal === 'function') {
+                window.modalManager.openModal('processo-modal', { url: contractUrl, title: projectName });
+                if (projectName && typeof window.setProcessoModalTitle === 'function') {
+                    window.setProcessoModalTitle(projectName);
+                }
+                return;
             }
-            
-            modalIframe.src = contractUrl;
-            modalOverlay.style.display = 'flex';
-            
-            // Adicionar a animação de entrada
-            modalContent.classList.remove('show');
-            void modalContent.offsetWidth; // Força um reflow
-            modalContent.classList.add('show');
-            
-            // Impedir rolagem da página de fundo
-            document.body.style.overflow = 'hidden';
-        } else {
-            // Fallback caso o modal não esteja disponível
-            window.open(contractUrl, '_blank');
-        }
+
+            // Fallback manual (legado)
+            if (modalIframe && modalOverlay && modalContent) {
+                const bootstrapIframe = document.getElementById('processo-iframe');
+                if (bootstrapIframe) bootstrapIframe.src = contractUrl;
+                modalIframe.src = contractUrl;
+                modalOverlay.style.display = 'flex';
+                modalContent.classList.remove('show');
+                void modalContent.offsetWidth;
+                modalContent.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                if (projectName) {
+                    if (typeof window.setProcessoModalTitle === 'function') {
+                        window.setProcessoModalTitle(projectName);
+                    } else {
+                        const legacyTitle = document.querySelector('#processo-modal-overlay .modal-header h5');
+                        if (legacyTitle) legacyTitle.textContent = projectName;
+                        const bsTitle = document.querySelector('#processo-modal .modal-title');
+                        if (bsTitle) bsTitle.textContent = projectName;
+                    }
+                }
+            } else {
+                window.open(contractUrl, '_blank');
+            }
     }
 });
