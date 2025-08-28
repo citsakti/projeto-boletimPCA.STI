@@ -318,6 +318,8 @@ class ModalManager {
     observeIframeSrcChanges(iframeIds = []) {
         if (!this._iframeObservers) this._iframeObservers = new Map();
         if (!this._iframeLoadHandlers) this._iframeLoadHandlers = new Map();
+    if (!this._iframePollIntervals) this._iframePollIntervals = new Map();
+    if (!this._iframeLastUrls) this._iframeLastUrls = new Map();
 
         const callback = (mutationsList) => {
             for (const mutation of mutationsList) {
@@ -362,7 +364,39 @@ class ModalManager {
             };
             this._iframeLoadHandlers.set(id, onLoad);
             el.addEventListener('load', onLoad);
+
+            // Inicia polling para capturar mudanças que não disparam load ou mutation (ex: hashchange, SPAs)
+            this.startIframeUrlPolling(id, el);
         });
+    }
+
+    /**
+     * Inicia polling do URL do iframe para detectar mudanças (hash/pushState) não captadas por eventos normais
+     */
+    startIframeUrlPolling(id, el) {
+        // Evita múltiplos intervals
+        if (this._iframePollIntervals.has(id)) {
+            clearInterval(this._iframePollIntervals.get(id));
+        }
+        // Armazena URL inicial
+        try {
+            this._iframeLastUrls.set(id, el.src);
+        } catch(e) {
+            this._iframeLastUrls.set(id, '');
+        }
+        const intervalId = setInterval(() => {
+            try {
+                const current = el.src;
+                const last = this._iframeLastUrls.get(id);
+                if (current && current !== 'about:blank' && current !== last) {
+                    this._iframeLastUrls.set(id, current);
+                    this.updateProcessoUrlBoxes(current);
+                }
+            } catch(e) {
+                // Ignora erros cross-origin
+            }
+        }, 700); // 0.7s balanceia responsividade e performance
+        this._iframePollIntervals.set(id, intervalId);
     }
 
     /**
@@ -391,24 +425,114 @@ class ModalManager {
                 }
             }
 
+            // ====== LEGACY CONTAINER -> transformar em "barra de endereço" tipo Chrome ======
             const boxLegacy = document.getElementById('processo-url-container-legacy');
-            const linkLegacy = document.getElementById('processo-url-link-legacy');
-            const btnCopyLegacy = document.getElementById('processo-url-copy-legacy');
-            const btnOpenLegacy = document.getElementById('processo-url-open-legacy');
-            if (boxLegacy && linkLegacy) {
-                linkLegacy.textContent = finalUrl;
-                linkLegacy.href = finalUrl;
+            if (boxLegacy) {
+                this.ensureLegacyAddressBar(boxLegacy);
                 boxLegacy.style.display = '';
-                if (btnOpenLegacy) btnOpenLegacy.href = finalUrl;
-                if (btnCopyLegacy) {
-                    btnCopyLegacy.onclick = async () => {
-                        try { await navigator.clipboard.writeText(finalUrl); } catch (e) {}
+                const input = boxLegacy.querySelector('#processo-url-input-legacy');
+                const openBtn = boxLegacy.querySelector('#processo-url-open-legacy');
+                const copyBtn = boxLegacy.querySelector('#processo-url-copy-legacy');
+                const securityIcon = boxLegacy.querySelector('.legacy-address-bar-security');
+                if (input && !input.matches(':focus')) { // só atualiza se usuário não estiver editando
+                    input.value = finalUrl;
+                }
+                if (openBtn) openBtn.href = finalUrl;
+                if (copyBtn) {
+                    copyBtn.onclick = async () => {
+                        try { await navigator.clipboard.writeText(finalUrl); } catch(e) {}
                     };
+                }
+                if (securityIcon) {
+                    const isHttps = finalUrl.startsWith('https://');
+                    securityIcon.textContent = isHttps ? '🔒' : '⚠️';
+                    securityIcon.title = isHttps ? 'Conexão segura (HTTPS)' : 'Conexão não segura';
                 }
             }
         } catch (e) {
             // Se a URL for inválida, apenas não atualiza
         }
+    }
+
+    /**
+     * Garante que o container legacy possua a "barra de endereço" estilizada e funcional
+     */
+    ensureLegacyAddressBar(boxLegacy) {
+        if (boxLegacy.dataset.enhanced === 'true') return;
+
+        // Injeta estilos apenas uma vez
+        if (!document.getElementById('legacy-address-bar-styles')) {
+            const style = document.createElement('style');
+            style.id = 'legacy-address-bar-styles';
+            style.textContent = `
+                /* ====== Barra de Endereço Legacy (estilo semelhante ao Chrome) ====== */
+                #processo-url-container-legacy { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen; }
+                .legacy-address-wrapper { display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: #f1f3f4; border: 1px solid #d8d9da; border-radius: 8px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.08); max-width: 100%; }
+                .legacy-address-bar-security { font-size: 15px; line-height: 1; user-select: none; }
+                .legacy-address-input { flex: 1; border: none; background: transparent; padding: 4px 6px; font-size: 13px; outline: none; color: #202124; }
+                .legacy-address-input:focus { background: #fff; border-radius: 4px; box-shadow: 0 0 0 2px #1a73e814; }
+                .legacy-address-actions { display: flex; align-items: center; gap: 4px; }
+                .legacy-address-actions a, .legacy-address-actions button { appearance: none; border: none; background: #e8eaed; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; line-height: 1; color: #3c4043; text-decoration: none; display: inline-flex; align-items: center; gap: 2px; }
+                .legacy-address-actions a:hover, .legacy-address-actions button:hover { background: #dadce0; }
+                .legacy-address-actions a:active, .legacy-address-actions button:active { background: #c6c9cc; }
+                .legacy-address-go { font-weight: 600; }
+                @media (max-width: 600px) { .legacy-address-actions a, .legacy-address-actions button { padding: 4px 6px; } .legacy-address-input { font-size: 12px; } }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Limpa conteúdo anterior caso exista (mantém possibilidade de fallback)
+        if (!boxLegacy.querySelector('.legacy-address-wrapper')) {
+            boxLegacy.innerHTML = '';
+            const wrapper = document.createElement('div');
+            wrapper.className = 'legacy-address-wrapper';
+            wrapper.innerHTML = `
+                <span class="legacy-address-bar-security" title="Status de segurança">🔒</span>
+                <input id="processo-url-input-legacy" class="legacy-address-input" type="text" spellcheck="false" autocomplete="off" />
+                <div class="legacy-address-actions">
+                    <button id="processo-url-go-legacy" class="legacy-address-go" title="Ir (Enter)">↵</button>
+                    <button id="processo-url-copy-legacy" title="Copiar URL">📋</button>
+                    <a id="processo-url-open-legacy" title="Abrir em nova guia" target="_blank" rel="noopener noreferrer">↗</a>
+                </div>
+            `;
+            boxLegacy.appendChild(wrapper);
+
+            const input = wrapper.querySelector('#processo-url-input-legacy');
+            const goBtn = wrapper.querySelector('#processo-url-go-legacy');
+
+            const navigate = () => {
+                if (!input || !input.value.trim()) return;
+                let targetUrl = input.value.trim();
+                // Adiciona https:// se usuário digitou algo sem protocolo e sem espaços
+                if (!/^https?:\/\//i.test(targetUrl) && /^[^\s]+\.[^\s]+/.test(targetUrl)) {
+                    targetUrl = 'https://' + targetUrl;
+                }
+                // Atualiza iframes do modal processo
+                const config = this.modalRegistry['processo-modal'];
+                if (config && config.iframe) {
+                    config.iframe.forEach(id => {
+                        const iframe = document.getElementById(id);
+                        if (iframe) iframe.src = targetUrl;
+                    });
+                }
+                // Atualiza imediatamente barra (normalização)
+                this.updateProcessoUrlBoxes(targetUrl);
+            };
+
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        navigate();
+                    }
+                });
+            }
+            if (goBtn) {
+                goBtn.addEventListener('click', (e) => { e.preventDefault(); navigate(); });
+            }
+        }
+
+        boxLegacy.dataset.enhanced = 'true';
     }
     
     /**
@@ -470,6 +594,22 @@ class ModalManager {
                 const iframe = document.getElementById(iframeId);
                 if (iframe) {
                     iframe.src = 'about:blank';
+                }
+                // Limpa polling / observers
+                if (this._iframeObservers && this._iframeObservers.has(iframeId)) {
+                    try { this._iframeObservers.get(iframeId).disconnect(); } catch(e) {}
+                    this._iframeObservers.delete(iframeId);
+                }
+                if (this._iframeLoadHandlers && this._iframeLoadHandlers.has(iframeId)) {
+                    try { const handler = this._iframeLoadHandlers.get(iframeId); iframe && iframe.removeEventListener('load', handler); } catch(e) {}
+                    this._iframeLoadHandlers.delete(iframeId);
+                }
+                if (this._iframePollIntervals && this._iframePollIntervals.has(iframeId)) {
+                    try { clearInterval(this._iframePollIntervals.get(iframeId)); } catch(e) {}
+                    this._iframePollIntervals.delete(iframeId);
+                }
+                if (this._iframeLastUrls && this._iframeLastUrls.has(iframeId)) {
+                    this._iframeLastUrls.delete(iframeId);
                 }
             });
             // Oculta as barras de URL
