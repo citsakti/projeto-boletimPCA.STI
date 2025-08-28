@@ -11,9 +11,10 @@
 
 class Comprasgov {
     constructor() {
-        this.modalOverlay = null;
-        this.modalContent = null;
-        this.modalIframe = null;
+    // Modal legacy removido em favor do ModalManager central
+    this.modalOverlay = null;
+    this.modalContent = null;
+    this.modalIframe = null;
         this.tableBody = null;
         this.init();
     }
@@ -27,16 +28,13 @@ class Comprasgov {
     }
 
     setup() {
-        // Reaproveita o mesmo modal utilizado pelo ProcessoModal
-        this.modalOverlay = document.getElementById('processo-modal-overlay');
-        this.modalContent = this.modalOverlay ? this.modalOverlay.querySelector('.modal-content') : null;
-        this.modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
+    // Modal legacy não é mais necessário; ModalManager cuidará da abertura
+    this.modalOverlay = document.getElementById('processo-modal-overlay');
+    this.modalContent = this.modalOverlay ? this.modalOverlay.querySelector('.modal-content') : null;
+    this.modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
         this.tableBody = document.querySelector('#detalhes table tbody');
 
-        if (!this.modalOverlay || !this.modalIframe) {
-            console.error('Comprasgov: elementos essenciais do modal não encontrados.');
-            return;
-        }
+    // Se ModalManager existir, não precisamos validar overlay/iframe agora
 
         this.setupListeners();
     }
@@ -58,40 +56,7 @@ class Comprasgov {
             }
         });
 
-        // Fecha modal ao pressionar ESC
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && this.modalOverlay && this.modalOverlay.style.display === 'flex') {
-                this.closeModal();
-            }
-        });
-
-        // Fecha ao clicar no overlay
-        if (this.modalOverlay) {
-            this.modalOverlay.addEventListener('click', (event) => {
-                if (event.target === this.modalOverlay) {
-                    this.closeModal();
-                }
-            });
-        }
-
-        // Botões de fechar padrão (compatível com estrutura existente)
-        document.addEventListener('click', (event) => {
-            const isCloseBtn = (
-                event.target.id === 'close-modal-btn' ||
-                event.target.id === 'close-modal-btn-legacy' ||
-                event.target.classList.contains('btn-close')
-            );
-
-            if (isCloseBtn) {
-                // Aplicar mesma lógica do clique no overlay: não interromper propagação.
-                // Apenas evitar navegação caso seja um link.
-                const tag = (event.target.tagName || '').toLowerCase();
-                if (tag === 'a') {
-                    event.preventDefault();
-                }
-                this.closeModal();
-            }
-        });
+    // Eventos de fechamento delegados ao ModalManager (não replicar aqui)
     }
 
     handleComprasgovClick(event) {
@@ -147,63 +112,19 @@ class Comprasgov {
     }
 
     openModal(url, projectTitle = '') {
-        // Preferir o ModalManager para manter consistência com outros modais
         if (window.modalManager && typeof window.modalManager.openModal === 'function') {
             window.modalManager.openModal('processo-modal', { url, title: projectTitle });
-            if (projectTitle && typeof window.setProcessoModalTitle === 'function') {
-                window.setProcessoModalTitle(projectTitle);
-            }
-            return;
-        }
-
-        if (!this.modalOverlay || !this.modalIframe || !this.modalContent) {
-            console.error('Comprasgov: elementos do modal não encontrados.');
-            return;
-        }
-
-        // Caso o ModalManager tenha fechado anteriormente, o overlay pode ter recebido 'd-none'
-        if (this.modalOverlay.classList.contains('d-none')) {
-            this.modalOverlay.classList.remove('d-none');
-        }
-
-        // Reset de estilos possivelmente definidos no fechamento
-        this.modalOverlay.style.opacity = '';
-        this.modalOverlay.style.pointerEvents = '';
-
-        this.modalIframe.src = url;
-        this.modalOverlay.style.display = 'flex';
-
-        // Animação semelhante ao ProcessoModal
-        this.modalContent.classList.remove('show');
-        void this.modalContent.offsetWidth;
-        this.modalContent.classList.add('show');
-        document.body.style.overflow = 'hidden';
-
-        if (projectTitle && typeof window.setProcessoModalTitle === 'function') {
-            window.setProcessoModalTitle(projectTitle);
+            if (projectTitle && typeof window.setProcessoModalTitle === 'function') window.setProcessoModalTitle(projectTitle);
+        } else {
+            // Fallback mínimo
+            window.open(url, '_blank');
         }
     }
 
     closeModal() {
-        // Preferir o ModalManager para manter consistência com outros modais
         if (window.modalManager && typeof window.modalManager.closeModal === 'function') {
             window.modalManager.closeModal('processo-modal');
-            return;
         }
-
-        if (!this.modalOverlay || !this.modalContent) return;
-        this.modalContent.classList.remove('show');
-        this.modalOverlay.style.opacity = '0';
-        this.modalOverlay.style.pointerEvents = 'none';
-        setTimeout(() => {
-            this.modalOverlay.style.display = 'none';
-            this.modalOverlay.style.opacity = '';
-            this.modalOverlay.style.pointerEvents = '';
-            if (this.modalIframe) {
-                this.modalIframe.src = 'about:blank';
-            }
-            document.body.style.overflow = '';
-        }, 400);
     }
 
     reinitialize() {

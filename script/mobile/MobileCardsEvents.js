@@ -96,6 +96,12 @@ class MobileCardsEvents {
                 e.stopPropagation();
                 this.handleMobileProcessoClick(e.target);
             }
+            // Clique no ícone Comprasgov nos cards mobile
+            if (e.target.classList.contains('mobile-compras-icon')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleMobileComprasgovClick(e.target);
+            }
         });
     }
 
@@ -242,63 +248,96 @@ class MobileCardsEvents {
      * @param {HTMLElement} target - Elemento clicado
      */
     handleMobileProcessoClick(target) {
-        const processo = target.dataset.processo;
-        
-        if (processo && processo.trim() !== '' && processo !== 'N/A') {
-            // Adiciona feedback tátil se disponível
-            if (window.MobileUtils && window.MobileUtils.hapticFeedback) {
-                window.MobileUtils.hapticFeedback('light');
+        const processo = (target.dataset.processo || '').replace('🔗','').trim();
+
+        // Extrai informações do card para título (idPca + nome projeto)
+        let projectName = '';
+        let idPca = '';
+        try {
+            const card = target.closest('.project-card');
+            if (card) {
+                const titleEl = card.querySelector('.card-title');
+                const idEl = card.querySelector('.card-id');
+                if (titleEl) projectName = titleEl.textContent.trim();
+                if (idEl) idPca = idEl.textContent.trim();
             }
-            
-            // Tenta copiar o número do processo para área de transferência
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(processo)
-                    .then(() => {
-                        this.openMobileProcessoModal(processo);
-                        // Atualiza o tooltip para indicar que foi copiado
-                        target.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
-                        
-                        // Feedback visual temporário
-                        target.style.filter = 'grayscale(0.5)';
-                        setTimeout(() => {
-                            target.style.filter = '';
-                        }, 1000);
-                    })
-                    .catch(err => {
-                        console.error('Falha ao copiar para a área de transferência:', err);
-                        // Mesmo se falhar ao copiar, abre a modal
-                        this.openMobileProcessoModal(processo);
-                    });
+        } catch(e) { /* ignore */ }
+        const computedTitle = (idPca ? (idPca + ' - ') : '') + projectName;
+
+        const openInModal = (url) => {
+            if (window.modalManager) {
+                window.modalManager.openModal('processo-modal', { url, title: computedTitle });
+                if (typeof window.setProcessoModalTitle === 'function') {
+                    window.setProcessoModalTitle(computedTitle);
+                }
             } else {
-                // Fallback se clipboard API não estiver disponível
-                this.openMobileProcessoModal(processo);
+                // Fallback: abre em nova aba
+                window.open(url, '_blank');
             }
+        };
+
+        const defaultUrl = 'https://www.tce.ce.gov.br/contexto-consulta-geral?tipo=processos';
+        let finalUrl = defaultUrl;
+        if (processo) {
+            finalUrl = `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`;
+        }
+
+        // Haptic feedback
+        if (window.MobileUtils && window.MobileUtils.hapticFeedback) {
+            window.MobileUtils.hapticFeedback('light');
+        }
+
+        if (processo && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(processo).then(() => {
+                target.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
+                target.style.filter = 'grayscale(0.5)';
+                setTimeout(() => { target.style.filter = ''; }, 900);
+                openInModal(finalUrl);
+            }).catch(() => {
+                openInModal(finalUrl);
+            });
         } else {
-            // Se não houver número de processo válido, abre a página padrão
-            this.openMobileProcessoModal('');
+            openInModal(finalUrl);
         }
     }
 
+    // Removido openMobileProcessoModal: lógica migrada para ModalManager
+    
     /**
-     * Abre o modal de processo usando a instância global do ProcessoModal
-     * @param {string} processo - Número do processo
+     * Manipula clique no ícone Comprasgov (🛍️) nos cards mobile
      */
-    openMobileProcessoModal(processo = '') {
-        // Usa a instância global do ProcessoModal se estiver disponível
-        if (window.processoModalInstance) {
-            window.processoModalInstance.openModal(processo);
-        } else if (window.ProcessoModal) {
-            // Fallback: cria nova instância se a global não estiver disponível
-            const modalInstance = new window.ProcessoModal();
-            modalInstance.openModal(processo);
+    handleMobileComprasgovClick(target) {
+        const modalidadeX = (target.getAttribute('data-x') || '').trim();
+        const numeroY = (target.getAttribute('data-y') || '').trim();
+        if (!numeroY || numeroY === '-') return;
+        // Extrai contexto para título
+        let projectName = '';
+        let idPca = '';
+        try {
+            const card = target.closest('.project-card');
+            if (card) {
+                const titleEl = card.querySelector('.card-title');
+                const idEl = card.querySelector('.card-id');
+                if (titleEl) projectName = titleEl.textContent.trim();
+                if (idEl) idPca = idEl.textContent.trim();
+            }
+        } catch(e) {}
+        const yy = this.mapYYCompras(modalidadeX);
+        const url = `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra/item/1?compra=925467${yy}${numeroY}`;
+        const finalTitle = (idPca ? (idPca + ' - ') : '') + projectName;
+        if (window.modalManager) {
+            window.modalManager.openModal('processo-modal', { url, title: finalTitle });
+            if (typeof window.setProcessoModalTitle === 'function') window.setProcessoModalTitle(finalTitle);
         } else {
-            console.error('ProcessoModal não está disponível. Certifique-se de que o script está carregado.');
-            // Fallback: abre diretamente no TCE em nova janela
-            const url = processo 
-                ? `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`
-                : 'https://www.tce.ce.gov.br/contexto-consulta-geral?tipo=processos';
             window.open(url, '_blank');
         }
+    }
+
+    mapYYCompras(modalidadeX='') {
+        const normalized = modalidadeX.toUpperCase();
+        if (normalized.includes('PREGÃO') || normalized.includes('PREGAO')) return '05';
+        if (normalized.includes('DISPENSA')) return '06';
+        return '06';
     }
 }
 

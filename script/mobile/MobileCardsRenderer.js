@@ -210,12 +210,17 @@ class MobileCardsRenderer {
             <div class="detail-item">
                 <span class="detail-label">Orçamento:</span>
                 <span class="detail-value ${orcamentoClass}">${project.orcamento}</span>
-            </div>            <div class="detail-item">
+            </div>
+            <div class="detail-item">
                 <span class="detail-label">Processo:</span>
                 <span class="detail-value">
                     ${project.processo}
                     ${project.processo && project.processo.trim() !== '' && project.processo !== 'N/A' ? 
                         ' <span class="processo-link-icon mobile-processo-icon" title="Clique para consultar processo no TCE e copiar número" data-processo="' + project.processo + '">🔗</span>' : 
+                        ''
+                    }
+                    ${project.numeroY && project.numeroY.trim() !== '' && project.numeroY !== '-' ?
+                        ' <span class="comprasgov-link-icon mobile-compras-icon" title="Abrir acompanhamento no Comprasgov" data-x="' + (project.modalidadeX||'') + '" data-y="' + project.numeroY + '">🛍️</span>' :
                         ''
                     }
                 </span>

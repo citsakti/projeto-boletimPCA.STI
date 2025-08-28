@@ -82,6 +82,10 @@ class MobileCardsData {
                 }
             }
             
+            // Sanitiza campo processo removendo emojis (🔗, 🛍️) que vêm do texto da célula
+            const rawProcesso = cells[9]?.textContent || '';
+            const sanitizedProcesso = rawProcesso.replace(/[🔗🛍️]/g, '').trim();
+
             let item = {
                 id: index,
                 idPca: cells[0]?.textContent?.trim() || '',
@@ -93,7 +97,9 @@ class MobileCardsData {
                 contratarAte: contratarAteText || '',                contratarAteDate: contratarAteDate, // Para ordenação
                 valorPca: cells[7]?.getAttribute('data-valor-original') || cells[7]?.textContent?.trim() || '', // Valor total original do CSV
                 orcamento: cells[8]?.textContent?.trim() || '',
-                processo: cells[9]?.textContent?.replace('🔗', '').trim() || '', // Remove emoji duplicado da tabela
+                processo: sanitizedProcesso,
+                modalidadeX: cells[9]?.getAttribute('data-x') || '',
+                numeroY: cells[9]?.getAttribute('data-y') || '',
                 row: row
             };
             
