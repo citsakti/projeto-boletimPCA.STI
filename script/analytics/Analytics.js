@@ -52,14 +52,20 @@
 // URL da planilha CSV (mesma do main.js) - inicial 2025 apontando para Apps Script atualizado
 // Ajuste: se o ano 2026 já estiver selecionado antes do YearSelector inicializar,
 // usamos diretamente a nova fonte (Apps Script 2026) solicitada pelo usuário.
-const __URL_2025__ = 'https://script.google.com/macros/s/AKfycbz4sHQdov5Yc26OIEga8Mg5yThXdm2SF1UMF7cG8rXPW49Z1s-KDoGh8yjCkOVKpFzUAQ/exec';
-const __URL_2026__ = 'https://script.google.com/macros/s/AKfycbzQwBm8v7PCrSE6UbqezxD6dLYymPA6dhL64Eoy82FAdoGO26yhh6XlfaC8SlVwtY_uYw/exec';
+// URLs primárias e redundantes (backup) para analytics
+const ANALYTICS_URLS = {
+    '2025': {
+        main: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1123542137&single=true&output=csv',
+        backup: 'https://script.google.com/macros/s/AKfycbz4sHQdov5Yc26OIEga8Mg5yThXdm2SF1UMF7cG8rXPW49Z1s-KDoGh8yjCkOVKpFzUAQ/exec'
+    },
+    '2026': {
+        main: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcOu9JPRm1oGxkBBEgpZ-hOfictNMZblU1qATZqosqAbMc6bbUASRNRyXVe-dWAK9gGJwvg-jduUFv/pub?gid=1123542137&single=true&output=csv',
+        backup: 'https://script.google.com/macros/s/AKfycbzQwBm8v7PCrSE6UbqezxD6dLYymPA6dhL64Eoy82FAdoGO26yhh6XlfaC8SlVwtY_uYw/exec'
+    }
+};
 let SHEET_CSV_URL = (function(){
-    try {
-        const storedYear = localStorage.getItem('selectedYear');
-        if (storedYear === '2026') return __URL_2026__;
-    } catch(e) { /* ignore */ }
-    return __URL_2025__;
+    try { const storedYear = localStorage.getItem('selectedYear'); if (storedYear && ANALYTICS_URLS[storedYear]) return ANALYTICS_URLS[storedYear].main; } catch(e) {}
+    return ANALYTICS_URLS['2025'].main;
 })();
 
 // Objeto para armazenar os dados processados
@@ -185,53 +191,28 @@ function initAnalytics() {
  */
 function fetchCSVData() {
     return new Promise((resolve, reject) => {
-        // Atualiza a URL com base no ano selecionado, se disponível
-        if (window.getYearUrls && typeof window.getYearUrls === 'function') {
-            const urls = window.getYearUrls();
-            SHEET_CSV_URL = urls.main;
-        }
-        
-        Papa.parse(SHEET_CSV_URL, {
-            download: true,
-            header: false,
-            skipEmptyLines: true,
-            complete: function(results) {
-                const allRows = results.data;
-                
-                // Encontrar a linha de cabeçalho que contém "ID PCA"
-                const headerRowIndex = allRows.findIndex(row =>
-                    row && row.length > 2 && row[2] && String(row[2]).trim() === 'ID PCA'
-                );
-                
-                if (headerRowIndex < 0) {
-                    reject('Cabeçalho "ID PCA" não encontrado no CSV');
-                    return;
-                }
-                
-                // Extrair cabeçalho e dados
-                const headerRow = allRows[headerRowIndex];
-                const dataRows = allRows.slice(headerRowIndex + 1);
-                
-                // Determinar o último índice com valor em "Projeto de Aquisição" (coluna 5)
-                let lastValidIndex = -1;
-                dataRows.forEach((row, i) => {
-                    if (row && row.length > 5 && row[5] && String(row[5]).trim() !== "") {
-                        lastValidIndex = i;
-                    }
-                });
-                
-                // Apenas linhas até o último projeto válido
-                const validDataRows = dataRows.slice(0, lastValidIndex + 1);
-                
-                resolve({
-                    headers: headerRow,
-                    data: validDataRows
-                });
-            },
-            error: function(err) {
-                reject('Erro ao baixar/processar o CSV: ' + err);
-            }
-        });
+        let year = '2025';
+        if (window.getSelectedYear) year = window.getSelectedYear();
+        const urlPack = ANALYTICS_URLS[year] || ANALYTICS_URLS['2025'];
+        SHEET_CSV_URL = urlPack.main;
+        const papaBase = { header: false, skipEmptyLines: true };
+        const exec = window.fetchCsvWithFallback ?
+            window.fetchCsvWithFallback(urlPack.main, urlPack.backup, papaBase) :
+            new Promise((res, rej) => {
+                Papa.parse(urlPack.main, { download: true, ...papaBase, complete: r=>res({urlUsed:urlPack.main, results:r}), error:rej });
+            });
+        exec.then(({ results, urlUsed }) => {
+            const allRows = results.data || [];
+            const headerRowIndex = allRows.findIndex(row => row && row.length > 2 && row[2] && String(row[2]).trim() === 'ID PCA');
+            if (headerRowIndex < 0) return reject('Cabeçalho "ID PCA" não encontrado no CSV');
+            const headerRow = allRows[headerRowIndex];
+            const dataRows = allRows.slice(headerRowIndex + 1);
+            let lastValidIndex = -1;
+            dataRows.forEach((row,i)=>{ if(row && row.length>5 && row[5] && String(row[5]).trim()!=='') lastValidIndex = i; });
+            const validDataRows = dataRows.slice(0, lastValidIndex + 1);
+            console.info('Analytics CSV carregado via', urlUsed.includes('script.google') ? 'backup' : 'primário');
+            resolve({ headers: headerRow, data: validDataRows });
+        }).catch(err => reject('Erro ao baixar/processar o CSV (fallback): '+ err));
     });
 }
 

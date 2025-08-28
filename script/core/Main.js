@@ -50,201 +50,110 @@
  * -----------------------------------------------------------------------------
  */
 
-// Definindo a URL da planilha como variável global para permitir alteração pelo seletor de ano
-// Atualizado (2025) para usar endpoint Apps Script solicitado pelo usuário
-let SHEET_CSV_URL = 'https://script.google.com/macros/s/AKfycbwkIh-zsINPjuUp97sZo2wpHS5A2qlMoD-r9tzMIXQHjWbOwPZw9xuISkl8A7s0AQcvPA/exec';
+// Definindo a URL da planilha como variável global (será atribuída dinamicamente pelo YearSelector)
+let SHEET_CSV_URL = 'about:blank';
 
 // Busca dados da planilha e preenche a tabela
 function fetchAndPopulate() {
-    // Atualiza a URL com base no ano selecionado, se disponível
     if (window.getYearUrls && typeof window.getYearUrls === 'function') {
         const urls = window.getYearUrls();
         SHEET_CSV_URL = urls.main;
-    }
-    return new Promise((resolve, reject) => {
-        Papa.parse(SHEET_CSV_URL, {
-            download: true,
-            header: false,         // <-- ler como array de arrays
-            skipEmptyLines: true,  
-            complete: function(results) {
-                const allRows = results.data;         // [ [".", …], ["#", "PB", "ID PCA", …], [dados…], … ]
-                
-                // 1) Encontre a linha cujo índice 2 seja exatamente "ID PCA" (o cabeçalho real)
-                const headerRowIndex = allRows.findIndex(row =>
-                    row[2] && row[2].trim() === 'ID PCA'
-                );
-                if (headerRowIndex < 0) {
-                    console.error('Cabeçalho "ID PCA" não encontrado no CSV');
-                    reject('Cabeçalho "ID PCA" não encontrado no CSV');
-                    return;
-                }
-    
-                // 2) Separe a partir da próxima linha como dados
-                const dataRows = allRows.slice(headerRowIndex + 1);
-                
-                // Determina o último índice com valor em "Projeto de Aquisição"
-                // (no seu mapeamento, essa coluna vem do CSV na posição 5)
-                let lastValidIndex = -1;
-                dataRows.forEach((row, i) => {
-                    if (row[5] && row[5].trim() !== "") {
-                        lastValidIndex = i;
+        const backup = urls.mainBackup;
+        const papaBaseOptions = { header: false, skipEmptyLines: true };
+        const useFallback = window.fetchCsvWithFallback ?
+            window.fetchCsvWithFallback(urls.main, backup, papaBaseOptions) :
+            new Promise((resolve, reject) => {
+                Papa.parse(urls.main, { download: true, ...papaBaseOptions, complete: r=>resolve({ urlUsed: urls.main, results: r }), error: reject });
+            });
+        return useFallback.then(({ results, urlUsed }) => {
+            const allRows = results.data || [];
+            const headerRowIndex = allRows.findIndex(row => row && row[2] && row[2].trim() === 'ID PCA');
+            if (headerRowIndex < 0) throw new Error('Cabeçalho "ID PCA" não encontrado');
+            const dataRows = allRows.slice(headerRowIndex + 1);
+            let lastValidIndex = -1;
+            dataRows.forEach((row, i) => { if (row && row[5] && row[5].trim() !== '') lastValidIndex = i; });
+            const validDataRows = dataRows.slice(0, lastValidIndex + 1);
+            const tbody = document.querySelector('table tbody');
+            if (!tbody) throw new Error('tbody da tabela principal não encontrado');
+            tbody.innerHTML = '';
+            const headers = ["ID PCA", "Área", "Tipo", "Projeto de Aquisição", "Status Início", "Status do Processo", "Contratar Até", "Valor PCA", "Orçamento", "Processo"];
+            validDataRows.forEach(row => {
+                const tr = document.createElement('tr');
+                [2, 3, 4, 5, 10, 6, 9, 15, 14, 13].forEach((i, colIndex) => {
+                    const td = document.createElement('td');
+                    td.dataset.label = headers[colIndex];
+                    let value = row[i] || '';
+                    if (colIndex === 3) { // Projeto de Aquisição
+                        const numeroContrato = row[21];
+                        const numeroRegistro = row[22];
+                        if (numeroContrato) td.setAttribute('data-contrato', numeroContrato.trim());
+                        if (numeroRegistro) td.setAttribute('data-registro', numeroRegistro.trim());
                     }
-                });
-                // Apenas linhas até o último projeto
-                const validDataRows = dataRows.slice(0, lastValidIndex + 1);
-                
-                // 3) Monte a tabela usando apenas as colunas que importam
-                const tbody = document.querySelector('table tbody');
-                // Defina os cabeçalhos na ordem correta da tabela HTML final
-                const headers = [
-                    "ID PCA", "Área", "Tipo", "Projeto de Aquisição", 
-                    "Status Início", "Status do Processo", "Contratar Até", 
-                    "Valor PCA", "Orçamento", "Processo"
-                ];
-
-                validDataRows.forEach(row => {
-                    const tr = document.createElement('tr');
-    
-                    // Atualizado array de mapeamento para refletir a nova ordem:
-                    // Nova ordem:
-                    // 0: CSV[2] = ID PCA
-                    // 1: CSV[3] = Área
-                    // 2: CSV[4] = Tipo
-                    // 3: CSV[5] = Projeto de Aquisição
-                    // 4: CSV[10] = Status Início
-                    // 5: CSV[6] = Status do Processo
-                    // 6: CSV[9] = Contratar Até
-                    // 7: CSV[15] = Valor PCA
-                    // 8: CSV[14] = Orçamento
-                    // 9: CSV[13] = Processo
-                    [2, 3, 4, 5, 10, 6, 9, 15, 14, 13].forEach((i, colIndex) => {
-                        const td = document.createElement('td');
-                        // Insere o data-label para uso no mobile
-                        td.dataset.label = headers[colIndex];
-                        let value = row[i] || '';
-                        // Adicionar atributo data-contrato e data-registro para coluna "Projeto de Aquisição"
-                        if (colIndex === 3) { // Coluna "Projeto de Aquisição"
-                            const numeroContrato = row[21]; // Coluna V do CSV (índice 21)
-                            const numeroRegistro = row[22]; // Coluna W do CSV (índice 22)
-                            if (numeroContrato && numeroContrato.trim() !== '') {
-                                td.setAttribute('data-contrato', numeroContrato.trim());
-                            }
-                            if (numeroRegistro && numeroRegistro.trim() !== '') {
-                                td.setAttribute('data-registro', numeroRegistro.trim());
+                    if (colIndex === 7) td.setAttribute('data-valor-original', value);
+                    if (colIndex === 4) value = formatStatusInicio(value);
+                    else if (colIndex === 6) value = formatContratarAte(value);
+                    else if (colIndex === 8 && value === '') value = '<Não Orçado>';
+                    else if (colIndex === 9) {
+                        if (value.trim() === '') td.textContent = '*'; else {
+                            td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+                            const modalidadeX = row[23] || '';
+                            const numeroY = row[24] || '';
+                            if (numeroY && String(numeroY).trim() !== '-' ) {
+                                td.setAttribute('data-x', String(modalidadeX).trim());
+                                td.setAttribute('data-y', String(numeroY).trim());
+                                const span = document.createElement('span');
+                                span.className = 'comprasgov-link-icon';
+                                span.title = 'Abrir acompanhamento no Comprasnet';
+                                span.textContent = ' 🛍️';
+                                span.style.cursor = 'pointer';
+                                span.setAttribute('data-x', String(modalidadeX).trim());
+                                span.setAttribute('data-y', String(numeroY).trim());
+                                td.appendChild(span);
                             }
                         }
-                        // Adicionar o valor original do CSV como atributo data-valor-original na coluna Valor PCA
-                        if (colIndex === 7) {
-                            td.setAttribute('data-valor-original', value);
-                        }
-                        if (colIndex === 4) {
-                            // Coluna "Status Início"
-                            value = formatStatusInicio(value);
-                        } else if (colIndex === 6) {
-                            // Coluna "Contratar Até"
-                            value = formatContratarAte(value);
-                        } else if (colIndex === 8) {
-                            // Nova coluna "Orçamento": se vazio, substitui
-                            if (value === '') {
-                                value = '<Não Orçado>';
-                            }
-                        } else if (colIndex === 9) {
-                            // Coluna "Processo":
-                            // - Se vazio, substitui por "*"
-                            // - Se houver valor, adiciona o ícone 🔗 (processo)
-                            // - Se a coluna Y (CSV índice 24) tiver valor, adiciona também o ícone 🛍️ (Comprasgov)
-                            if (value.trim() === '') {
-                                td.textContent = '*';
-                            } else {
-                                // Ícone de processo (TCE)
-                                td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
-                                // Ícone Comprasgov quando existir valor na coluna Y
-                                const modalidadeX = row[23] || ''; // Coluna X do CSV (índice 23)
-                                const numeroY = row[24] || '';     // Coluna Y do CSV (índice 24)
-                                if (numeroY && String(numeroY).trim() !== '' && String(numeroY).trim() !== '-') {
-                                    // Guarda os dados também no TD para que atualizações dinâmicas possam reutilizar
-                                    td.setAttribute('data-x', String(modalidadeX).trim());
-                                    td.setAttribute('data-y', String(numeroY).trim());
-                                    const span = document.createElement('span');
-                                    span.className = 'comprasgov-link-icon';
-                                    span.title = 'Abrir acompanhamento no Comprasnet';
-                                    span.textContent = ' 🛍️';
-                                    span.style.cursor = 'pointer';
-                                    span.setAttribute('data-x', String(modalidadeX).trim());
-                                    span.setAttribute('data-y', String(numeroY).trim());
-                                    td.appendChild(span);
-                                }
-                            }
-                            tr.appendChild(td);
-                            return; // Já adicionou o td, pula para o próximo
-                        } else if (colIndex === 5) {
-                            // Coluna "Status do Processo"
-                            const statusProcessoTexto = row[6]; // Coluna F - Status do Processo
-                            td.textContent = statusProcessoTexto;
-
-                            if (statusProcessoTexto.includes('AUTUAÇÃO ATRASADA 💣')) {
-                                const detalheAutuacao = row[11]; // Coluna L do CSV
-                                if (detalheAutuacao) {
-                                    td.dataset.detalheAutuacao = detalheAutuacao;
-                                }
-                            }
-
-                            if (statusProcessoTexto.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
-                                const detalheContratacao = row[12]; // Coluna M do CSV
-                                if (detalheContratacao) {
-                                    td.dataset.detalheContratacao = detalheContratacao;
-                                }
-                            }
-
-                            // Adicionar detalhe da coluna L do CSV para outros status relevantes
-                            const outrosStatusRelevantes = [
-                                'AGUARDANDO DFD ⏳',
-                                'AGUARDANDO ETP ⏳',
-                                'DFD ATRASADO❗',
-                                'ETP ATRASADO❗',
-                                'ELABORANDO TR📝',
-                                'ANÁLISE DE VIABILIDADE 📝'
-                            ];
-                            if (outrosStatusRelevantes.some(s => statusProcessoTexto.includes(s))) {
-                                const detalheStatusGeral = row[11]; // Coluna L do CSV (índice 11)
-                                if (detalheStatusGeral) {
-                                    td.dataset.detalheStatusGeral = detalheStatusGeral;
-                                }
-                            }
-
-                            // Adicionar detalhe da coluna M do CSV para status de Contratação/Renovação
-                            const statusContratacaoRenovacao = [
-                                'EM CONTRATAÇÃO 🤝',
-                                'EM RENOVAÇÃO 🔄'
-                            ];
-                            if (statusContratacaoRenovacao.some(s => statusProcessoTexto.includes(s))) {
-                                const detalheColunaM = row[12]; // Coluna M do CSV (índice 12)
-                                if (detalheColunaM) {
-                                    td.dataset.detalheContratacaoRenovacao = detalheColunaM;
-                                }
-                            }
-                        }
-                        td.textContent = value;
                         tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
+                        return;
+                    } else if (colIndex === 5) {
+                        const statusProcessoTexto = row[6];
+                        td.textContent = statusProcessoTexto;
+                        if (statusProcessoTexto.includes('AUTUAÇÃO ATRASADA 💣')) {
+                            const detalheAutuacao = row[11];
+                            if (detalheAutuacao) td.dataset.detalheAutuacao = detalheAutuacao;
+                        }
+                        if (statusProcessoTexto.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
+                            const detalheContratacao = row[12];
+                            if (detalheContratacao) td.dataset.detalheContratacao = detalheContratacao;
+                        }
+                        const outrosStatusRelevantes = ['AGUARDANDO DFD ⏳','AGUARDANDO ETP ⏳','DFD ATRASADO❗','ETP ATRASADO❗','ELABORANDO TR📝','ANÁLISE DE VIABILIDADE 📝'];
+                        if (outrosStatusRelevantes.some(s => statusProcessoTexto.includes(s))) {
+                            const detalheStatusGeral = row[11];
+                            if (detalheStatusGeral) td.dataset.detalheStatusGeral = detalheStatusGeral;
+                        }
+                        const statusContratacaoRenovacao = ['EM CONTRATAÇÃO 🤝','EM RENOVAÇÃO 🔄'];
+                        if (statusContratacaoRenovacao.some(s => statusProcessoTexto.includes(s))) {
+                            const detalheColunaM = row[12];
+                            if (detalheColunaM) td.dataset.detalheContratacaoRenovacao = detalheColunaM;
+                        }
+                        tr.appendChild(td);
+                        return;
+                    }
+                    td.textContent = value;
+                    tr.appendChild(td);
                 });
-
-                // depois de inserir todas as linhas na <tbody>
-                if (window.aplicarAnimacaoBomba)      aplicarAnimacaoBomba();
-                if (window.aplicarAnimacaoHourglass)  aplicarAnimacaoHourglass();
-                if (window.aplicarAnimacaoExclamation) aplicarAnimacaoExclamation();
-
-                /* NOVO: avisa que a tabela já tem dados */
-                document.dispatchEvent(new Event('tabela-carregada'));
-                resolve();
-            },
-            error: function(err) {
-                console.error('Erro ao baixar/parsear CSV:', err);
-                reject(err);
-            }
+                tbody.appendChild(tr);
+            });
+            if (window.aplicarAnimacaoBomba) aplicarAnimacaoBomba();
+            if (window.aplicarAnimacaoHourglass) aplicarAnimacaoHourglass();
+            if (window.aplicarAnimacaoExclamation) aplicarAnimacaoExclamation();
+            document.dispatchEvent(new Event('tabela-carregada'));
+            console.info('Tabela carregada via', urlUsed.includes('script.google') ? 'backup' : 'primário');
+        })
+        .catch(err => {
+            console.error('Erro ao carregar dados com fallback:', err);
+            throw err;
         });
-    });
+    }
+    return Promise.reject(new Error('getYearUrls indisponível'));
 }
 
 // Função para popular o filtro "tipo" como select com as opções da tabela

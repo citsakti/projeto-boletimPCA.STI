@@ -34,11 +34,15 @@
  */
 
 (function() {
-    // URL para a aba de acompanhamento do CSV (variável global para permitir alteração pelo seletor de ano)
-    let ACOMPANHAMENTO_CSV_URL = 'https://script.google.com/macros/s/AKfycbwQpJtT3GBpGdBaNdODF7NQDDb3ZFW8ZEAS9323oPsph8f2eGQgyOWgB0RXUq4eecLh/exec';
-    
-    // Disponibiliza a variável globalmente para permitir acesso pelo YearSelector
+    // URL inicial (será atualizada dinamicamente pelo YearSelector via getYearUrls)
+    // Mantemos valor placeholder para evitar chamadas prematuras antes do seletor carregar
+    let ACOMPANHAMENTO_CSV_URL = 'about:blank';
+    // Backup atual (atualizado a cada seleção de ano)
+    let ACOMPANHAMENTO_CSV_URL_BACKUP = null;
+
+    // Expor globalmente (principal e backup) para referência externa/debug
     window.ACOMPANHAMENTO_CSV_URL = ACOMPANHAMENTO_CSV_URL;
+    window.ACOMPANHAMENTO_CSV_URL_BACKUP = ACOMPANHAMENTO_CSV_URL_BACKUP;
     // Cache dos dados de acompanhamento para evitar download repetido
     let acompanhamentoData = null;
     
@@ -148,35 +152,38 @@
      */
     function fetchAcompanhamentoData(forceRefresh = false) {
         return new Promise((resolve, reject) => {
-            // Atualiza a URL com base no ano selecionado, se disponível
+            // Atualiza URLs conforme ano selecionado
             if (window.getYearUrls && typeof window.getYearUrls === 'function') {
                 const urls = window.getYearUrls();
                 ACOMPANHAMENTO_CSV_URL = urls.acompanhamento;
+                ACOMPANHAMENTO_CSV_URL_BACKUP = urls.acompanhamentoBackup;
                 window.ACOMPANHAMENTO_CSV_URL = ACOMPANHAMENTO_CSV_URL;
+                window.ACOMPANHAMENTO_CSV_URL_BACKUP = ACOMPANHAMENTO_CSV_URL_BACKUP;
             }
 
             if (acompanhamentoData && !forceRefresh) {
-                // Se temos dados em cache e não estamos forçando a atualização,
-                // processa os dados cacheados.
                 processAcompanhamentoData(acompanhamentoData);
                 resolve();
                 return;
             }
-            
-            console.log("Buscando dados da aba de acompanhamento (forçado refresh ou primeira carga)...");
-            Papa.parse(ACOMPANHAMENTO_CSV_URL, {
-                download: true,
-                header: false,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    acompanhamentoData = results.data; // Atualiza o cache com os novos dados
-                    processAcompanhamentoData(acompanhamentoData);
-                    resolve();
-                },
-                error: function(error) {
-                    console.error("Erro ao baixar dados de acompanhamento:", error);
-                    reject(error);
-                }
+
+            console.log("Buscando dados da aba de acompanhamento (" + (forceRefresh ? 'refresh forçado' : 'primeira carga') + ")...");
+
+            const papaBase = { header: false, skipEmptyLines: true };
+            const exec = (typeof window.fetchCsvWithFallback === 'function')
+                ? window.fetchCsvWithFallback(ACOMPANHAMENTO_CSV_URL, ACOMPANHAMENTO_CSV_URL_BACKUP, papaBase)
+                : new Promise((res, rej) => {
+                    Papa.parse(ACOMPANHAMENTO_CSV_URL, { download: true, ...papaBase, complete: r=>res({urlUsed: ACOMPANHAMENTO_CSV_URL, results: r}), error: rej });
+                });
+
+            exec.then(({ results, urlUsed }) => {
+                acompanhamentoData = results.data || [];
+                console.info('Acompanhamento carregado via', urlUsed && urlUsed.includes('script.google') ? 'backup' : 'primário');
+                processAcompanhamentoData(acompanhamentoData);
+                resolve();
+            }).catch(error => {
+                console.error('Erro ao baixar dados de acompanhamento (incluindo fallback):', error);
+                reject(error);
             });
         });
     }

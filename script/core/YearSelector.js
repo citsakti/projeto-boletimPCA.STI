@@ -23,16 +23,19 @@
 
 (function() {
     // URLs das planilhas para cada ano
+    // Estrutura com URL primária (Google Sheets CSV público) e redundância (Apps Script) para cada ano e tipo de planilha
     const SHEET_URLS = {
         '2025': {
-            // main atualizado para endpoint Apps Script (CSV 2025)
-            main: 'https://script.google.com/macros/s/AKfycbz4sHQdov5Yc26OIEga8Mg5yThXdm2SF1UMF7cG8rXPW49Z1s-KDoGh8yjCkOVKpFzUAQ/exec',
-            acompanhamento: 'https://script.google.com/macros/s/AKfycbwQpJtT3GBpGdBaNdODF7NQDDb3ZFW8ZEAS9323oPsph8f2eGQgyOWgB0RXUq4eecLh/exec'
+            main: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1123542137&single=true&output=csv',
+            mainBackup: 'https://script.google.com/macros/s/AKfycbz4sHQdov5Yc26OIEga8Mg5yThXdm2SF1UMF7cG8rXPW49Z1s-KDoGh8yjCkOVKpFzUAQ/exec',
+            acompanhamento: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkrLcVYUAyDdf3XlecZ-qdperC8emYWp_5MCXXBG_SdrF5uGab5ugtebjA9iOWeDIbyC56s9jRGjcP/pub?gid=1961352255&single=true&output=csv',
+            acompanhamentoBackup: 'https://script.google.com/macros/s/AKfycbwQpJtT3GBpGdBaNdODF7NQDDb3ZFW8ZEAS9323oPsph8f2eGQgyOWgB0RXUq4eecLh/exec'
         },
         '2026': {
-            // Atualizado para endpoint Apps Script (CSV 2026) conforme solicitação
-            main: 'https://script.google.com/macros/s/AKfycbzQwBm8v7PCrSE6UbqezxD6dLYymPA6dhL64Eoy82FAdoGO26yhh6XlfaC8SlVwtY_uYw/exec',
-            acompanhamento: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcOu9JPRm1oGxkBBEgpZ-hOfictNMZblU1qATZqosqAbMc6bbUASRNRyXVe-dWAK9gGJwvg-jduUFv/pub?gid=1961352255&single=true&output=csv'
+            main: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcOu9JPRm1oGxkBBEgpZ-hOfictNMZblU1qATZqosqAbMc6bbUASRNRyXVe-dWAK9gGJwvg-jduUFv/pub?gid=1123542137&single=true&output=csv',
+            mainBackup: 'https://script.google.com/macros/s/AKfycbzQwBm8v7PCrSE6UbqezxD6dLYymPA6dhL64Eoy82FAdoGO26yhh6XlfaC8SlVwtY_uYw/exec',
+            acompanhamento: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcOu9JPRm1oGxkBBEgpZ-hOfictNMZblU1qATZqosqAbMc6bbUASRNRyXVe-dWAK9gGJwvg-jduUFv/pubhtml?gid=1961352255&single=true',
+            acompanhamentoBackup: 'https://script.google.com/macros/s/AKfycbxEr26CCGxmYXnagBNd5sAlPb4_lIPuBIqwir28N_IZSWyajx8dbmA_sEsqW9zI8VOV/exec'
         }
     };
 
@@ -160,20 +163,14 @@
      * @param {string} year - O ano selecionado ('2025' ou '2026')
      */
     function updateYearSelection(year) {
-        // Atualiza as URLs globais para que outros scripts possam usar
-        if (window.SHEET_CSV_URL !== undefined) {
-            window.SHEET_CSV_URL = SHEET_URLS[year].main;
-        }
-        // Mantém sincronizado para scripts de atualização automática
-        if (window.SHEET_CSV_URL_GLOBAL !== undefined) {
-            window.SHEET_CSV_URL_GLOBAL = SHEET_URLS[year].main;
-        }
-        
-        if (window.ACOMPANHAMENTO_CSV_URL !== undefined) {
-            window.ACOMPANHAMENTO_CSV_URL = SHEET_URLS[year].acompanhamento;
-        }
-        
-        // Atualiza o título da página para refletir o ano selecionado
+        const cfg = SHEET_URLS[year];
+        // URLs principais
+        if (window.SHEET_CSV_URL !== undefined) window.SHEET_CSV_URL = cfg.main;
+        if (window.SHEET_CSV_URL_GLOBAL !== undefined) window.SHEET_CSV_URL_GLOBAL = cfg.main;
+        if (window.ACOMPANHAMENTO_CSV_URL !== undefined) window.ACOMPANHAMENTO_CSV_URL = cfg.acompanhamento;
+        // Guardar também backups globais para consumo em outros scripts
+        window.SHEET_CSV_URL_BACKUP = cfg.mainBackup;
+        window.ACOMPANHAMENTO_CSV_URL_BACKUP = cfg.acompanhamentoBackup;
         updatePageTitle(year);
     }
     
@@ -234,6 +231,43 @@
     // Adiciona uma função para obter as URLs baseadas no ano selecionado
     window.getYearUrls = function() {
         const year = window.yearSelectorConfig.currentYear || detectCurrentYear();
-        return SHEET_URLS[year];
+        const y = SHEET_URLS[year];
+        return {
+            year,
+            main: y.main,
+            mainBackup: y.mainBackup,
+            acompanhamento: y.acompanhamento,
+            acompanhamentoBackup: y.acompanhamentoBackup
+        };
+    };
+
+    // Função utilitária global para baixar CSV com fallback (primário -> backup)
+    window.fetchCsvWithFallback = function(primaryUrl, backupUrl, papaOptions = {}) {
+        return new Promise((resolve, reject) => {
+            function attempt(url, isBackup) {
+                Papa.parse(url, {
+                    download: true,
+                    ...papaOptions,
+                    complete: (results) => {
+                        const hasData = results && results.data && results.data.length > 0;
+                        if (hasData) {
+                            resolve({ urlUsed: url, results });
+                        } else if (!isBackup && backupUrl) {
+                            attempt(backupUrl, true);
+                        } else {
+                            reject(new Error('CSV vazio após tentar ' + (isBackup ? 'backup' : 'primário')));
+                        }
+                    },
+                    error: (err) => {
+                        if (!isBackup && backupUrl) {
+                            attempt(backupUrl, true);
+                        } else {
+                            reject(err);
+                        }
+                    }
+                });
+            }
+            attempt(primaryUrl, false);
+        });
     };
 })();
