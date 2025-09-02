@@ -795,6 +795,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     event.preventDefault();
                     const td = event.target.closest('td');
                     let processo = td ? td.textContent.replace('🔗', '').trim() : '';
+                    // Novo padrão de URL para consulta de processos (hash route + query search)
+                    const BASE_PROCESSO_URL = 'https://www.tce.ce.gov.br/contexto/#/processo';
                     const { projectName, idPca } = (function extractProjectInfo(){
                         try {
                             const tr = event.target.closest('tr');
@@ -835,17 +837,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (processo) {
                         navigator.clipboard.writeText(processo)
                             .then(() => {
-                                const url = `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`;
+                const url = `${BASE_PROCESSO_URL}?search=${encodeURIComponent(processo)}`;
                                 openWithTitle(url);
                                 if (td) td.title = 'Número do processo copiado! Cole no campo de busca do TCE.';
                             })
                             .catch(err => {
                                 console.error('Falha ao copiar para a área de transferência:', err);
-                                const url = `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`;
+                const url = `${BASE_PROCESSO_URL}?search=${encodeURIComponent(processo)}`;
                                 openWithTitle(url);
                             });
                     } else if (td) {
-                        const url = 'https://www.tce.ce.gov.br/contexto-consulta-geral?tipo=processos';
+            const url = BASE_PROCESSO_URL; // Sem parâmetro quando não há número
                         openWithTitle(url);
                     }
                 }

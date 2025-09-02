@@ -130,10 +130,13 @@ class ProcessoModal {
             return;
         }
 
-        // Monta a URL dinâmica
-        const url = processo 
-            ? `https://www.tce.ce.gov.br/contexto-consulta-geral?texto=${encodeURIComponent(processo)}&tipo=processos`
-            : 'https://www.tce.ce.gov.br/contexto-consulta-geral?tipo=processos';
+        // Monta a URL dinâmica (ATUALIZADO: novo padrão de acesso ao processo)
+        // Novo formato requerido: https://www.tce.ce.gov.br/contexto/#/processo?search=NUMERO_DO_PROCESSO
+        // Mantemos a busca do nome do processo como já está (lógica mais abaixo para título etc.)
+        const BASE_PROCESSO_URL = 'https://www.tce.ce.gov.br/contexto/#/processo';
+        const url = processo
+            ? `${BASE_PROCESSO_URL}?search=${encodeURIComponent(processo)}`
+            : BASE_PROCESSO_URL; // fallback sem parâmetro de busca quando não há número
 
         // Configura o iframe e abre o modal
     this.modalIframe.src = url;
