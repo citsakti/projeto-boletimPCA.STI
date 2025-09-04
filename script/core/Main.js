@@ -76,7 +76,7 @@ function fetchAndPopulate() {
             const tbody = document.querySelector('table tbody');
             if (!tbody) throw new Error('tbody da tabela principal não encontrado');
             tbody.innerHTML = '';
-            const headers = ["ID PCA", "Área", "Tipo", "Projeto de Aquisição", "Status Início", "Status do Processo", "Contratar Até", "Valor PCA", "Orçamento", "Processo"];
+            const headers = ["ID PCA", "Área", "Tipo", "Projeto de Aquisição", "Acompanhamento", "Status do Processo", "Contratar Até", "Valor PCA", "Orçamento", "Processo"];
             validDataRows.forEach(row => {
                 const tr = document.createElement('tr');
                 [2, 3, 4, 5, 10, 6, 9, 15, 14, 13].forEach((i, colIndex) => {
@@ -90,12 +90,17 @@ function fetchAndPopulate() {
                         if (numeroRegistro) td.setAttribute('data-registro', numeroRegistro.trim());
                     }
                     if (colIndex === 7) td.setAttribute('data-valor-original', value);
-                    if (colIndex === 4) value = formatStatusInicio(value);
+                    // Coluna 4 agora é "Acompanhamento"; limpar valor CSV (coluna K) e guardar original para referência
+                    if (colIndex === 4) {
+                        td.dataset.valorCsvOriginal = value;
+                        value = '';
+                    }
                     else if (colIndex === 6) value = formatContratarAte(value);
                     else if (colIndex === 8 && value === '') value = '<Não Orçado>';
                     else if (colIndex === 9) {
                         if (value.trim() === '') td.textContent = '*'; else {
                             td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+                            td.dataset.processoNumero = (value||'').toString().trim();
                             const modalidadeX = row[23] || '';
                             const numeroY = row[24] || '';
                             if (numeroY && String(numeroY).trim() !== '-' ) {
@@ -305,7 +310,7 @@ function populateTableDOMWithData(processedDataRows) {
     tbody.innerHTML = '';
     const headers = [
         "ID PCA", "Área", "Tipo", "Projeto de Aquisição", 
-        "Status Início", "Status do Processo", "Contratar Até", 
+        "Acompanhamento", "Status do Processo", "Contratar Até", 
         "Valor PCA", "Orçamento", "Processo"
     ];
 

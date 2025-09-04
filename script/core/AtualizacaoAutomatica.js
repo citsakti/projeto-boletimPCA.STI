@@ -209,6 +209,9 @@
             
             for (let colIndex = 0; colIndex < csvColumnIndices.length; colIndex++) {
                 const csvIdx = csvColumnIndices[colIndex];
+                const columnName = columnHeaders[colIndex];
+                // Ignorar coluna Acompanhamento (preenchida via API externa)
+                if (columnName === 'Acompanhamento') continue;
                 const currentValue = String(currentRow[csvIdx] || '').trim();
                 const newValue = String(newRow[csvIdx] || '').trim();
                 
@@ -337,7 +340,10 @@
         });
 
         // Verificar se é coluna especial que requer formatação específica
-        if (columnName === "Processo" && newValue) {
+        if (columnName === 'Acompanhamento') {
+            // Ignora atualizações vindas do CSV nesta coluna para não sobrescrever dados da API
+            return;
+        } else if (columnName === "Processo" && newValue) {
             // Preservar ícone de processo se existir
             cell.textContent = newValue;
             
@@ -404,7 +410,10 @@
                 cell.setAttribute('data-label', headerName);
                 
                 // Aplicar formatação específica por coluna
-                if (headerName === "Processo" && cellValue) {
+                if (headerName === 'Acompanhamento') {
+                    // Mantém vazio para ser preenchido pelo AcompanhamentoProcessos.js
+                    cell.textContent = '';
+                } else if (headerName === "Processo" && cellValue) {
                     cell.textContent = cellValue;
                     const icon = document.createElement('span');
                     icon.classList.add('processo-link-icon');

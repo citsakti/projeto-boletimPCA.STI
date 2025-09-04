@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Debug Acompanhamento</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 10px 5px;
+        }
+        .button:hover { background: #0056b3; }
+        .console { 
+            background: #1e1e1e; 
+            color: #ffffff; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            margin-top: 20px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug do Sistema de Acompanhamento</h1>
+        <p>Esta página vai executar testes no sistema de acompanhamento para identificar onde está o problema.</p>
+        
+        <div>
+            <button class="button" onclick="abrirPaginaPrincipal()">🌐 Abrir Página Principal</button>
+            <button class="button" onclick="executarTestes()">🧪 Executar Testes</button>
+            <button class="button" onclick="limparConsole()">🗑️ Limpar Console</button>
+        </div>
+        
+        <div id="console-output" class="console">
+Aguardando execução dos testes...
+
+Para usar este debug:
+1. Clique em "Abrir Página Principal" 
+2. Na página que abrir, abra o Console (F12)
+3. Volte aqui e clique em "Executar Testes"
+4. Os comandos aparecerão aqui para você copiar e colar no console
+
+Ou você pode copiar este comando completo e colar diretamente no console da página principal:
+
+// Ativar debug
+window._acompanhamentoDebug = true;
+
+// Executar diagnóstico detalhado  
+if (typeof window.debugAcompanhamentoDetalhado === 'function') {
+    window.debugAcompanhamentoDetalhado();
+} else {
+    console.log('❌ Função debugAcompanhamentoDetalhado não encontrada');
+}
+
+// Forçar atualização
+if (typeof window.atualizarAcompanhamentoProcessos === 'function') {
+    window.atualizarAcompanhamentoProcessos();
+} else {
+    console.log('❌ Função atualizarAcompanhamentoProcessos não encontrada');
+}
+
+// Verificar após 5 segundos
+setTimeout(() => {
+    console.log('=== VERIFICAÇÃO FINAL ===');
+    if (typeof window.debugAcompanhamentoDetalhado === 'function') {
+        window.debugAcompanhamentoDetalhado();
+    }
+}, 5000);
+        </div>
+    </div>
+
+    <script>
+        function abrirPaginaPrincipal() {
+            window.open('index.html', '_blank');
+        }
+        
+        function limparConsole() {
+            document.getElementById('console-output').textContent = 'Console limpo...\n';
+        }
+        
+        function executarTestes() {
+            const console = document.getElementById('console-output');
+            console.textContent = `🔍 COMANDOS PARA EXECUTAR NO CONSOLE DA PÁGINA PRINCIPAL:
+
+1. Primeiro, ative o debug:
+   window._acompanhamentoDebug = true;
+
+2. Execute o diagnóstico detalhado:
+   window.debugAcompanhamentoDetalhado();
+
+3. Force a atualização:
+   window.atualizarAcompanhamentoProcessos();
+
+4. Aguarde 5 segundos e execute novamente o diagnóstico:
+   setTimeout(() => window.debugAcompanhamentoDetalhado(), 5000);
+
+=====================================
+
+COMANDO COMPLETO (copie tudo de uma vez):
+
+window._acompanhamentoDebug = true;
+console.log('🔍 INICIANDO DEBUG DO ACOMPANHAMENTO');
+if (typeof window.debugAcompanhamentoDetalhado === 'function') {
+    window.debugAcompanhamentoDetalhado();
+} else {
+    console.log('❌ debugAcompanhamentoDetalhado não encontrada');
+}
+if (typeof window.atualizarAcompanhamentoProcessos === 'function') {
+    window.atualizarAcompanhamentoProcessos().then(() => {
+        console.log('✅ Atualização concluída');
+    }).catch(e => {
+        console.log('❌ Erro na atualização:', e);
+    });
+} else {
+    console.log('❌ atualizarAcompanhamentoProcessos não encontrada');
+}
+setTimeout(() => {
+    console.log('=== VERIFICAÇÃO FINAL APÓS 5s ===');
+    if (typeof window.debugAcompanhamentoDetalhado === 'function') {
+        window.debugAcompanhamentoDetalhado();
+    }
+}, 5000);
+
+=====================================
+
+RESULTADOS ESPERADOS:
+- ✅ Cache de processos com dados
+- ✅ Números coletados da tabela  
+- ✅ Correspondências encontradas
+- ✅ Células atualizadas
+
+Se não aparecer isso, há um problema específico que precisamos investigar.
+`;
+        }
+    </script>
+</body>
+</html>

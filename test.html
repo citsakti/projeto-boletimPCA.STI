@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Consulta de Processos - TCE/CE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 24px; color: #222; background: #f8f9fb; }
+    h1 { font-size: 20px; margin: 0 0 16px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; max-width: 960px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+    .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 720px) { .row.cols-2 { grid-template-columns: 1fr 1fr; } }
+    label { font-size: 13px; color: #374151; font-weight: 600; }
+    textarea, input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    textarea { min-height: 120px; resize: vertical; }
+    .actions { display: flex; gap: 12px; align-items: center; }
+    button { appearance: none; border: 0; background: #2563eb; color: #fff; padding: 10px 14px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    button[disabled] { opacity: .6; cursor: not-allowed; }
+    .btn-secondary { background: #6b7280; }
+    .muted { color: #6b7280; font-size: 12px; }
+    .status { font-size: 13px; }
+    .status.ok { color: #059669; }
+    .status.err { color: #dc2626; }
+    pre { background: #0b1021; color: #e5e7eb; padding: 14px; border-radius: 10px; overflow: auto; max-height: 480px; }
+    .spinner { width: 16px; height: 16px; border: 3px solid #c7d2fe; border-top-color: #1d4ed8; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <h1>Consulta de Processos – API TCE/CE</h1>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label for="numeros">Números de processo (um por linha):</label>
+        <textarea id="numeros" spellcheck="false">06474/2025-3
+006474/2025-3</textarea>
+        <div class="muted">Ex.: 06474/2025-3</div>
+      </div>
+      <div class="row cols-2">
+        <div>
+          <label for="timeout">Timeout (segundos):</label>
+          <input id="timeout" type="text" value="10" />
+        </div>
+        <div>
+          <label for="qtd">Qtd por página:</label>
+          <input id="qtd" type="text" value="200" />
+        </div>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:14px;">
+      <button id="btnConsultar">Consultar</button>
+      <button id="btnLimpar" class="btn-secondary">Limpar saída</button>
+      <span id="indicador" class="muted status"></span>
+    </div>
+
+    <div style="margin-top:14px;">
+      <label>Saída (JSON):</label>
+      <pre id="saida" aria-live="polite">// resultados aparecerão aqui</pre>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://api-processos.tce.ce.gov.br/processos/porLista";
+
+    async function buscarProcessos({ numeros, qtd = 20, timeoutMs = 10000 }) {
+      const payload = {
+        numeros,
+        filtros: {},   // ajuste se a API suportar filtros
+        pagina: 0,
+        qtd: Number(qtd) || 200
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        const resp = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+            // "Authorization": "Bearer <seu_token>" // se necessário
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+
+        if (!resp.ok) {
+          const text = await resp.text().catch(() => "");
+          throw new Error(`HTTP ${resp.status} - ${text || resp.statusText}`);
+        }
+
+        // tenta JSON; se falhar, mostra texto cru
+        try {
+          return await resp.json();
+        } catch {
+          const text = await resp.text().catch(() => "");
+          throw new Error("Resposta não é JSON. Corpo: " + text);
+        }
+      } catch (err) {
+        if (err.name === "AbortError") {
+          throw new Error("Tempo de resposta excedido.");
+        }
+        throw err;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    function lerNumerosDaUI() {
+      const raw = document.getElementById("numeros").value || "";
+      // um por linha, remove vazios e espaços:
+      return raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    }
+
+    function setLoading(loading) {
+      const btn = document.getElementById("btnConsultar");
+      const ind = document.getElementById("indicador");
+      btn.disabled = loading;
+      ind.className = "status " + (loading ? "" : "ok");
+      ind.innerHTML = loading ? '<span class="spinner"></span> Consultando…' : 'Pronto';
+    }
+
+    function printOutput(obj) {
+      const pre = document.getElementById("saida");
+      pre.textContent = typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
+    }
+
+    document.getElementById("btnConsultar").addEventListener("click", async () => {
+      const numeros = lerNumerosDaUI();
+      const qtd = document.getElementById("qtd").value;
+      const timeoutSec = Number(document.getElementById("timeout").value) || 10;
+
+      if (!numeros.length) {
+        printOutput("Informe ao menos um número de processo.");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const data = await buscarProcessos({
+          numeros,
+          qtd,
+          timeoutMs: timeoutSec * 1000
+        });
+        printOutput(data);
+      } catch (err) {
+        document.getElementById("indicador").className = "status err";
+        document.getElementById("indicador").textContent = "Erro";
+        printOutput("Erro: " + (err?.message || err));
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    document.getElementById("btnLimpar").addEventListener("click", () => {
+      printOutput("// resultados aparecerão aqui");
+      const ind = document.getElementById("indicador");
+      ind.className = "status muted";
+      ind.textContent = "";
+    });
+  </script>
+</body>
+</html>

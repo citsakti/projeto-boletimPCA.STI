@@ -1,6 +1,8 @@
 /**
  * AcompanhamentoDeProjetos.js - Sistema de acompanhamento de projetos do Boletim PCA 2025
  * 
+ * ⚠️  ATENÇÃO: Sistema temporariamente DESABILITADO devido a conflito com AcompanhamentoProcessos.js
+ * 
  * Este script é responsável por:
  *  - Buscar informações da aba "ACOMPANHAMENTO" do CSV para projetos na tabela principal
  *  - Exibir tooltips com informações de acompanhamento ao passar o mouse sobre os projetos
@@ -60,6 +62,11 @@
      * Função principal que inicializa o processamento de acompanhamento
      */
     function initAcompanhamento() {
+        // TEMPORARIAMENTE DESABILITADO - conflito com AcompanhamentoProcessos.js
+        console.log('[AcompanhamentoDeProjetos] Sistema temporariamente desabilitado devido a conflito com AcompanhamentoProcessos.js');
+        console.log('[AcompanhamentoDeProjetos] Para reativar, remova o return abaixo e o comentário de desativação');
+        return;
+        
         console.log("Inicializando funcionalidade de acompanhamento de projetos...");
         
         // Criar elemento de tooltip que será reutilizado
