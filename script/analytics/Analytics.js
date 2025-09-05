@@ -143,6 +143,13 @@ function initAnalytics() {
                 container.innerHTML += renderProdutividadeDetalhada();
             }
             
+            // Inicializar seção 3.2 Processos por Setor (após renderização das seções base)
+            if (typeof initProcessosPorSetor === 'function') {
+                setTimeout(() => {
+                    initProcessosPorSetor();
+                }, 500); // Pequeno delay para garantir que a seção situacional foi renderizada
+            }
+            
             // Atualizar a data de atualização
             document.getElementById('data-atualizacao').textContent = new Date().toLocaleDateString('pt-BR');
             

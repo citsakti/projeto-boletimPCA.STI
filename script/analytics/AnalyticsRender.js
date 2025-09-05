@@ -425,6 +425,19 @@ function renderSituacionalSection() {
                 </div>
             </div>
         </div>
+        
+        <div class="analytics-subsection" id="processos-por-setor-subsection">
+            <h3>3.2 Processos por Setor</h3>
+            <div class="setores-container" id="setores-container">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Carregando dados de setor... Por favor, aguarde.
+                </div>
+            </div>
+        </div>
+                </div>
+            </div>
+        </div>
     `;
     
     // Adicionar à página
