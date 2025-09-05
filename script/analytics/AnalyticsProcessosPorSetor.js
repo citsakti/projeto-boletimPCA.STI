@@ -18,6 +18,11 @@
  *   - initProcessosPorSetor(): Inicia o processamento
  *   - buscarDadosSetorAPI(): Busca informações de setor via API
  *   - processarProcessosPorSetor(): Agrupa processos por setor
+
+console.log('🔄 [ProcessosPorSetor] Carregando AnalyticsProcessosPorSetor.js...');
+console.log('🔍 [ProcessosPorSetor] Verificando dependências de AnalyticsTempoSetor...');
+console.log('   - window.buscarDadosTempoSetor:', typeof window.buscarDadosTempoSetor);
+console.log('   - window.renderTempoSetorParaProcesso:', typeof window.renderTempoSetorParaProcesso);
  *   - renderProcessosPorSetorSection(): Renderiza a seção HTML
  *   - addProcessosPorSetorExpandListeners(): Configura event listeners
  * 
@@ -33,6 +38,8 @@
 
 // Cache para dados da API de processos
 const apiCacheSetores = new Map();
+// Expor globalmente para reutilização por AnalyticsTempoSetor.js (hidratação sem nova chamada)
+window.apiCacheSetores = apiCacheSetores;
 const processosPorSetor = new Map();
 const setoresCounts = new Map();
 
@@ -72,7 +79,16 @@ async function initProcessosPorSetor() {
         // Processar e agrupar dados por setor
         processarProcessosPorSetor();
         
-        // Renderizar seção
+        // Renderizar seção antes de inserir tags
+        console.log('⏱️ [ProcessosPorSetor] Renderizando seção (antes de tempo no setor)...');
+        
+        // Hidratação rápida via cache já obtido (sem nova requisição)
+        if (typeof window.hidratarTempoSetorDeApiCache === 'function') {
+            console.log('⏱️ [ProcessosPorSetor] Hidratação inicial das tags de tempo via apiCacheSetores...');
+            window.hidratarTempoSetorDeApiCache(numerosProcesso);
+        }
+        
+        // Renderizar seção COM dados de tempo já disponíveis
         renderProcessosPorSetorSection();
         
         console.log('✅ [ProcessosPorSetor] Processamento concluído');
@@ -372,6 +388,11 @@ function renderProcessosPorSetorSection() {
     // Configurar event listeners
     addProcessosPorSetorExpandListeners();
     
+    // Habilitar TableSorter para as tabelas de detalhes
+    if (typeof window.enableTableSorting === 'function') {
+        window.enableTableSorting(setoresContainer);
+    }
+    
     console.log('[ProcessosPorSetor] Seção renderizada com sucesso');
 }
 
@@ -434,7 +455,7 @@ function renderSetorProcessosTable(setor) {
     }
     
     return `
-        <table class="table table-striped table-sm">
+        <table class="table table-striped table-hover project-details-table">
             <thead class="table-dark">
                 <tr>
                     <th>ID PCA</th>
@@ -449,27 +470,136 @@ function renderSetorProcessosTable(setor) {
                 </tr>
             </thead>
             <tbody>
-                ${projetos.map(projeto => `
-                    <tr>
-                        <td><span class="badge bg-primary">${projeto.id || ''}</span></td>
-                        <td><span class="area-tag ${getAreaClass(projeto.area)}">${projeto.area || ''}</span></td>
-                        <td><span class="tipo-badge">${getTipoFromProject(projeto) || ''}</span></td>
-                        <td class="projeto-cell">${projeto.objeto || ''}</td>
-                        <td><span class="status-badge ${getStatusClass(projeto.status)}">${projeto.status || ''}</span></td>
-                        <td>${formatDateCell(projeto.contratar_ate) || ''}</td>
-                        <td class="text-end"><strong>R$ ${formatCurrency(projeto.valor || 0)}</strong></td>
-                        <td><span class="orcamento-badge ${getOrcamentoClass(projeto)}">${getOrcamentoFromProject(projeto) || ''}</span></td>
-                        <td>
-                            ${projeto.numeroProcesso ? 
-                                `<span class="processo-link" data-numero="${projeto.numeroProcesso}">${projeto.numeroProcesso}</span>` 
-                                : '<span class="text-muted">-</span>'
-                            }
-                        </td>
-                    </tr>
-                `).join('')}
+                ${projetos.map(projeto => renderSetorProcessoRow(projeto)).join('')}
             </tbody>
         </table>
     `;
+}
+
+/**
+ * Renderiza uma linha da tabela de processos do setor
+ */
+function renderSetorProcessoRow(projeto) {
+    return `
+        <tr>
+            <td><span class="badge bg-primary">${projeto.id || ''}</span></td>
+            <td>${formatAreaWithClasses(projeto.area || '')}</td>
+            <td><span class="tipo-badge">${getTipoFromProject(projeto) || ''}</span></td>
+            <td class="projeto-cell" style="font-weight: bold;">${projeto.objeto || ''}</td>
+            <td>${formatStatusComTempoSetor(projeto.status || '', projeto.numeroProcesso || '')}</td>
+            <td>${formatDateCell(projeto.contratar_ate) || ''}</td>
+            <td class="text-end"><strong>${formatCurrencyValue(projeto.valor || 0)}</strong></td>
+            <td>${formatOrcamentoWithClasses(getOrcamentoFromProject(projeto) || '')}</td>
+            <td>${renderProcessoCell(projeto)}</td>
+        </tr>
+    `;
+}
+
+/**
+ * Função para aplicar estilo de área seguindo padrão das outras seções
+ */
+function formatAreaWithClasses(area) {
+    const areaClass = getAreaClass(area);
+    if (areaClass && areaClass !== 'area-geral') {
+        return `<span class="${areaClass}-highlight">${area}</span>`;
+    }
+    return area;
+}
+
+/**
+ * Função para aplicar estilo de status seguindo padrão das outras seções
+ */
+function formatStatusWithClasses(status) {
+    const statusClass = getStatusClass(status);
+    if (statusClass && statusClass !== 'status-secondary') {
+        return `<span class="${statusClass}-highlight">${status}</span>`;
+    }
+    return status;
+}
+
+/**
+ * Função para renderizar status com tag de tempo no setor
+ */
+function formatStatusComTempoSetor(status, numeroProcesso) {
+    console.log(`[ProcessosPorSetor] formatStatusComTempoSetor chamada - Status: ${status}, Processo: ${numeroProcesso}`);
+    
+    const statusFormatado = formatStatusWithClasses(status);
+    console.log(`[ProcessosPorSetor] Status formatado: ${statusFormatado}`);
+    
+    // Renderizar tag de tempo diretamente durante criação da linha
+    if (typeof window.renderTempoSetorParaProcesso === 'function' && numeroProcesso) {
+        const tagTempo = window.renderTempoSetorParaProcesso(numeroProcesso);
+        console.log(`[ProcessosPorSetor] Tag tempo retornada: "${tagTempo}"`);
+        if (tagTempo) {
+            const resultado = `${statusFormatado} ${tagTempo}`;
+            console.log(`[ProcessosPorSetor] Resultado final: ${resultado}`);
+            return resultado;
+        }
+    } else {
+        console.warn('[ProcessosPorSetor] window.renderTempoSetorParaProcesso não está disponível ou processo vazio');
+    }
+    
+    return statusFormatado;
+}
+
+/**
+ * Função para aplicar estilo de orçamento seguindo padrão das outras seções
+ */
+function formatOrcamentoWithClasses(orcamento) {
+    const orcamentoLower = (orcamento || '').toLowerCase();
+    if (orcamentoLower.includes('investimento')) {
+        return `<span class="orcamento-investimento-highlight">${orcamento}</span>`;
+    }
+    if (orcamentoLower.includes('custeio')) {
+        return `<span class="orcamento-custeio-highlight">${orcamento}</span>`;
+    }
+    return orcamento;
+}
+
+/**
+ * Renderiza célula de processo com funcionalidades de link (🔗 e 🛍️)
+ */
+function renderProcessoCell(projeto) {
+    const numeroProcesso = projeto.numeroProcesso;
+    
+    if (!numeroProcesso || numeroProcesso.trim() === '' || numeroProcesso === '-') {
+        return '<span class="text-muted">-</span>';
+    }
+    
+    // Buscar dados da API para informações do Comprasgov
+    const numeroNormalizado = normalizarNumeroProcesso(numeroProcesso);
+    const dadosAPI = apiCacheSetores.get(numeroNormalizado);
+    
+    // Tentar obter modalidade e número do Comprasgov de diferentes fontes
+    const modalidadeX = dadosAPI?.modalidade || projeto.modalidade || projeto.tipo || '';
+    const numeroY = dadosAPI?.numeroComprasgov || projeto.numeroY || projeto.numeroComprasgov || '';
+    
+    // Montar célula base com ícone 🔗
+    let html = `${numeroProcesso} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
+    
+    // Adicionar ícone 🛍️ se houver número do Comprasgov
+    if (numeroY && numeroY.trim() !== '' && numeroY.trim() !== '-') {
+        const x = modalidadeX.toString().trim();
+        const y = numeroY.toString().trim();
+        html += ` <span class="comprasgov-link-icon" title="Abrir acompanhamento no Comprasnet" data-x="${x}" data-y="${y}">🛍️</span>`;
+    }
+    
+    return html;
+}
+
+/**
+ * Formata valor monetário seguindo padrão do projeto
+ */
+function formatCurrencyValue(valor) {
+    if (!valor || valor === 0) return 'R$ 0,00';
+    
+    const number = parseFloat(valor);
+    if (isNaN(number)) return 'R$ 0,00';
+    
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(number);
 }
 
 /**
@@ -484,24 +614,74 @@ function getOrcamentoFromProject(projeto) {
 }
 
 function getAreaClass(area) {
-    // Reutilizar classes CSS existentes do projeto
-    if (area && area.includes('STI')) return 'area-sti';
-    return 'area-other';
+    // Seguir o mesmo padrão das outras seções (MobileCardsStyles.js)
+    const areaMap = {
+        'STI 👩‍💼': 'area-sti',
+        'OPERAÇÕES 🗄️': 'area-operacoes',
+        'DEV 👨‍💻': 'area-dev',
+        'ANALYTICS 📊': 'area-analytics',
+        'GOVERNANÇA 🌐': 'area-governanca',
+    };
+
+    // Procurar por correspondência exata primeiro (incluindo emoji)
+    if (areaMap[area]) {
+        return areaMap[area];
+    }
+    
+    // Fallback para correspondência parcial (sem emoji ou variações)
+    const areaLower = (area || '').toLowerCase();
+    if (areaLower.includes('sti')) return 'area-sti';
+    if (areaLower.includes('operações') || areaLower.includes('operacoes')) return 'area-operacoes';
+    if (areaLower.includes('dev')) return 'area-dev';
+    if (areaLower.includes('analytics')) return 'area-analytics';
+    if (areaLower.includes('governança') || areaLower.includes('governanca')) return 'area-governanca';
+    
+    return 'area-geral'; // Classe padrão caso nenhuma corresponda
 }
 
 function getStatusClass(status) {
-    // Reutilizar classes CSS existentes do projeto
-    if (status && (status.includes('CONTRATADO') || status.includes('RENOVADO'))) return 'status-success';
-    if (status && status.includes('ATRASAD')) return 'status-danger';
-    if (status && status.includes('AGUARDANDO')) return 'status-warning';
-    if (status && status.includes('EM ')) return 'status-info';
+    // Seguir o mesmo padrão das outras seções (MobileCardsStyles.js)
+    const statusMap = {
+        'AUTUAÇÃO ATRASADA 💣': 'status-autuacao-atrasada',
+        'EM RENOVAÇÃO 🔄': 'status-em-renovacao',
+        'CANCELADO ❌': 'status-cancelado',
+        'EM CONTRATAÇÃO 🤝': 'status-em-contratacao',
+        'AGUARDANDO ETP ⏳': 'status-aguardando-etp',
+        'AGUARDANDO DFD ⏳': 'status-aguardando-dfd',
+        'A INICIAR ⏰': 'status-a-iniciar',
+        'RENOVADO ✅': 'status-renovado',
+        'CONTRATADO ✅': 'status-contratado',
+        'AGUR. DEFIN. DO GESTOR ⏳': 'status-aguardando-definicao',
+        'ETP ATRASADO❗': 'status-etp-atrasado',
+        'DFD ATRASADO❗': 'status-dfd-atrasado',
+        'CONTRATAÇÃO ATRASADA ⚠️': 'status-contratacao-atrasada',
+        'ELABORANDO TR📝': 'status-elaborando-tr',
+        'ANÁLISE DE VIABILIDADE 📝': 'status-analise-viabilidade',
+        'REVISÃO PCA 🚧': 'status-revisao-pca'
+    };
+
+    // Procurar por correspondência exata primeiro
+    if (statusMap[status]) {
+        return statusMap[status];
+    }
+    
+    // Fallback para correspondência parcial
+    const statusLower = (status || '').toLowerCase();
+    if (statusLower.includes('atrasad')) return 'status-danger';
+    if (statusLower.includes('contratado') || statusLower.includes('renovado')) return 'status-success';
+    if (statusLower.includes('aguardando')) return 'status-warning';
+    if (statusLower.includes('em ')) return 'status-info';
+    
     return 'status-secondary';
 }
 
 function getOrcamentoClass(projeto) {
-    const orcamento = projeto.orcamento || '';
-    if (orcamento.includes('INVESTIMENTO')) return 'orcamento-investimento';
-    if (orcamento.includes('CUSTEIO')) return 'orcamento-custeio';
+    const orcamento = (projeto.orcamento || '').toLowerCase();
+    
+    // Mapear baseado no padrão do Orcamento.css
+    if (orcamento.includes('investimento')) return 'orcamento-investimento';
+    if (orcamento.includes('custeio')) return 'orcamento-custeio';
+    
     return 'orcamento-default';
 }
 
@@ -536,6 +716,12 @@ function addProcessosPorSetorExpandListeners() {
                 detailsDiv.style.display = 'block';
                 icon.className = 'bi bi-chevron-up';
                 this.innerHTML = '<i class="bi bi-chevron-up"></i> Recolher';
+                
+                // Habilitar TableSorter para a tabela recém-expandida
+                if (typeof window.enableTableSorting === 'function') {
+                    window.enableTableSorting(detailsDiv);
+                }
+                
                 console.log(`[ProcessosPorSetor] Expandindo setor: ${setorNome}`);
             } else {
                 detailsDiv.style.display = 'none';
@@ -550,3 +736,7 @@ function addProcessosPorSetorExpandListeners() {
 // Exportar funções para uso global
 window.initProcessosPorSetor = initProcessosPorSetor;
 window.renderProcessosPorSetorSection = renderProcessosPorSetorSection;
+
+console.log('✅ [ProcessosPorSetor] Módulo AnalyticsProcessosPorSetor.js carregado completamente');
+console.log('🔗 [ProcessosPorSetor] Função initProcessosPorSetor() disponível globalmente');
+console.log('🔄 [ProcessosPorSetor] Pronto para integração com AnalyticsTempoSetor.js');

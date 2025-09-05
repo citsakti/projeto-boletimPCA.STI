@@ -145,9 +145,19 @@ function initAnalytics() {
             
             // Inicializar seção 3.2 Processos por Setor (após renderização das seções base)
             if (typeof initProcessosPorSetor === 'function') {
-                setTimeout(() => {
-                    initProcessosPorSetor();
-                }, 500); // Pequeno delay para garantir que a seção situacional foi renderizada
+                // Aguardar que o módulo AnalyticsTempoSetor esteja carregado
+                const waitForTempoSetor = () => {
+                    if (typeof window.buscarDadosTempoSetor === 'function' && 
+                        typeof window.renderTempoSetorParaProcesso === 'function') {
+                        console.log('[Analytics] Módulo TempoSetor carregado, iniciando ProcessosPorSetor');
+                        initProcessosPorSetor();
+                    } else {
+                        console.log('[Analytics] Aguardando módulo TempoSetor...');
+                        setTimeout(waitForTempoSetor, 100);
+                    }
+                };
+                
+                setTimeout(waitForTempoSetor, 300); // Delay inicial para garantir renderização
             }
             
             // Atualizar a data de atualização

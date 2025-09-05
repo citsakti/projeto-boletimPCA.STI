@@ -1356,15 +1356,14 @@
     border-color: rgba(var(--brand-primary-rgb), 0.1);
 }
 
-/* Estilos para badges e tags na tabela de setores */
+/* Estilos para badges e tags na tabela de setores - Seguindo padrão do projeto */
 .setor-details .badge {
     font-size: 0.75rem;
     padding: 0.4rem 0.6rem;
 }
 
+/* Classes de área seguindo padrão do Areas.css */
 .setor-details .area-tag {
-    background-color: rgba(var(--brand-primary-rgb), 0.1);
-    color: var(--brand-primary);
     padding: 0.3rem 0.6rem;
     border-radius: 6px;
     font-size: 0.8rem;
@@ -1373,8 +1372,33 @@
 }
 
 .setor-details .area-tag.area-sti {
-    background-color: rgba(40, 167, 69, 0.1);
-    color: #28a745;
+    background: #ffe5a0;
+    color: black;
+}
+
+.setor-details .area-tag.area-operacoes {
+    background: #bfe1f6;
+    color: black;
+}
+
+.setor-details .area-tag.area-dev {
+    background: #d4edbc;
+    color: black;
+}
+
+.setor-details .area-tag.area-analytics {
+    background: #ffc8aa;
+    color: black;
+}
+
+.setor-details .area-tag.area-governanca {
+    background: #e8eaed;
+    color: black;
+}
+
+.setor-details .area-tag.area-geral {
+    background: #f8f9fa;
+    color: black;
 }
 
 .setor-details .tipo-badge {
@@ -1382,6 +1406,7 @@
     font-weight: 500;
 }
 
+/* Classes de status seguindo padrão do StatusAtrasado.css e Main.css */
 .setor-details .status-badge {
     padding: 0.3rem 0.6rem;
     border-radius: 6px;
@@ -1390,26 +1415,112 @@
     display: inline-block;
 }
 
+.setor-details .status-badge.status-autuacao-atrasada {
+    background: #d29eee;
+    color: black;
+}
+
+.setor-details .status-badge.status-contratacao-atrasada {
+    background: #b10202;
+    color: white;
+}
+
+.setor-details .status-badge.status-aguardando-etp {
+    background: #ffe5a0;
+    color: black;
+}
+
+.setor-details .status-badge.status-aguardando-dfd {
+    background: #ffe5a0;
+    color: black;
+}
+
+.setor-details .status-badge.status-em-contratacao {
+    background: #0a53a8;
+    color: white;
+}
+
+.setor-details .status-badge.status-em-renovacao {
+    background: #0a53a8;
+    color: white;
+}
+
+.setor-details .status-badge.status-renovado {
+    background: #11734b;
+    color: white;
+}
+
+.setor-details .status-badge.status-contratado {
+    background: #11734b;
+    color: white;
+}
+
+.setor-details .status-badge.status-etp-atrasado {
+    background: #ffcfc9;
+    color: black;
+}
+
+.setor-details .status-badge.status-dfd-atrasado {
+    background: #ffcfc9;
+    color: black;
+}
+
+.setor-details .status-badge.status-elaborando-tr {
+    background: #afdcf8;
+    color: black;
+}
+
+.setor-details .status-badge.status-analise-viabilidade {
+    background: #afdcf8;
+    color: black;
+}
+
+.setor-details .status-badge.status-aguardando-definicao {
+    background: #d29eee;
+    color: black;
+}
+
+.setor-details .status-badge.status-a-iniciar {
+    background: #e6e6e6;
+    color: black;
+}
+
+.setor-details .status-badge.status-revisao-pca {
+    background: #000000;
+    color: #ffe5a0;
+}
+
+.setor-details .status-badge.status-cancelado {
+    background: #6c757d;
+    color: white;
+}
+
 .setor-details .status-badge.status-success {
-    background-color: rgba(40, 167, 69, 0.1);
-    color: #28a745;
+    background: #11734b;
+    color: white;
 }
 
 .setor-details .status-badge.status-danger {
-    background-color: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
+    background: #b10202;
+    color: white;
 }
 
 .setor-details .status-badge.status-warning {
-    background-color: rgba(255, 193, 7, 0.1);
-    color: #ffc107;
+    background: #ffe5a0;
+    color: black;
 }
 
 .setor-details .status-badge.status-info {
-    background-color: rgba(13, 110, 253, 0.1);
-    color: #0d6efd;
+    background: #0a53a8;
+    color: white;
 }
 
+.setor-details .status-badge.status-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+/* Classes de orçamento seguindo padrão do Orcamento.css */
 .setor-details .orcamento-badge {
     padding: 0.3rem 0.6rem;
     border-radius: 6px;
@@ -1419,18 +1530,18 @@
 }
 
 .setor-details .orcamento-badge.orcamento-custeio {
-    background-color: rgba(255, 193, 7, 0.1);
-    color: #ffc107;
+    background: #ffc8aa;
+    color: black;
 }
 
 .setor-details .orcamento-badge.orcamento-investimento {
-    background-color: rgba(13, 110, 253, 0.1);
-    color: #0d6efd;
+    background: #bfe1f6;
+    color: black;
 }
 
 .setor-details .orcamento-badge.orcamento-default {
-    background-color: rgba(var(--brand-secondary-rgb), 0.1);
-    color: var(--brand-secondary);
+    background: #f8f9fa;
+    color: black;
 }
 
 .setor-details .status-badge.status-secondary {
@@ -1448,7 +1559,38 @@
     color: var(--brand-primary);
     text-decoration: underline;
     cursor: pointer;
-    font-weight: 500;
+}
+
+/* Remove negrito da coluna "Contratar Até" (6ª coluna) nas tabelas da seção "3.2 Processos por Setor" */
+.setor-details .project-details-table td:nth-child(6) {
+    font-weight: normal !important;
+}
+
+/* Aplica negrito à coluna "Projeto" (4ª coluna) nas tabelas da seção "3.2 Processos por Setor" */
+.setor-details .project-details-table td:nth-child(4) {
+    font-weight: bold !important;
+}
+
+/* Estilos para ícones de processo nas tabelas da seção 3.2 */
+.setor-details .processo-link-icon {
+    cursor: pointer;
+    color: var(--brand-primary);
+    margin-left: 5px;
+    transition: color 0.2s ease;
+}
+
+.setor-details .processo-link-icon:hover {
+    color: var(--brand-primary-dark);
+}
+
+.setor-details .comprasgov-link-icon {
+    cursor: pointer;
+    margin-left: 5px;
+    transition: transform 0.2s ease;
+}
+
+.setor-details .comprasgov-link-icon:hover {
+    transform: scale(1.1);
 }
 
 .setor-details .processo-link:hover {
