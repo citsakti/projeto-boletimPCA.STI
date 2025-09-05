@@ -31,6 +31,15 @@
       pagina: 0,
       qtd: Math.min(numeros.length, 10) // Limitado a 10 processos por requisição
     };
+    
+    if (window._acompanhamentoDebug) {
+      console.log('[API] Enviando requisição:', {
+        url: API_URL,
+        payload: payload,
+        numerosEnviados: numeros
+      });
+    }
+    
     const controller = new AbortController();
     const to = setTimeout(()=>controller.abort(), timeoutMs);
     try {
@@ -40,11 +49,39 @@
         body: JSON.stringify(payload),
         signal: controller.signal
       });
+      
+      if (window._acompanhamentoDebug) {
+        console.log('[API] Resposta recebida:', {
+          status: resp.status,
+          statusText: resp.statusText,
+          headers: Object.fromEntries(resp.headers.entries())
+        });
+      }
+      
       if (!resp.ok) {
         const t = await resp.text().catch(()=>"");
         throw new Error(`HTTP ${resp.status} ${t||resp.statusText}`);
       }
-      return await resp.json();
+      
+      const data = await resp.json();
+      
+      if (window._acompanhamentoDebug) {
+        console.log('[API] Dados JSON recebidos:', {
+          tipoResposta: typeof data,
+          ehArray: Array.isArray(data),
+          chaves: data && typeof data === 'object' ? Object.keys(data) : 'N/A',
+          tamanho: Array.isArray(data) ? data.length : 'N/A',
+          primeiroItem: data && Array.isArray(data) && data[0] ? data[0] : 
+                       data && typeof data === 'object' ? Object.values(data)[0] : 'N/A'
+        });
+      }
+      
+      return data;
+    } catch (error) {
+      if (window._acompanhamentoDebug) {
+        console.error('[API] Erro na requisição:', error);
+      }
+      throw error;
     } finally { 
       clearTimeout(to); 
     }
@@ -80,21 +117,49 @@
         if (Array.isArray(dados)) {
           lista = dados;
         } else if (dados && typeof dados === 'object') {
-          const chavesPossiveis = ['conteudo','content','items','data','result','processos','lista','registros'];
-          for (const k of chavesPossiveis) {
-            if (Array.isArray(dados[k])) { 
-              lista = dados[k]; 
-              if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Dados encontrados na chave: ${k}`);
-              break; 
+          // Primeiro, verificar se há uma propriedade 'data' (estrutura da API do TCE)
+          if (dados.data) {
+            if (Array.isArray(dados.data)) {
+              lista = dados.data;
+              if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Dados encontrados em: data (array direto)`);
+            } else if (typeof dados.data === 'object') {
+              // Se data é um objeto, procurar dentro dele (incluindo 'lista')
+              const subChaves = ['lista', 'content', 'items', 'result', 'processos', 'registros'];
+              for (const k of subChaves) {
+                if (Array.isArray(dados.data[k])) {
+                  lista = dados.data[k];
+                  if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Dados encontrados em: data.${k}`);
+                  break;
+                }
+              }
+              // Se não encontrou em subchaves, talvez data seja uma lista de propriedades
+              if (!lista.length) {
+                Object.values(dados.data).forEach(v => {
+                  if (v && typeof v === 'object' && (v.nrProcesso || v.numero)) lista.push(v);
+                });
+                if (lista.length && window._acompanhamentoDebug) {
+                  console.log('[Acompanhamento] Dados coletados de propriedades de data');
+                }
+              }
             }
-          }
-          if (!lista.length) {
-            // tentativa final: coletar subobjetos com campo numero
-            Object.values(dados).forEach(v => { 
-              if (v && typeof v === 'object' && v.numero) lista.push(v); 
-            });
-            if (lista.length && window._acompanhamentoDebug) {
-              console.log('[Acompanhamento] Dados coletados de subobjetos');
+          } else {
+            // Fallback: buscar nas chaves originais
+            const chavesPossiveis = ['conteudo','content','items','result','processos','lista','registros'];
+            for (const k of chavesPossiveis) {
+              if (Array.isArray(dados[k])) { 
+                lista = dados[k]; 
+                if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Dados encontrados na chave: ${k}`);
+                break; 
+              }
+            }
+            if (!lista.length) {
+              // tentativa final: coletar subobjetos com campo numero ou nrProcesso
+              Object.values(dados).forEach(v => { 
+                if (v && typeof v === 'object' && (v.nrProcesso || v.numero)) lista.push(v); 
+              });
+              if (lista.length && window._acompanhamentoDebug) {
+                console.log('[Acompanhamento] Dados coletados de subobjetos');
+              }
             }
           }
         }
@@ -107,17 +172,29 @@
         }
         
         lista.forEach(item => { 
-          if (item && item.numero) {
-            const numeroNormalizado = normalizarNumero(item.numero);
+          // A API retorna 'nrProcesso' ao invés de 'numero'
+          const numeroProcesso = item.nrProcesso || item.numero;
+          if (item && numeroProcesso) {
+            const numeroNormalizado = normalizarNumero(numeroProcesso);
             cacheProcessos.set(numeroNormalizado, item);
-            if (window._acompanhamentoDebug && cacheProcessos.size <= 3) {
-              console.log(`[Acompanhamento] Cached: ${numeroNormalizado}`, {
+            if (window._acompanhamentoDebug && cacheProcessos.size <= 5) {
+              console.log(`[Cache] Armazenado: ${numeroNormalizado}`, {
+                numeroOriginal: numeroProcesso,
                 setor: item?.setor?.descricao,
-                dtUltimoEncaminhamento: item?.dtUltimoEncaminhamento
+                dtUltimoEncaminhamento: item?.dtUltimoEncaminhamento,
+                objetoCompleto: item
               });
+            }
+          } else {
+            if (window._acompanhamentoDebug) {
+              console.warn('[Cache] Item inválido encontrado:', item);
             }
           }
         });
+        
+        if (window._acompanhamentoDebug) {
+          console.log(`[Cache] Estado atual: ${cacheProcessos.size} processos armazenados`);
+        }
         
         // Pequeno delay entre requisições para não sobrecarregar a API
         if (i < lotes.length - 1) {
@@ -387,4 +464,65 @@
   
   // Expor função de debug
   window.debugAcompanhamentoDetalhado = debugDetalhado;
+  
+  // Função para testar requisição individual
+  window.testarAPIIndividual = async function(numerosProcesso = ['06763/2025-0']) {
+    console.log('🧪 TESTANDO REQUISIÇÃO INDIVIDUAL À API');
+    console.log('Números a testar:', numerosProcesso);
+    
+    try {
+      const resultado = await buscarProcessosLote(numerosProcesso);
+      console.log('✅ Requisição bem-sucedida:', resultado);
+      return resultado;
+    } catch (error) {
+      console.error('❌ Erro na requisição:', error);
+      return null;
+    }
+  };
+  
+  // Função para analisar estrutura completa da resposta
+  window.analisarEstruturaAPI = async function(numerosProcesso = ['06763/2025-0']) {
+    console.log('🔍 ANALISANDO ESTRUTURA COMPLETA DA API');
+    
+    try {
+      const resultado = await buscarProcessosLote(numerosProcesso);
+      console.log('📊 ESTRUTURA COMPLETA DA RESPOSTA:');
+      console.log('Tipo do resultado:', typeof resultado);
+      console.log('Chaves do resultado:', Object.keys(resultado));
+      console.log('Conteúdo de data:', resultado.data);
+      console.log('Tipo de data:', typeof resultado.data);
+      
+      if (resultado.data) {
+        console.log('Chaves de data:', Object.keys(resultado.data));
+        console.log('Conteúdo completo de data:', resultado.data);
+        
+        // Verificar se é array ou objeto
+        if (Array.isArray(resultado.data)) {
+          console.log('✅ data é um array com', resultado.data.length, 'itens');
+          if (resultado.data.length > 0) {
+            console.log('Primeiro item de data:', resultado.data[0]);
+          }
+        } else if (typeof resultado.data === 'object') {
+          console.log('⚠️ data é um objeto, não um array');
+          console.log('Propriedades de data:', Object.keys(resultado.data));
+          
+          // Procurar arrays dentro de data
+          Object.keys(resultado.data).forEach(key => {
+            const value = resultado.data[key];
+            if (Array.isArray(value)) {
+              console.log(`🎯 Encontrou array em data.${key} com ${value.length} itens`);
+              if (value.length > 0) {
+                console.log(`Primeiro item de data.${key}:`, value[0]);
+              }
+            }
+          });
+        }
+      }
+      
+      return resultado;
+    } catch (error) {
+      console.error('❌ Erro na análise:', error);
+      return null;
+    }
+  };
 })();
