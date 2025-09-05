@@ -8,6 +8,8 @@ document.addEventListener('tabela-carregada', () => {
     setTimeout(() => {
         initializeGoogleSheetFilters();
         initializeClearFiltersButton();
+        // Aplica a alternância de cores inicial após carregamento da tabela
+        alternaCoresLinhas();
     }, 100); 
 });
 
@@ -494,8 +496,9 @@ function clearMobileFilters() {
     });
 }
 
-// Torna a função disponível globalmente
+// Torna as funções disponíveis globalmente
 window.clearAllGoogleSheetFilters = clearAllGoogleSheetFilters;
+window.alternaCoresLinhas = alternaCoresLinhas;
 
 function masterFilterFunction() {
     const tableRows = document.querySelectorAll('#detalhes table tbody tr');
