@@ -5,7 +5,7 @@
  * exibindo: "<SETOR> - há <X> dia(s)" a partir dos dados da API de processos.
  *
  * Fluxo:
- *  1. Escuta o evento 'tabela-carregada' (disparado após o CSV montar a tabela)
+ *  1. Escuta o evento 'tabela-carregada' (disparado após montar a tabela)
  *  2. Coleta todos os números de processo da coluna "Processo" (última coluna)
  *  3. Faz requisições em lote (POST) à API https://api-processos.tce.ce.gov.br/processos/porLista
  *  4. Calcula diferença em dias entre hoje e dtUltimoEncaminhamento
@@ -270,17 +270,15 @@
   }
 
   /**
-   * Determina a classe CSS baseada no número de dias (baseado em AnalyticsTempoSetor.js)
+   * Determina a classe CSS baseada no número de dias (padronizada com cor única)
    * @param {number} dias - Número de dias no setor
-   * @returns {string} - Classe CSS adicional
+   * @returns {string} - Classe CSS adicional (sempre a mesma cor)
    */
   function getClassePorTempo(dias) {
     if (dias === null || dias === undefined) return '';
     
-    if (dias >= 30) return ' tempo-critico';      // Mais de 30 dias - vermelho
-    if (dias >= 15) return ' tempo-alerta';       // 15-29 dias - laranja
-    if (dias >= 7) return ' tempo-atencao';       // 7-14 dias - amarelo
-    return '';                                     // Menos de 7 dias - azul padrão
+    // Retorna sempre a mesma classe para cor padronizada
+    return ' tempo-padrao';
   }
 
   /**
@@ -296,41 +294,29 @@
     style.textContent = `
         .tempo-acompanhamento-tag {
             display: inline-block;
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-            color: white;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
             margin-left: 8px;
-            border: 1px solid #117a8b;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+            border: 1px solid #90caf9;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             cursor: help;
         }
         
         .tempo-acompanhamento-tag:hover {
-            background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
             transform: translateY(-1px);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
         }
         
-        /* Variação de cores baseada no tempo */
-        .tempo-acompanhamento-tag.tempo-critico {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            border-color: #bd2130;
-        }
-        
-        .tempo-acompanhamento-tag.tempo-alerta {
-            background: linear-gradient(135deg, #fd7e14 0%, #e8610e 100%);
-            border-color: #dc5a00;
-        }
-        
-        .tempo-acompanhamento-tag.tempo-atencao {
-            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
-            border-color: #d39e00;
-            color: #212529;
-            text-shadow: none;
+        /* Classe padronizada para todos os tempos */
+        .tempo-acompanhamento-tag.tempo-padrao {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: #90caf9;
+            color: #1565c0;
         }
         
         @media (max-width: 768px) {
