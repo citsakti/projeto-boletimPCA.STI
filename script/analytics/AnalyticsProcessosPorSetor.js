@@ -305,7 +305,10 @@ function processarProcessosPorSetor() {
                     // Tentar inferir tipo se não disponível
                     tipo: inferirTipoProjeto(projeto, status),
                     // Tentar inferir orçamento
-                    orcamento: inferirOrcamentoProjeto(projeto, status)
+                    orcamento: inferirOrcamentoProjeto(projeto, status),
+                    // Adicionar dados de contratos da API ou dos dados originais
+                    numeroContrato: dadosAPI?.numeroContrato || projeto.numeroContrato || projeto.contratoNumero || '',
+                    numeroRegistro: dadosAPI?.numeroRegistro || projeto.numeroRegistro || projeto.contratoRegistro || ''
                 };
                 
                 // Adicionar projeto ao setor
@@ -393,6 +396,14 @@ function renderProcessosPorSetorSection() {
         window.enableTableSorting(setoresContainer);
     }
     
+    // Configurar tooltips e modais de contratos
+    if (typeof window.setupAnalyticsTooltips === 'function') {
+        console.log('[ProcessosPorSetor] Configurando tooltips de contratos...');
+        window.setupAnalyticsTooltips();
+    } else {
+        console.warn('[ProcessosPorSetor] window.setupAnalyticsTooltips não está disponível');
+    }
+    
     console.log('[ProcessosPorSetor] Seção renderizada com sucesso');
 }
 
@@ -433,7 +444,7 @@ function renderSetoresHtml() {
                 <div class="setor-details" id="setor-details-${setorSafe}" style="display: none;">
                     <div class="card mt-2">
                         <div class="card-body">
-                            <div class="table-responsive">
+                            <div class="table-responsive setores-table">
                                 ${renderSetorProcessosTable(setor)}
                             </div>
                         </div>
@@ -480,15 +491,24 @@ function renderSetorProcessosTable(setor) {
  * Renderiza uma linha da tabela de processos do setor
  */
 function renderSetorProcessoRow(projeto) {
+    // Preparar atributos de contrato para a célula do projeto
+    let contratoAttrs = '';
+    if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
+        contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
+    }
+    if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
+        contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
+    }
+
     return `
         <tr>
-            <td><span class="badge bg-primary">${projeto.id || ''}</span></td>
+            <td>${projeto.id || ''}</td>
             <td>${formatAreaWithClasses(projeto.area || '')}</td>
             <td><span class="tipo-badge">${getTipoFromProject(projeto) || ''}</span></td>
-            <td class="projeto-cell" style="font-weight: bold;">${projeto.objeto || ''}</td>
+            <td class="projeto-cell" style="font-weight: bold;"${contratoAttrs}>${projeto.objeto || ''}</td>
             <td>${formatStatusComTempoSetor(projeto.status || '', projeto.numeroProcesso || '')}</td>
             <td>${formatDateCell(projeto.contratar_ate) || ''}</td>
-            <td class="text-end"><strong>${formatCurrencyValue(projeto.valor || 0)}</strong></td>
+            <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
             <td>${formatOrcamentoWithClasses(getOrcamentoFromProject(projeto) || '')}</td>
             <td>${renderProcessoCell(projeto)}</td>
         </tr>
@@ -590,16 +610,16 @@ function renderProcessoCell(projeto) {
 /**
  * Formata valor monetário seguindo padrão do projeto
  */
-function formatCurrencyValue(valor) {
-    if (!valor || valor === 0) return 'R$ 0,00';
-    
-    const number = parseFloat(valor);
-    if (isNaN(number)) return 'R$ 0,00';
-    
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    }).format(number);
+function formatCurrency(value) {
+    // Verifica se o valor é um número antes de formatar
+    if (typeof value !== 'number') {
+        const num = parseFloat(value);
+        if (isNaN(num)) return '0,00';
+        value = num;
+    }
+    return value.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+    });
 }
 
 /**
@@ -720,6 +740,14 @@ function addProcessosPorSetorExpandListeners() {
                 // Habilitar TableSorter para a tabela recém-expandida
                 if (typeof window.enableTableSorting === 'function') {
                     window.enableTableSorting(detailsDiv);
+                }
+                
+                // Configurar tooltips e modais de contratos para a tabela expandida
+                if (typeof window.setupAnalyticsTooltips === 'function') {
+                    // Usar setTimeout para garantir que o DOM foi atualizado
+                    setTimeout(() => {
+                        window.setupAnalyticsTooltips();
+                    }, 100);
                 }
                 
                 console.log(`[ProcessosPorSetor] Expandindo setor: ${setorNome}`);

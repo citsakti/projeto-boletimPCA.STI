@@ -1644,3 +1644,16 @@
 .valor-area-table .project-details-table td:nth-child(3) {
     font-weight: bold !important;
 }
+
+/* =======================
+   SEÇÃO: 3.2 Processos por Setor - Estilo consistente
+   ======================= */
+/* Remove negrito da coluna "Status do Processo" (5ª coluna) nas tabelas da seção "3.2 Processos por Setor" */
+.setores-table .project-details-table td:nth-child(5) {
+    font-weight: normal !important;
+}
+
+/* Aplica negrito à coluna "Projeto" (4ª coluna) nas tabelas da seção "3.2 Processos por Setor" */
+.setores-table .project-details-table td:nth-child(4) {
+    font-weight: bold !important;
+}
