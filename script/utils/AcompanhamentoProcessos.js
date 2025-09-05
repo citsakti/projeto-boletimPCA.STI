@@ -227,7 +227,7 @@
     if (!setorDesc) return '';
     if (dias == null) return setorDesc;
     const plural = dias === 1 ? 'dia' : 'dias';
-    return `${setorDesc} - há ${dias} ${plural}`;
+    return `${setorDesc} - <strong>há ${dias} ${plural}</strong>`;
   }
 
   function coletarNumerosDaTabela() {
@@ -378,7 +378,7 @@
       const texto = formatar(setorDesc, dias) || (setorDesc ? setorDesc : null);
       
       if (texto) {
-        acompCell.textContent = texto;
+        acompCell.innerHTML = texto;
         acompCell.dataset.setorAtual = setorDesc;
         if (dias != null) acompCell.dataset.diasSetor = dias;
         acompCell.dataset.fonteDados = 'api';
