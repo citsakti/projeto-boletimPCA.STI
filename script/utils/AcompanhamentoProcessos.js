@@ -245,8 +245,104 @@
   function formatar(setorDesc, dias) {
     if (!setorDesc) return '';
     if (dias == null) return setorDesc;
+    
+    // Usar tag estilizada para os dias
+    const tagDias = renderTempoAcompanhamentoTag(dias);
+    return `${setorDesc} ${tagDias}`;
+  }
+
+  /**
+   * Renderiza tag de tempo com classificação por cor (baseado em AnalyticsTempoSetor.js)
+   * @param {number} dias - Número de dias
+   * @returns {string} - HTML da tag formatada com classificação
+   */
+  function renderTempoAcompanhamentoTag(dias) {
+    if (dias === null || dias === undefined || dias < 0) {
+      return '';
+    }
+    
     const plural = dias === 1 ? 'dia' : 'dias';
-    return `${setorDesc} - <strong>há ${dias} ${plural}</strong>`;
+    const textoTag = `${dias} ${plural}`;
+    const tooltip = `Há ${textoTag} no setor atual`;
+    const classeAdicional = getClassePorTempo(dias);
+    
+    return `<span class="tempo-acompanhamento-tag${classeAdicional}" title="${tooltip}">${textoTag}</span>`;
+  }
+
+  /**
+   * Determina a classe CSS baseada no número de dias (baseado em AnalyticsTempoSetor.js)
+   * @param {number} dias - Número de dias no setor
+   * @returns {string} - Classe CSS adicional
+   */
+  function getClassePorTempo(dias) {
+    if (dias === null || dias === undefined) return '';
+    
+    if (dias >= 30) return ' tempo-critico';      // Mais de 30 dias - vermelho
+    if (dias >= 15) return ' tempo-alerta';       // 15-29 dias - laranja
+    if (dias >= 7) return ' tempo-atencao';       // 7-14 dias - amarelo
+    return '';                                     // Menos de 7 dias - azul padrão
+  }
+
+  /**
+   * Aplica estilização CSS para as tags de tempo de acompanhamento (baseado em AnalyticsTempoSetor.js)
+   */
+  function applyTempoAcompanhamentoStyles() {
+    // Verificar se o estilo já existe
+    const existingStyle = document.getElementById('tempo-acompanhamento-styles');
+    if (existingStyle) return;
+    
+    const style = document.createElement('style');
+    style.id = 'tempo-acompanhamento-styles';
+    style.textContent = `
+        .tempo-acompanhamento-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+            border: 1px solid #117a8b;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+            cursor: help;
+        }
+        
+        .tempo-acompanhamento-tag:hover {
+            background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        /* Variação de cores baseada no tempo */
+        .tempo-acompanhamento-tag.tempo-critico {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border-color: #bd2130;
+        }
+        
+        .tempo-acompanhamento-tag.tempo-alerta {
+            background: linear-gradient(135deg, #fd7e14 0%, #e8610e 100%);
+            border-color: #dc5a00;
+        }
+        
+        .tempo-acompanhamento-tag.tempo-atencao {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            border-color: #d39e00;
+            color: #212529;
+            text-shadow: none;
+        }
+        
+        @media (max-width: 768px) {
+            .tempo-acompanhamento-tag {
+                font-size: 10px;
+                padding: 2px 6px;
+                margin-left: 4px;
+            }
+        }
+    `;
+    
+    document.head.appendChild(style);
   }
 
   function exibirLoading(cell) {
@@ -414,6 +510,13 @@
         return;
       }
       
+      // Verificar status do processo (coluna 5 - "Status do Processo")
+      let statusCell = tr.querySelector('td[data-label="Status do Processo"]');
+      if (!statusCell) statusCell = tr.children[5]; // índice 5 = 6ª coluna
+      
+      const statusTexto = statusCell ? statusCell.textContent.trim() : '';
+      const isStatusCompleto = statusTexto === 'RENOVADO ✅' || statusTexto === 'CONTRATADO ✅';
+      
       const setorDesc = dado?.setor?.descricao || '';
       const dtUltimoEnc = dado?.dtUltimoEncaminhamento;
       const dias = diffDiasBrasil(dtUltimoEnc);
@@ -423,7 +526,10 @@
         acompCell.dataset.originalAcompanhamento = acompCell.textContent.trim();
       }
       
-      const texto = formatar(setorDesc, dias) || (setorDesc ? setorDesc : null);
+      // Se o status for RENOVADO ✅ ou CONTRATADO ✅, exibir apenas o setor sem a tag de tempo
+      const texto = isStatusCompleto ? 
+        (setorDesc || null) : 
+        (formatar(setorDesc, dias) || (setorDesc ? setorDesc : null));
       
       if (texto) {
         acompCell.innerHTML = texto;
@@ -633,6 +739,16 @@
     }, delay);
   }
 
+  // Inicializar estilos quando o DOM estiver carregado
+  document.addEventListener('DOMContentLoaded', function() {
+    applyTempoAcompanhamentoStyles();
+  });
+
+  // Aplicar também quando a página for carregada (caso DOMContentLoaded já tenha passado)
+  if (document.readyState !== 'loading') {
+    applyTempoAcompanhamentoStyles();
+  }
+
   document.addEventListener('tabela-carregada', () => scheduleUpdate(400));
   if (document.readyState !== 'loading') {
     if (document.querySelector('#detalhes table tbody tr')) scheduleUpdate(800);
@@ -715,6 +831,36 @@
       console.error('❌ Erro na requisição:', error);
       return null;
     }
+  };
+  
+  // Função para testar as tags de tempo coloridas
+  window.testarTagsTempoAcompanhamento = function() {
+    console.log('🧪 TESTANDO TAGS DE TEMPO COLORIDAS');
+    
+    // Aplicar estilos (caso ainda não tenham sido aplicados)
+    applyTempoAcompanhamentoStyles();
+    
+    // Criar container de teste
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;top:10px;right:10px;background:white;border:2px solid blue;padding:15px;z-index:9999;max-width:300px;';
+    container.innerHTML = `
+      <h4>Teste Tags Tempo</h4>
+      <p>3 dias: ${renderTempoAcompanhamentoTag(3)}</p>
+      <p>10 dias: ${renderTempoAcompanhamentoTag(10)}</p>
+      <p>20 dias: ${renderTempoAcompanhamentoTag(20)}</p>
+      <p>45 dias: ${renderTempoAcompanhamentoTag(45)}</p>
+      <p>Setor + Tag: ${formatar('Setor de Teste', 25)}</p>
+      <button onclick="this.parentElement.remove()">Fechar</button>
+    `;
+    
+    document.body.appendChild(container);
+    
+    console.log('✅ Container de teste adicionado à página');
+    console.log('🔄 Testando função formatar():');
+    console.log('- formatar("Setor A", 5):', formatar("Setor A", 5));
+    console.log('- formatar("Setor B", 12):', formatar("Setor B", 12));
+    console.log('- formatar("Setor C", 22):', formatar("Setor C", 22));
+    console.log('- formatar("Setor D", 35):', formatar("Setor D", 35));
   };
   
   // Função para analisar estrutura completa da resposta
