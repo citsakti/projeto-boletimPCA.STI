@@ -60,7 +60,8 @@
       
       if (!resp.ok) {
         const t = await resp.text().catch(()=>"");
-        throw new Error(`HTTP ${resp.status} ${t||resp.statusText}`);
+        const errorInfo = { status: resp.status, message: t || resp.statusText };
+        throw new Error(`HTTP ${resp.status} ${t||resp.statusText}`, { cause: errorInfo });
       }
       
       const data = await resp.json();
@@ -81,6 +82,13 @@
       if (window._acompanhamentoDebug) {
         console.error('[API] Erro na requisição:', error);
       }
+      // Preservar informações do erro HTTP para exibição posterior
+      if (error.message.includes('HTTP ')) {
+        const statusMatch = error.message.match(/HTTP (\d+)/);
+        if (statusMatch) {
+          error.httpStatus = parseInt(statusMatch[1]);
+        }
+      }
       throw error;
     } finally { 
       clearTimeout(to); 
@@ -94,6 +102,8 @@
     for (let i=0;i<faltantes.length;i+=MAX_POR_LOTE) {
       lotes.push(faltantes.slice(i, i+MAX_POR_LOTE));
     }
+    
+    const errosLotes = []; // Array para coletar erros de cada lote
     
     // Processar lotes sequencialmente com pequeno delay entre requisições
     for (let i = 0; i < lotes.length; i++) {
@@ -202,8 +212,17 @@
         }
       } catch(err) {
         console.error(`AcompanhamentoProcessos: erro ao buscar lote ${i+1}/${lotes.length}`, lote, err);
+        // Armazenar erro para posterior exibição nas células afetadas
+        errosLotes.push({
+          lote: lote,
+          erro: err,
+          httpStatus: err.httpStatus || null
+        });
       }
     }
+    
+    // Retornar informações sobre erros para uso posterior
+    return { errosLotes };
   }
 
   function normalizarNumero(raw) {
@@ -228,6 +247,30 @@
     if (dias == null) return setorDesc;
     const plural = dias === 1 ? 'dia' : 'dias';
     return `${setorDesc} - <strong>há ${dias} ${plural}</strong>`;
+  }
+
+  function exibirLoading(cell) {
+    // Verificar se Font Awesome está disponível, senão usar alternativas
+    const spinnerIcon = document.querySelector('i.fa') || document.querySelector('i.fas') ? 
+      '<i class="fas fa-spinner fa-spin"></i>' : 
+      '<div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>';
+    
+    cell.innerHTML = `<span class="text-muted">Carregando ${spinnerIcon}</span>`;
+    cell.dataset.statusCarregamento = 'loading';
+  }
+
+  function exibirErro(cell, codigoErro = null, mensagem = '') {
+    const textoErro = codigoErro ? 
+      `<span class="text-danger">Erro ${codigoErro}</span>` : 
+      `<span class="text-danger">Erro ${mensagem || 'desconhecido'}</span>`;
+    cell.innerHTML = textoErro;
+    cell.dataset.statusCarregamento = 'erro';
+    cell.dataset.codigoErro = codigoErro || 'desconhecido';
+  }
+
+  function limparStatusCarregamento(cell) {
+    delete cell.dataset.statusCarregamento;
+    delete cell.dataset.codigoErro;
   }
 
   function coletarNumerosDaTabela() {
@@ -352,8 +395,13 @@
       const numero = normalizarNumero(textoProcesso);
       
       if (!numero) {
+        // Sem número válido - exibir "*" e pular processamento
+        if (acompCell.dataset.statusCarregamento === 'loading') {
+          acompCell.innerHTML = '<span class="text-muted">*</span>';
+          acompCell.dataset.statusCarregamento = 'sem-processo';
+        }
         if (window._acompanhamentoDebug && index < 3) {
-          erros.push(`Linha ${index}: número vazio. Texto original: "${textoProcesso}"`);
+          erros.push(`Linha ${index}: número vazio, exibindo "*". Texto original: "${textoProcesso}"`);
         }
         return;
       }
@@ -382,6 +430,7 @@
         acompCell.dataset.setorAtual = setorDesc;
         if (dias != null) acompCell.dataset.diasSetor = dias;
         acompCell.dataset.fonteDados = 'api';
+        limparStatusCarregamento(acompCell);
         atualizadas++;
         
         if (window._acompanhamentoDebug && index < 3) {
@@ -412,6 +461,104 @@
     }));
   }
 
+  function aplicarErrosNaTabela(errosLotes) {
+    if (!errosLotes || !errosLotes.length) return;
+    
+    const tbody = document.querySelector('#detalhes table tbody');
+    if (!tbody) return;
+    
+    // Criar um Set com todos os números que falharam
+    const numerosFalharam = new Set();
+    errosLotes.forEach(errorInfo => {
+      errorInfo.lote.forEach(numero => {
+        numerosFalharam.add(normalizarNumero(numero));
+      });
+    });
+    
+    tbody.querySelectorAll('tr').forEach((tr, index) => {
+      let processoCell = tr.querySelector('td[data-label="Processo"]');
+      if (!processoCell) processoCell = tr.children[9];
+      if (!processoCell) processoCell = tr.querySelector('td:last-child');
+      
+      let acompCell = tr.querySelector('td[data-label="Acompanhamento"]');
+      if (!acompCell) acompCell = tr.children[4];
+      if (!acompCell) {
+        const headers = document.querySelectorAll('thead th');
+        let acompIndex = -1;
+        headers.forEach((th, i) => {
+          if (th.textContent.toLowerCase().includes('acompanhamento')) {
+            acompIndex = i;
+          }
+        });
+        if (acompIndex >= 0) acompCell = tr.children[acompIndex];
+      }
+      
+      if (!processoCell || !acompCell) return;
+      
+      let textoProcesso = processoCell.dataset.processoNumero || processoCell.textContent;
+      textoProcesso = textoProcesso.replace('🔗', '').trim();
+      const numero = normalizarNumero(textoProcesso);
+      
+      if (numero && numerosFalharam.has(numero)) {
+        // Encontrar o erro específico para este lote
+        const errorInfo = errosLotes.find(e => 
+          e.lote.some(n => normalizarNumero(n) === numero)
+        );
+        
+        if (errorInfo) {
+          const codigoErro = errorInfo.httpStatus || (errorInfo.erro.message.match(/\d+/) || ['500'])[0];
+          exibirErro(acompCell, codigoErro, errorInfo.erro.message);
+        }
+      }
+    });
+  }
+
+  function exibirLoadingTodasCelulas() {
+    const tbody = document.querySelector('#detalhes table tbody');
+    if (!tbody) return;
+    
+    tbody.querySelectorAll('tr').forEach(tr => {
+      let acompCell = tr.querySelector('td[data-label="Acompanhamento"]');
+      if (!acompCell) acompCell = tr.children[4];
+      if (!acompCell) {
+        const headers = document.querySelectorAll('thead th');
+        let acompIndex = -1;
+        headers.forEach((th, i) => {
+          if (th.textContent.toLowerCase().includes('acompanhamento')) {
+            acompIndex = i;
+          }
+        });
+        if (acompIndex >= 0) acompCell = tr.children[acompIndex];
+      }
+      
+      if (acompCell) {
+        // Verificar se há número de processo válido para esta linha
+        let processoCell = tr.querySelector('td[data-label="Processo"]');
+        if (!processoCell) processoCell = tr.children[9];
+        if (!processoCell) processoCell = tr.querySelector('td:last-child');
+        
+        let temProcessoValido = false;
+        if (processoCell) {
+          let textoProcesso = processoCell.dataset.processoNumero || processoCell.textContent;
+          textoProcesso = textoProcesso.replace('🔗', '').trim();
+          const numero = normalizarNumero(textoProcesso);
+          temProcessoValido = !!numero;
+        }
+        
+        // Não sobrescrever células que já têm dados ou estão em erro
+        if (!acompCell.dataset.fonteDados && !acompCell.dataset.statusCarregamento) {
+          if (temProcessoValido) {
+            exibirLoading(acompCell);
+          } else {
+            // Sem número de processo válido - exibir "*"
+            acompCell.innerHTML = '<span class="text-muted">*</span>';
+            acompCell.dataset.statusCarregamento = 'sem-processo';
+          }
+        }
+      }
+    });
+  }
+
   async function atualizarAcompanhamento() {
     const numeros = coletarNumerosDaTabela();
     if (window._acompanhamentoDebug) console.log('[Acompanhamento] numeros coletados', numeros);
@@ -426,14 +573,54 @@
       if (window._acompanhamentoDebug) console.warn('[Acompanhamento] Nenhum número coletado.');
       return;
     }
-    await buscarProcessos(numeros, { timeoutMs: 15000 });
-    if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Cache final: ${cacheProcessos.size} processos de ${numeros.length} solicitados`);
-    aplicarDadosNaTabela();
-    const algumPreenchido = Array.from(document.querySelectorAll('td[data-label="Acompanhamento"]'))
-      .some(td => td.textContent.trim() !== '');
-    if (!algumPreenchido) {
-      if (window._acompanhamentoDebug) console.warn('[Acompanhamento] Nenhuma célula preenchida. Nova tentativa em 3s.');
-      scheduleUpdate(3000);
+    
+    // Exibir loading em todas as células de acompanhamento
+    exibirLoadingTodasCelulas();
+    
+    try {
+      const resultado = await buscarProcessos(numeros, { timeoutMs: 15000 });
+      if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Cache final: ${cacheProcessos.size} processos de ${numeros.length} solicitados`);
+      
+      // Aplicar dados nas células
+      aplicarDadosNaTabela();
+      
+      // Aplicar erros nas células que falharam
+      if (resultado && resultado.errosLotes && resultado.errosLotes.length > 0) {
+        aplicarErrosNaTabela(resultado.errosLotes);
+      }
+      
+      const algumPreenchido = Array.from(document.querySelectorAll('td[data-label="Acompanhamento"]'))
+        .some(td => td.dataset.fonteDados === 'api' || td.dataset.statusCarregamento === 'erro');
+      
+      if (!algumPreenchido) {
+        if (window._acompanhamentoDebug) console.warn('[Acompanhamento] Nenhuma célula preenchida. Nova tentativa em 3s.');
+        scheduleUpdate(3000);
+      }
+    } catch (error) {
+      console.error('[Acompanhamento] Erro geral na atualização:', error);
+      
+      // Em caso de erro geral, exibir erro em todas as células de loading
+      const tbody = document.querySelector('#detalhes table tbody');
+      if (tbody) {
+        tbody.querySelectorAll('tr').forEach(tr => {
+          let acompCell = tr.querySelector('td[data-label="Acompanhamento"]');
+          if (!acompCell) acompCell = tr.children[4];
+          if (!acompCell) {
+            const headers = document.querySelectorAll('thead th');
+            let acompIndex = -1;
+            headers.forEach((th, i) => {
+              if (th.textContent.toLowerCase().includes('acompanhamento')) {
+                acompIndex = i;
+              }
+            });
+            if (acompIndex >= 0) acompCell = tr.children[acompIndex];
+          }
+          
+          if (acompCell && acompCell.dataset.statusCarregamento === 'loading') {
+            exibirErro(acompCell, 'REDE', 'Falha de conexão');
+          }
+        });
+      }
     }
   }
 
@@ -464,6 +651,56 @@
   
   // Expor função de debug
   window.debugAcompanhamentoDetalhado = debugDetalhado;
+  
+  // Função para testar loading e erros
+  window.testarLoadingEErros = function() {
+    console.log('🧪 TESTANDO LOADING E TRATAMENTO DE ERROS');
+    
+    const tbody = document.querySelector('#detalhes table tbody');
+    if (!tbody) {
+      console.log('❌ Tbody não encontrado');
+      return;
+    }
+    
+    const celulasAcompanhamento = tbody.querySelectorAll('tr').slice(0, 4);
+    
+    celulasAcompanhamento.forEach((tr, index) => {
+      let acompCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+      if (acompCell) {
+        switch(index) {
+          case 0:
+            console.log('✨ Testando loading na primeira célula');
+            exibirLoading(acompCell);
+            break;
+          case 1:
+            console.log('⚠️ Testando erro 500 na segunda célula');
+            exibirErro(acompCell, '500', 'Erro interno do servidor');
+            break;
+          case 2:
+            console.log('🔌 Testando erro de rede na terceira célula');
+            exibirErro(acompCell, 'REDE', 'Falha de conexão');
+            break;
+          case 3:
+            console.log('⭐ Testando células sem processo (asterisco) na quarta célula');
+            acompCell.innerHTML = '<span class="text-muted">*</span>';
+            acompCell.dataset.statusCarregamento = 'sem-processo';
+            break;
+        }
+      }
+    });
+    
+    console.log('🔄 Aguarde 3 segundos para limpar os testes...');
+    setTimeout(() => {
+      celulasAcompanhamento.forEach(tr => {
+        let acompCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+        if (acompCell) {
+          limparStatusCarregamento(acompCell);
+          acompCell.innerHTML = acompCell.dataset.originalAcompanhamento || '';
+        }
+      });
+      console.log('✅ Testes finalizados');
+    }, 3000);
+  };
   
   // Função para testar requisição individual
   window.testarAPIIndividual = async function(numerosProcesso = ['06763/2025-0']) {
