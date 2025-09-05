@@ -74,9 +74,12 @@ function renderTempoSetorTag(diasNoSetor, setorNome = '') {
         return '';
     }
     
+    const isHoje = diasNoSetor === 0;
     const plural = diasNoSetor === 1 ? 'dia' : 'dias';
-    const textoTag = `${diasNoSetor} ${plural}`;
-    const tooltip = setorNome ? `Processo está no setor "${setorNome}" há ${textoTag}` : `Há ${textoTag} no setor atual`;
+    const textoTag = isHoje ? 'Hoje' : `${diasNoSetor} ${plural}`;
+    const tooltip = setorNome
+        ? (isHoje ? `Processo chegou hoje ao setor "${setorNome}"` : `Processo está no setor "${setorNome}" há ${textoTag}`)
+        : (isHoje ? 'Hoje no setor atual' : `Há ${textoTag} no setor atual`);
     
     return `<span class="tempo-setor-tag" title="${tooltip}">${textoTag}</span>`;
 }
@@ -432,9 +435,12 @@ function renderTempoSetorTagComClassificacao(diasNoSetor, setorNome = '') {
         return '';
     }
     
+    const isHoje = diasNoSetor === 0;
     const plural = diasNoSetor === 1 ? 'dia' : 'dias';
-    const textoTag = `${diasNoSetor} ${plural}`;
-    const tooltip = setorNome ? `Processo está no setor "${setorNome}" há ${textoTag}` : `Há ${textoTag} no setor atual`;
+    const textoTag = isHoje ? 'Hoje' : `${diasNoSetor} ${plural}`;
+    const tooltip = setorNome
+        ? (isHoje ? `Processo chegou hoje ao setor "${setorNome}"` : `Processo está no setor "${setorNome}" há ${textoTag}`)
+        : (isHoje ? 'Hoje no setor atual' : `Há ${textoTag} no setor atual`);
     const classeAdicional = getClassePorTempo(diasNoSetor);
     
     return `<span class="tempo-setor-tag${classeAdicional}" title="${tooltip}">${textoTag}</span>`;

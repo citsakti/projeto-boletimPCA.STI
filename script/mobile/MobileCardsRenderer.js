@@ -58,6 +58,100 @@
  */
 
 class MobileCardsRenderer {
+    // ===== Helpers de Acompanhamento (mobile - dentro dos detalhes) =====
+    static API_URL = "https://api-processos.tce.ce.gov.br/processos/porLista";
+
+    static normalizarNumeroProcesso(raw) {
+        if (!raw) return '';
+        return String(raw).replace(/[^0-9./-]/g, '').trim();
+    }
+
+    static diffDiasBrasil(dataStr) {
+        // dataStr formato dd/mm/aaaa
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return null;
+        const [d, m, a] = dataStr.split('/').map(Number);
+        const dt = new Date(a, m - 1, d, 0, 0, 0, 0);
+        if (isNaN(dt.getTime())) return null;
+        const hoje = new Date();
+        const base = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+        const ms = base - dt;
+        return Math.max(0, Math.floor(ms / 86400000));
+    }
+
+    static renderTempoAcompanhamentoTag(dias) {
+        if (dias === null || dias === undefined || dias < 0) return '';
+        const isHoje = dias === 0;
+        const plural = dias === 1 ? 'dia' : 'dias';
+        const textoTag = isHoje ? 'Hoje' : `${dias} ${plural}`;
+        const tooltip = isHoje ? 'Hoje no setor atual' : `Há ${textoTag} no setor atual`;
+        return `<span class="tempo-acompanhamento-tag tempo-padrao" title="${tooltip}">${textoTag}</span>`;
+    }
+
+    static extrairListaProcessosDaResposta(data) {
+        if (Array.isArray(data)) return data;
+        const candidatos = [data?.data?.lista, data?.data, data?.lista, data?.content, data?.processos, data?.registros];
+        for (const c of candidatos) {
+            if (Array.isArray(c)) return c;
+        }
+        const valores = data && typeof data === 'object' ? Object.values(data) : [];
+        return valores.filter(v => v && typeof v === 'object' && (v.nrProcesso || v.numero));
+    }
+
+    static async preencherAcompanhamentoProcessual(detailsContainer, project) {
+        try {
+            const alvo = detailsContainer.querySelector('.acompanhamento-processual');
+            if (!alvo) return;
+
+            const numero = this.normalizarNumeroProcesso(project.processo || '');
+            if (!numero) {
+                alvo.textContent = '-';
+                return;
+            }
+
+            // Evitar requisições duplicadas no mesmo details
+            if (alvo.dataset.loaded === '1') return;
+            alvo.dataset.loaded = '1';
+            alvo.textContent = 'Carregando…';
+
+            // Buscar na API
+            const resp = await fetch(this.API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ numeros: [numero], filtros: {}, pagina: 0, qtd: 1 })
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            const lista = this.extrairListaProcessosDaResposta(data);
+            const item = Array.isArray(lista) ? lista.find(x => this.normalizarNumeroProcesso(x.nrProcesso || x.numero) === numero) : null;
+            if (!item) {
+                alvo.textContent = '-';
+                return;
+            }
+
+            const setorDesc = item?.setor?.descricao || '';
+            const dtUlt = item?.dtUltimoEncaminhamento || null;
+            const dias = dtUlt ? this.diffDiasBrasil(dtUlt) : null;
+
+            // Se status concluído, exibe apenas o setor
+            const isStatusCompleto = (project.status === 'RENOVADO ✅' || project.status === 'CONTRATADO ✅');
+            if (isStatusCompleto) {
+                alvo.textContent = setorDesc || '-';
+                return;
+            }
+
+            const tag = this.renderTempoAcompanhamentoTag(dias);
+            if (setorDesc || tag) {
+                alvo.innerHTML = `${setorDesc ? setorDesc : ''} ${tag}`.trim();
+            } else {
+                alvo.textContent = '-';
+            }
+        } catch (e) {
+            const alvo = detailsContainer.querySelector('.acompanhamento-processual');
+            if (alvo) alvo.textContent = 'Erro ao carregar';
+            // Silenciar no console para UX; descomente para debug:
+            // console.warn('[Mobile] Acompanhamento processual falhou:', e);
+        }
+    }
     /**
      * Renderiza a lista de cards no container
      * @param {Array} data - Dados dos projetos
@@ -234,6 +328,17 @@ class MobileCardsRenderer {
      * @returns {string} - HTML do acompanhamento
      */
     static createAcompanhamentoDetailsHTML(project) {
+        // Sempre reservar espaço para "Acompanhamento:" (processual)
+        const numeroNorm = this.normalizarNumeroProcesso(project.processo || '');
+        const acompanhamentoProcessual = `
+            <div class="detail-item">
+                <span class="detail-label">Acompanhamento:</span>
+                <span class="detail-value">
+                    <span class="acompanhamento-processual" data-processo="${numeroNorm}">Carregando…</span>
+                </span>
+            </div>
+        `;
+
         if (project.hasAcompanhamento && project.acompanhamentoData) {
             // Formatar a data para exibição
             let dataFormatada = project.acompanhamentoData.data;
@@ -273,15 +378,11 @@ class MobileCardsRenderer {
                         <div class="acompanhamento-detalhes">${project.acompanhamentoData.detalhes}</div>
                     </div>
                 </div>
+                ${acompanhamentoProcessual}
             `;
         } else {
-            // Mostrar informação básica de acompanhamento da tabela
-            return `
-                <div class="detail-item">
-                    <span class="detail-label">Acompanhamento:</span>
-                    <span class="detail-value">${project.acompanhamento || 'Nenhum acompanhamento recente'}</span>
-                </div>
-            `;
+            // Sem dados de "Último Acompanhamento" — apenas o processual
+            return acompanhamentoProcessual;
         }
     }
 

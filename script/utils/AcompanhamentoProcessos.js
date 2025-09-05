@@ -261,9 +261,11 @@
       return '';
     }
     
-    const plural = dias === 1 ? 'dia' : 'dias';
-    const textoTag = `${dias} ${plural}`;
-    const tooltip = `Há ${textoTag} no setor atual`;
+  // Mostrar "Hoje" quando dias === 0
+  const isHoje = dias === 0;
+  const plural = dias === 1 ? 'dia' : 'dias';
+  const textoTag = isHoje ? 'Hoje' : `${dias} ${plural}`;
+  const tooltip = isHoje ? 'Hoje no setor atual' : `Há ${textoTag} no setor atual`;
     const classeAdicional = getClassePorTempo(dias);
     
     return `<span class="tempo-acompanhamento-tag${classeAdicional}" title="${tooltip}">${textoTag}</span>`;

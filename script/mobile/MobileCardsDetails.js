@@ -99,6 +99,10 @@ class MobileCardsDetails {
         // Trigger da animação
         requestAnimationFrame(() => {
             detailsContainer.classList.add('show');
+            // Preencher acompanhamento processual usando a API (mesma regra do desktop)
+            if (window.MobileCardsRenderer && typeof window.MobileCardsRenderer.preencherAcompanhamentoProcessual === 'function') {
+                window.MobileCardsRenderer.preencherAcompanhamentoProcessual(detailsContainer, project);
+            }
         });
     }
     

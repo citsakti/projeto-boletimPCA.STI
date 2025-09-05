@@ -169,7 +169,6 @@ table th:nth-child(5),
 table td:nth-child(5) {
     white-space: normal !important; /* Permite quebra de linha */
     word-wrap: break-word; /* Quebra palavras longas se necessário */
-    word-break: break-word; /* Quebra palavras longas se necessário */
     max-width: 200px; /* Define largura máxima para a coluna */
     vertical-align: top; /* Alinha o conteúdo ao topo da célula */
     line-height: 1.4; /* Melhora a legibilidade com quebras de linha */
