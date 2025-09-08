@@ -54,10 +54,11 @@
       .doc-icon-wrapper { display: inline-flex; align-items: center; gap: 6px; margin-left: 6px; }
       .doc-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 4px; background: #eef3f8; color: #1a73e8; cursor: pointer; border: 1px solid #d2e3fc; }
       .doc-icon-btn:hover { background: #e2ecf7; }
-      .doc-icon-btn[aria-disabled="true"] { opacity: .6; cursor: not-allowed; }
+  /* Removido opacity para evitar transparência no tooltip do cadeado */
+  .doc-icon-btn[aria-disabled="true"] { opacity: 1; cursor: not-allowed; }
       .doc-icon-btn svg { display: block; }
       .doc-icon-tooltip { position: relative; }
-      .doc-icon-tooltip:hover::after { content: attr(data-title); position: absolute; top: -28px; left: 50%; transform: translateX(-50%); background: rgba(60,64,67,.9); color: #fff; padding: 4px 6px; font-size: 12px; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 10; }
+  .doc-icon-tooltip:hover::after { content: attr(data-title); position: absolute; top: -32px; left: 50%; transform: translateX(-50%); background: #000; color: #ffffffff; padding: 6px 8px; font-size: 12px; font-weight: 500; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,.4); border: 1px solid rgba(0,0,0,.6); }
   /* Linha da tag de tempo e do ícone: sempre abaixo do conteúdo principal da célula */
   .tempo-acompanhamento-wrapper { display: flex !important; align-items: center; gap: 6px; margin-top: 4px; }
   /* Limites e contenção do modal */
@@ -72,7 +73,7 @@
       .documentos-index .doc-item.active { background: #e8f0fe; border-color: #d2e3fc; }
       .documentos-index .doc-main { display: grid; gap: 2px; min-width: 0; }
       .documentos-index .doc-title { font-size: 13px; font-weight: 600; color: #202124; overflow: hidden; text-overflow: ellipsis;; }
-      .documentos-index .doc-sub { font-size: 12px; color: #5f6368; overflow: hidden; text-overflow: ellipsis; }
+      .documentos-index .doc-sub { font-size: 12px; color: #19191aff; overflow: hidden; text-overflow: ellipsis; }
   /* .doc-actions removido temporariamente (sem ícones extras no índice) */
       .documentos-index .doc-item.disabled { opacity: .6; cursor: not-allowed; }
       .documento-viewer { overflow: auto; min-width: 0; min-height: 0; height: 100%; }
@@ -301,14 +302,15 @@
 
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'doc-icon-btn doc-icon-tooltip';
+    btn.className = 'doc-icon-btn';
     if (info && info.sigiloso) {
       btn.innerHTML = SVG_LOCK;
       btn.setAttribute('aria-disabled', 'true');
-      btn.setAttribute('data-title', 'processo sigiloso');
+      btn.classList.add('doc-icon-tooltip');
+      btn.setAttribute('data-title', 'Processo Sigiloso');
     } else {
       btn.innerHTML = SVG_JOURNALS;
-      btn.title = 'Abrir documentos';
+      // Sem tooltip para processos não sigilosos
     }
 
     wrapper.appendChild(btn);

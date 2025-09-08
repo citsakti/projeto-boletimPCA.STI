@@ -189,12 +189,33 @@
     return Math.max(0, Math.floor(ms / 86400000));
   }
 
-  function formatar(setorDesc, dias) {
+  // Retorna a data de hoje no formato dd/mm/aaaa
+  function getHojeBR() {
+    const hoje = new Date();
+    const dd = String(hoje.getDate()).padStart(2, '0');
+    const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+    const aaaa = hoje.getFullYear();
+    return `${dd}/${mm}/${aaaa}`;
+  }
+
+  // Conta quantos trâmites ocorreram hoje (baseado no array dado.tramites)
+  function contarTramitesHoje(dadoRaw) {
+    try {
+      const tramites = Array.isArray(dadoRaw?.tramites) ? dadoRaw.tramites : [];
+      if (!tramites.length) return 0;
+      const hoje = getHojeBR();
+      return tramites.reduce((acc, t) => acc + (String(t?.data).trim() === hoje ? 1 : 0), 0);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  function formatar(setorDesc, dias, repeticoesHoje = 0) {
     if (!setorDesc) return '';
     if (dias == null) return setorDesc;
     
     // Usar tag estilizada para os dias
-  const tagDias = renderTempoAcompanhamentoTag(dias);
+  const tagDias = renderTempoAcompanhamentoTag(dias, repeticoesHoje);
   // Exibir a tag em uma linha abaixo do texto do setor
   return `${setorDesc}<div class="tempo-acompanhamento-wrapper">${tagDias}</div>`;
   }
@@ -204,7 +225,7 @@
    * @param {number} dias - Número de dias
    * @returns {string} - HTML da tag formatada com classificação
    */
-  function renderTempoAcompanhamentoTag(dias) {
+  function renderTempoAcompanhamentoTag(dias, repeticoesHoje = 0) {
     if (dias === null || dias === undefined || dias < 0) {
       return '';
     }
@@ -212,8 +233,9 @@
   // Mostrar "Hoje" quando dias === 0
   const isHoje = dias === 0;
   const plural = dias === 1 ? 'dia' : 'dias';
-  const textoTag = isHoje ? 'Hoje' : `${dias} ${plural}`;
-  const tooltip = isHoje ? 'Hoje no setor atual' : `Há ${textoTag} no setor atual`;
+  const textoHoje = repeticoesHoje > 1 ? `Hoje - ${repeticoesHoje}x` : 'Hoje';
+  const textoTag = isHoje ? textoHoje : `${dias} ${plural}`;
+  const tooltip = isHoje ? `${textoHoje} no setor atual` : `Há ${textoTag} no setor atual`;
   const classeAdicional = getClassePorTempo(dias);
     
   return `<span class="tempo-acompanhamento-tag${classeAdicional}" title="${tooltip}">${textoTag}</span>`;
@@ -260,7 +282,7 @@
       margin-left: 0;
             border: 1px solid #90caf9;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            cursor: help;
+            cursor: default;
         }
         
         .tempo-acompanhamento-tag:hover {
@@ -476,6 +498,8 @@
       const setorDesc = dado?.setor?.descricao || '';
       const dtUltimoEnc = dado?.dtUltimoEncaminhamento;
       const dias = diffDiasBrasil(dtUltimoEnc);
+      // Conta tramitações de hoje, se aplicável
+      const repeticoesHoje = dias === 0 ? contarTramitesHoje(dado) : 0;
       
       // Preservar valor original
       if (!acompCell.dataset.originalAcompanhamento) {
@@ -485,7 +509,7 @@
       // Se o status for RENOVADO ✅ ou CONTRATADO ✅, exibir apenas o setor sem a tag de tempo
       const texto = isStatusCompleto ? 
         (setorDesc || null) : 
-        (formatar(setorDesc, dias) || (setorDesc ? setorDesc : null));
+        (formatar(setorDesc, dias, repeticoesHoje) || (setorDesc ? setorDesc : null));
       
       if (texto) {
         acompCell.innerHTML = texto;
