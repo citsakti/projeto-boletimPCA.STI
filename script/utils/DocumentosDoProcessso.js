@@ -58,6 +58,8 @@
       .doc-icon-btn svg { display: block; }
       .doc-icon-tooltip { position: relative; }
       .doc-icon-tooltip:hover::after { content: attr(data-title); position: absolute; top: -28px; left: 50%; transform: translateX(-50%); background: rgba(60,64,67,.9); color: #fff; padding: 4px 6px; font-size: 12px; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 10; }
+  /* Linha da tag de tempo e do ícone: sempre abaixo do conteúdo principal da célula */
+  .tempo-acompanhamento-wrapper { display: flex !important; align-items: center; gap: 6px; margin-top: 4px; }
   /* Limites e contenção do modal */
   #documentos-modal-overlay .modal-content { width: min(1200px, 90vw); height: min(90vh, 900px); display: flex; flex-direction: column; overflow: hidden; }
   #documentos-modal-overlay .modal-header { flex: 0 0 auto; }
@@ -282,8 +284,14 @@
       targetCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
     }
     if (!targetCell) return;
-    const tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
-    const insertionTarget = tagWrapper || targetCell;
+    let tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
+    // Se não existir a linha do tempo (ex.: processos com status concluído), cria uma linha abaixo
+    if (!tagWrapper) {
+      tagWrapper = document.createElement('div');
+      tagWrapper.className = 'tempo-acompanhamento-wrapper';
+      targetCell.appendChild(tagWrapper);
+    }
+    const insertionTarget = tagWrapper;
 
     // Evitar duplicar
     if (insertionTarget.querySelector('.doc-icon-wrapper')) return;
