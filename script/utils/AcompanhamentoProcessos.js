@@ -247,8 +247,9 @@
     if (dias == null) return setorDesc;
     
     // Usar tag estilizada para os dias
-    const tagDias = renderTempoAcompanhamentoTag(dias);
-    return `${setorDesc} ${tagDias}`;
+  const tagDias = renderTempoAcompanhamentoTag(dias);
+  // Exibir a tag em uma linha abaixo do texto do setor
+  return `${setorDesc}<div class="tempo-acompanhamento-wrapper">${tagDias}</div>`;
   }
 
   /**
@@ -266,9 +267,9 @@
   const plural = dias === 1 ? 'dia' : 'dias';
   const textoTag = isHoje ? 'Hoje' : `${dias} ${plural}`;
   const tooltip = isHoje ? 'Hoje no setor atual' : `Há ${textoTag} no setor atual`;
-    const classeAdicional = getClassePorTempo(dias);
+  const classeAdicional = getClassePorTempo(dias);
     
-    return `<span class="tempo-acompanhamento-tag${classeAdicional}" title="${tooltip}">${textoTag}</span>`;
+  return `<span class="tempo-acompanhamento-tag${classeAdicional}" title="${tooltip}">${textoTag}</span>`;
   }
 
   /**
@@ -278,8 +279,8 @@
    */
   function getClassePorTempo(dias) {
     if (dias === null || dias === undefined) return '';
-    
-    // Retorna sempre a mesma classe para cor padronizada
+    // Quando for hoje (0 dias), usar variação verde; caso contrário, padrão azul
+    if (dias === 0) return ' tempo-hoje';
     return ' tempo-padrao';
   }
 
@@ -294,6 +295,13 @@
     const style = document.createElement('style');
     style.id = 'tempo-acompanhamento-styles';
     style.textContent = `
+    /* Wrapper para forçar a tag a ficar abaixo do texto principal */
+    .tempo-acompanhamento-wrapper {
+      display: block;
+      margin-top: 4px;
+      line-height: 1;
+    }
+        
         .tempo-acompanhamento-tag {
             display: inline-block;
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
@@ -302,7 +310,7 @@
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
-            margin-left: 8px;
+      margin-left: 0;
             border: 1px solid #90caf9;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             cursor: help;
@@ -321,11 +329,24 @@
             color: #1565c0;
         }
         
+    /* Variação verde pastel para Hoje (0 dias) */
+    .tempo-acompanhamento-tag.tempo-hoje {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      border-color: #a5d6a7;
+      color: #2e7d32;
+    }
+    .tempo-acompanhamento-tag.tempo-hoje:hover {
+      background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+    }
+        
         @media (max-width: 768px) {
+      .tempo-acompanhamento-wrapper {
+        margin-top: 2px;
+      }
             .tempo-acompanhamento-tag {
                 font-size: 10px;
                 padding: 2px 6px;
-                margin-left: 4px;
+        margin-left: 0;
             }
         }
     `;
