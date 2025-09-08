@@ -20,6 +20,14 @@
   // Cache de respostas por número de processo
   const cacheProcessoDocs = new Map(); // numero -> { raw, documentos: [], sigiloso: boolean }
 
+  // Cache global compartilhado entre módulos (Acompanhamento e Documentos)
+  function getSharedProcessCache() {
+    if (!window._processoPorNumeroCache) {
+      window._processoPorNumeroCache = new Map();
+    }
+    return window._processoPorNumeroCache;
+  }
+
   // Controle de atualização
   let debounceId = null;
 
@@ -213,44 +221,18 @@
     return String(raw).replace(/[^0-9./-]/g,'').trim();
   }
 
-  async function fetchProcessoPorNumero(numero, { timeoutMs = 12000 } = {}) {
+  async function fetchProcessoPorNumero(numero) {
+    // Somente cache: este módulo não deve disparar requisições de rede
     const num = normalizarNumero(numero);
     if (!num) return null;
     if (cacheProcessoDocs.has(num)) return cacheProcessoDocs.get(num);
-
-    const controller = new AbortController();
-    const to = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const resp = await fetch(API_POR_NUMERO, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ numero: num }),
-        signal: controller.signal
-      });
-      if (!resp.ok) {
-        // Tenta uma variação de chave comum (nrProcesso)
-        if (resp.status === 400 || resp.status === 415 || resp.status === 500) {
-          try {
-            const resp2 = await fetch(API_POR_NUMERO, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ nrProcesso: num }),
-              signal: controller.signal
-            });
-            if (resp2.ok) {
-              const data2 = await resp2.json();
-              return processarResposta(num, data2);
-            }
-          } catch(_) { /* ignore */ }
-        }
-        const t = await resp.text().catch(()=> '');
-        throw new Error(`HTTP ${resp.status} ${t || resp.statusText}`);
-      }
-      const data = await resp.json();
-      return processarResposta(num, data);
-    } finally {
-      clearTimeout(to);
+    const shared = getSharedProcessCache();
+    if (shared.has(num)) {
+      const val = shared.get(num);
+      cacheProcessoDocs.set(num, val);
+      return val;
     }
+    return null;
   }
 
   function processarResposta(numero, data) {
@@ -271,13 +253,16 @@
         documentos = grupos.flat();
       }
 
-      const result = { raw: item || null, documentos, sigiloso };
-      cacheProcessoDocs.set(numero, result);
-      return result;
+  const result = { raw: item || null, documentos, sigiloso };
+  cacheProcessoDocs.set(numero, result);
+  // Preencher cache global compartilhado
+  try { getSharedProcessCache().set(numero, result); } catch(_) {}
+  return result;
     } catch (e) {
-      const result = { raw: null, documentos: [], sigiloso: false };
-      cacheProcessoDocs.set(numero, result);
-      return result;
+  const result = { raw: null, documentos: [], sigiloso: false };
+  cacheProcessoDocs.set(numero, result);
+  try { getSharedProcessCache().set(numero, result); } catch(_) {}
+  return result;
     }
   }
 

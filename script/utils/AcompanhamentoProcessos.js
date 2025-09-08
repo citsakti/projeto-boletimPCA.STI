@@ -7,7 +7,7 @@
  * Fluxo:
  *  1. Escuta o evento 'tabela-carregada' (disparado após montar a tabela)
  *  2. Coleta todos os números de processo da coluna "Processo" (última coluna)
- *  3. Faz requisições em lote (POST) à API https://api-processos.tce.ce.gov.br/processos/porLista
+ *  3. Faz requisições POR NÚMERO (POST) à API https://api-processos.tce.ce.gov.br/processos/porNumero
  *  4. Calcula diferença em dias entre hoje e dtUltimoEncaminhamento
  *  5. Atualiza a 5ª coluna (índice 4) de cada linha com o texto: "SETOR - há X dias"
  *
@@ -18,210 +18,157 @@
  */
 
 (function(){
-  const API_URL = "https://api-processos.tce.ce.gov.br/processos/porLista";
-  const MAX_POR_LOTE = 10; // API limita a 10 processos por requisição
-  const cacheProcessos = new Map(); // numero -> objeto retornado bruto
+  // Nova API por número (mesma do módulo DocumentosDoProcessso.js)
+  const API_POR_NUMERO = 'https://api-processos.tce.ce.gov.br/processos/porNumero';
+  const cacheProcessos = new Map(); // numero -> objeto retornado bruto (item.raw do módulo de documentos)
   let ultimaExecucaoHash = null;
 
-  async function buscarProcessosLote(numeros, { timeoutMs = 10000 } = {}) {
-    if (!numeros.length) return [];
-    const payload = {
-      numeros,
-      filtros: {},
-      pagina: 0,
-      qtd: Math.min(numeros.length, 10) // Limitado a 10 processos por requisição
-    };
-    
-    if (window._acompanhamentoDebug) {
-      console.log('[API] Enviando requisição:', {
-        url: API_URL,
-        payload: payload,
-        numerosEnviados: numeros
-      });
+  // Cache global compartilhado entre módulos (Acompanhamento e Documentos)
+  function getSharedProcessCache() {
+    if (!window._processoPorNumeroCache) {
+      window._processoPorNumeroCache = new Map();
     }
-    
-    const controller = new AbortController();
-    const to = setTimeout(()=>controller.abort(), timeoutMs);
+    return window._processoPorNumeroCache;
+  }
+
+  // Acessa o módulo de documentos se carregado, para reutilizar o cache e o fetch
+  function getDocsModule() {
+    return (window && window.debugDocumentosProcesso) ? window.debugDocumentosProcesso : null;
+  }
+  function getDocsCache() {
+    const mod = getDocsModule();
+    return mod && mod.cache ? mod.cache : null; // Map numero -> { raw, documentos, sigiloso }
+  }
+  function processarRespostaLocal(numero, data) {
+    // Replica a lógica do módulo DocumentosDoProcessso.js
+    let item = null;
     try {
-      const resp = await fetch(API_URL, {
+      item = data && data.data && Array.isArray(data.data.lista) ? data.data.lista[0] : null;
+    } catch(_) {}
+    const documentosSessao = item && item.documentos ? item.documentos : null;
+    const sigiloso = !documentosSessao;
+    let documentos = [];
+    if (documentosSessao) {
+      const grupos = [
+        documentosSessao.documentosPrincipal,
+        documentosSessao.documentosApensados,
+        documentosSessao.documentosJuntados,
+        documentosSessao.documentosProtocolosJuntados,
+        documentosSessao.documentoAgrupados
+      ].filter(Array.isArray);
+      documentos = grupos.flat();
+    }
+    return { raw: item || null, documentos, sigiloso };
+  }
+  async function fetchProcessoPorNumeroCompat(numero, { timeoutMs = 12000 } = {}) {
+    const docsCache = getDocsCache();
+    const num = normalizarNumero(numero);
+    if (!num) return null;
+    // 1) Tenta apenas CACHE do módulo de documentos, não o fetch dele
+    if (docsCache && docsCache.has(num)) return docsCache.get(num);
+
+    // Fallback local: realiza a mesma chamada e, se possível, sincroniza com o cache do módulo
+    const controller = new AbortController();
+    const to = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      // A API requer JSON; usar application/json evita 415
+      const resp = await fetch(API_POR_NUMERO, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ numero: num }),
         signal: controller.signal
       });
-      
-      if (window._acompanhamentoDebug) {
-        console.log('[API] Resposta recebida:', {
-          status: resp.status,
-          statusText: resp.statusText,
-          headers: Object.fromEntries(resp.headers.entries())
-        });
-      }
-      
       if (!resp.ok) {
-        const t = await resp.text().catch(()=>"");
-        const errorInfo = { status: resp.status, message: t || resp.statusText };
-        throw new Error(`HTTP ${resp.status} ${t||resp.statusText}`, { cause: errorInfo });
-      }
-      
-      const data = await resp.json();
-      
-      if (window._acompanhamentoDebug) {
-        console.log('[API] Dados JSON recebidos:', {
-          tipoResposta: typeof data,
-          ehArray: Array.isArray(data),
-          chaves: data && typeof data === 'object' ? Object.keys(data) : 'N/A',
-          tamanho: Array.isArray(data) ? data.length : 'N/A',
-          primeiroItem: data && Array.isArray(data) && data[0] ? data[0] : 
-                       data && typeof data === 'object' ? Object.values(data)[0] : 'N/A'
-        });
-      }
-      
-      return data;
-    } catch (error) {
-      if (window._acompanhamentoDebug) {
-        console.error('[API] Erro na requisição:', error);
-      }
-      // Preservar informações do erro HTTP para exibição posterior
-      if (error.message.includes('HTTP ')) {
-        const statusMatch = error.message.match(/HTTP (\d+)/);
-        if (statusMatch) {
-          error.httpStatus = parseInt(statusMatch[1]);
+        if (resp.status === 400 || resp.status === 415 || resp.status === 500) {
+          try {
+            const resp2 = await fetch(API_POR_NUMERO, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nrProcesso: num }),
+              signal: controller.signal
+            });
+            if (resp2.ok) {
+              const data2 = await resp2.json();
+              const result2 = processarRespostaLocal(num, data2);
+              if (docsCache) docsCache.set(num, result2);
+              return result2;
+            }
+          } catch(_) { /* ignore */ }
         }
+        const t = await resp.text().catch(()=> '');
+        const err = new Error(`HTTP ${resp.status} ${t || resp.statusText}`);
+        err.httpStatus = resp.status;
+        throw err;
       }
-      throw error;
-    } finally { 
-      clearTimeout(to); 
+      const data = await resp.json();
+      const result = processarRespostaLocal(num, data);
+      if (docsCache) docsCache.set(num, result);
+      return result;
+    } finally {
+      clearTimeout(to);
     }
   }
 
   async function buscarProcessos(numeros, opts={}) {
-    // Remove já cacheados
-    const faltantes = numeros.filter(n => !cacheProcessos.has(n));
-    const lotes = [];
-    for (let i=0;i<faltantes.length;i+=MAX_POR_LOTE) {
-      lotes.push(faltantes.slice(i, i+MAX_POR_LOTE));
-    }
-    
-    const errosLotes = []; // Array para coletar erros de cada lote
-    
-    // Processar lotes sequencialmente com pequeno delay entre requisições
-    for (let i = 0; i < lotes.length; i++) {
-      const lote = lotes[i];
-      try {
-        if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Processando lote ${i+1}/${lotes.length} (${lote.length} processos):`, lote);
-        
-        const dados = await buscarProcessosLote(lote, opts);
-        
-        // DEBUG: Log da estrutura da resposta
-        if (window._acompanhamentoDebug && i === 0) {
-          console.log('[Acompanhamento] Estrutura da resposta da API:', {
-            tipoDados: typeof dados,
-            ehArray: Array.isArray(dados),
-            chaves: dados && typeof dados === 'object' ? Object.keys(dados) : 'N/A',
-            primeiroItem: dados && Array.isArray(dados) && dados[0] ? dados[0] : 'N/A'
-          });
-        }
-        
-        let lista = [];
-        if (Array.isArray(dados)) {
-          lista = dados;
-        } else if (dados && typeof dados === 'object') {
-          // Primeiro, verificar se há uma propriedade 'data' (estrutura da API do TCE)
-          if (dados.data) {
-            if (Array.isArray(dados.data)) {
-              lista = dados.data;
-              if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Dados encontrados em: data (array direto)`);
-            } else if (typeof dados.data === 'object') {
-              // Se data é um objeto, procurar dentro dele (incluindo 'lista')
-              const subChaves = ['lista', 'content', 'items', 'result', 'processos', 'registros'];
-              for (const k of subChaves) {
-                if (Array.isArray(dados.data[k])) {
-                  lista = dados.data[k];
-                  if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Dados encontrados em: data.${k}`);
-                  break;
-                }
-              }
-              // Se não encontrou em subchaves, talvez data seja uma lista de propriedades
-              if (!lista.length) {
-                Object.values(dados.data).forEach(v => {
-                  if (v && typeof v === 'object' && (v.nrProcesso || v.numero)) lista.push(v);
-                });
-                if (lista.length && window._acompanhamentoDebug) {
-                  console.log('[Acompanhamento] Dados coletados de propriedades de data');
-                }
-              }
-            }
-          } else {
-            // Fallback: buscar nas chaves originais
-            const chavesPossiveis = ['conteudo','content','items','result','processos','lista','registros'];
-            for (const k of chavesPossiveis) {
-              if (Array.isArray(dados[k])) { 
-                lista = dados[k]; 
-                if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Dados encontrados na chave: ${k}`);
-                break; 
-              }
-            }
-            if (!lista.length) {
-              // tentativa final: coletar subobjetos com campo numero ou nrProcesso
-              Object.values(dados).forEach(v => { 
-                if (v && typeof v === 'object' && (v.nrProcesso || v.numero)) lista.push(v); 
-              });
-              if (lista.length && window._acompanhamentoDebug) {
-                console.log('[Acompanhamento] Dados coletados de subobjetos');
-              }
-            }
+    // Evitar refetch: usa cache local e o cache do módulo de documentos
+    const docsCache = getDocsCache();
+    const shared = getSharedProcessCache();
+    const faltantes = numeros.filter(n => {
+      const num = normalizarNumero(n);
+      if (!num) return false;
+      if (cacheProcessos.has(num)) return false;
+      if (docsCache && docsCache.has(num)) return false; // já disponível para reaproveitar
+      if (shared && shared.has(num)) return false; // já baixado globalmente
+      return true;
+    });
+
+    const errosLotes = [];
+
+    // Busca concorrente por número (rápido e mais leve na API)
+    const maxConc = 5;
+    let idx = 0;
+  async function worker() {
+      while (idx < faltantes.length) {
+        const i = idx++;
+        const numero = normalizarNumero(faltantes[i]);
+        if (!numero) continue;
+        try {
+          const res = await fetchProcessoPorNumeroCompat(numero, opts);
+      // Preenche cache local imediatamente
+      const raw = res && res.raw ? res.raw : null;
+          if (raw) {
+            cacheProcessos.set(numero, raw);
+            try { getSharedProcessCache().set(numero, res); } catch(_) {}
           }
+        } catch (err) {
+          // Registrar erro no formato compatível com aplicarErrosNaTabela
+          errosLotes.push({ lote: [numero], erro: err, httpStatus: err && err.httpStatus ? err.httpStatus : null });
         }
-        
-        if (window._acompanhamentoDebug) {
-          console.log(`[Acompanhamento] Lote ${i+1}/${lotes.length} processado: ${lista.length} processos encontrados`);
-          if (lista.length > 0) {
-            console.log('[Acompanhamento] Exemplo de processo:', lista[0]);
-          }
-        }
-        
-        lista.forEach(item => { 
-          // A API retorna 'nrProcesso' ao invés de 'numero'
-          const numeroProcesso = item.nrProcesso || item.numero;
-          if (item && numeroProcesso) {
-            const numeroNormalizado = normalizarNumero(numeroProcesso);
-            cacheProcessos.set(numeroNormalizado, item);
-            if (window._acompanhamentoDebug && cacheProcessos.size <= 5) {
-              console.log(`[Cache] Armazenado: ${numeroNormalizado}`, {
-                numeroOriginal: numeroProcesso,
-                setor: item?.setor?.descricao,
-                dtUltimoEncaminhamento: item?.dtUltimoEncaminhamento,
-                objetoCompleto: item
-              });
-            }
-          } else {
-            if (window._acompanhamentoDebug) {
-              console.warn('[Cache] Item inválido encontrado:', item);
-            }
-          }
-        });
-        
-        if (window._acompanhamentoDebug) {
-          console.log(`[Cache] Estado atual: ${cacheProcessos.size} processos armazenados`);
-        }
-        
-        // Pequeno delay entre requisições para não sobrecarregar a API
-        if (i < lotes.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 200));
-        }
-      } catch(err) {
-        console.error(`AcompanhamentoProcessos: erro ao buscar lote ${i+1}/${lotes.length}`, lote, err);
-        // Armazenar erro para posterior exibição nas células afetadas
-        errosLotes.push({
-          lote: lote,
-          erro: err,
-          httpStatus: err.httpStatus || null
-        });
       }
     }
-    
-    // Retornar informações sobre erros para uso posterior
+    const workers = Array.from({ length: Math.min(maxConc, faltantes.length || 0) }, () => worker());
+    await Promise.all(workers);
+
+    // Popular o cache local a partir do cache compartilhado (ou reaproveitar se já estiver lá)
+  const origem = getDocsCache() || getSharedProcessCache();
+    numeros.forEach(num => {
+      const n = normalizarNumero(num);
+      if (!n) return;
+      if (cacheProcessos.has(n)) return;
+      let raw = null;
+      if (origem && origem.has(n)) {
+        const entry = origem.get(n);
+        raw = entry && entry.raw ? entry.raw : null;
+      }
+      if (raw) {
+        cacheProcessos.set(n, raw);
+      }
+    });
+
+    if (window._acompanhamentoDebug) {
+      console.log(`[Acompanhamento] Cache local preenchido: ${cacheProcessos.size} processos`);
+    }
+
     return { errosLotes };
   }
 
@@ -829,17 +776,20 @@
   
   // Função para testar requisição individual
   window.testarAPIIndividual = async function(numerosProcesso = ['06763/2025-0']) {
-    console.log('🧪 TESTANDO REQUISIÇÃO INDIVIDUAL À API');
+    console.log('🧪 TESTANDO REQUISIÇÃO POR NÚMERO (porNumero)');
     console.log('Números a testar:', numerosProcesso);
-    
-    try {
-      const resultado = await buscarProcessosLote(numerosProcesso);
-      console.log('✅ Requisição bem-sucedida:', resultado);
-      return resultado;
-    } catch (error) {
-      console.error('❌ Erro na requisição:', error);
-      return null;
+    const resultados = new Map();
+    for (const n of numerosProcesso) {
+      try {
+        const res = await fetchProcessoPorNumeroCompat(n);
+        resultados.set(n, res);
+        console.log(`✅ ${n}:`, res);
+      } catch (error) {
+        resultados.set(n, { erro: String(error) });
+        console.error(`❌ ${n}:`, error);
+      }
     }
+    return resultados;
   };
   
   // Função para testar as tags de tempo coloridas
@@ -874,44 +824,24 @@
   
   // Função para analisar estrutura completa da resposta
   window.analisarEstruturaAPI = async function(numerosProcesso = ['06763/2025-0']) {
-    console.log('🔍 ANALISANDO ESTRUTURA COMPLETA DA API');
-    
+    console.log('🔍 ANALISANDO ESTRUTURA COMPLETA DA RESPOSTA (porNumero)');
     try {
-      const resultado = await buscarProcessosLote(numerosProcesso);
-      console.log('📊 ESTRUTURA COMPLETA DA RESPOSTA:');
-      console.log('Tipo do resultado:', typeof resultado);
-      console.log('Chaves do resultado:', Object.keys(resultado));
-      console.log('Conteúdo de data:', resultado.data);
-      console.log('Tipo de data:', typeof resultado.data);
-      
-      if (resultado.data) {
-        console.log('Chaves de data:', Object.keys(resultado.data));
-        console.log('Conteúdo completo de data:', resultado.data);
-        
-        // Verificar se é array ou objeto
-        if (Array.isArray(resultado.data)) {
-          console.log('✅ data é um array com', resultado.data.length, 'itens');
-          if (resultado.data.length > 0) {
-            console.log('Primeiro item de data:', resultado.data[0]);
-          }
-        } else if (typeof resultado.data === 'object') {
-          console.log('⚠️ data é um objeto, não um array');
-          console.log('Propriedades de data:', Object.keys(resultado.data));
-          
-          // Procurar arrays dentro de data
-          Object.keys(resultado.data).forEach(key => {
-            const value = resultado.data[key];
-            if (Array.isArray(value)) {
-              console.log(`🎯 Encontrou array em data.${key} com ${value.length} itens`);
-              if (value.length > 0) {
-                console.log(`Primeiro item de data.${key}:`, value[0]);
-              }
-            }
-          });
-        }
+      const res = await fetchProcessoPorNumeroCompat(numerosProcesso[0]);
+      console.log('📊 Estrutura do objeto retornado:', {
+        chaves: res ? Object.keys(res) : null,
+        temRaw: !!(res && res.raw),
+        temDocumentos: !!(res && Array.isArray(res.documentos)),
+        sigiloso: !!(res && res.sigiloso)
+      });
+      if (res && res.raw) {
+        console.log('🔎 Estrutura de raw:', {
+          chaves: Object.keys(res.raw || {}),
+          setor: res.raw?.setor,
+          dtUltimoEncaminhamento: res.raw?.dtUltimoEncaminhamento,
+          exemplo: res.raw
+        });
       }
-      
-      return resultado;
+      return res;
     } catch (error) {
       console.error('❌ Erro na análise:', error);
       return null;
