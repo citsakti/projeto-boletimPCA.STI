@@ -61,11 +61,9 @@
       .documentos-index .doc-item:hover { background: #f6f8fc; border-color: #e9eef6; }
       .documentos-index .doc-item.active { background: #e8f0fe; border-color: #d2e3fc; }
       .documentos-index .doc-main { display: grid; gap: 2px; min-width: 0; }
-      .documentos-index .doc-title { font-size: 13px; font-weight: 600; color: #202124; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .documentos-index .doc-sub { font-size: 12px; color: #5f6368; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .documentos-index .doc-actions { display: inline-flex; gap: 6px; }
-      .documentos-index .doc-actions a { display: inline-flex; padding: 4px; border-radius: 4px; color: #1a73e8; background: #eef3f8; border: 1px solid #d2e3fc; text-decoration: none; }
-      .documentos-index .doc-actions a:hover { background: #e2ecf7; }
+      .documentos-index .doc-title { font-size: 13px; font-weight: 600; color: #202124; overflow: hidden; text-overflow: ellipsis;; }
+      .documentos-index .doc-sub { font-size: 12px; color: #5f6368; overflow: hidden; text-overflow: ellipsis; }
+  /* .doc-actions removido temporariamente (sem ícones extras no índice) */
       .documentos-index .doc-item.disabled { opacity: .6; cursor: not-allowed; }
       .documento-viewer { overflow: auto; min-width: 0; min-height: 0; height: 100%; }
       .documento-viewer iframe { display: block; width: 100%; height: 100%; border: none; background: #f8f9fa; }
@@ -120,6 +118,15 @@
       if (window.modalManager) window.modalManager.closeModal('documentos-modal');
       else overlay.style.display = 'none';
     });
+
+    // Fechar ao clicar no overlay (fora do conteúdo do modal), como nos outros modais
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        e.preventDefault();
+        if (window.modalManager) window.modalManager.closeModal('documentos-modal');
+        else overlay.style.display = 'none';
+      }
+    });
   }
 
   function openDocumentosModal(numeroProcesso, documentos, meta = {}) {
@@ -166,28 +173,7 @@
       main.appendChild(titulo);
       main.appendChild(sub);
 
-      const actions = document.createElement('div');
-      actions.className = 'doc-actions';
-      // Link/ação para documento assinado (abre dentro do modal)
-      if (doc && doc.id && Number(doc.id) > 0) {
-        const a = document.createElement('a');
-        a.href = API_DOC_ASSINATURAS + encodeURIComponent(doc.id);
-        a.title = 'Abrir documento assinado';
-        a.innerHTML = SVG_PEN;
-        // Abre também no viewer do modal
-        a.addEventListener('click', (ev) => {
-          ev.preventDefault();
-          // Seleciona o item correspondente
-          indexEl.querySelectorAll('.doc-item').forEach(el => el.classList.remove('active'));
-          item.classList.add('active');
-          // Carrega PDF assinado
-          iframe.src = API_DOC_ASSINATURAS + encodeURIComponent(doc.id);
-        });
-        actions.appendChild(a);
-      }
-
-      item.appendChild(main);
-      item.appendChild(actions);
+  item.appendChild(main);
       indexEl.appendChild(item);
 
       if (canDisplay) {
