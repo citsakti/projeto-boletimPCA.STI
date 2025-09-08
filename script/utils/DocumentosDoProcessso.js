@@ -15,7 +15,7 @@
 (function(){
   const API_POR_NUMERO = 'https://api-processos.tce.ce.gov.br/processos/porNumero';
   const API_DOC_ARQUIVO = 'https://api-add.tce.ce.gov.br/arquivos/documento?documento_id=';
-  const API_DOC_ASSINATURAS = 'https://api-processos.tce.ce.gov.br/documento/assinaturas?documento_id=';
+  const API_DOC_ASSINATURAS = 'https://api-add.tce.ce.gov.br/arquivos/documento?documento_id=';
 
   // Cache de respostas por número de processo
   const cacheProcessoDocs = new Map(); // numero -> { raw, documentos: [], sigiloso: boolean }
@@ -50,27 +50,25 @@
       .doc-icon-btn svg { display: block; }
       .doc-icon-tooltip { position: relative; }
       .doc-icon-tooltip:hover::after { content: attr(data-title); position: absolute; top: -28px; left: 50%; transform: translateX(-50%); background: rgba(60,64,67,.9); color: #fff; padding: 4px 6px; font-size: 12px; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 10; }
-
-      /* Modal de Documentos */
-      #documentos-modal-overlay.modal-overlay { align-items: center; justify-content: center; padding: 24px; }
-      .documentos-modal-content { background: #fff; width: min(1100px, 96vw); height: min(80vh, 900px); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.25); display: flex; flex-direction: column; overflow: hidden; }
-      .documentos-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #eee; }
-      .documentos-modal-header h5 { margin: 0; font-size: 16px; font-weight: 600; }
-      .documentos-modal-close { background: transparent; border: none; font-size: 22px; line-height: 1; cursor: pointer; }
-      .documentos-modal-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 320px 1fr; }
-      .documentos-index { border-right: 1px solid #eee; overflow: auto; padding: 10px; }
+  /* Limites e contenção do modal */
+  #documentos-modal-overlay .modal-content { width: min(1200px, 90vw); height: min(90vh, 900px); display: flex; flex-direction: column; overflow: hidden; }
+  #documentos-modal-overlay .modal-header { flex: 0 0 auto; }
+  #documentos-modal-overlay .flex-fill { flex: 1 1 auto; min-height: 0; }
+  /* Corpo com índice à esquerda e viewer à direita */
+  .documentos-modal-body { flex: 1 1 auto; height: 100%; min-height: 0; overflow: hidden; display: grid; grid-template-columns: 320px 1fr; }
+      .documentos-index { border-right: 1px solid #eee; overflow: auto; padding: 10px; min-width: 0; }
       .documentos-index .doc-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; }
       .documentos-index .doc-item:hover { background: #f6f8fc; border-color: #e9eef6; }
       .documentos-index .doc-item.active { background: #e8f0fe; border-color: #d2e3fc; }
-      .documentos-index .doc-main { display: grid; gap: 2px; }
-      .documentos-index .doc-title { font-size: 13px; font-weight: 600; color: #202124; }
-      .documentos-index .doc-sub { font-size: 12px; color: #5f6368; }
+      .documentos-index .doc-main { display: grid; gap: 2px; min-width: 0; }
+      .documentos-index .doc-title { font-size: 13px; font-weight: 600; color: #202124; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .documentos-index .doc-sub { font-size: 12px; color: #5f6368; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .documentos-index .doc-actions { display: inline-flex; gap: 6px; }
       .documentos-index .doc-actions a { display: inline-flex; padding: 4px; border-radius: 4px; color: #1a73e8; background: #eef3f8; border: 1px solid #d2e3fc; text-decoration: none; }
       .documentos-index .doc-actions a:hover { background: #e2ecf7; }
       .documentos-index .doc-item.disabled { opacity: .6; cursor: not-allowed; }
-      .documento-viewer { overflow: hidden; }
-      .documento-viewer iframe { width: 100%; height: 100%; border: none; background: #f8f9fa; }
+      .documento-viewer { overflow: auto; min-width: 0; min-height: 0; height: 100%; }
+      .documento-viewer iframe { display: block; width: 100%; height: 100%; border: none; background: #f8f9fa; }
       @media (max-width: 900px) { .documentos-modal-body { grid-template-columns: 1fr; } .documentos-index { max-height: 40%; border-right: none; border-bottom: 1px solid #eee; } }
     `;
     document.head.appendChild(style);
@@ -81,18 +79,20 @@
     if (document.getElementById('documentos-modal-overlay')) return;
     const overlay = document.createElement('div');
     overlay.id = 'documentos-modal-overlay';
-    overlay.className = 'modal-overlay d-none';
-    overlay.style.display = 'none';
+    overlay.className = 'modal-overlay d-none position-fixed top-0 start-0 w-100 h-100';
+    overlay.style.cssText = 'display:none; background: rgba(0,0,0,0.5); align-items: center; justify-content: center;';
     overlay.innerHTML = `
-      <div class="documentos-modal-content">
-        <div class="documentos-modal-header">
-          <h5 id="documentos-modal-title">Documentos do Processo</h5>
-          <button id="documentos-modal-close" class="documentos-modal-close" aria-label="Fechar">×</button>
+      <div class="modal-content position-relative bg-white rounded d-flex flex-column" style="width: 90vw; height: 90vh; max-width: 1200px;">
+        <div class="modal-header p-3 text-white rounded-top-2 d-flex justify-content-between align-items-center" style="background: var(--brand-primary);">
+          <h5 id="documentos-modal-title" class="mb-0 text-white">Documentos do Processo</h5>
+          <button id="documentos-modal-close" class="btn-close btn-close-white" type="button" aria-label="Close"></button>
         </div>
-        <div class="documentos-modal-body">
-          <div id="documentos-index" class="documentos-index" role="navigation" aria-label="Índice de documentos"></div>
-          <div class="documento-viewer">
-            <iframe id="documento-viewer-frame" title="Visualizador de documento PDF"></iframe>
+        <div class="flex-fill p-0 position-relative" style="display: flex; flex-direction: column;">
+          <div class="documentos-modal-body">
+            <div id="documentos-index" class="documentos-index" role="navigation" aria-label="Índice de documentos"></div>
+            <div class="documento-viewer">
+              <iframe id="documento-viewer-frame" title="Visualizador de documento PDF"></iframe>
+            </div>
           </div>
         </div>
       </div>`;
@@ -103,7 +103,7 @@
       if (window.modalManager && typeof window.modalManager.registerModal === 'function') {
         window.modalManager.registerModal('documentos-modal', {
           overlay: 'documentos-modal-overlay',
-          content: '.documentos-modal-content',
+          content: '.modal-content',
           closeButtons: ['documentos-modal-close'],
           type: 'content'
         });
@@ -122,7 +122,7 @@
     });
   }
 
-  function openDocumentosModal(numeroProcesso, documentos) {
+  function openDocumentosModal(numeroProcesso, documentos, meta = {}) {
     ensureStyles();
     ensureModal();
     const titleEl = document.getElementById('documentos-modal-title');
@@ -130,7 +130,13 @@
     const iframe = document.getElementById('documento-viewer-frame');
     if (!indexEl || !iframe) return;
 
-    titleEl.textContent = `Documentos do Processo ${numeroProcesso}`;
+    // Título no padrão do ProcessoModal: "ID PCA - Projeto" e incluir número do processo
+    const { projectName = '', idPca = '' } = meta || {};
+    const mainTitle = projectName
+      ? `${idPca ? idPca + ' - ' : ''}${projectName}`
+      : 'Documentos do Processo';
+    const numSuffix = numeroProcesso ? ` • Nº ${numeroProcesso}` : '';
+    titleEl.textContent = `${mainTitle}${numSuffix}`;
     indexEl.innerHTML = '';
 
   // Montar itens do índice e determinar primeiro documento exibível
@@ -162,14 +168,21 @@
 
       const actions = document.createElement('div');
       actions.className = 'doc-actions';
-      // Link assinaturas
+      // Link/ação para documento assinado (abre dentro do modal)
       if (doc && doc.id && Number(doc.id) > 0) {
         const a = document.createElement('a');
         a.href = API_DOC_ASSINATURAS + encodeURIComponent(doc.id);
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.title = 'Ver assinaturas do documento';
+        a.title = 'Abrir documento assinado';
         a.innerHTML = SVG_PEN;
+        // Abre também no viewer do modal
+        a.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          // Seleciona o item correspondente
+          indexEl.querySelectorAll('.doc-item').forEach(el => el.classList.remove('active'));
+          item.classList.add('active');
+          // Carrega PDF assinado
+          iframe.src = API_DOC_ASSINATURAS + encodeURIComponent(doc.id);
+        });
         actions.appendChild(a);
       }
 
@@ -286,14 +299,17 @@
   }
 
   function addIconeSeNecessario(tr, info) {
-    const acompCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
-    if (!acompCell) return;
-    const tagWrapper = acompCell.querySelector('.tempo-acompanhamento-wrapper');
-    const tempoTag = acompCell.querySelector('.tempo-acompanhamento-tag');
-    if (!tagWrapper || !tempoTag) return;
+    // Alvo preferencial: célula de Acompanhamento; fallback: célula de Processo (para linhas sem tag de tempo)
+    let targetCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+    if (!targetCell) {
+      targetCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
+    }
+    if (!targetCell) return;
+    const tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
+    const insertionTarget = tagWrapper || targetCell;
 
     // Evitar duplicar
-    if (tagWrapper.querySelector('.doc-icon-wrapper')) return;
+    if (insertionTarget.querySelector('.doc-icon-wrapper')) return;
 
     const wrapper = document.createElement('span');
     wrapper.className = 'doc-icon-wrapper';
@@ -311,8 +327,8 @@
     }
 
     wrapper.appendChild(btn);
-    // Inserir após a tag de tempo (na mesma linha/bloco)
-    tagWrapper.appendChild(wrapper);
+  // Inserir após a tag de tempo quando existir; caso contrário, ao final do conteúdo da célula alvo
+  insertionTarget.appendChild(wrapper);
 
     if (!info || info.sigiloso) return; // nada para abrir
 
@@ -322,8 +338,38 @@
       const numero = obterNumeroDoTR(tr);
       const dados = cacheProcessoDocs.get(numero) || info;
       const docs = (dados && Array.isArray(dados.documentos)) ? dados.documentos : [];
-      openDocumentosModal(numero, docs);
+      const meta = extrairMetaDoTR(tr);
+      openDocumentosModal(numero, docs, meta);
     });
+  }
+
+  // Extrai metadados (projeto e ID PCA) da linha, semelhante ao ProcessoModal
+  function extrairMetaDoTR(tr) {
+    let projectName = '';
+    let idPca = '';
+    try {
+      const table = tr.closest('table');
+      if (table) {
+        const ths = Array.from(table.querySelectorAll('thead th'));
+        const idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
+        if (idxProjeto >= 0 && tr.children[idxProjeto]) {
+          projectName = tr.children[idxProjeto].textContent.trim();
+        }
+        const idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
+        if (idxId >= 0 && tr.children[idxId]) {
+          idPca = tr.children[idxId].textContent.trim();
+        }
+      }
+      if (!projectName) {
+        const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
+        if (candidato) projectName = candidato.textContent.trim();
+      }
+      if (!idPca) {
+        const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset.label||'')));
+        if (idCand) idPca = idCand.textContent.trim();
+      }
+    } catch(_) { /* ignore */ }
+    return { projectName, idPca };
   }
 
   async function atualizarIconesDocumentos() {
@@ -381,7 +427,7 @@
   // Expor para debug manual
   window.debugDocumentosProcesso = {
     fetch: fetchProcessoPorNumero,
-    abrir: openDocumentosModal,
+  abrir: openDocumentosModal,
     atualizar: atualizarIconesDocumentos,
     cache: cacheProcessoDocs
   };
