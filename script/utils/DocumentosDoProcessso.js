@@ -160,11 +160,17 @@
 
       const main = document.createElement('div');
       main.className = 'doc-main';
-      const titulo = document.createElement('div');
-      titulo.className = 'doc-title';
+  const titulo = document.createElement('div');
+  titulo.className = 'doc-title';
   const tipo = (doc.tipoAtoDocumento && doc.tipoAtoDocumento.descricao) ? doc.tipoAtoDocumento.descricao : 'Documento';
-  // numeração decrescente (ex.: total, total-1, ..., 1)
-  titulo.textContent = `${Math.max(1, total - idx)}. ${tipo}`;
+  // Anexar número do ato (numero/ano) após o tipo, conforme JSON
+  const partesAto = [];
+  if (doc && doc.numero) partesAto.push(String(doc.numero));
+  if (doc && doc.ano) partesAto.push(String(doc.ano));
+  const sufixoAto = partesAto.length ? ` - ${partesAto.join('/')}` : '';
+  const tituloBase = `${tipo}${sufixoAto}`;
+  // Numeração decrescente (ex.: total, total-1, ..., 1)
+  titulo.textContent = `${Math.max(1, total - idx)}. ${tituloBase}`;
       const sub = document.createElement('div');
       sub.className = 'doc-sub';
       const data = doc.dataFinalizacao ? ` • ${doc.dataFinalizacao}` : '';
