@@ -306,7 +306,7 @@
             display: inline-block;
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             color: #1565c0;
-            padding: 4px 8px;
+            padding: 4px 6px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
