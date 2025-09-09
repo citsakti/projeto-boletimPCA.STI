@@ -236,7 +236,7 @@
       return true;
     });
 
-    const errosLotes = [];
+  const errosLotes = [];
 
     // Busca concorrente por número (rápido e mais leve na API)
     const maxConc = 5;
@@ -253,10 +253,16 @@
           if (raw) {
             cacheProcessos.set(numero, raw);
             try { getSharedProcessCache().set(numero, res); } catch(_) {}
+            // Atualiza imediatamente a(s) linha(s) correspondente(s) na tabela (atualização incremental)
+            try { atualizarLinhaPorNumero(numero); } catch(_) {}
+            // Disparar evento de atualização parcial para outros módulos interessados
+            try { document.dispatchEvent(new CustomEvent('acompanhamento-atualizado-parcial', { detail: { numero, ts: Date.now() } })); } catch(_) {}
           }
         } catch (err) {
           // Registrar erro no formato compatível com aplicarErrosNaTabela
           errosLotes.push({ lote: [numero], erro: err, httpStatus: err && err.httpStatus ? err.httpStatus : null });
+          // Marcar erro imediatamente na linha correspondente
+          try { marcarErroNaLinha(numero, err); } catch(_) {}
         }
       }
     }
@@ -689,6 +695,82 @@
     }));
   }
 
+  // Atualiza apenas a(s) linha(s) com o número de processo informado usando o cache atual
+  function atualizarLinhaPorNumero(numero) {
+    const tbody = document.querySelector('#detalhes table tbody');
+    if (!tbody) return;
+    const nAlvo = normalizarNumero(numero);
+    if (!nAlvo) return;
+
+    tbody.querySelectorAll('tr').forEach((tr) => {
+      const nTr = obterNumeroDoTR(tr);
+      if (nTr !== nAlvo) return;
+
+      // Localizar célula de acompanhamento
+      let acompCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+      if (!acompCell) {
+        const headers = document.querySelectorAll('thead th');
+        let acompIndex = -1;
+        headers.forEach((th, i) => {
+          if (th.textContent.toLowerCase().includes('acompanhamento')) acompIndex = i;
+        });
+        if (acompIndex >= 0) acompCell = tr.children[acompIndex];
+      }
+      if (!acompCell) return;
+
+      const dado = cacheProcessos.get(nAlvo);
+      if (!dado) return;
+
+      // Verificar status do processo
+      let statusCell = tr.querySelector('td[data-label="Status do Processo"]') || tr.children[5];
+      const statusTexto = statusCell ? statusCell.textContent.trim() : '';
+      const isStatusCompleto = statusTexto === 'RENOVADO ✅' || statusTexto === 'CONTRATADO ✅';
+
+      const setorDesc = dado?.setor?.descricao || '';
+      const dtUltimoEnc = dado?.dtUltimoEncaminhamento;
+      const dias = diffDiasBrasil(dtUltimoEnc);
+      const repeticoesHoje = dias === 0 ? contarTramitesHoje(dado) : 0;
+
+      if (!acompCell.dataset.originalAcompanhamento) {
+        acompCell.dataset.originalAcompanhamento = acompCell.textContent.trim();
+      }
+
+      const texto = isStatusCompleto ? (setorDesc || null) : (formatar(setorDesc, dias, repeticoesHoje) || (setorDesc ? setorDesc : null));
+      if (!texto) return;
+
+      acompCell.innerHTML = texto;
+      acompCell.dataset.setorAtual = setorDesc;
+      if (dias != null) acompCell.dataset.diasSetor = dias;
+      acompCell.dataset.fonteDados = 'api';
+      limparStatusCarregamento(acompCell);
+      inserirBotaoRefreshNaCelula(tr, acompCell);
+    });
+  }
+
+  // Marca erro imediatamente na(s) linha(s) do número informado
+  function marcarErroNaLinha(numero, err) {
+    const tbody = document.querySelector('#detalhes table tbody');
+    if (!tbody) return;
+    const nAlvo = normalizarNumero(numero);
+    if (!nAlvo) return;
+
+    const codigoErro = (err && err.httpStatus) || (String(err).match(/\b\d{3}\b/) || ['REDE'])[0];
+    tbody.querySelectorAll('tr').forEach(tr => {
+      const nTr = obterNumeroDoTR(tr);
+      if (nTr !== nAlvo) return;
+      let acompCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+      if (!acompCell) {
+        const headers = document.querySelectorAll('thead th');
+        let acompIndex = -1;
+        headers.forEach((th, i) => { if (th.textContent.toLowerCase().includes('acompanhamento')) acompIndex = i; });
+        if (acompIndex >= 0) acompCell = tr.children[acompIndex];
+      }
+      if (!acompCell) return;
+      exibirErro(acompCell, codigoErro, String(err));
+      inserirBotaoRefreshNaCelula(tr, acompCell);
+    });
+  }
+
   function aplicarErrosNaTabela(errosLotes) {
     if (!errosLotes || !errosLotes.length) return;
     
@@ -902,7 +984,7 @@
       return;
     }
     
-    const celulasAcompanhamento = tbody.querySelectorAll('tr').slice(0, 4);
+  const celulasAcompanhamento = Array.from(tbody.querySelectorAll('tr')).slice(0, 4);
     
     celulasAcompanhamento.forEach((tr, index) => {
       let acompCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
