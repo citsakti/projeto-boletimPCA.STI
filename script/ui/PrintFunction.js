@@ -89,7 +89,11 @@ function printPage() {    // Esconde o botão de imprimir, caso esteja visível
         #btnPrint,
         #btnFonteDeDados,
         #btnRelatorioAnalitico,
-        .processo-link-icon {
+    .processo-link-icon,
+    /* Botões solicitados para ocultar na impressão */
+    .doc-icon-btn,
+    .acomp-historico-btn,
+    .acomp-refresh-btn {
             display: none !important;
         }
         /* Oculta o botão PCA Publicada */
