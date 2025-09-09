@@ -968,8 +968,55 @@
     if (tbody) observer.observe(tbody, { childList: true });
   });
 
+  // Atualização automática a cada 10 minutos (600.000 ms)
+  let autoRefreshId = null;
+  let autoRefreshCount = 0;
+  function logAutoRefresh(reason = 'interval') {
+    const ts = new Date();
+    const tsStr = ts.toLocaleString('pt-BR');
+    autoRefreshCount += 1;
+    const msg = `[Acompanhamento] Auto refresh #${autoRefreshCount} (${reason}) - ${tsStr}`;
+    console.info(msg);
+    try {
+      document.dispatchEvent(new CustomEvent('acompanhamento-auto-refresh', {
+        detail: { count: autoRefreshCount, reason, ts: ts.getTime() }
+      }));
+    } catch(_) {}
+  }
+  function startAutoRefresh(intervalMs = 600000) {
+    try { if (autoRefreshId) clearInterval(autoRefreshId); } catch(_) {}
+    console.info(`[Acompanhamento] Auto refresh iniciado (intervalo ${(intervalMs/60000).toFixed(0)} min)`);
+    autoRefreshId = setInterval(() => {
+      // Evitar trabalho quando a aba não estiver visível
+      if (document.hidden) return;
+      // Só tenta atualizar se existir tabela montada
+      if (document.querySelector('#detalhes table tbody tr')) {
+        logAutoRefresh('interval');
+        scheduleUpdate(0);
+      }
+    }, intervalMs);
+  }
+  function stopAutoRefresh() {
+    try { if (autoRefreshId) clearInterval(autoRefreshId); } catch(_) {}
+    autoRefreshId = null;
+    console.info('[Acompanhamento] Auto refresh parado');
+  }
+  // Inicializa auto refresh quando o DOM estiver pronto
+  document.addEventListener('DOMContentLoaded', () => startAutoRefresh());
+  if (document.readyState !== 'loading') startAutoRefresh();
+  // Ao voltar o foco/visibilidade, força uma atualização rápida
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      logAutoRefresh('visibility');
+      scheduleUpdate(0);
+    }
+  });
+
   // Expor função manual
   window.atualizarAcompanhamentoProcessos = atualizarAcompanhamento;
+  // Expor controle do auto refresh
+  window.iniciarAutoAtualizacaoAcompanhamento = () => startAutoRefresh();
+  window.pararAutoAtualizacaoAcompanhamento = () => stopAutoRefresh();
   
   // Expor função de debug
   window.debugAcompanhamentoDetalhado = debugDetalhado;
