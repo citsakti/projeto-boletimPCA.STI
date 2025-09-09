@@ -359,6 +359,10 @@
           ? s.nextAcao.descricao
           : (typeof s.nextAcao === 'string' ? s.nextAcao : '');
     const isParecerEmitido = typeof acaoSaida === 'string' && acaoSaida.trim().toUpperCase() === 'PARECER EMITIDO';
+    // Quando o processo ainda está no setor (trecho em andamento) e com 0 dias, exibe "Hoje"
+    const tempoTagHtml = (s.ateAgora && s.dias === 0)
+      ? '<span class="tempo-acompanhamento-tag tempo-hoje" title="Hoje">Hoje</span>'
+      : renderTempoTag(s.dias);
     item.innerHTML = `
           <div class="setor-pill">
             <div>
@@ -367,7 +371,7 @@
               <div class="timeline-dates">Saída: ${dtFim}</div>
               ${acaoSaida ? `<div class=\"timeline-dates\">${isParecerEmitido ? `<span class=\"acao-tag acao-verde\"><strong>${acaoSaida}</strong></span>` : `<strong>${acaoSaida}</strong>`}</div>` : ''}
             </div>
-            <div>${renderTempoTag(s.dias)}</div>
+            <div>${tempoTagHtml}</div>
           </div>`;
         s2.appendChild(item);
       });
