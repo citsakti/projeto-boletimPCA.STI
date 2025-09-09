@@ -224,17 +224,25 @@
   }
 
   async function buscarProcessos(numeros, opts={}) {
-    // Evitar refetch: usa cache local e o cache do módulo de documentos
+    // Evitar refetch: usa cache local e o cache do módulo de documentos (a menos que forceRefetch=true)
     const docsCache = getDocsCache();
     const shared = getSharedProcessCache();
-    const faltantes = numeros.filter(n => {
-      const num = normalizarNumero(n);
-      if (!num) return false;
-      if (cacheProcessos.has(num)) return false;
-      if (docsCache && docsCache.has(num)) return false; // já disponível para reaproveitar
-      if (shared && shared.has(num)) return false; // já baixado globalmente
-      return true;
-    });
+    const forcar = !!opts.forceRefetch;
+    let faltantes;
+    if (forcar) {
+      const uniq = new Set();
+      numeros.forEach(n=>{ const s = normalizarNumero(n); if (s) uniq.add(s); });
+      faltantes = Array.from(uniq);
+    } else {
+      faltantes = numeros.filter(n => {
+        const num = normalizarNumero(n);
+        if (!num) return false;
+        if (cacheProcessos.has(num)) return false;
+        if (docsCache && docsCache.has(num)) return false; // já disponível para reaproveitar
+        if (shared && shared.has(num)) return false; // já baixado globalmente
+        return true;
+      });
+    }
 
   const errosLotes = [];
 
@@ -875,7 +883,8 @@
     const numeros = coletarNumerosDaTabela();
     if (window._acompanhamentoDebug) console.log('[Acompanhamento] numeros coletados', numeros);
     const hash = hashLista(numeros);
-    if (hash && hash === ultimaExecucaoHash) {
+  const forceRefetchNow = !!window._acompanhamentoForceRefetchNext;
+  if (hash && hash === ultimaExecucaoHash && !forceRefetchNow) {
       // Apenas re-aplica (ex: tabela reordenada ou filtros) sem refetch
       aplicarDadosNaTabela();
       return;
@@ -889,8 +898,10 @@
     // Exibir loading em todas as células de acompanhamento
     exibirLoadingTodasCelulas();
     
-    try {
-      const resultado = await buscarProcessos(numeros, { timeoutMs: 15000 });
+  try {
+      const resultado = await buscarProcessos(numeros, { timeoutMs: 15000, force: forceRefetchNow, forceRefetch: forceRefetchNow });
+      // Resetar flag após tentativa
+      if (window._acompanhamentoForceRefetchNext) window._acompanhamentoForceRefetchNext = false;
       if (window._acompanhamentoDebug) console.log(`[Acompanhamento] Cache final: ${cacheProcessos.size} processos de ${numeros.length} solicitados`);
       
       // Aplicar dados nas células
@@ -985,14 +996,18 @@
   }
   function startAutoRefresh(intervalMs = 600000) {
     try { if (autoRefreshId) clearInterval(autoRefreshId); } catch(_) {}
-    console.info(`[Acompanhamento] Auto refresh iniciado (intervalo ${(intervalMs/60000).toFixed(0)} min)`);
+    {
+      const now = new Date();
+      const hora = now.toLocaleTimeString('pt-BR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      console.info(`[Acompanhamento] Auto refresh iniciado (intervalo ${(intervalMs/60000).toFixed(0)} min) - ${hora}`);
+    }
     autoRefreshId = setInterval(() => {
-      // Evitar trabalho quando a aba não estiver visível
-      if (document.hidden) return;
       // Só tenta atualizar se existir tabela montada
       if (document.querySelector('#detalhes table tbody tr')) {
-        logAutoRefresh('interval');
-        scheduleUpdate(0);
+  logAutoRefresh('interval');
+  // Forçar refetch nesta atualização automática
+  window._acompanhamentoForceRefetchNext = true;
+  scheduleUpdate(0);
       }
     }, intervalMs);
   }
@@ -1008,6 +1023,8 @@
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
       logAutoRefresh('visibility');
+      // Forçar refetch ao retornar para a aba
+      window._acompanhamentoForceRefetchNext = true;
       scheduleUpdate(0);
     }
   });
