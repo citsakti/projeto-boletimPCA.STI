@@ -123,6 +123,10 @@
       .setor-pill { display:flex; align-items:center; justify-content: space-between; gap: 8px; }
       .setor-nome { font-weight: 600; color: #1f2937; }
       .timeline-dates { color: #4b5563; font-size: 12px; margin-top: 2px; }
+  /* Ações na linha do tempo */
+  .timeline-dates .acao-verde { color: #2e7d32; }
+  .acao-tag { display:inline-block; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: 700; border: 1px solid transparent; }
+  .acao-tag.acao-verde { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-color: #a5d6a7; color: #2e7d32; }
     `;
     document.head.appendChild(style);
   }
@@ -141,10 +145,11 @@
     const eventos = tram
       .map(t => ({
         id: t && t.id,
-  dataStr: t && t.data,
-  data: parseDateBR(t && t.data),
-  hasTime: !!(t && t.data && /\d{2}:\d{2}/.test(String(t.data))) ,
+        dataStr: t && t.data,
+        data: parseDateBR(t && t.data),
+        hasTime: !!(t && t.data && /\d{2}:\d{2}/.test(String(t.data))) ,
         origem: t && t.setorOrigem ? (t.setorOrigem.descricao || '') : '',
+        origemId: t && t.setorOrigem ? (t.setorOrigem.id ?? null) : null,
         destino: t && t.setorDestino ? (t.setorDestino.descricao || '') : '',
         destinoId: t && t.setorDestino ? (t.setorDestino.id ?? null) : null,
         acao: t && t.acao ? (t.acao.descricao || '') : ''
@@ -152,9 +157,36 @@
       .filter(e => e.data instanceof Date)
       .sort((a,b)=> a.data - b.data || (a.id||0) - (b.id||0));
 
+    // Inserir um "pré-evento" usando a data de autuação para contabilizar o período
+    // em que o processo permaneceu no setor de ORIGEM do primeiro trâmite, até o
+    // próprio primeiro trâmite. Isso garante que o início (incluindo ANDAMENTO INICIAL)
+    // seja sempre considerado na linha do tempo e nos totais.
+    try {
+      const dtAut = parseDateBR(raw && raw.dtAutuacao);
+      if (dtAut instanceof Date && eventos.length > 0) {
+        const primeiro = eventos[0];
+        // Apenas se a autuação não for posterior ao primeiro registro
+        if (primeiro.data && dtAut <= primeiro.data) {
+          eventos.unshift({
+            id: 'autuacao',
+            dataStr: raw.dtAutuacao,
+            data: dtAut,
+            hasTime: /\d{2}:\d{2}/.test(String(raw.dtAutuacao || '')),
+            // Antes do primeiro trâmite, o processo está no setor de ORIGEM desse primeiro trâmite
+            origem: '',
+            origemId: null,
+            destino: primeiro.origem || (raw.setor && raw.setor.descricao) || '(setor inicial)',
+            destinoId: primeiro.origemId ?? (raw.setor && raw.setor.id) ?? null,
+            acao: 'AUTUAÇÃO',
+            _synthetic: 'autuacao'
+          });
+        }
+      }
+    } catch(_) { /* noop */ }
+
     const hoje = hojeBRDate();
-    const stints = [];
-    for (let i=0; i<eventos.length; i++) {
+  const stints = [];
+  for (let i=0; i<eventos.length; i++) {
       const ev = eventos[i];
       const prox = eventos[i+1];
       const inicio = ev.data; // com hora quando disponível
@@ -165,15 +197,23 @@
       const hasTimeStart = !!ev.hasTime;
       const hasTimeEnd = !!(prox && prox.hasTime); // último trecho usa "agora" e não conta como info de hora vinda da API
       stints.push({
+        // Mantém compatibilidade: "setor" representa o DESTINO do evento (onde o processo permaneceu até o próximo evento)
         setorId: ev.destinoId,
         setor: ev.destino || '(sem setor)',
+        origem: ev.origem || '',
+        origemId: ev.origemId ?? null,
+        destino: ev.destino || '',
+        destinoId: ev.destinoId ?? null,
         inicio,
         fim,
         dias: (dias==null?0:dias),
         horas: horas,
         hasTimeStart,
         hasTimeEnd,
-        acao: ev.acao || ''
+    acao: ev.acao || '',
+    nextAcao: prox && prox.acao ? (prox.acao || '') : '',
+    ateAgora: !prox,
+        _synthetic: ev._synthetic || null
       });
     }
 
@@ -259,7 +299,7 @@
       body.appendChild(div);
     } else {
       // Linha do tempo (primeiro)
-      const s2 = document.createElement('div');
+  const s2 = document.createElement('div');
       s2.className = 'historico-section';
       const h2 = document.createElement('div');
       h2.className = 'historico-title';
@@ -278,12 +318,19 @@
         const item = document.createElement('div');
         item.className = 'historico-item';
         const dtIni = s.inicio ? s.inicio.toLocaleDateString('pt-BR') : '';
-        const dtFim = s.fim ? s.fim.toLocaleDateString('pt-BR') : '';
-        item.innerHTML = `
+        const dtFim = s.ateAgora ? '—' : (s.fim ? s.fim.toLocaleDateString('pt-BR') : '');
+        const setorTitulo = s.setor || s.destino || '(sem setor)';
+        const acaoSaida = (s.nextAcao && typeof s.nextAcao.descricao === 'string')
+          ? s.nextAcao.descricao
+          : (typeof s.nextAcao === 'string' ? s.nextAcao : '');
+    const isParecerEmitido = typeof acaoSaida === 'string' && acaoSaida.trim().toUpperCase() === 'PARECER EMITIDO';
+    item.innerHTML = `
           <div class="setor-pill">
             <div>
-              <div class="setor-nome">${s.setor}</div>
-              <div class="timeline-dates">${dtIni} → ${dtFim}${s.acao ? ` • ${s.acao}` : ''}</div>
+              <div class="setor-nome">${setorTitulo}</div>
+              <div class="timeline-dates">Entrada: ${dtIni}</div>
+              <div class="timeline-dates">Saída: ${dtFim}</div>
+              ${acaoSaida ? `<div class=\"timeline-dates\">${isParecerEmitido ? `<span class=\"acao-tag acao-verde\"><strong>${acaoSaida}</strong></span>` : `<strong>${acaoSaida}</strong>`}</div>` : ''}
             </div>
             <div>${renderTempoTag(s.dias)}</div>
           </div>`;
