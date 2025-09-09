@@ -110,16 +110,21 @@
       .acomp-historico-btn[disabled] { opacity: .6; cursor: not-allowed; }
       .acomp-historico-btn svg { width: 18px; height: 18px; display: block; }
 
-      /* Modal */
-      #historico-tramitacoes-overlay { display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1055; }
-      #historico-tramitacoes-overlay .historico-modal { width: min(980px, 94vw); max-height: 90vh; overflow: auto; background: #fff; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
-      .historico-header { display:flex; align-items:center; justify-content: space-between; padding: 12px 16px; background: var(--brand-primary, #0d6efd); color: #fff; border-top-left-radius:8px; border-top-right-radius:8px; }
-      .historico-body { padding: 12px 16px; }
-      .historico-section { margin-bottom: 14px; }
+  /* Contenção e rolagem dentro do modal */
+  #historico-tramitacoes-overlay .modal-content { overflow: hidden; display: flex; flex-direction: column; }
+  #historico-tramitacoes-overlay .modal-header { flex: 0 0 auto; }
+  #historico-tramitacoes-overlay .flex-fill { flex: 1 1 auto; min-height: 0; }
+  #historico-tramitacoes-overlay .historico-body { height: 100%; min-height: 0; overflow: auto; }
+
+  /* Conteúdo do histórico */
+  .historico-body { padding: 12px 16px; }
+  .historico-section { margin-bottom: 14px; }
+  /* Linha azul de destaque usando a cor padrão do projeto */
+  .historico-group { border: 1px solid #e5e7eb; border-left: 4px solid var(--brand-primary); border-radius: 8px; padding: 12px; background: #ffffff; margin-bottom: 16px; }
+  .historico-group .historico-title { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
       .historico-item { border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; background: #fafafa; }
       .historico-title { font-weight: 700; color: #111827; margin-bottom: 6px; }
-      .historico-sub { color: #374151; }
-      .btn-close-historico { background: transparent; border: none; color: #fff; font-size: 20px; line-height: 1; cursor: pointer; }
+  .historico-sub { color: #374151; }
       .setor-pill { display:flex; align-items:center; justify-content: space-between; gap: 8px; }
       .setor-nome { font-weight: 600; color: #1f2937; }
       .timeline-dates { color: #4b5563; font-size: 12px; margin-top: 2px; }
@@ -259,19 +264,49 @@
     ensureTagStyles();
     const overlay = document.createElement('div');
     overlay.id = 'historico-tramitacoes-overlay';
+    overlay.className = 'modal-overlay d-none position-fixed top-0 start-0 w-100 h-100';
+    overlay.style.cssText = 'display:none; background: rgba(0,0,0,0.5); align-items: center; justify-content: center;';
     overlay.innerHTML = `
-      <div class="historico-modal">
-        <div class="historico-header">
-          <h5 id="historico-tramitacoes-title" class="modal-title mb-0">Histórico de Tramitações</h5>
-          <button class="btn-close-historico" id="historico-tramitacoes-close" aria-label="Fechar">×</button>
+      <div class="modal-content position-relative bg-white rounded d-flex flex-column" style="width: 50vw; height: 90vh; max-width: 1200px;">
+        <div class="modal-header p-3 text-white rounded-top-2 d-flex justify-content-between align-items-center" style="background: var(--brand-primary);">
+          <h5 id="historico-tramitacoes-title" class="mb-0 text-white">Histórico de Tramitações</h5>
+          <button id="historico-tramitacoes-close" class="btn-close btn-close-white" type="button" aria-label="Close"></button>
         </div>
-        <div class="historico-body" id="historico-tramitacoes-body"></div>
+        <div class="flex-fill p-3 position-relative">
+          <div class="historico-body" id="historico-tramitacoes-body"></div>
+        </div>
       </div>`;
     document.body.appendChild(overlay);
 
-    const close = () => { overlay.style.display = 'none'; };
-    overlay.querySelector('#historico-tramitacoes-close').addEventListener('click', (e)=>{ e.preventDefault(); close(); });
-    overlay.addEventListener('click', (e)=>{ if (e.target === overlay) close(); });
+    // Registro no ModalManager (mesmo padrão de DocumentosDoProcessso.js)
+    const register = () => {
+      if (window.modalManager && typeof window.modalManager.registerModal === 'function') {
+        window.modalManager.registerModal('historico-tramitacoes-modal', {
+          overlay: 'historico-tramitacoes-overlay',
+          content: '.modal-content',
+          closeButtons: ['historico-tramitacoes-close'],
+          type: 'content'
+        });
+      } else {
+        setTimeout(register, 150);
+      }
+    };
+    register();
+
+    // Fechar no X (fallback)
+    overlay.querySelector('#historico-tramitacoes-close').addEventListener('click', (e)=>{
+      e.preventDefault();
+      if (window.modalManager) window.modalManager.closeModal('historico-tramitacoes-modal');
+      else overlay.style.display = 'none';
+    });
+    // Fechar clicando fora do conteúdo
+    overlay.addEventListener('click', (e)=>{
+      if (e.target === overlay) {
+        e.preventDefault();
+        if (window.modalManager) window.modalManager.closeModal('historico-tramitacoes-modal');
+        else overlay.style.display = 'none';
+      }
+    });
   }
 
   function openHistoricoModal(numero, dataRaw, meta = {}) {
@@ -298,9 +333,9 @@
       div.textContent = 'Nenhum trâmite encontrado para este processo.';
       body.appendChild(div);
     } else {
-      // Linha do tempo (primeiro)
+  // Linha do tempo (primeiro)
   const s2 = document.createElement('div');
-      s2.className = 'historico-section';
+  s2.className = 'historico-section historico-group';
       const h2 = document.createElement('div');
       h2.className = 'historico-title';
       h2.textContent = 'Linha do tempo';
@@ -338,9 +373,9 @@
       });
       body.appendChild(s2);
 
-      // Sumário por setor (depois)
-      const s1 = document.createElement('div');
-      s1.className = 'historico-section';
+  // Sumário por setor (depois)
+  const s1 = document.createElement('div');
+  s1.className = 'historico-section historico-group';
       const h1 = document.createElement('div');
       h1.className = 'historico-title';
       h1.textContent = 'Sumário por setor';
@@ -358,7 +393,8 @@
       body.appendChild(s1);
     }
 
-    overlay.style.display = 'flex';
+  if (window.modalManager) window.modalManager.openModal('historico-tramitacoes-modal');
+  else overlay.style.display = 'flex';
   }
 
   // ================= Dados / Cache / Fetch =================
