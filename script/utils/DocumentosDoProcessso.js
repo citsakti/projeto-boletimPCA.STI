@@ -56,7 +56,9 @@
       .doc-icon-btn:hover { background: #e2ecf7; }
   /* Removido opacity para evitar transparência no tooltip do cadeado */
   .doc-icon-btn[aria-disabled="true"] { opacity: 1; cursor: not-allowed; }
-      .doc-icon-btn svg { display: block; }
+  .doc-icon-btn svg { display: block; width: 18px; height: 18px; }
+  /* Aumentar um pouco o cadeado (emoji) quando usado */
+  .doc-icon-btn { font-size: 16px; }
       .doc-icon-tooltip { position: relative; }
   .doc-icon-tooltip:hover::after { content: attr(data-title); position: absolute; top: -32px; left: 50%; transform: translateX(-50%); background: #000; color: #ffffffff; padding: 6px 8px; font-size: 12px; font-weight: 500; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,.4); border: 1px solid rgba(0,0,0,.6); }
   /* Linha da tag de tempo e do ícone: sempre abaixo do conteúdo principal da célula */
@@ -316,6 +318,14 @@
     wrapper.appendChild(btn);
   // Inserir após a tag de tempo quando existir; caso contrário, ao final do conteúdo da célula alvo
   insertionTarget.appendChild(wrapper);
+  // Assegurar que o botão de refresh (se já existir) fique à direita do ícone de documentos
+  try {
+    const refreshBtn = insertionTarget.querySelector('.acomp-refresh-btn');
+    if (refreshBtn) {
+      if (wrapper.nextSibling) insertionTarget.insertBefore(refreshBtn, wrapper.nextSibling);
+      else insertionTarget.appendChild(refreshBtn);
+    }
+  } catch(_) { /* noop */ }
 
     if (!info || info.sigiloso) return; // nada para abrir
 

@@ -23,6 +23,13 @@
   const cacheProcessos = new Map(); // numero -> objeto retornado bruto (item.raw do módulo de documentos)
   let ultimaExecucaoHash = null;
 
+  // Ícone de atualização (Bootstrap Icons - arrow-clockwise)
+  const SVG_REFRESH = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966a.25.25 0 0 1 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+  </svg>`;
+
   // Cache global compartilhado entre módulos (Acompanhamento e Documentos)
   function getSharedProcessCache() {
     if (!window._processoPorNumeroCache) {
@@ -60,12 +67,12 @@
     }
     return { raw: item || null, documentos, sigiloso };
   }
-  async function fetchProcessoPorNumeroCompat(numero, { timeoutMs = 12000 } = {}) {
+  async function fetchProcessoPorNumeroCompat(numero, { timeoutMs = 12000, force = false } = {}) {
     const docsCache = getDocsCache();
     const num = normalizarNumero(numero);
     if (!num) return null;
-    // 1) Tenta apenas CACHE do módulo de documentos, não o fetch dele
-    if (docsCache && docsCache.has(num)) return docsCache.get(num);
+    // 1) Tenta apenas CACHE do módulo de documentos, não o fetch dele (a menos que force=true)
+    if (!force && docsCache && docsCache.has(num)) return docsCache.get(num);
 
     // Fallback local: realiza a mesma chamada e, se possível, sincroniza com o cache do módulo
     const controller = new AbortController();
@@ -106,6 +113,113 @@
       return result;
     } finally {
       clearTimeout(to);
+    }
+  }
+
+  // Extrai número do processo a partir do TR
+  function obterNumeroDoTR(tr) {
+    if (!tr) return '';
+    let processoCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
+    if (!processoCell) return '';
+    let texto = processoCell.dataset?.processoNumero || processoCell.textContent || '';
+    texto = texto.replace('🔗', '').trim();
+    return normalizarNumero(texto);
+  }
+
+  // Insere botão de atualização na célula especificada
+  function inserirBotaoRefreshNaCelula(tr, acompCell) {
+    try {
+      if (!tr || !acompCell) return;
+      // Garantir wrapper para os controles (mesmo se status concluído)
+      let wrapper = acompCell.querySelector('.tempo-acompanhamento-wrapper');
+      if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'tempo-acompanhamento-wrapper';
+        acompCell.appendChild(wrapper);
+      }
+      // Evitar duplicar o botão
+      if (wrapper.querySelector('.acomp-refresh-btn')) return;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'acomp-refresh-btn';
+      btn.title = 'Atualizar acompanhamento';
+      btn.setAttribute('aria-label', 'Atualizar acompanhamento desta linha');
+      btn.innerHTML = SVG_REFRESH;
+
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await atualizarCelulaAcompanhamento(tr, acompCell, btn);
+      });
+
+      // Garantir que o botão fique à direita do ícone de documentos
+      const docIconWrapper = wrapper.querySelector('.doc-icon-wrapper');
+      if (docIconWrapper) {
+        if (docIconWrapper.nextSibling) {
+          wrapper.insertBefore(btn, docIconWrapper.nextSibling);
+        } else {
+          wrapper.appendChild(btn);
+        }
+      } else {
+        wrapper.appendChild(btn);
+      }
+    } catch(_) { /* noop */ }
+  }
+
+  // Atualiza APENAS a célula/linha informada
+  async function atualizarCelulaAcompanhamento(tr, acompCell, btn) {
+    const numero = obterNumeroDoTR(tr);
+    if (!numero) return;
+
+    // Mostrar spinner somente no botão, sem perder conteúdo atual
+    btn.disabled = true;
+  btn.classList.add('loading');
+  btn.setAttribute('aria-busy', 'true');
+
+    try {
+      const res = await fetchProcessoPorNumeroCompat(numero, { timeoutMs: 15000, force: true });
+      const raw = res && res.raw ? res.raw : null;
+      if (raw) {
+        // Atualiza caches locais para reuso
+        cacheProcessos.set(numero, raw);
+        try { getSharedProcessCache().set(numero, res); } catch(_) {}
+
+        // Recalcula conteúdo da célula
+        const setorDesc = raw?.setor?.descricao || '';
+        const dtUltimoEnc = raw?.dtUltimoEncaminhamento;
+        const dias = diffDiasBrasil(dtUltimoEnc);
+        const repeticoesHoje = dias === 0 ? contarTramitesHoje(raw) : 0;
+
+        // Verificar status do processo (coluna 5 - "Status do Processo")
+        let statusCell = tr.querySelector('td[data-label="Status do Processo"]');
+        if (!statusCell) statusCell = tr.children[5];
+        const statusTexto = statusCell ? statusCell.textContent.trim() : '';
+        const isStatusCompleto = statusTexto === 'RENOVADO ✅' || statusTexto === 'CONTRATADO ✅';
+
+        const texto = isStatusCompleto ? (setorDesc || null) : (formatar(setorDesc, dias, repeticoesHoje) || (setorDesc ? setorDesc : null));
+        if (texto) {
+          acompCell.innerHTML = texto;
+          acompCell.dataset.setorAtual = setorDesc;
+          if (dias != null) acompCell.dataset.diasSetor = dias;
+          acompCell.dataset.fonteDados = 'api';
+          limparStatusCarregamento(acompCell);
+        }
+
+        // Recolocar o botão e avisar outros módulos
+        inserirBotaoRefreshNaCelula(tr, acompCell);
+        document.dispatchEvent(new CustomEvent('acompanhamento-atualizado', { detail: { atualizadas: 1, tentativas: 1, ts: Date.now(), numero } }));
+      } else {
+        exibirErro(acompCell, 'SEM_DADOS', 'Sem dados para este processo');
+        inserirBotaoRefreshNaCelula(tr, acompCell);
+      }
+    } catch (error) {
+      const code = error && error.httpStatus ? error.httpStatus : (String(error).match(/\b\d{3}\b/) || ['REDE'])[0];
+      exibirErro(acompCell, code, String(error));
+      inserirBotaoRefreshNaCelula(tr, acompCell);
+    } finally {
+      btn.disabled = false;
+  btn.classList.remove('loading');
+  btn.removeAttribute('aria-busy');
     }
   }
 
@@ -318,6 +432,32 @@
         margin-left: 0;
             }
         }
+
+        /* Botão verde de atualização por célula */
+        .acomp-refresh-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 22px;
+          height: 22px;
+          margin-left: 6px;
+          border-radius: 4px;
+          background: #e8f5e9; /* verde claro (consistente com tempo-hoje) */
+          color: #2e7d32; /* verde escuro */
+          border: 1px solid #a5d6a7;
+          cursor: pointer;
+        }
+        .acomp-refresh-btn:hover { background: #d8efe0; }
+        .acomp-refresh-btn[disabled] { opacity: .6; cursor: not-allowed; }
+  /* Ícone um pouco maior dentro do botão */
+  .acomp-refresh-btn svg { width: 20px; height: 20px; display: block; }
+        /* Anima a própria seta do SVG quando carregando */
+        @keyframes acomp-spin { to { transform: rotate(360deg); } }
+        .acomp-refresh-btn.loading svg {
+          animation: acomp-spin .8s linear infinite;
+          transform-origin: 50% 50%;
+          transform-box: fill-box;
+        }
     `;
     
     document.head.appendChild(style);
@@ -518,6 +658,8 @@
         acompCell.dataset.fonteDados = 'api';
         limparStatusCarregamento(acompCell);
         atualizadas++;
+  // Inserir botão de atualização por célula
+  inserirBotaoRefreshNaCelula(tr, acompCell);
         
         if (window._acompanhamentoDebug && index < 3) {
           console.log(`[Acompanhamento] Linha ${index} atualizada:`, {
@@ -594,6 +736,8 @@
         if (errorInfo) {
           const codigoErro = errorInfo.httpStatus || (errorInfo.erro.message.match(/\d+/) || ['500'])[0];
           exibirErro(acompCell, codigoErro, errorInfo.erro.message);
+          // Mesmo em erro, adicionar botão para permitir retry
+          inserirBotaoRefreshNaCelula(tr, acompCell);
         }
       }
     });
