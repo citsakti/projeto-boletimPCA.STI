@@ -63,6 +63,9 @@
   .doc-icon-tooltip:hover::after { content: attr(data-title); position: absolute; top: -32px; left: 50%; transform: translateX(-50%); background: #000; color: #ffffffff; padding: 6px 8px; font-size: 12px; font-weight: 500; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,.4); border: 1px solid rgba(0,0,0,.6); }
   /* Linha da tag de tempo e do ícone: sempre abaixo do conteúdo principal da célula */
   .tempo-acompanhamento-wrapper { display: flex !important; align-items: center; gap: 6px; margin-top: 4px; }
+  /* Spinner circular próprio (rodinha) */
+  .doc-spinner { width: 14px; height: 14px; border: 2px solid #90a4ae; border-top-color: transparent; border-right-color: transparent; border-radius: 50%; display: inline-block; animation: docspin .7s linear infinite; }
+  @keyframes docspin { to { transform: rotate(360deg); } }
   /* Limites e contenção do modal */
   #documentos-modal-overlay .modal-content { width: min(1200px, 90vw); height: min(90vh, 900px); display: flex; flex-direction: column; overflow: hidden; }
   #documentos-modal-overlay .modal-header { flex: 0 0 auto; }
@@ -280,14 +283,82 @@
     return normalizarNumero(texto);
   }
 
+  function ensurePlaceholderDocIcon(tr) {
+    // Insere um placeholder clicável-desabilitado enquanto os dados chegam
+    const numeroTr = obterNumeroDoTR(tr);
+    if (!numeroTr) {
+      // Remover se houver algum wrapper deixado por engano
+      const cell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4] || tr.querySelector('td:last-child');
+      const wrap = cell && cell.querySelector ? cell.querySelector('.doc-icon-wrapper') : null;
+      if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      return;
+    }
+    let targetCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+    if (!targetCell) {
+      targetCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
+    }
+    if (!targetCell) return;
+  let tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
+    if (!tagWrapper) {
+      tagWrapper = document.createElement('div');
+      tagWrapper.className = 'tempo-acompanhamento-wrapper';
+      targetCell.appendChild(tagWrapper);
+    }
+    // Não duplicar
+    let wrapper = tagWrapper.querySelector('.doc-icon-wrapper');
+    if (!wrapper) {
+      wrapper = document.createElement('span');
+      wrapper.className = 'doc-icon-wrapper';
+      tagWrapper.appendChild(wrapper);
+    }
+    // Placeholder com spinner
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'doc-icon-btn';
+    btn.setAttribute('aria-disabled', 'true');
+    btn.title = 'Carregando documentos...';
+  // Rodinha clássica via CSS próprio
+  btn.innerHTML = '<span class="doc-spinner" aria-hidden="true"></span>';
+    wrapper.innerHTML = '';
+    wrapper.appendChild(btn);
+    // Evitar que o botão de histórico esteja dentro do wrapper e garantir ordem à esquerda
+    try {
+      const historicoBtn = tagWrapper.querySelector('.acomp-historico-btn');
+      if (historicoBtn && historicoBtn.parentNode === wrapper) {
+        // Mover o histórico para fora do wrapper, logo após ele
+        wrapper.insertAdjacentElement('afterend', historicoBtn);
+      }
+      // Garantir que o wrapper esteja antes do histórico
+      if (historicoBtn && wrapper.nextElementSibling !== historicoBtn) {
+        wrapper.parentNode.insertBefore(wrapper, historicoBtn);
+      }
+    } catch(_) {}
+    // Garantir ordem com botão de refresh, se existir
+    try {
+      const refreshBtn = tagWrapper.querySelector('.acomp-refresh-btn');
+      if (refreshBtn) {
+        if (wrapper.nextSibling) tagWrapper.insertBefore(refreshBtn, wrapper.nextSibling);
+        else tagWrapper.appendChild(refreshBtn);
+      }
+    } catch(_) {}
+  }
+
   function addIconeSeNecessario(tr, info) {
+    const numeroTr = obterNumeroDoTR(tr);
+    if (!numeroTr) {
+      // Se não há número, remover qualquer ícone existente
+      const cell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4] || tr.querySelector('td:last-child');
+      const wrap = cell && cell.querySelector ? cell.querySelector('.doc-icon-wrapper') : null;
+      if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      return;
+    }
     // Alvo preferencial: célula de Acompanhamento; fallback: célula de Processo (para linhas sem tag de tempo)
     let targetCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
     if (!targetCell) {
       targetCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
     }
     if (!targetCell) return;
-    let tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
+  let tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
     // Se não existir a linha do tempo (ex.: processos com status concluído), cria uma linha abaixo
     if (!tagWrapper) {
       tagWrapper = document.createElement('div');
@@ -296,48 +367,69 @@
     }
     const insertionTarget = tagWrapper;
 
-    // Evitar duplicar
-    if (insertionTarget.querySelector('.doc-icon-wrapper')) return;
-
-    const wrapper = document.createElement('span');
-    wrapper.className = 'doc-icon-wrapper';
-
+    // Usa wrapper existente se já houver, senão cria
+    let wrapper = insertionTarget.querySelector('.doc-icon-wrapper');
+    if (!wrapper) {
+      wrapper = document.createElement('span');
+      wrapper.className = 'doc-icon-wrapper';
+      insertionTarget.appendChild(wrapper);
+    }
+    // Reconstruir botão conforme info
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'doc-icon-btn';
+    wrapper.innerHTML = '';
     if (info && info.sigiloso) {
       btn.innerHTML = SVG_LOCK;
       btn.setAttribute('aria-disabled', 'true');
       btn.classList.add('doc-icon-tooltip');
       btn.setAttribute('data-title', 'Processo Sigiloso');
-    } else {
+    } else if (info) {
       btn.innerHTML = SVG_JOURNALS;
-      // Sem tooltip para processos não sigilosos
+    } else {
+      // Se ainda sem info, manter placeholder (rodinha)
+      btn.setAttribute('aria-disabled', 'true');
+      btn.title = 'Carregando documentos...';
+      btn.innerHTML = '<span class="doc-spinner" aria-hidden="true"></span>';
     }
-
     wrapper.appendChild(btn);
-  // Inserir após a tag de tempo quando existir; caso contrário, ao final do conteúdo da célula alvo
-  insertionTarget.appendChild(wrapper);
-  // Assegurar que o botão de refresh (se já existir) fique à direita do ícone de documentos
-  try {
-    const refreshBtn = insertionTarget.querySelector('.acomp-refresh-btn');
-    if (refreshBtn) {
-      if (wrapper.nextSibling) insertionTarget.insertBefore(refreshBtn, wrapper.nextSibling);
-      else insertionTarget.appendChild(refreshBtn);
+    // Evitar que o botão de histórico esteja dentro do wrapper e garantir ordem à esquerda
+    try {
+      const historicoBtn = tagWrapper.querySelector('.acomp-historico-btn');
+      if (historicoBtn && historicoBtn.parentNode === wrapper) {
+        wrapper.insertAdjacentElement('afterend', historicoBtn);
+      }
+      if (historicoBtn && wrapper.nextElementSibling !== historicoBtn) {
+        wrapper.parentNode.insertBefore(wrapper, historicoBtn);
+      }
+    } catch(_) {}
+    // Posicionar refresh à direita do wrapper (documentos à esquerda, depois histórico, depois refresh)
+    try {
+      const refreshBtn = insertionTarget.querySelector('.acomp-refresh-btn');
+      const historicoBtn = insertionTarget.querySelector('.acomp-historico-btn');
+      if (refreshBtn) {
+        // Preferir posicionar após o histórico, se existir; senão, após o wrapper
+        if (historicoBtn) {
+          historicoBtn.insertAdjacentElement('afterend', refreshBtn);
+        } else if (wrapper.nextSibling) {
+          insertionTarget.insertBefore(refreshBtn, wrapper.nextSibling);
+        } else {
+          insertionTarget.appendChild(refreshBtn);
+        }
+      }
+    } catch(_) {}
+
+    // Habilitar clique quando não sigiloso e info disponível
+    if (info && !info.sigiloso) {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const numero = obterNumeroDoTR(tr);
+        const dados = cacheProcessoDocs.get(numero) || info;
+        const docs = (dados && Array.isArray(dados.documentos)) ? dados.documentos : [];
+        const meta = extrairMetaDoTR(tr);
+        openDocumentosModal(numero, docs, meta);
+      });
     }
-  } catch(_) { /* noop */ }
-
-    if (!info || info.sigiloso) return; // nada para abrir
-
-    // Clique para abrir modal com documentos
-    btn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const numero = obterNumeroDoTR(tr);
-      const dados = cacheProcessoDocs.get(numero) || info;
-      const docs = (dados && Array.isArray(dados.documentos)) ? dados.documentos : [];
-      const meta = extrairMetaDoTR(tr);
-      openDocumentosModal(numero, docs, meta);
-    });
   }
 
   // Extrai metadados (projeto e ID PCA) da linha, semelhante ao ProcessoModal
@@ -383,24 +475,19 @@
     });
     const numeros = Array.from(numerosSet);
 
-    // Buscar dados (paralelo com limite simples)
-    const maxConc = 4;
-    let i = 0;
-    async function worker() {
-      while (i < numeros.length) {
-        const idx = i++;
-        const numero = numeros[idx];
-        try { await fetchProcessoPorNumero(numero); } catch(_) {}
-      }
-    }
-    const workers = Array.from({length: Math.min(maxConc, numeros.length)}, worker);
-    await Promise.all(workers);
+    // Inserir placeholders imediatamente
+    linhas.forEach(tr => ensurePlaceholderDocIcon(tr));
 
-    // Inserir ícones
+    // Preencher/atualizar conforme cache disponível agora
     linhas.forEach(tr => {
       const numero = obterNumeroDoTR(tr);
       if (!numero) return;
-      const info = cacheProcessoDocs.get(numero);
+      // Tentar cache local e cache compartilhado
+      let info = cacheProcessoDocs.get(numero);
+      if (!info) {
+        const shared = getSharedProcessCache();
+        if (shared && shared.has(numero)) info = shared.get(numero);
+      }
       addIconeSeNecessario(tr, info);
     });
   }
@@ -418,6 +505,30 @@
 
   // Quando o acompanhamento for atualizado, (re)inserir ícones
   document.addEventListener('acompanhamento-atualizado', () => scheduleUpdate(300));
+  // Quando iniciar o loading das células, inserir placeholders imediatamente
+  document.addEventListener('acompanhamento-loading', () => scheduleUpdate(0));
+  // Atualizações parciais por número: atualizar ícone apenas daquela(s) linha(s)
+  document.addEventListener('acompanhamento-atualizado-parcial', (ev) => {
+    try {
+      const numero = ev && ev.detail && ev.detail.numero ? ev.detail.numero : '';
+      if (!numero) return;
+      ensureStyles();
+      const tbody = document.querySelector('#detalhes table tbody');
+      if (!tbody) return;
+      tbody.querySelectorAll('tr').forEach(tr => {
+        if (obterNumeroDoTR(tr) === normalizarNumero(numero)) {
+          ensurePlaceholderDocIcon(tr);
+          // Tenta preencher com cache compartilhado
+          let info = cacheProcessoDocs.get(numero);
+          if (!info) {
+            const shared = getSharedProcessCache();
+            if (shared && shared.has(numero)) info = shared.get(numero);
+          }
+          addIconeSeNecessario(tr, info);
+        }
+      });
+    } catch(_) {}
+  });
   // Quando a tabela sinaliza carregada (caso emitam este evento em outros fluxos)
   document.addEventListener('tabela-carregada', () => scheduleUpdate(600));
 

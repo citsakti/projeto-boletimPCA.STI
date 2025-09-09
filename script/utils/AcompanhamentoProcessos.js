@@ -130,6 +130,13 @@
   function inserirBotaoRefreshNaCelula(tr, acompCell) {
     try {
       if (!tr || !acompCell) return;
+      // Não inserir botões em linhas sem número de processo
+      const numero = obterNumeroDoTR(tr);
+      if (!numero) {
+        const existingBtn = acompCell.querySelector('.acomp-refresh-btn');
+        if (existingBtn && existingBtn.parentNode) existingBtn.parentNode.removeChild(existingBtn);
+        return;
+      }
       // Garantir wrapper para os controles (mesmo se status concluído)
       let wrapper = acompCell.querySelector('.tempo-acompanhamento-wrapper');
       if (!wrapper) {
@@ -137,8 +144,16 @@
         wrapper.className = 'tempo-acompanhamento-wrapper';
         acompCell.appendChild(wrapper);
       }
-      // Evitar duplicar o botão
-      if (wrapper.querySelector('.acomp-refresh-btn')) return;
+      // Reposicionar caso já exista, garantindo que fique após o ícone de documentos quando disponível
+      const existing = wrapper.querySelector('.acomp-refresh-btn');
+      if (existing) {
+        const docIconWrapper = wrapper.querySelector('.doc-icon-wrapper');
+        if (docIconWrapper && existing.previousElementSibling !== docIconWrapper) {
+          if (docIconWrapper.nextSibling) wrapper.insertBefore(existing, docIconWrapper.nextSibling);
+          else wrapper.appendChild(existing);
+        }
+        return;
+      }
 
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -837,6 +852,9 @@
     const tbody = document.querySelector('#detalhes table tbody');
     if (!tbody) return;
     
+  // Sinaliza que o estado de loading começou (permite que outros módulos insiram botões já no loading)
+  try { document.dispatchEvent(new CustomEvent('acompanhamento-loading', { detail: { ts: Date.now() } })); } catch(_) {}
+
     tbody.querySelectorAll('tr').forEach(tr => {
       let acompCell = tr.querySelector('td[data-label="Acompanhamento"]');
       if (!acompCell) acompCell = tr.children[4];
@@ -861,14 +879,16 @@
         if (processoCell) {
           let textoProcesso = processoCell.dataset.processoNumero || processoCell.textContent;
           textoProcesso = textoProcesso.replace('🔗', '').trim();
-          const numero = normalizarNumero(textoProcesso);
-          temProcessoValido = !!numero;
+          const numero = normalizarNumero(textoProcesso); // Fix: Declare 'numero' correctly
+          temProcessoValido = !!numero; // Fix: Ensure 'temProcessoValido' is set correctly
         }
         
         // Não sobrescrever células que já têm dados ou estão em erro
         if (!acompCell.dataset.fonteDados && !acompCell.dataset.statusCarregamento) {
           if (temProcessoValido) {
             exibirLoading(acompCell);
+            // Já disponibiliza o botão de atualização mesmo durante o loading
+            try { inserirBotaoRefreshNaCelula(tr, acompCell); } catch(_) {}
           } else {
             // Sem número de processo válido - exibir "*"
             acompCell.innerHTML = '<span class="text-muted">*</span>';
