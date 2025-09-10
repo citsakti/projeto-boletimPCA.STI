@@ -690,7 +690,11 @@
   else acaoMostrar = s.acaoOriginal || s.acao || '';
   const acaoSaida = acaoMostrar;
   const isParecerEmitido = typeof acaoMostrar === 'string' && acaoMostrar.trim().toUpperCase() === 'PARECER EMITIDO';
-  if (isParecerEmitido) item.classList.add('parecer-highlight');
+  // Verificar se há peça produzida "parecer jurídico" neste stint
+  const hasParecerJuridico = s.docs && s.docs.some(d => 
+    d.tipo && d.tipo.toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase().includes('PARECER JURIDICO')
+  );
+  if (isParecerEmitido || hasParecerJuridico) item.classList.add('parecer-highlight');
         // Quando o processo ainda está no setor (trecho em andamento) e com 0 dias, exibe "Hoje"
         const tempoTagHtml = (s.ateAgora && s.dias === 0)
           ? '<span class="tempo-acompanhamento-tag tempo-hoje" title="Hoje">Hoje</span>'
@@ -715,7 +719,7 @@
               <div class="setor-nome">${setorTitulo}</div>
               <div class="timeline-dates">Entrada: ${dtIni}</div>
               <div class="timeline-dates">Saída: ${dtFim}</div>
-              ${acaoSaida ? `<div class=\"timeline-dates\">${isParecerEmitido ? `<span class=\"acao-tag acao-verde\"><strong>${acaoSaida}</strong></span>` : `<strong>${acaoSaida}</strong>`}</div>` : ''}
+              ${acaoSaida ? `<div class=\"timeline-dates\">${(isParecerEmitido || hasParecerJuridico) ? `<span class=\"acao-tag acao-verde\"><strong>${acaoSaida}</strong></span>` : `<strong>${acaoSaida}</strong>`}</div>` : ''}
             </div>
             <div>${tempoTagHtml}</div>
           </div>${pecasHtml}`;
@@ -760,6 +764,16 @@
 
   if (window.modalManager) window.modalManager.openModal('historico-tramitacoes-modal');
   else overlay.style.display = 'flex';
+  
+  // Rolar para o topo do conteúdo do modal
+  setTimeout(() => {
+    try {
+      const modalBody = document.getElementById('historico-tramitacoes-body');
+      if (modalBody) {
+        modalBody.scrollTop = 0;
+      }
+    } catch(_) {}
+  }, 50); // pequeno delay para garantir que o modal foi renderizado
   }
 
   // ================= Dados / Cache / Fetch =================
