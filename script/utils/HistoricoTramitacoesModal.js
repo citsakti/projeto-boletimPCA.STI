@@ -288,6 +288,11 @@
   .historico-resizer::after { content:''; position:absolute; inset:0; box-shadow:inset 0 0 0 1px #94a3b8; opacity:.3; }
   .historico-layout.dragging, .historico-resizer.dragging { user-select:none; }
   .historico-layout.dragging #historico-tramitacoes-iframe { pointer-events:none !important; }
+  /* Destaque da autuação (independente da posição de data) */
+  .historico-item.autuacao-highlight { border-left:4px solid var(--brand-primary); background:linear-gradient(135deg,#f0f7ff 0%, #ffffff 70%); }
+  .historico-item.autuacao-highlight .setor-nome::after { content:' (Início)'; font-weight:400; color:#2563eb; }
+  /* Destaque de PARECER EMITIDO */
+  .historico-item.parecer-highlight { border-left:4px solid #2e7d32; background:linear-gradient(135deg,#e8f5e9 0%, #ffffff 70%); }
     `;
     document.head.appendChild(style);
   }
@@ -352,6 +357,36 @@
       }
     } catch(_) { /* noop */ }
 
+    // ================= Ajuste de ordenação inicial =================
+    // Mantemos SEMPRE o evento de AUTUAÇÃO sintético (quando criado) como primeiro, pois ele
+    // representa o período inicial antes do primeiro trâmite. A regra de "forçar" RECEBIMENTO
+    // NO PROTOCOLO ou ANDAMENTO INICIAL como primeiro estava causando a remoção/pulo da autuação.
+    // Agora só aplicamos a priorização se NÃO houver evento sintético de autuação na posição 0.
+    try {
+      const temAutuacaoInicial = !!(eventos[0] && eventos[0]._synthetic === 'autuacao');
+      if (!temAutuacaoInicial) {
+        const norm = v => (v||'').toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase().trim();
+        let idxReceb = eventos.findIndex(e => norm(e.acao) === 'RECEBIMENTO NO PROTOCOLO');
+        let idxAnd   = eventos.findIndex(e => norm(e.acao) === 'ANDAMENTO INICIAL');
+        let moved = false;
+        if (idxReceb > 0) {
+          const ev = eventos.splice(idxReceb,1)[0];
+          // Não remover eventos de autuação (não existem aqui se !temAutuacaoInicial)
+          eventos.unshift(ev);
+          moved = true;
+        } else if (idxReceb === -1 && idxAnd > 0) {
+          const ev = eventos.splice(idxAnd,1)[0];
+          eventos.unshift(ev);
+          moved = true;
+        }
+        if (moved && eventos.length > 1) {
+          const head = eventos[0];
+          const tail = eventos.slice(1).sort((a,b)=> a.data - b.data || (a.id||0) - (b.id||0));
+          eventos.length = 0; eventos.push(head, ...tail);
+        }
+      }
+    } catch(_) { /* ignore reorder issues */ }
+
     const hoje = hojeBRDate();
     const stints = [];
     for (let i=0; i<eventos.length; i++) {
@@ -365,7 +400,7 @@
       const hasTimeStart = !!ev.hasTime;
       const hasTimeEnd = !!(prox && prox.hasTime); // último trecho usa "agora" e não conta como info de hora vinda da API
       stints.push({
-        // Mantém compatibilidade: "setor" representa o DESTINO do evento (onde o processo permaneceu até o próximo evento)
+        // "setor" representa SEMPRE o DESTINO do evento (onde o processo permanecerá até o próximo evento)
         setorId: ev.destinoId,
         setor: ev.destino || '(sem setor)',
         origem: ev.origem || '',
@@ -378,13 +413,28 @@
         horas: horas,
         hasTimeStart,
         hasTimeEnd,
-    acao: ev.acao || '',
-    nextAcao: prox && prox.acao ? (prox.acao || '') : '',
+  acao: ev.acao || '', // mantido por retrocompatibilidade
+  acaoOriginal: ev.acao || '',
+  nextAcao: prox && prox.acao ? (prox.acao || '') : '', // mantido para retrocompatibilidade, mas não usado na exibição principal
     ateAgora: !prox,
         _synthetic: ev._synthetic || null,
         docs: [] // será preenchido posteriormente
       });
     }
+    // ================= Cálculo de acaoSaida =================
+    // Para cada período (stint) queremos mostrar a ação que ENCERROU a permanência naquele setor,
+    // exceto para o período de AUTUAÇÃO (que mostra sua própria ação) e para o último período em andamento.
+    try {
+      for (let i=0;i<stints.length;i++) {
+        const s = stints[i];
+        const prox = stints[i+1];
+        if (prox && s._synthetic !== 'autuacao') {
+          s.acaoSaida = prox.acaoOriginal || '';
+        } else {
+          s.acaoSaida = null; // último ou autuação
+        }
+      }
+    } catch(_) { /* silencioso */ }
 
     // Agregado por setor (somar dias de múltiplas passagens)
     const totalsMap = new Map(); // key -> { setor, totalDias, passagens }
@@ -450,6 +500,24 @@
           return true; // fallback se algum id ausente
         });
       });
+      // Reatribuição especial: documentos do setor 'EXTERNO AO TCE'
+      // agora devem ser vinculados SEMPRE à stint de AUTUAÇÃO (primeiro período),
+      // pois representam peças associadas ao ato inicial de formação do processo.
+      try {
+        const norm = (v) => (v||'').normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase().replace(/\s+/g,' ').trim();
+        const externos = docsNorm.filter(d => d && (d.setorId === 81 || (d.setor && norm(d.setor).includes('EXTERNO AO TCE'))));
+        if (externos.length) {
+          // Localiza stint de autuação (sintética ou real) – ela deve estar no início.
+            const stintAutuacao = stints.find(s => s._synthetic === 'autuacao' || norm(s.acao) === 'AUTUACAO');
+          if (stintAutuacao) {
+            externos.forEach(doc => {
+              // Remove o doc de quaisquer outras stints
+              stints.forEach(s => { if (s !== stintAutuacao) { const iDoc = s.docs.indexOf(doc); if (iDoc >= 0) s.docs.splice(iDoc,1); } });
+              if (!stintAutuacao.docs.includes(doc)) stintAutuacao.docs.push(doc);
+            });
+          }
+        }
+      } catch(_) { /* silencioso */ }
     } catch(_) { /* silencioso */ }
 
     const totals = Array.from(totalsMap.values()).sort((a,b)=> b.totalDias - a.totalDias || a.setor.localeCompare(b.setor));
@@ -579,8 +647,27 @@
       h2.className = 'historico-title';
       h2.textContent = 'Linha do tempo';
       s2.appendChild(h2);
-      // Exibir em ordem decrescente (mais recentes primeiro)
-      const stintsDesc = stints.slice().sort((a,b) => {
+      // Exibir em ordem decrescente (mais recentes primeiro) forçando AUTUAÇÃO como último, independentemente da data
+      const normAcao = v => (v||'').toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase();
+      // Regras de ordenação especial:
+      // Último: AUTUAÇÃO
+      // Penúltimo: RECEBIMENTO NO PROTOCOLO (se existir)
+      // Antepenúltimo: ANDAMENTO INICIAL (se existir)
+      // Restante: ordem decrescente por data (mais recentes primeiro) antes dos especiais.
+      const stintsProcessed = stints.slice().sort((a,b) => {
+        const aAc = normAcao(a.acao);
+        const bAc = normAcao(b.acao);
+        const aIsAut = (a._synthetic === 'autuacao') || ['AUTUACAO','AUTUAÇÃO'].includes(aAc);
+        const bIsAut = (b._synthetic === 'autuacao') || ['AUTUACAO','AUTUAÇÃO'].includes(bAc);
+        const aIsReceb = aAc === 'RECEBIMENTO NO PROTOCOLO';
+        const bIsReceb = bAc === 'RECEBIMENTO NO PROTOCOLO';
+        const aIsAnd = aAc === 'ANDAMENTO INICIAL';
+        const bIsAnd = bAc === 'ANDAMENTO INICIAL';
+        // Ranking: 0=normal, 1=ANDAMENTO INICIAL, 2=RECEBIMENTO NO PROTOCOLO, 3=AUTUAÇÃO
+        const rankA = aIsAut ? 3 : (aIsReceb ? 2 : (aIsAnd ? 1 : 0));
+        const rankB = bIsAut ? 3 : (bIsReceb ? 2 : (bIsAnd ? 1 : 0));
+        if (rankA !== rankB) return rankA - rankB; // menor rank em cima
+        // Dentro do mesmo rank (inclusive múltiplos ANDAMENTO ou RECEBIMENTO, se houver), ordenar por data desc
         const ai = a.inicio ? a.inicio.getTime() : 0;
         const bi = b.inicio ? b.inicio.getTime() : 0;
         if (bi !== ai) return bi - ai;
@@ -588,16 +675,22 @@
         const bf = b.fim ? b.fim.getTime() : 0;
         return bf - af;
       });
-      stintsDesc.forEach(s => {
+      stintsProcessed.forEach((s) => {
         const item = document.createElement('div');
         item.className = 'historico-item';
+        const isAut = (s._synthetic === 'autuacao') || normAcao(s.acao) === 'AUTUACAO' || normAcao(s.acao) === 'AUTUAÇÃO';
+        if (isAut) item.classList.add('autuacao-highlight');
         const dtIni = s.inicio ? s.inicio.toLocaleDateString('pt-BR') : '';
         const dtFim = s.ateAgora ? '—' : (s.fim ? s.fim.toLocaleDateString('pt-BR') : '');
-        const setorTitulo = s.setor || s.destino || '(sem setor)';
-        const acaoSaida = (s.nextAcao && typeof s.nextAcao.descricao === 'string')
-          ? s.nextAcao.descricao
-          : (typeof s.nextAcao === 'string' ? s.nextAcao : '');
-        const isParecerEmitido = typeof acaoSaida === 'string' && acaoSaida.trim().toUpperCase() === 'PARECER EMITIDO';
+  const setorTitulo = s.setor || s.destino || '(sem setor)';
+  // Regra de exibição: se não for autuação e houver acaoSaida, mostrar acaoSaida; caso contrário mostrar acaoOriginal.
+  let acaoMostrar = '';
+  if (s._synthetic === 'autuacao') acaoMostrar = s.acaoOriginal || s.acao || '';
+  else if (s.acaoSaida) acaoMostrar = s.acaoSaida;
+  else acaoMostrar = s.acaoOriginal || s.acao || '';
+  const acaoSaida = acaoMostrar;
+  const isParecerEmitido = typeof acaoMostrar === 'string' && acaoMostrar.trim().toUpperCase() === 'PARECER EMITIDO';
+  if (isParecerEmitido) item.classList.add('parecer-highlight');
         // Quando o processo ainda está no setor (trecho em andamento) e com 0 dias, exibe "Hoje"
         const tempoTagHtml = (s.ateAgora && s.dias === 0)
           ? '<span class="tempo-acompanhamento-tag tempo-hoje" title="Hoje">Hoje</span>'
@@ -884,6 +977,35 @@
   injectButtonsForNumero: insertButtonsForNumero,
   compute: buildTimeline,
   openDoc: openDocViewer,
-  closeDoc: closeDocViewer
+  closeDoc: closeDocViewer,
+  debug: async function(numero){
+    try {
+      const raw = await ensureProcessData(numero);
+      const { stints } = buildTimeline(raw||{});
+      console.group('[HistoricoTramitacoes][DEBUG] Stints do processo', numero);
+      stints.forEach((s,i)=>{
+        console.log(`#${i} setor=`, s.setor, '| acao=', s.acao, '| inicio=', s.inicio?.toLocaleString('pt-BR'), '-> fim=', s.fim?.toLocaleString('pt-BR'), s.ateAgora? '(ATE AGORA)':'');
+      });
+      // Detecção simples de "pulo": origem do próximo não bate com destino atual e não há stint intermediária com aquele setor
+      const setoresListado = stints.map(s=>s.setor);
+      const avisos = [];
+      for (let i=0; i<stints.length-1; i++) {
+        const atual = stints[i];
+        const prox = stints[i+1];
+        // Se prox.setor não aparece em nenhum stint anterior cronologicamente antes de atual (além dele próprio) e há diferença brusca de datas, apenas log informativo
+        if (atual.setor === prox.setor) continue;
+        // Se existir uma origem declarada em algum trâmite que não virou stint (difícil detectar sem raw), apenas placeholder
+      }
+      if (avisos.length) {
+        console.warn('[HistoricoTramitacoes][DEBUG] Possíveis setores pulados:', avisos);
+      } else {
+        console.info('[HistoricoTramitacoes][DEBUG] Nenhum setor faltando detectado pela heurística.');
+      }
+      console.groupEnd();
+      return stints;
+    } catch(err){
+      console.error('[HistoricoTramitacoes][DEBUG] Falha ao gerar debug', err);
+    }
+  }
   };
 })();
