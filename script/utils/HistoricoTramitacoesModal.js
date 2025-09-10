@@ -132,6 +132,12 @@
   .timeline-dates .acao-verde { color: #2e7d32; }
   .acao-tag { display:inline-block; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: 700; border: 1px solid transparent; }
   .acao-tag.acao-verde { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-color: #a5d6a7; color: #2e7d32; }
+  /* Peças produzidas */
+  .pecas-produzidas { margin-top:10px; padding-top:8px; border-top:1px dashed #d1d5db; }
+  .pecas-produzidas .pecas-title { font-size:11px; letter-spacing:.5px; font-weight:700; color:#374151; margin-bottom:4px; }
+  .pecas-produzidas ul.lista-pecas { list-style: disc; padding-left:18px; margin:0; display:block; }
+  .pecas-produzidas ul.lista-pecas li { font-size:12px; margin-bottom:2px; color:#1f2937; }
+  .pecas-produzidas ul.lista-pecas li span.doc-data { color:#4b5563; }
     `;
     document.head.appendChild(style);
   }
@@ -190,8 +196,8 @@
     } catch(_) { /* noop */ }
 
     const hoje = hojeBRDate();
-  const stints = [];
-  for (let i=0; i<eventos.length; i++) {
+    const stints = [];
+    for (let i=0; i<eventos.length; i++) {
       const ev = eventos[i];
       const prox = eventos[i+1];
       const inicio = ev.data; // com hora quando disponível
@@ -218,7 +224,8 @@
     acao: ev.acao || '',
     nextAcao: prox && prox.acao ? (prox.acao || '') : '',
     ateAgora: !prox,
-        _synthetic: ev._synthetic || null
+        _synthetic: ev._synthetic || null,
+        docs: [] // será preenchido posteriormente
       });
     }
 
@@ -231,6 +238,60 @@
       cur.passagens += 1;
       totalsMap.set(key, cur);
     });
+
+    // ================= Vincular documentos aos períodos =================
+    try {
+      const docsRaw = (raw && raw.documentos && Array.isArray(raw.documentos.documentosPrincipal)) ? raw.documentos.documentosPrincipal : [];
+      const docsNorm = docsRaw.map(d => ({
+        raw: d,
+        tipo: d && d.tipoAtoDocumento ? (d.tipoAtoDocumento.descricao || '') : '',
+        numero: (d && (d.numero || d.numero === 0)) ? d.numero : null,
+        ano: (d && (d.ano || d.ano === 0)) ? d.ano : null,
+        dataStr: d && d.dataFinalizacao,
+        data: parseDateBR(d && d.dataFinalizacao),
+        setorId: d && d.setor ? (d.setor.id ?? null) : null,
+        setor: d && d.setor ? (d.setor.descricao || '') : ''
+      })).filter(d => d.data instanceof Date);
+      docsNorm.sort((a,b)=> a.data - b.data);
+      stints.forEach((s, idx) => {
+        const inicio = s.inicio;
+        const fim = s.fim; // data do próximo evento (ou agora)
+        const prox = stints[idx+1] || null;
+        s.docs = docsNorm.filter(d => {
+          if (!(d.data instanceof Date)) return false;
+          // Identificadores de data simples (ignorando hora, pois não recebemos hora na maior parte dos casos)
+          const dY = d.data.getFullYear(), dM = d.data.getMonth(), dD = d.data.getDate();
+          const iY = inicio.getFullYear(), iM = inicio.getMonth(), iD = inicio.getDate();
+          const fY = fim.getFullYear(), fM = fim.getMonth(), fD = fim.getDate();
+          const mesmaDataInicio = (dY===iY && dM===iM && dD===iD);
+          const mesmaDataFim = (dY===fY && dM===fM && dD===fD);
+
+          let matchIntervalo;
+          if (s.ateAgora) {
+            // Último: inclusivo no início e na "data atual" (fim artificial)
+            matchIntervalo = d.data >= inicio && d.data <= fim;
+          } else if (s.dias === 0) {
+            // Permanência de "No mesmo dia": se documento no mesmo dia da permanência
+            // e (quando possível) setor compatível
+            matchIntervalo = mesmaDataInicio; // mesmaDataInicio == mesmaDataFim nesse caso
+          } else {
+            // Permanência com mais de um dia: início inclusivo, fim exclusivo
+            matchIntervalo = (d.data >= inicio && d.data < fim);
+            // EXCEÇÃO: documento exatamente no dia da saída (mesmaDataFim) mas setor ainda é o do stint e
+            // o próximo setor é diferente -> atribuir ao período atual (documento produzido na transição)
+            if (!matchIntervalo && mesmaDataFim) {
+              const proximoSetorId = prox ? prox.setorId : null;
+              if (s.setorId != null && d.setorId === s.setorId && s.setorId !== proximoSetorId) {
+                matchIntervalo = true;
+              }
+            }
+          }
+          if (!matchIntervalo) return false;
+          if (s.setorId != null && d.setorId != null) return s.setorId === d.setorId; // restringe por setor quando IDs disponíveis
+          return true; // fallback se algum id ausente
+        });
+      });
+    } catch(_) { /* silencioso */ }
 
     const totals = Array.from(totalsMap.values()).sort((a,b)=> b.totalDias - a.totalDias || a.setor.localeCompare(b.setor));
     return { stints, totals };
@@ -333,9 +394,9 @@
       div.textContent = 'Nenhum trâmite encontrado para este processo.';
       body.appendChild(div);
     } else {
-  // Linha do tempo (primeiro)
-  const s2 = document.createElement('div');
-  s2.className = 'historico-section historico-group';
+      // Linha do tempo (primeiro)
+      const s2 = document.createElement('div');
+      s2.className = 'historico-section historico-group';
       const h2 = document.createElement('div');
       h2.className = 'historico-title';
       h2.textContent = 'Linha do tempo';
@@ -358,12 +419,22 @@
         const acaoSaida = (s.nextAcao && typeof s.nextAcao.descricao === 'string')
           ? s.nextAcao.descricao
           : (typeof s.nextAcao === 'string' ? s.nextAcao : '');
-    const isParecerEmitido = typeof acaoSaida === 'string' && acaoSaida.trim().toUpperCase() === 'PARECER EMITIDO';
-    // Quando o processo ainda está no setor (trecho em andamento) e com 0 dias, exibe "Hoje"
-    const tempoTagHtml = (s.ateAgora && s.dias === 0)
-      ? '<span class="tempo-acompanhamento-tag tempo-hoje" title="Hoje">Hoje</span>'
-      : renderTempoTag(s.dias);
-    item.innerHTML = `
+        const isParecerEmitido = typeof acaoSaida === 'string' && acaoSaida.trim().toUpperCase() === 'PARECER EMITIDO';
+        // Quando o processo ainda está no setor (trecho em andamento) e com 0 dias, exibe "Hoje"
+        const tempoTagHtml = (s.ateAgora && s.dias === 0)
+          ? '<span class="tempo-acompanhamento-tag tempo-hoje" title="Hoje">Hoje</span>'
+          : renderTempoTag(s.dias);
+        // Bloco de peças produzidas
+        const escapeHtml = (str) => String(str||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c] || c));
+        const pecasHtml = (s.docs && s.docs.length) ? `<div class="pecas-produzidas"><div class="pecas-title">PEÇAS PRODUZIDAS</div><ul class="lista-pecas">${s.docs.map(d=>{
+          const numeroParte = (d.numero!=null && d.ano!=null) ? `${d.numero}/${d.ano}` : (d.numero!=null? d.numero : '');
+          const dataParte = d.data ? d.data.toLocaleDateString('pt-BR') : (d.dataStr||'');
+          const tipo = escapeHtml(d.tipo);
+          const numero = numeroParte ? ` - ${escapeHtml(numeroParte)}` : '';
+          const data = dataParte ? ` (<span class=\"doc-data\">${escapeHtml(dataParte)}</span>)` : '';
+          return `<li>${tipo}${numero}${data}</li>`;
+        }).join('')}</ul></div>` : '';
+        item.innerHTML = `
           <div class="setor-pill">
             <div>
               <div class="setor-nome">${setorTitulo}</div>
@@ -372,14 +443,14 @@
               ${acaoSaida ? `<div class=\"timeline-dates\">${isParecerEmitido ? `<span class=\"acao-tag acao-verde\"><strong>${acaoSaida}</strong></span>` : `<strong>${acaoSaida}</strong>`}</div>` : ''}
             </div>
             <div>${tempoTagHtml}</div>
-          </div>`;
+          </div>${pecasHtml}`;
         s2.appendChild(item);
       });
       body.appendChild(s2);
 
-  // Sumário por setor (depois)
-  const s1 = document.createElement('div');
-  s1.className = 'historico-section historico-group';
+      // Sumário por setor (depois)
+      const s1 = document.createElement('div');
+      s1.className = 'historico-section historico-group';
       const h1 = document.createElement('div');
       h1.className = 'historico-title';
       h1.textContent = 'Sumário por setor';
@@ -538,7 +609,7 @@
   function insertButtonsForAllRows() {
     const tbody = document.querySelector('#detalhes table tbody');
     if (!tbody) return;
-  tbody.querySelectorAll('tr').forEach(ensureHistoryButtonForTR);
+    tbody.querySelectorAll('tr').forEach(ensureHistoryButtonForTR);
   }
 
   // Reinserir apenas para o número informado (útil em atualizações parciais)
