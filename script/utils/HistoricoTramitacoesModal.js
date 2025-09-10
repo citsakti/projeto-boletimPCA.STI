@@ -11,6 +11,132 @@
     return window._processoPorNumeroCache; // Map numero -> { raw, documentos, sigiloso }
   }
 
+  // ===== Viewer de documento embutido =====
+  function canInlineViewer(){ return window.innerWidth >= 1100; }
+  function openDocViewer(docId){
+    if (!docId) return;
+    const url = API_DOC_ARQUIVO + encodeURIComponent(docId);
+    if (!canInlineViewer()) { try { window.open(url, '_blank'); } catch(_) {} return; }
+    const overlay = document.getElementById('historico-tramitacoes-overlay');
+    const modalContent = overlay && overlay.querySelector('.modal-content');
+    const layout = document.getElementById('historico-tramitacoes-layout');
+    const viewer = document.getElementById('historico-tramitacoes-viewer');
+    const resizer = document.getElementById('historico-tramitacoes-resizer');
+    const iframe = document.getElementById('historico-tramitacoes-iframe');
+    if (!overlay || !modalContent || !layout || !viewer || !iframe) { window.open(url, '_blank'); return; }
+    modalContent.classList.add('expanded');
+    layout.classList.add('expanded');
+    viewer.classList.remove('d-none');
+    viewer.setAttribute('aria-hidden','false');
+    if (resizer) { resizer.classList.remove('d-none'); resizer.setAttribute('aria-hidden','false'); }
+    // Definição inicial (55% timeline / 45% viewer) só se ainda não ajustado
+    if (!layout.dataset.splitApplied) {
+      applySplitWidths(55); // percent da timeline
+      layout.dataset.splitApplied = '1';
+    }
+    iframe.src = url;
+  }
+  function closeDocViewer(){
+    const overlay = document.getElementById('historico-tramitacoes-overlay');
+    if (!overlay) return;
+    const modalContent = overlay.querySelector('.modal-content');
+    const layout = document.getElementById('historico-tramitacoes-layout');
+    const viewer = document.getElementById('historico-tramitacoes-viewer');
+    const resizer = document.getElementById('historico-tramitacoes-resizer');
+    const iframe = document.getElementById('historico-tramitacoes-iframe');
+    if (iframe) iframe.removeAttribute('src');
+    if (viewer) { viewer.classList.add('d-none'); viewer.setAttribute('aria-hidden','true'); }
+    if (resizer) { resizer.classList.add('d-none'); resizer.setAttribute('aria-hidden','true'); }
+    if (modalContent) modalContent.classList.remove('expanded');
+    if (layout) layout.classList.remove('expanded');
+  }
+
+  // Restaura layout padrão (sem viewer e sem ajustes de largura)
+  function resetHistoricoLayout(){
+    try {
+      const layout = document.getElementById('historico-tramitacoes-layout');
+      const body = document.getElementById('historico-tramitacoes-body');
+      const viewer = document.getElementById('historico-tramitacoes-viewer');
+      const resizer = document.getElementById('historico-tramitacoes-resizer');
+      const overlay = document.getElementById('historico-tramitacoes-overlay');
+      // Limpa flex customizado
+      if (body) body.style.flex = '';
+      if (viewer) viewer.style.flex = '';
+      if (layout && layout.dataset && layout.dataset.splitApplied) delete layout.dataset.splitApplied;
+      // Fecha viewer e remove classes
+      if (viewer) { viewer.classList.add('d-none'); viewer.setAttribute('aria-hidden','true'); }
+      if (resizer) { resizer.classList.add('d-none'); resizer.setAttribute('aria-hidden','true'); }
+      if (overlay) {
+        const modalContent = overlay.querySelector('.modal-content');
+        if (modalContent) modalContent.classList.remove('expanded');
+      }
+      if (layout) layout.classList.remove('expanded');
+      // Remove src do iframe
+      const iframe = document.getElementById('historico-tramitacoes-iframe');
+      if (iframe) iframe.removeAttribute('src');
+    } catch(_) {}
+  }
+
+  // ===== Split drag =====
+  function applySplitWidths(timelinePercent){
+    const layout = document.getElementById('historico-tramitacoes-layout');
+    const body = document.getElementById('historico-tramitacoes-body');
+    const viewer = document.getElementById('historico-tramitacoes-viewer');
+    const resizer = document.getElementById('historico-tramitacoes-resizer');
+    if (!layout || !body || !viewer || !resizer) return;
+    const minP = 20; const maxP = 80;
+    const p = Math.min(maxP, Math.max(minP, timelinePercent));
+    body.style.flex = `0 0 ${p}%`;
+    viewer.style.flex = `0 0 ${100 - p}%`;
+    resizer.style.cursor = 'col-resize';
+  }
+
+  function initResizerDrag(){
+    const resizer = document.getElementById('historico-tramitacoes-resizer');
+    const layout = document.getElementById('historico-tramitacoes-layout');
+    if (!resizer || !layout || resizer._dragInit) return;
+    resizer._dragInit = true;
+    let dragging = false;
+    let startX = 0;
+    let startWidthTimeline = 0;
+    resizer.addEventListener('mousedown', (e)=>{
+      if (resizer.classList.contains('d-none')) return;
+      dragging = true;
+      startX = e.clientX;
+      const body = document.getElementById('historico-tramitacoes-body');
+      if (body) {
+        startWidthTimeline = body.getBoundingClientRect().width;
+      }
+      layout.classList.add('dragging');
+      resizer.classList.add('dragging');
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      e.preventDefault();
+    });
+    function onMove(e){
+      if (!dragging) return;
+      const layoutRect = layout.getBoundingClientRect();
+      const delta = e.clientX - startX;
+      const newWidth = startWidthTimeline + delta;
+      const percent = (newWidth / layoutRect.width) * 100;
+      applySplitWidths(percent);
+    }
+    function endDrag(){
+      if (!dragging) return;
+      dragging = false;
+      layout.classList.remove('dragging');
+      resizer.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', endDrag);
+      window.removeEventListener('blur', endDrag);
+      document.removeEventListener('mouseleave', endDrag);
+    }
+    function onUp(){ endDrag(); }
+    document.addEventListener('mouseleave', endDrag);
+    window.addEventListener('blur', endDrag);
+    document.addEventListener('mouseup', onUp);
+  }
+
   function normalizarNumero(raw) {
     if (!raw) return '';
     return String(raw).replace(/[^0-9./-]/g,'').trim();
@@ -138,6 +264,30 @@
   .pecas-produzidas ul.lista-pecas { list-style: disc; padding-left:18px; margin:0; display:block; }
   .pecas-produzidas ul.lista-pecas li { font-size:12px; margin-bottom:2px; color:#1f2937; }
   .pecas-produzidas ul.lista-pecas li span.doc-data { color:#4b5563; }
+  .pecas-produzidas ul.lista-pecas li { display:flex; align-items:center; gap:6px; }
+  .peca-doc-btn { border:1px solid #d2e3fc; background:#eef3f8; color:#1a73e8; width:24px; height:24px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; cursor:pointer; flex:0 0 auto; }
+  .peca-doc-btn:hover { background:#e2ecf7; }
+  .peca-doc-btn svg { width:16px; height:16px; display:block; }
+  .pecas-produzidas ul.lista-pecas li.disabled-doc { opacity:.6; cursor:not-allowed; }
+  .peca-doc-btn.disabled { opacity:.6; cursor:not-allowed; pointer-events:none; }
+  /* Viewer embutido */
+  #historico-tramitacoes-overlay .modal-content.expanded { width:98vw !important; max-width:98vw !important; }
+  .historico-layout { width:100%; height:100%; display:flex; }
+  .historico-layout.expanded .historico-body { flex:1 1 55%; }
+  .historico-layout .historico-body { flex:1 1 auto; min-width:0; }
+  .historico-viewer { flex:0 0 45%; display:flex; flex-direction:column; border-left:1px solid #e5e7eb; background:#f8f9fa; height:100%; }
+  .historico-viewer.d-none { display:none; }
+  .historico-viewer-header { flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:6px 8px; background:#ffffff; border-bottom:1px solid #e5e7eb; }
+  .viewer-close-btn { border:1px solid #cbd5e1; background:#ffffff; color:#1f2937; padding:4px 8px; font-size:12px; border-radius:4px; cursor:pointer; }
+  .viewer-close-btn:hover { background:#f1f5f9; }
+  #historico-tramitacoes-iframe { flex:1 1 auto; width:100%; border:0; background:#f1f5f9; }
+  @media (max-width:1100px) { #historico-tramitacoes-overlay .modal-content.expanded { width:100vw !important; } }
+  /* Resizer */
+  .historico-resizer { width:6px; cursor:col-resize; background:linear-gradient(180deg,#e2e8f0 0%, #cbd5e1 100%); position:relative; flex:0 0 6px; }
+  .historico-resizer:hover { background:linear-gradient(180deg,#cbd5e1 0%, #94a3b8 100%); }
+  .historico-resizer::after { content:''; position:absolute; inset:0; box-shadow:inset 0 0 0 1px #94a3b8; opacity:.3; }
+  .historico-layout.dragging, .historico-resizer.dragging { user-select:none; }
+  .historico-layout.dragging #historico-tramitacoes-iframe { pointer-events:none !important; }
     `;
     document.head.appendChild(style);
   }
@@ -148,6 +298,13 @@
       <path d="M8.515 1.019A7 7 0 0 0 8 1a7 7 0 1 0 6.48 9.271.5.5 0 1 0-.936-.352A6 6 0 1 1 8 2a.5.5 0 0 0 .515-.981z"/>
       <path d="M7.5 3a.5.5 0 0 1 .5.5v4.21l3.248 1.856a.5.5 0 1 1-.496.868l-3.5-2A.5.5 0 0 1 7 8V3.5a.5.5 0 0 1 .5-.5z"/>
     </svg>`;
+  // Ícone de documento reutilizado
+  const SVG_JOURNALS = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-journals" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <path d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2 2 2 0 0 1-2 2H3a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1H1a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2"/>
+    <path d="M1 6v-.5a.5.5 0 0 1 1 0V6h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V9h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 2.5v.5H.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H2v-.5a.5.5 0 0 0-1 0"/>
+  </svg>`;
+  const API_DOC_ARQUIVO = 'https://api-add.tce.ce.gov.br/arquivos/documento?documento_id=';
 
   // ================= Cálculo de históricos =================
   function buildTimeline(raw) {
@@ -244,13 +401,15 @@
       const docsRaw = (raw && raw.documentos && Array.isArray(raw.documentos.documentosPrincipal)) ? raw.documentos.documentosPrincipal : [];
       const docsNorm = docsRaw.map(d => ({
         raw: d,
+  id: (d && (d.id || d.id === 0)) ? d.id : null,
         tipo: d && d.tipoAtoDocumento ? (d.tipoAtoDocumento.descricao || '') : '',
         numero: (d && (d.numero || d.numero === 0)) ? d.numero : null,
         ano: (d && (d.ano || d.ano === 0)) ? d.ano : null,
         dataStr: d && d.dataFinalizacao,
         data: parseDateBR(d && d.dataFinalizacao),
         setorId: d && d.setor ? (d.setor.id ?? null) : null,
-        setor: d && d.setor ? (d.setor.descricao || '') : ''
+  setor: d && d.setor ? (d.setor.descricao || '') : '',
+  exibir: d && d.exibirDocumento !== false
       })).filter(d => d.data instanceof Date);
       docsNorm.sort((a,b)=> a.data - b.data);
       stints.forEach((s, idx) => {
@@ -334,7 +493,17 @@
           <button id="historico-tramitacoes-close" class="btn-close btn-close-white" type="button" aria-label="Close"></button>
         </div>
         <div class="flex-fill p-3 position-relative">
-          <div class="historico-body" id="historico-tramitacoes-body"></div>
+          <div id="historico-tramitacoes-layout" class="historico-layout">
+            <div class="historico-body" id="historico-tramitacoes-body"></div>
+            <div class="historico-resizer d-none" id="historico-tramitacoes-resizer" aria-hidden="true"></div>
+            <div class="historico-viewer d-none" id="historico-tramitacoes-viewer" aria-hidden="true">
+              <div class="historico-viewer-header">
+                <strong style="font-size:12px;">Visualização do Documento</strong>
+                <button type="button" class="viewer-close-btn" id="historico-tramitacoes-viewer-close" aria-label="Fechar PDF">Fechar</button>
+              </div>
+              <iframe id="historico-tramitacoes-iframe" title="Visualizador de documento PDF"></iframe>
+            </div>
+          </div>
         </div>
       </div>`;
     document.body.appendChild(overlay);
@@ -357,6 +526,7 @@
     // Fechar no X (fallback)
     overlay.querySelector('#historico-tramitacoes-close').addEventListener('click', (e)=>{
       e.preventDefault();
+      resetHistoricoLayout();
       if (window.modalManager) window.modalManager.closeModal('historico-tramitacoes-modal');
       else overlay.style.display = 'none';
     });
@@ -364,6 +534,7 @@
     overlay.addEventListener('click', (e)=>{
       if (e.target === overlay) {
         e.preventDefault();
+        resetHistoricoLayout();
         if (window.modalManager) window.modalManager.closeModal('historico-tramitacoes-modal');
         else overlay.style.display = 'none';
       }
@@ -375,6 +546,13 @@
     const overlay = document.getElementById('historico-tramitacoes-overlay');
     const title = document.getElementById('historico-tramitacoes-title');
     const body = document.getElementById('historico-tramitacoes-body');
+  // Garante estado inicial sempre
+  resetHistoricoLayout();
+  // Sempre reset do viewer
+  try { const iframe = document.getElementById('historico-tramitacoes-iframe'); if (iframe) iframe.removeAttribute('src'); } catch(_) {}
+  try { const mc = overlay.querySelector('.modal-content'); mc && mc.classList.remove('expanded'); } catch(_) {}
+  try { const layout = document.getElementById('historico-tramitacoes-layout'); layout && layout.classList.remove('expanded'); } catch(_) {}
+  try { const viewer = document.getElementById('historico-tramitacoes-viewer'); if (viewer){ viewer.classList.add('d-none'); viewer.setAttribute('aria-hidden','true'); } } catch(_) {}
     if (!overlay || !title || !body) return;
     const idPca = (meta && meta.idPca) ? String(meta.idPca).trim() : '';
     const projectName = (meta && meta.projectName) ? String(meta.projectName).trim() : '';
@@ -426,13 +604,17 @@
           : renderTempoTag(s.dias);
         // Bloco de peças produzidas
         const escapeHtml = (str) => String(str||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c] || c));
-        const pecasHtml = (s.docs && s.docs.length) ? `<div class="pecas-produzidas"><div class="pecas-title">PEÇAS PRODUZIDAS</div><ul class="lista-pecas">${s.docs.map(d=>{
+    const pecasHtml = (s.docs && s.docs.length) ? `<div class=\"pecas-produzidas\"><div class=\"pecas-title\">PEÇAS PRODUZIDAS</div><ul class=\"lista-pecas\">${s.docs.map(d=>{
           const numeroParte = (d.numero!=null && d.ano!=null) ? `${d.numero}/${d.ano}` : (d.numero!=null? d.numero : '');
           const dataParte = d.data ? d.data.toLocaleDateString('pt-BR') : (d.dataStr||'');
           const tipo = escapeHtml(d.tipo);
           const numero = numeroParte ? ` - ${escapeHtml(numeroParte)}` : '';
           const data = dataParte ? ` (<span class=\"doc-data\">${escapeHtml(dataParte)}</span>)` : '';
-          return `<li>${tipo}${numero}${data}</li>`;
+            const canOpen = (d.id!=null) && d.exibir !== false && d.exibir !== null && d.exibir !== undefined;
+            const btn = (d.id!=null) ? `<button type=\"button\" class=\"peca-doc-btn${canOpen? '':' disabled'}\" ${canOpen? '' : 'aria-disabled=\"true\"'} data-doc-id=\"${escapeHtml(d.id)}\" title=\"${canOpen? 'Abrir PDF':'Documento indisponível'}\">${SVG_JOURNALS}</button>` : '';
+            const liClass = canOpen ? '' : ' class=\"disabled-doc\"';
+      // Texto primeiro, botão à direita (margin-left:auto)
+      return `<li${liClass}><span>${tipo}${numero}${data}</span>${btn}</li>`;
         }).join('')}</ul></div>` : '';
         item.innerHTML = `
           <div class="setor-pill">
@@ -466,6 +648,21 @@
         s1.appendChild(item);
       });
       body.appendChild(s1);
+      // Ativar botões de documento
+      body.querySelectorAll('.peca-doc-btn').forEach(btn => {
+  initResizerDrag();
+        btn.addEventListener('click', (e)=>{
+          if (btn.classList.contains('disabled')) return;
+          e.preventDefault();
+          const id = btn.getAttribute('data-doc-id');
+          openDocViewer(id);
+        });
+      });
+      const closeBtn = document.getElementById('historico-tramitacoes-viewer-close');
+      if (closeBtn && !closeBtn._histBound) {
+  closeBtn.addEventListener('click', (e)=>{ e.preventDefault(); resetHistoricoLayout(); });
+        closeBtn._histBound = true;
+      }
     }
 
   if (window.modalManager) window.modalManager.openModal('historico-tramitacoes-modal');
@@ -642,12 +839,14 @@
     ensureTagStyles();
     insertButtonsForAllRows();
     observeTableBody();
+  initResizerDrag();
   });
   // Em alguns cenários, DOMContentLoaded já passou
   if (document.readyState !== 'loading') {
     ensureTagStyles();
     insertButtonsForAllRows();
     observeTableBody();
+  initResizerDrag();
   }
   // Ao terminar de montar a tabela
   document.addEventListener('tabela-carregada', () => {
@@ -683,6 +882,8 @@
     },
     injectButtons: insertButtonsForAllRows,
   injectButtonsForNumero: insertButtonsForNumero,
-    compute: buildTimeline
+  compute: buildTimeline,
+  openDoc: openDocViewer,
+  closeDoc: closeDocViewer
   };
 })();
