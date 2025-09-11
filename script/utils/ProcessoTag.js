@@ -62,15 +62,53 @@
     const style = document.createElement('style');
     style.id = 'processo-tag-styles';
     style.textContent = `
-      .${WRAPPER_CLASS}{ margin-top: .25rem; display:block; text-align:center; }
+      /* Wrapper alinhado ao centro */
+      .${WRAPPER_CLASS}{ margin-top: 6px; display:block; text-align:center; }
+
+      /* Estilo idêntico à especie-processo-tag (base cinza) */
       .${TAG_CLASS}{
-        display:inline-block; padding:2px 8px; border-radius:999px;
-        font-size:.75rem; line-height:1.2; color:#495057; background:#e9ecef;
-        border:1px solid #dee2e6; cursor:pointer; user-select:none;
-        transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        line-height: 1.2;
+        cursor: help;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        color: #424242;
+        border: 1px solid #bdbdbd;
       }
-      .${TAG_CLASS}:hover{ background:#dee2e6; color:#212529; border-color:#ced4da; }
-      .${TAG_CLASS}:focus{ outline:2px solid #adb5bd; outline-offset:2px; }
+
+      /* Hover igual à especie-processo-tag */
+      .${TAG_CLASS}:hover{
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+      }
+
+      /* Responsividade equivalente */
+      @media (max-width: 768px) {
+        .${TAG_CLASS} {
+          font-size: 10px;
+          padding: 2px 6px;
+          letter-spacing: 0.2px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .${TAG_CLASS} {
+          font-size: 9px;
+          padding: 1px 4px;
+          max-width: 120px;
+        }
+      }
     `;
     document.head.appendChild(style);
   }

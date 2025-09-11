@@ -355,12 +355,16 @@
 
   function formatar(setorDesc, dias, repeticoesHoje = 0) {
     if (!setorDesc) return '';
-    if (dias == null) return setorDesc;
-    
-    // Usar tag estilizada para os dias
-  const tagDias = renderTempoAcompanhamentoTag(dias, repeticoesHoje);
-  // Exibir a tag em uma linha abaixo do texto do setor
-  return `${setorDesc}<div class="tempo-acompanhamento-wrapper">${tagDias}</div>`;
+    // Quando dias não está disponível, ainda assim exibir a tag do setor
+    const setorTag = `<span class="setor-processo-tag especie-processo-tag especie-padrao" title="Setor atual"><strong>${setorDesc}</strong></span>`;
+    const setorContainer = `<div class="acompanhamento-setor-container">${setorTag}</div>`;
+
+    // Usar tag estilizada para os dias (abaixo do setor)
+    const tagDias = (dias == null) ? '' : renderTempoAcompanhamentoTag(dias, repeticoesHoje);
+    const tempoContainer = tagDias ? `<div class="tempo-acompanhamento-wrapper">${tagDias}</div>` : '';
+
+    // Wrapper geral
+    return `<div class="acompanhamento-tags-wrapper">${setorContainer}${tempoContainer}</div>`;
   }
 
   /**
@@ -407,12 +411,47 @@
     const style = document.createElement('style');
     style.id = 'tempo-acompanhamento-styles';
     style.textContent = `
+    /* Container geral para setor + tempo */
+    .acompanhamento-tags-wrapper {
+      display: block;
+    }
+    .acompanhamento-setor-container {
+      display: block; /* setor em sua própria linha */
+    }
     /* Wrapper para forçar a tag a ficar abaixo do texto principal */
     .tempo-acompanhamento-wrapper {
       display: block;
       margin-top: 4px;
       line-height: 1;
     }
+
+        /* Tag do Setor - estilo idêntico ao da especie-processo-tag (cinza) */
+        .setor-processo-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500; /* base */
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+            cursor: default;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            color: #424242;
+            border: 1px solid #bdbdbd;
+        }
+        .setor-processo-tag:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+        }
+        /* Conteúdo textual em negrito dentro da tag */
+        .setor-processo-tag strong { font-weight: 700; }
         
         .tempo-acompanhamento-tag {
             display: inline-block;
@@ -451,7 +490,7 @@
       background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
     }
         
-        @media (max-width: 768px) {
+    @media (max-width: 768px) {
       .tempo-acompanhamento-wrapper {
         margin-top: 2px;
       }
@@ -460,6 +499,11 @@
                 padding: 2px 6px;
         margin-left: 0;
             }
+      .setor-processo-tag {
+        font-size: 10px;
+        padding: 2px 6px;
+        letter-spacing: 0.2px;
+      }
         }
 
         /* Botão verde de atualização por célula */

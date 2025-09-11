@@ -230,6 +230,12 @@ table td:nth-child(9) {
     white-space: nowrap !important;
 }
 
+/* Centraliza o conteúdo das células da coluna "Tipo" (3ª coluna) na tabela principal */
+#detalhes table tbody td:nth-child(3) {
+    text-align: center;
+    vertical-align: middle;
+}
+
 /* 
    Impede quebra de linha na coluna "Tipo" (3ª) da tabela principal 
    e na coluna "Processo" (10ª) em todas as tabelas (ou especificar se necessário para "Processo").
@@ -392,6 +398,43 @@ table tbody tr.contratacao-atrasada {
     .status-badge:hover {
         transform: translateY(-1px);
     }
+}
+
+/* ===================== Ajustes de largura e no-wrap solicitados ===================== */
+/* Área (2ª), Status do Processo (6ª), Contratar Até (7ª), Valor PCA (8ª) */
+#detalhes table thead.cabecalho th:nth-child(2),
+#detalhes table tbody td[data-label="Área"],
+#detalhes table thead.cabecalho th:nth-child(6),
+#detalhes table tbody td[data-label="Status do Processo"],
+#detalhes table thead.cabecalho th:nth-child(7),
+#detalhes table tbody td[data-label="Contratar Até"],
+#detalhes table thead.cabecalho th:nth-child(8),
+#detalhes table tbody td[data-label="Valor PCA"] {
+    white-space: nowrap !important;
+    width: 1% !important;        /* Encolhe ao mínimo necessário pelo conteúdo */
+    min-width: max-content !important; /* Garante largura mínima do conteúdo */
+    max-width: none !important;
+}
+
+/* Orçamento (9ª) — mesmo comportamento: encolher ao conteúdo e no-wrap */
+#detalhes table thead.cabecalho th:nth-child(9),
+#detalhes table tbody td[data-label="Orçamento"] {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+    max-width: none !important;
+}
+
+/* Centralizar conteúdo da coluna "Contratar Até" (7ª) */
+#detalhes table tbody td[data-label="Contratar Até"] {
+    text-align: center;
+}
+
+/* Para garantir que a coluna "Status do Processo" não force largura maior que o conteúdo */
+#detalhes table tbody td[data-label="Status do Processo"] *,
+#detalhes table tbody td[data-label="Status do Processo"] span,
+#detalhes table tbody td[data-label="Status do Processo"] div {
+    white-space: nowrap !important;
 }
 
 /* Removido código específico para tablets conforme solicitado */
