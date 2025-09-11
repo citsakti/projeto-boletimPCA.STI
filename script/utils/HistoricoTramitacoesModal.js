@@ -293,6 +293,10 @@
   .historico-item.autuacao-highlight .setor-nome::after { content:' (Início)'; font-weight:400; color:#2563eb; }
   /* Destaque de PARECER EMITIDO */
   .historico-item.parecer-highlight { border-left:4px solid #2e7d32; background:linear-gradient(135deg,#e8f5e9 0%, #ffffff 70%); }
+  /* Estilo para a seção de informações do processo */
+  .processo-info .historico-item { background: #f8f9fa; border-color: #dee2e6; }
+  .processo-info .setor-nome { color: #495057; font-weight: 600; }
+  .processo-info .historico-sub { margin-top: 4px; font-size: 14px; line-height: 1.4; }
     `;
     document.head.appendChild(style);
   }
@@ -631,6 +635,48 @@
     const right = numero ? ` — ${numero}` : '';
     title.textContent = `${left}${right}`;
     body.innerHTML = '';
+
+    // Adicionar informações do processo (assunto e espécie) antes do histórico
+    const processInfo = document.createElement('div');
+    processInfo.className = 'historico-section historico-group processo-info';
+    
+    const assunto = (dataRaw && dataRaw.assunto) ? String(dataRaw.assunto).trim() : '';
+    const especie = (dataRaw && dataRaw.especie && dataRaw.especie.descricao) ? String(dataRaw.especie.descricao).trim() : '';
+    
+    if (assunto || especie) {
+      const infoTitle = document.createElement('div');
+      infoTitle.className = 'historico-title';
+      infoTitle.textContent = 'Informações do Processo';
+      processInfo.appendChild(infoTitle);
+      
+      if (assunto) {
+        const assuntoItem = document.createElement('div');
+        assuntoItem.className = 'historico-item';
+        assuntoItem.innerHTML = `
+          <div class="setor-pill">
+            <div>
+              <div class="setor-nome">Assunto</div>
+              <div class="historico-sub">${assunto}</div>
+            </div>
+          </div>`;
+        processInfo.appendChild(assuntoItem);
+      }
+      
+      if (especie) {
+        const especieItem = document.createElement('div');
+        especieItem.className = 'historico-item';
+        especieItem.innerHTML = `
+          <div class="setor-pill">
+            <div>
+              <div class="setor-nome">Espécie</div>
+              <div class="historico-sub">${especie}</div>
+            </div>
+          </div>`;
+        processInfo.appendChild(especieItem);
+      }
+      
+      body.appendChild(processInfo);
+    }
 
     const { stints, totals } = buildTimeline(dataRaw || {});
 
