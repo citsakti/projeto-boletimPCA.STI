@@ -419,13 +419,16 @@
     .acompanhamento-setor-container {
       display: block; /* setor em sua própria linha */
       text-align: left; /* agora alinhado à esquerda conforme solicitado */
+      max-width: 100%;
+      overflow: hidden; /* impedir que conteúdo ultrapasse a célula */
     }
     /* Wrapper para forçar a tag a ficar abaixo do texto principal */
+    /* Wrapper original dos dias (revertido) */
     .tempo-acompanhamento-wrapper {
       display: block;
       margin-top: 4px;
       line-height: 1;
-      text-align: center; /* centralizar tag de tempo */
+      text-align: center; /* centraliza a tag de dias novamente */
     }
 
         /* Tag do Setor - estilo idêntico ao da especie-processo-tag (cinza) */
@@ -440,13 +443,14 @@
             line-height: 1.2;
             cursor: default;
             transition: all 0.2s ease;
-            white-space: nowrap;
+            white-space: normal;
             max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
             color: #424242;
             border: 1px solid #bdbdbd;
+            box-sizing: border-box;
         }
         .setor-processo-tag:hover {
             transform: translateY(-1px);
@@ -456,19 +460,19 @@
         /* Conteúdo textual em negrito dentro da tag */
         .setor-processo-tag strong { font-weight: 700; }
         
-        .tempo-acompanhamento-tag {
-            display: inline-block;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            color: #1565c0;
-            padding: 4px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-      margin-left: 0;
-            border: 1px solid #90caf9;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            cursor: default;
-        }
+    .tempo-acompanhamento-tag {
+      display: inline-block;
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      color: #1565c0;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    margin-left: 0;
+      border: 1px solid #90caf9;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      cursor: default;
+    }
         
         .tempo-acompanhamento-tag:hover {
             background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
@@ -496,16 +500,21 @@
     @media (max-width: 768px) {
       .tempo-acompanhamento-wrapper {
         margin-top: 2px;
+        gap: 4px;
       }
             .tempo-acompanhamento-tag {
                 font-size: 10px;
                 padding: 2px 6px;
         margin-left: 0;
+        max-width: 100%;
+        min-width: 0;
             }
       .setor-processo-tag {
         font-size: 10px;
         padding: 2px 6px;
         letter-spacing: 0.2px;
+        max-width: 100%;
+        min-width: 0;
       }
         }
 
@@ -555,12 +564,18 @@
       height: 100%;
       min-height: 100%;
       gap: 4px;                          /* espaçamento consistente entre linhas */
+      max-width: 100%;
     }
     /* Ajusta o wrapper do tempo quando em layout flex */
     td[data-label="Acompanhamento"] .acompanhamento-tags-wrapper .tempo-acompanhamento-wrapper {
       margin-top: 0;                     /* gap já controla espaço */
-      text-align: left;                  /* manter alinhado à esquerda */
+      text-align: center;                /* volta a centralizar a tag de dias na célula */
       width: 100%;
+    }
+    /* Removidas regras de flex/ellipsis para a tag de dias */
+    td[data-label="Acompanhamento"] .acompanhamento-tags-wrapper .acompanhamento-setor-container .setor-processo-tag {
+      max-width: 100%;
+      min-width: 0;
     }
     /* Em telas menores mantém comportamento alinhado e centralizado verticalmente */
     @media (max-width: 768px) {

@@ -239,7 +239,7 @@
             line-height: 1.2;
             cursor: default; /* revertido: usar seta padrão (sem '?', sem mão) */
             transition: all 0.2s ease;
-            white-space: nowrap;
+            white-space: normal;
             max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
