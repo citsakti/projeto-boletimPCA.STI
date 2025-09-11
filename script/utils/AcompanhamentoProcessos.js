@@ -208,10 +208,10 @@
         // Verificar status do processo (coluna 5 - "Status do Processo")
         let statusCell = tr.querySelector('td[data-label="Status do Processo"]');
         if (!statusCell) statusCell = tr.children[5];
-        const statusTexto = statusCell ? statusCell.textContent.trim() : '';
-        const isStatusCompleto = statusTexto === 'RENOVADO ✅' || statusTexto === 'CONTRATADO ✅';
+  const statusTexto = statusCell ? statusCell.textContent.trim() : '';
+  // Removido: não bloquear mais renderização de tags para RENOVADO/CONTRATADO
 
-        const texto = isStatusCompleto ? (setorDesc || null) : (formatar(setorDesc, dias, repeticoesHoje) || (setorDesc ? setorDesc : null));
+  const texto = (formatar(setorDesc, dias, repeticoesHoje) || (setorDesc ? setorDesc : null));
         if (texto) {
           acompCell.innerHTML = texto;
           acompCell.dataset.setorAtual = setorDesc;
@@ -414,15 +414,18 @@
     /* Container geral para setor + tempo */
     .acompanhamento-tags-wrapper {
       display: block;
+      /* removido alinhamento central horizontal */
     }
     .acompanhamento-setor-container {
       display: block; /* setor em sua própria linha */
+      text-align: left; /* agora alinhado à esquerda conforme solicitado */
     }
     /* Wrapper para forçar a tag a ficar abaixo do texto principal */
     .tempo-acompanhamento-wrapper {
       display: block;
       margin-top: 4px;
       line-height: 1;
+      text-align: center; /* centralizar tag de tempo */
     }
 
         /* Tag do Setor - estilo idêntico ao da especie-processo-tag (cinza) */
@@ -705,8 +708,8 @@
       let statusCell = tr.querySelector('td[data-label="Status do Processo"]');
       if (!statusCell) statusCell = tr.children[5]; // índice 5 = 6ª coluna
       
-      const statusTexto = statusCell ? statusCell.textContent.trim() : '';
-      const isStatusCompleto = statusTexto === 'RENOVADO ✅' || statusTexto === 'CONTRATADO ✅';
+  const statusTexto = statusCell ? statusCell.textContent.trim() : '';
+  // Removido: exibir também tags de tempo para RENOVADO/CONTRATADO
       
       const setorDesc = dado?.setor?.descricao || '';
       const dtUltimoEnc = dado?.dtUltimoEncaminhamento;
@@ -719,10 +722,8 @@
         acompCell.dataset.originalAcompanhamento = acompCell.textContent.trim();
       }
       
-      // Se o status for RENOVADO ✅ ou CONTRATADO ✅, exibir apenas o setor sem a tag de tempo
-      const texto = isStatusCompleto ? 
-        (setorDesc || null) : 
-        (formatar(setorDesc, dias, repeticoesHoje) || (setorDesc ? setorDesc : null));
+  // Renderização sempre completa (setor + tempo quando existir)
+  const texto = (formatar(setorDesc, dias, repeticoesHoje) || (setorDesc ? setorDesc : null));
       
       if (texto) {
         acompCell.innerHTML = texto;
@@ -790,8 +791,8 @@
 
       // Verificar status do processo
       let statusCell = tr.querySelector('td[data-label="Status do Processo"]') || tr.children[5];
-      const statusTexto = statusCell ? statusCell.textContent.trim() : '';
-      const isStatusCompleto = statusTexto === 'RENOVADO ✅' || statusTexto === 'CONTRATADO ✅';
+  const statusTexto = statusCell ? statusCell.textContent.trim() : '';
+  // Removido: exibir tags mesmo para RENOVADO/CONTRATADO
 
       const setorDesc = dado?.setor?.descricao || '';
       const dtUltimoEnc = dado?.dtUltimoEncaminhamento;
@@ -802,7 +803,7 @@
         acompCell.dataset.originalAcompanhamento = acompCell.textContent.trim();
       }
 
-      const texto = isStatusCompleto ? (setorDesc || null) : (formatar(setorDesc, dias, repeticoesHoje) || (setorDesc ? setorDesc : null));
+  const texto = (formatar(setorDesc, dias, repeticoesHoje) || (setorDesc ? setorDesc : null));
       if (!texto) return;
 
       acompCell.innerHTML = texto;

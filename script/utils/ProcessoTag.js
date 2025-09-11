@@ -63,7 +63,9 @@
     style.id = 'processo-tag-styles';
     style.textContent = `
       /* Wrapper alinhado ao centro */
-      .${WRAPPER_CLASS}{ margin-top: 6px; display:block; text-align:center; }
+  .${WRAPPER_CLASS}{ margin-top: 6px; display:block; text-align:center; }
+  /* Garantir centralização também do conteúdo interno existente da célula Tipo */
+  td[data-label="Tipo"] { text-align: center; }
 
       /* Estilo idêntico à especie-processo-tag (base cinza) */
       .${TAG_CLASS}{
@@ -71,7 +73,7 @@
         padding: 3px 8px;
         border-radius: 4px;
         font-size: 11px;
-        font-weight: 500;
+        font-weight: 700; /* negrito conforme solicitado */
         text-transform: uppercase;
         letter-spacing: 0.3px;
         line-height: 1.2;

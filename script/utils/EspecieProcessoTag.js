@@ -228,12 +228,12 @@
         }
         
         /* Estilo base para tags de espécie */
-        .especie-processo-tag {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
+    .especie-processo-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700; /* negrito conforme solicitado */
             text-transform: uppercase;
             letter-spacing: 0.3px;
             line-height: 1.2;
