@@ -237,7 +237,7 @@
             text-transform: uppercase;
             letter-spacing: 0.3px;
             line-height: 1.2;
-            cursor: help;
+            cursor: default; /* revertido: usar seta padrão (sem '?', sem mão) */
             transition: all 0.2s ease;
             white-space: nowrap;
             max-width: 100%;

@@ -31,6 +31,8 @@ class ModalManager {
         this.modalStack = [];
         this.zIndexBase = 1000;
         this.zIndexIncrement = 10;
+    // Estado por modal: foco e scroll antes da abertura
+    this.modalState = {}; // { modalId: { lastFocusedElement, scrollX, scrollY } }
         
         // Mapeamento de modais conhecidos
         this.modalRegistry = {
@@ -125,7 +127,7 @@ class ModalManager {
     openModal(modalId, options = {}) {
         console.log(`ModalManager: Abrindo modal '${modalId}'`);
         
-        // Fecha outros modais primeiro (exceto loading)
+    // Fecha outros modais primeiro (exceto loading)
         this.closeAllModalsExcept(['loading']);
         
         // Fecha filtros e dropdowns abertos
@@ -157,6 +159,16 @@ class ModalManager {
         // Aplica z-index apropriado
         overlay.style.zIndex = this.calculateZIndex(modalId);
         
+        // Captura foco e posição de scroll ANTES de exibir
+        try {
+            const activeEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            this.modalState[modalId] = {
+                lastFocusedElement: activeEl && !overlay.contains(activeEl) ? activeEl : activeEl, // se estiver dentro, ainda registramos (fallback)
+                scrollX: window.pageXOffset,
+                scrollY: window.pageYOffset
+            };
+        } catch(_) { this.modalState[modalId] = { lastFocusedElement: null, scrollX: 0, scrollY: 0 }; }
+
         // Exibe o modal
         overlay.style.display = 'flex'; // Define display para flex para torná-lo visível
         
@@ -581,12 +593,12 @@ class ModalManager {
      * Finaliza o fechamento do modal
      */
     finalizeModalClose(modalId, config, overlay) {
-        // Apenas oculta o overlay. Opacidade e pointerEvents já foram tratados
-        // pela applyModalAnimation e serão resetados na próxima abertura.
+        // Oculta overlay. Evita adicionar 'd-none' em processo-modal para não causar reflow brusco que reposiciona a tabela
         overlay.style.display = 'none';
-        // Adiciona 'd-none' para cobrir caso outro CSS force exibição
-        if (!overlay.classList.contains('d-none')) {
-            overlay.classList.add('d-none');
+        if (modalId !== 'processo-modal') {
+            if (!overlay.classList.contains('d-none')) overlay.classList.add('d-none');
+        } else {
+            overlay.classList.remove('d-none');
         }
         // Limpa iframes se necessário
         if (config.type === 'iframe') {
@@ -635,6 +647,21 @@ class ModalManager {
                 if (btnOpenLegacy) btnOpenLegacy.removeAttribute('href');
                 if (btnCopyLegacy) btnCopyLegacy.onclick = null;
             }
+        }
+
+        // Restaura foco & scroll após fechamento (evita 'salto' ao clicar novamente em outra tag)
+        const state = this.modalState[modalId];
+        if (state) {
+            // Restaura scroll primeiro
+            if (typeof state.scrollX === 'number' && typeof state.scrollY === 'number') {
+                try { window.scrollTo(state.scrollX, state.scrollY); } catch(_) {}
+            }
+            // Foco no elemento anterior se ainda presente no DOM e fora de overlay
+            if (state.lastFocusedElement && document.contains(state.lastFocusedElement)) {
+                try { state.lastFocusedElement.focus({ preventScroll: true }); } catch(_) {}
+            }
+            // Limpa estado
+            delete this.modalState[modalId];
         }
     }
     

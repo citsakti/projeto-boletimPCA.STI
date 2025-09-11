@@ -19,6 +19,8 @@ class ProcessoModal {
         this.modalContent = null;
         this.modalIframe = null;
         this.tableBody = null;
+    // Guarda o elemento focado antes de abrir para restaurar depois (evita "quebra" / salto de scroll)
+    this.lastFocusedElement = null;
         this.init();
     }
 
@@ -130,6 +132,11 @@ class ProcessoModal {
             return;
         }
 
+    // Memoriza foco atual para restaurar ao fechar (mitiga deslocamento ao clicar no X)
+    try { this.lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null; } catch(_) { this.lastFocusedElement = null; }
+    // Guarda posição de scroll atual
+    this._scrollPos = { x: window.pageXOffset, y: window.pageYOffset };
+
         // Monta a URL dinâmica (ATUALIZADO: novo padrão de acesso ao processo)
         // Novo formato requerido: https://www.tce.ce.gov.br/contexto/#/processo?search=NUMERO_DO_PROCESSO
         // Mantemos a busca do nome do processo como já está (lógica mais abaixo para título etc.)
@@ -184,6 +191,11 @@ class ProcessoModal {
 
         // Animação de fechamento
         this.modalContent.classList.remove('show');
+
+        // Focar imediatamente o elemento que abriu o modal (sem scroll) para evitar que o browser escolha body e provoque salto na próxima interação
+        if (this.lastFocusedElement && typeof this.lastFocusedElement.focus === 'function') {
+            try { this.lastFocusedElement.focus({ preventScroll: true }); } catch(_) {}
+        }
         
         // Otimização: esconder o overlay imediatamente para melhor UX
         this.modalOverlay.style.opacity = '0';
@@ -194,19 +206,23 @@ class ProcessoModal {
             // Restaurar propriedades para próxima abertura
             this.modalOverlay.style.opacity = '';
             this.modalOverlay.style.pointerEvents = '';
-            
+
             // Limpar iframe
             if (this.modalIframe) {
                 this.modalIframe.src = 'about:blank';
-                // Limpar também o iframe Bootstrap se existir
                 const bootstrapIframe = document.getElementById('processo-iframe');
-                if (bootstrapIframe) {
-                    bootstrapIframe.src = 'about:blank';
-                }
+                if (bootstrapIframe) bootstrapIframe.src = 'about:blank';
             }
-            
+
             // Restaurar rolagem da página
             document.body.style.overflow = '';
+
+            // Restaura posição de scroll (caso algum repaint tenha alterado)
+            if (this._scrollPos) {
+                try { window.scrollTo(this._scrollPos.x, this._scrollPos.y); } catch(_) {}
+            }
+            this.lastFocusedElement = null;
+            this._scrollPos = null;
         }, 400);
     }
 
