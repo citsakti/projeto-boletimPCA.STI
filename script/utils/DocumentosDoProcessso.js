@@ -488,7 +488,21 @@
         const shared = getSharedProcessCache();
         if (shared && shared.has(numero)) info = shared.get(numero);
       }
-      addIconeSeNecessario(tr, info);
+      // Só exibe o ícone se info existir e não for erro
+      if (info && !info.erro) {
+        addIconeSeNecessario(tr, info);
+      } else {
+        // Remove wrapper se existir
+        let targetCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+        if (!targetCell) targetCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
+        if (targetCell) {
+          let tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
+          if (tagWrapper) {
+            let wrap = tagWrapper.querySelector('.doc-icon-wrapper');
+            if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+          }
+        }
+      }
     });
   }
 
@@ -524,7 +538,20 @@
             const shared = getSharedProcessCache();
             if (shared && shared.has(numero)) info = shared.get(numero);
           }
-          addIconeSeNecessario(tr, info);
+          if (info && !info.erro) {
+            addIconeSeNecessario(tr, info);
+          } else {
+            // Remove wrapper se existir
+            let targetCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+            if (!targetCell) targetCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
+            if (targetCell) {
+              let tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
+              if (tagWrapper) {
+                let wrap = tagWrapper.querySelector('.doc-icon-wrapper');
+                if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+              }
+            }
+          }
         }
       });
     } catch(_) {}

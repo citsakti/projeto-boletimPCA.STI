@@ -975,7 +975,21 @@
   function insertButtonsForAllRows() {
     const tbody = document.querySelector('#detalhes table tbody');
     if (!tbody) return;
-    tbody.querySelectorAll('tr').forEach(ensureHistoryButtonForTR);
+    const shared = getSharedProcessCache();
+    tbody.querySelectorAll('tr').forEach(tr => {
+      const numero = typeof obterNumeroDoTR === 'function' ? obterNumeroDoTR(tr) : (tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child')).textContent.trim();
+      const info = shared && shared.has(numero) ? shared.get(numero) : null;
+      if (info && !info.erro) {
+        ensureHistoryButtonForTR(tr);
+      } else {
+        // Remove botão se existir
+        const acompCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+        if (acompCell) {
+          const btn = acompCell.querySelector('.acomp-historico-btn');
+          if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
+        }
+      }
+    });
   }
 
   // Reinserir apenas para o número informado (útil em atualizações parciais)
@@ -984,8 +998,21 @@
     if (!nAlvo) return;
     const tbody = document.querySelector('#detalhes table tbody');
     if (!tbody) return;
+    const shared = getSharedProcessCache();
     tbody.querySelectorAll('tr').forEach(tr => {
-  if (obterNumeroDoTR(tr) === nAlvo) ensureHistoryButtonForTR(tr);
+      if (obterNumeroDoTR(tr) === nAlvo) {
+        const info = shared && shared.has(nAlvo) ? shared.get(nAlvo) : null;
+        if (info && !info.erro) {
+          ensureHistoryButtonForTR(tr);
+        } else {
+          // Remove botão se existir
+          const acompCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+          if (acompCell) {
+            const btn = acompCell.querySelector('.acomp-historico-btn');
+            if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
+          }
+        }
+      }
     });
   }
 
