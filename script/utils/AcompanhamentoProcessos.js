@@ -534,6 +534,40 @@
           transform-origin: 50% 50%;
           transform-box: fill-box;
         }
+
+    /* ============================= */
+    /* Centralização vertical        */
+    /* ============================= */
+    /* Garante que a célula em si use alinhamento vertical central */
+    td[data-label="Acompanhamento"] {
+      vertical-align: middle !important; /* fallback caso flex falhe */
+      position: relative;
+      /* Ajuste de padding pode ser refinado conforme necessidade */
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+    /* Wrapper principal ocupando toda a altura para permitir centralização */
+    td[data-label="Acompanhamento"] .acompanhamento-tags-wrapper {
+      display: flex !important;          /* sobrescreve display:block anterior */
+      flex-direction: column;            /* setor em cima, tempo embaixo */
+      justify-content: center;           /* centralização vertical */
+      align-items: flex-start;           /* mantém alinhamento à esquerda */
+      height: 100%;
+      min-height: 100%;
+      gap: 4px;                          /* espaçamento consistente entre linhas */
+    }
+    /* Ajusta o wrapper do tempo quando em layout flex */
+    td[data-label="Acompanhamento"] .acompanhamento-tags-wrapper .tempo-acompanhamento-wrapper {
+      margin-top: 0;                     /* gap já controla espaço */
+      text-align: left;                  /* manter alinhado à esquerda */
+      width: 100%;
+    }
+    /* Em telas menores mantém comportamento alinhado e centralizado verticalmente */
+    @media (max-width: 768px) {
+      td[data-label="Acompanhamento"] .acompanhamento-tags-wrapper {
+        gap: 2px;
+      }
+    }
     `;
     
     document.head.appendChild(style);

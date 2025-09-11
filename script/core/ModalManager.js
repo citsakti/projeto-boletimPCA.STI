@@ -880,13 +880,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            // Integração com contratos (InformacoesDeContratos.js)
+            // Integração com contratos (InformacoesDeContratos.js) DESATIVADA
+            // Motivo: agora a abertura do modal de contrato é responsabilidade exclusiva
+            // da .contrato-tag dentro de .projeto-especie-container (InformacoesDeContratos.js).
+            // Bloco original preservado abaixo para possível restauração.
+            /*
             document.addEventListener('click', function(event) {
                 const contractCell = event.target.closest('td[data-registro]');
                 if (contractCell && contractCell.dataset.registro) {
                     const numeroRegistro = contractCell.dataset.registro;
                     const url = `https://scc.tce.ce.gov.br/scc/ConsultaContratoDetalheAct.tce?idContrato=${numeroRegistro}&consulta=1`;
-                    // Extrair nome do projeto e ID PCA da mesma linha
                     let projectName = '';
                     let idPca = '';
                     try {
@@ -899,12 +902,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const ths = Array.from(table.querySelectorAll('thead th'));
                                 idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
                                 idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
-                                if (idxProjeto >= 0 && tr.children[idxProjeto]) {
-                                    projectName = tr.children[idxProjeto].textContent.trim();
-                                }
-                                if (idxId >= 0 && tr.children[idxId]) {
-                                    idPca = tr.children[idxId].textContent.trim();
-                                }
+                                if (idxProjeto >= 0 && tr.children[idxProjeto]) projectName = tr.children[idxProjeto].textContent.trim();
+                                if (idxId >= 0 && tr.children[idxId]) idPca = tr.children[idxId].textContent.trim();
                             }
                             if (!projectName) {
                                 const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
@@ -915,14 +914,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (idCand) idPca = idCand.textContent.trim();
                             }
                         }
-                    } catch(e) { /* ignore */ }
+                    } catch(e) { }
                     const finalTitle = (idPca ? (idPca + ' - ') : '') + projectName;
                     window.modalManager.openModal('processo-modal', { url, title: finalTitle });
-                    if (projectName && typeof window.setProcessoModalTitle === 'function') {
-                        window.setProcessoModalTitle(finalTitle);
-                    }
+                    if (projectName && typeof window.setProcessoModalTitle === 'function') window.setProcessoModalTitle(finalTitle);
                 }
             });
+            */
 
             console.log('ModalManager: Integração com sistemas existentes concluída');
         }
