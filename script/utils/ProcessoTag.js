@@ -63,7 +63,15 @@
     style.id = 'processo-tag-styles';
     style.textContent = `
       /* Wrapper alinhado ao centro */
-  .${WRAPPER_CLASS}{ margin-top: 6px; display:block; text-align:center; }
+  .${WRAPPER_CLASS}{
+    margin-top: 6px;
+    display: flex;              /* Igual ao container de espécie */
+    align-items: center;        /* Centraliza verticalmente */
+    gap: 6px;                   /* Mesmo espaçamento do especie */
+    justify-content: center;    /* Centraliza horizontalmente dentro da célula */
+    flex-wrap: wrap;            /* Permite quebra se necessário em telas pequenas */
+    text-align: center;         /* Mantém alinhamento textual */
+  }
   /* Garantir centralização também do conteúdo interno existente da célula Tipo */
   td[data-label="Tipo"] { text-align: center; }
 
@@ -97,6 +105,10 @@
 
       /* Responsividade equivalente */
       @media (max-width: 768px) {
+        .${WRAPPER_CLASS}{
+          margin-top: 4px; /* segue redução similar */
+          gap: 4px;
+        }
         .${TAG_CLASS} {
           font-size: 10px;
           padding: 2px 6px;
@@ -105,6 +117,9 @@
       }
 
       @media (max-width: 480px) {
+        .${WRAPPER_CLASS}{
+          gap: 3px;
+        }
         .${TAG_CLASS} {
           font-size: 9px;
           padding: 1px 4px;
