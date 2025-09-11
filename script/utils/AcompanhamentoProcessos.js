@@ -599,6 +599,10 @@
   }
 
   function exibirErro(cell, codigoErro = null, mensagem = '') {
+    // Remove ícones de documentos e histórico, se existirem
+    if (cell && cell.parentElement && typeof window.removerIconesDocumentosHistorico === 'function') {
+      window.removerIconesDocumentosHistorico(cell.parentElement);
+    }
     const textoErro = codigoErro ? 
       `<span class="text-danger">Erro ${codigoErro}</span>` : 
       `<span class="text-danger">Erro ${mensagem || 'desconhecido'}</span>`;
@@ -883,6 +887,10 @@
         if (acompIndex >= 0) acompCell = tr.children[acompIndex];
       }
       if (!acompCell) return;
+      // Remove ícones de documentos e histórico, se existirem
+      if (typeof window.removerIconesDocumentosHistorico === 'function') {
+        window.removerIconesDocumentosHistorico(tr);
+      }
       exibirErro(acompCell, codigoErro, String(err));
       inserirBotaoRefreshNaCelula(tr, acompCell);
     });

@@ -1,4 +1,20 @@
 (function(){
+  // Função para remover o ícone de histórico de uma linha específica
+  function removerIconeHistoricoDeTR(tr) {
+    if (!tr) return;
+    let targetCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+    if (!targetCell) return;
+    let tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
+    if (!tagWrapper) return;
+    let wrapper = tagWrapper.querySelector('.historico-icon-wrapper');
+    if (wrapper && wrapper.parentNode) {
+      wrapper.parentNode.removeChild(wrapper);
+    }
+  }
+  // Expor globalmente para integração
+  window.removerIconeHistoricoDeTR = removerIconeHistoricoDeTR;
+})();
+(function(){
   // HistoricoTramitacoesModal.js
   // Botão por linha que abre um modal com a linha do tempo de tramitações
   // e um sumário de quantos dias o processo permaneceu em cada setor.

@@ -533,9 +533,31 @@
   document.addEventListener('tabela-carregada', () => scheduleUpdate(600));
 
   // Expor para debug manual
+  // Função para remover o ícone de documentos de uma linha específica
+  function removerIconeDocumentosDeTR(tr) {
+    if (!tr) return;
+    let targetCell = tr.querySelector('td[data-label="Acompanhamento"]') || tr.children[4];
+    if (!targetCell) return;
+    let tagWrapper = targetCell.querySelector('.tempo-acompanhamento-wrapper');
+    if (!tagWrapper) return;
+    let wrapper = tagWrapper.querySelector('.doc-icon-wrapper');
+    if (wrapper && wrapper.parentNode) {
+      wrapper.parentNode.removeChild(wrapper);
+    }
+  }
+
+  // Expor função global para integração com outros módulos
+  if (!window.removerIconesDocumentosHistorico) {
+    window.removerIconesDocumentosHistorico = function(tr) {
+      removerIconeDocumentosDeTR(tr);
+      // HistoricoTramitacoesModal.js também deve implementar a remoção do seu ícone
+      if (window.removerIconeHistoricoDeTR) window.removerIconeHistoricoDeTR(tr);
+    };
+  }
+
   window.debugDocumentosProcesso = {
     fetch: fetchProcessoPorNumero,
-  abrir: openDocumentosModal,
+    abrir: openDocumentosModal,
     atualizar: atualizarIconesDocumentos,
     cache: cacheProcessoDocs
   };
