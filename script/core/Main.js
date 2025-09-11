@@ -76,10 +76,12 @@ function fetchAndPopulate() {
             const tbody = document.querySelector('table tbody');
             if (!tbody) throw new Error('tbody da tabela principal não encontrado');
             tbody.innerHTML = '';
-            const headers = ["ID PCA", "Área", "Tipo", "Projeto de Aquisição", "Acompanhamento", "Status do Processo", "Contratar Até", "Valor PCA", "Orçamento", "Processo"];
+            // Cabeçalhos visíveis (a coluna "Processo" deixa de existir visualmente)
+            const headers = ["ID PCA", "Área", "Tipo", "Projeto de Aquisição", "Acompanhamento", "Status do Processo", "Contratar Até", "Valor PCA", "Orçamento"];
+            const csvIndicesVisiveis = [2, 3, 4, 5, 10, 6, 9, 15, 14];
             validDataRows.forEach(row => {
                 const tr = document.createElement('tr');
-                [2, 3, 4, 5, 10, 6, 9, 15, 14, 13].forEach((i, colIndex) => {
+                csvIndicesVisiveis.forEach((i, colIndex) => {
                     const td = document.createElement('td');
                     td.dataset.label = headers[colIndex];
                     let value = row[i] || '';
@@ -94,31 +96,9 @@ function fetchAndPopulate() {
                     if (colIndex === 4) {
                         td.dataset.valorCsvOriginal = value;
                         value = '';
-                    }
-                    else if (colIndex === 6) value = formatContratarAte(value);
+                    } else if (colIndex === 6) value = formatContratarAte(value);
                     else if (colIndex === 8 && value === '') value = '<Não Orçado>';
-                    else if (colIndex === 9) {
-                        if (value.trim() === '') td.textContent = '*'; else {
-                            td.innerHTML = `${value} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
-                            td.dataset.processoNumero = (value||'').toString().trim();
-                            const modalidadeX = row[23] || '';
-                            const numeroY = row[24] || '';
-                            if (numeroY && String(numeroY).trim() !== '-' ) {
-                                td.setAttribute('data-x', String(modalidadeX).trim());
-                                td.setAttribute('data-y', String(numeroY).trim());
-                                const span = document.createElement('span');
-                                span.className = 'comprasgov-link-icon';
-                                span.title = 'Abrir acompanhamento no Comprasnet';
-                                span.textContent = ' 🛍️';
-                                span.style.cursor = 'pointer';
-                                span.setAttribute('data-x', String(modalidadeX).trim());
-                                span.setAttribute('data-y', String(numeroY).trim());
-                                td.appendChild(span);
-                            }
-                        }
-                        tr.appendChild(td);
-                        return;
-                    } else if (colIndex === 5) {
+                    else if (colIndex === 5) {
                         const statusProcessoTexto = row[6];
                         td.textContent = statusProcessoTexto;
                         if (statusProcessoTexto.includes('AUTUAÇÃO ATRASADA 💣')) {
@@ -145,6 +125,27 @@ function fetchAndPopulate() {
                     td.textContent = value;
                     tr.appendChild(td);
                 });
+
+                // Adiciona célula oculta com o número do processo para compatibilidade com módulos existentes
+                const processoNumero = (row[13] || '').toString().trim();
+                const tdProcessoHidden = document.createElement('td');
+                tdProcessoHidden.dataset.label = 'Processo';
+                tdProcessoHidden.style.display = 'none';
+                tdProcessoHidden.textContent = processoNumero || '*';
+                if (processoNumero) tdProcessoHidden.dataset.processoNumero = processoNumero;
+
+                // Preserva atributos do Comprasnet (usados por outros módulos para renderizar o ícone na coluna de Projeto)
+                const modalidadeX = row[23] || '';
+                const numeroY = row[24] || '';
+                if (numeroY && String(numeroY).trim() !== '-') {
+                    tdProcessoHidden.setAttribute('data-x', String(modalidadeX).trim());
+                    tdProcessoHidden.setAttribute('data-y', String(numeroY).trim());
+                }
+
+                // Salva o número do processo no TR para acesso rápido
+                if (processoNumero) tr.setAttribute('data-processo-numero', processoNumero);
+
+                tr.appendChild(tdProcessoHidden);
                 tbody.appendChild(tr);
             });
             if (window.aplicarAnimacaoBomba) aplicarAnimacaoBomba();
@@ -311,12 +312,12 @@ function populateTableDOMWithData(processedDataRows) {
     const headers = [
         "ID PCA", "Área", "Tipo", "Projeto de Aquisição", 
         "Acompanhamento", "Status do Processo", "Contratar Até", 
-        "Valor PCA", "Orçamento", "Processo"
+        "Valor PCA", "Orçamento"
     ];
 
     processedDataRows.forEach(row => { // row aqui deve ser um array de valores na ordem correta
         const tr = tbody.insertRow();
-        headers.forEach((headerText, index) => {
+    headers.forEach((headerText, index) => {
             const cell = tr.insertCell();
             let cellData = row[index] !== undefined && row[index] !== null ? row[index] : '';
             
@@ -329,31 +330,16 @@ function populateTableDOMWithData(processedDataRows) {
             }
             // Adicione mais formatações conforme necessário
 
-            cell.textContent = cellData;            // Adiciona classes ou atributos se necessário, por exemplo, para o ícone do processo
-            if (headerText === "Processo" && cellData) {
-                const icon = document.createElement('span');
-                icon.classList.add('processo-link-icon'); // Usa a mesma classe que o ProcessoModal.js espera
-                icon.textContent = ' 🔗'; // Usa o mesmo ícone
-                icon.style.cursor = 'pointer';
-                icon.title = `Abrir processo ${cellData}`;
-                // A lógica de click agora é tratada pelo ProcessoModal.js através da classe 'processo-link-icon'
-                cell.appendChild(icon);
-
-                // Tentativa de manter compatibilidade: adicionar 🛍️ se data-x/y estiverem no tr ou dataRow
-                const modalidadeX = tr.getAttribute('data-x') || '';
-                const numeroY = tr.getAttribute('data-y') || '';
-                if (numeroY) {
-                    const comprasIcon = document.createElement('span');
-                    comprasIcon.className = 'comprasgov-link-icon';
-                    comprasIcon.textContent = ' 🛍️';
-                    comprasIcon.title = 'Abrir acompanhamento no Comprasnet';
-                    comprasIcon.style.cursor = 'pointer';
-                    comprasIcon.setAttribute('data-x', modalidadeX);
-                    comprasIcon.setAttribute('data-y', numeroY);
-                    cell.appendChild(comprasIcon);
-                }
-            }
+            cell.textContent = cellData;
         });
+
+        // Célula oculta 'Processo' após as visíveis
+        const processoNumero = (row[9] || '').toString().trim();
+        const hiddenCell = tr.insertCell();
+        hiddenCell.dataset.label = 'Processo';
+        hiddenCell.style.display = 'none';
+        hiddenCell.textContent = processoNumero || '*';
+        if (processoNumero) tr.setAttribute('data-processo-numero', processoNumero);
     });
 
     // Disparar eventos e funções pós-carga que estavam no final de fetchAndPopulate
