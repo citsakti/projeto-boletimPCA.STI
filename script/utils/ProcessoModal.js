@@ -127,15 +127,22 @@ class ProcessoModal {
     }
 
     openModal(processo = '', projectName = '') {
-        if (!this.modalOverlay || !this.modalIframe || !this.modalContent) {
+        if (!this.modalOverlay || !this.modalContent) {
             console.error("ProcessoModal: Elementos do modal não encontrados.");
             return;
         }
 
-    // Memoriza foco atual para restaurar ao fechar (mitiga deslocamento ao clicar no X)
-    try { this.lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null; } catch(_) { this.lastFocusedElement = null; }
-    // Guarda posição de scroll atual
-    this._scrollPos = { x: window.pageXOffset, y: window.pageYOffset };
+        // Sempre busca o iframe do DOM para garantir referência correta
+        this.modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
+        if (!this.modalIframe) {
+            console.error("ProcessoModal: Iframe do modal não encontrado no DOM.");
+            return;
+        }
+
+        // Memoriza foco atual para restaurar ao fechar (mitiga deslocamento ao clicar no X)
+        try { this.lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null; } catch(_) { this.lastFocusedElement = null; }
+        // Guarda posição de scroll atual
+        this._scrollPos = { x: window.pageXOffset, y: window.pageYOffset };
 
         // Monta a URL dinâmica (ATUALIZADO: novo padrão de acesso ao processo)
         // Novo formato requerido: https://www.tce.ce.gov.br/contexto/#/processo?search=NUMERO_DO_PROCESSO
@@ -146,14 +153,14 @@ class ProcessoModal {
             : BASE_PROCESSO_URL; // fallback sem parâmetro de busca quando não há número
 
         // Configura o iframe e abre o modal
-    this.modalIframe.src = url;
+        this.modalIframe.src = url;
         this.modalOverlay.style.display = 'flex';
-        
+
         // Animação de abertura
         this.modalContent.classList.remove('show');
         void this.modalContent.offsetWidth; // Força reflow
         this.modalContent.classList.add('show');
-        
+
         // Previne scroll da página de fundo
         document.body.style.overflow = 'hidden';
 
@@ -189,6 +196,9 @@ class ProcessoModal {
     closeModal() {
         if (!this.modalOverlay || !this.modalContent) return;
 
+        // Sempre busca o iframe do DOM para garantir referência correta
+        this.modalIframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
+
         // Animação de fechamento
         this.modalContent.classList.remove('show');
 
@@ -196,11 +206,11 @@ class ProcessoModal {
         if (this.lastFocusedElement && typeof this.lastFocusedElement.focus === 'function') {
             try { this.lastFocusedElement.focus({ preventScroll: true }); } catch(_) {}
         }
-        
+
         // Otimização: esconder o overlay imediatamente para melhor UX
         this.modalOverlay.style.opacity = '0';
         this.modalOverlay.style.pointerEvents = 'none';
-        
+
         setTimeout(() => {
             this.modalOverlay.style.display = 'none';
             // Restaurar propriedades para próxima abertura

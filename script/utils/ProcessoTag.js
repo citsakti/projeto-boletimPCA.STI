@@ -156,18 +156,41 @@
 
     // Reutiliza ProcessoModal.js abrindo o overlay legado
     // Estratégia: simular clique do antigo ícone, aproveitando a leitura do TD pela classe
+
     try{
       // Se existir API pública do modal, usar
       if (window.processoModalInstance && typeof window.processoModalInstance.openModal === 'function'){
-        // openModal espera (processo, projectName)
-        const tr = el.closest('tr');
-        // Tentar identificar nome do projeto
-        let projectName = '';
-        if (tr){
-          const celProjeto = tr.querySelector('td[data-label="Projeto de Aquisição"]') || tr.children[3];
-          if (celProjeto) projectName = (celProjeto.textContent||'').trim();
+        // Fecha o modal de processo se estiver aberto, para garantir limpeza total
+        if (typeof window.processoModalInstance.closeModal === 'function') {
+          window.processoModalInstance.closeModal();
         }
-        window.processoModalInstance.openModal(numero, projectName);
+        setTimeout(function() {
+          // Limpeza profunda do iframe: remove do DOM e insere novamente
+          var iframe = document.getElementById('processo-iframe-legacy') || document.getElementById('processo-iframe');
+          if (iframe) {
+            var parent = iframe.parentNode;
+            var isLegacy = iframe.id === 'processo-iframe-legacy';
+            parent.removeChild(iframe);
+            // Cria novo iframe limpo
+            var newIframe = document.createElement('iframe');
+            newIframe.id = iframe.id;
+            newIframe.className = iframe.className;
+            newIframe.name = iframe.name;
+            newIframe.style.cssText = iframe.style.cssText;
+            newIframe.setAttribute('frameborder', '0');
+            newIframe.setAttribute('allowfullscreen', '');
+            newIframe.src = 'about:blank';
+            parent.appendChild(newIframe);
+          }
+          // openModal espera (processo, projectName)
+          const tr = el.closest('tr');
+          let projectName = '';
+          if (tr){
+            const celProjeto = tr.querySelector('td[data-label="Projeto de Aquisição"]') || tr.children[3];
+            if (celProjeto) projectName = (celProjeto.textContent||'').trim();
+          }
+          window.processoModalInstance.openModal(numero, projectName);
+        }, 500); // tempo maior que o timeout de fechamento do modal
         return;
       }
     }catch(_){ }
