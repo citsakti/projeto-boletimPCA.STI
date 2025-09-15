@@ -278,7 +278,7 @@
   .pecas-produzidas { margin-top:10px; padding-top:8px; border-top:1px dashed #d1d5db; }
   .pecas-produzidas .pecas-title { font-size:11px; letter-spacing:.5px; font-weight:700; color:#374151; margin-bottom:4px; }
   .pecas-produzidas ul.lista-pecas { list-style: disc; padding-left:18px; margin:0; display:block; }
-  .pecas-produzidas ul.lista-pecas li { font-size:12px; margin-bottom:2px; color:#1f2937; }
+  .pecas-produzidas ul.lista-pecas li { font-size:12px; margin-bottom:8px; color:#1f2937; padding:6px 2px; }
   .pecas-produzidas ul.lista-pecas li span.doc-data { color:#4b5563; }
   .pecas-produzidas ul.lista-pecas li { display:flex; align-items:center; gap:6px; }
   .peca-doc-btn { border:1px solid #d2e3fc; background:#eef3f8; color:#1a73e8; width:24px; height:24px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; cursor:pointer; flex:0 0 auto; }
@@ -286,6 +286,13 @@
   .peca-doc-btn svg { width:16px; height:16px; display:block; }
   .pecas-produzidas ul.lista-pecas li.disabled-doc { opacity:.6; cursor:not-allowed; }
   .peca-doc-btn.disabled { opacity:.6; cursor:not-allowed; pointer-events:none; }
+  /* Conteúdo e assinaturas das peças */
+  .pecas-produzidas ul.lista-pecas li { align-items: flex-start; }
+  .peca-content { display:flex; flex-direction:column; gap:4px; flex:1 1 auto; min-width:0; }
+  .peca-sign { font-size:11px; color:#5f6368; line-height:1.25; margin-top:2px; }
+  .peca-sign .sig-title { font-weight:600; color:#3c4043; margin-right:6px; }
+  .peca-sign .sig-line { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .peca-sign .sig-empty { color:#9aa0a6; font-style:italic; }
   /* Viewer embutido */
   #historico-tramitacoes-overlay .modal-content.expanded { width:98vw !important; max-width:98vw !important; }
   .historico-layout { width:100%; height:100%; display:flex; }
@@ -330,6 +337,8 @@
     <path d="M1 6v-.5a.5.5 0 0 1 1 0V6h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V9h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 2.5v.5H.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H2v-.5a.5.5 0 0 0-1 0"/>
   </svg>`;
   const API_DOC_ARQUIVO = 'https://api-add.tce.ce.gov.br/arquivos/documento?documento_id=';
+  const API_DOC_ASSINATURAS = 'https://api-processos.tce.ce.gov.br/documento/assinaturas?documento_id=';
+  const cacheAssinaturasDoc = new Map();
 
   // ================= Cálculo de históricos =================
   function buildTimeline(raw) {
@@ -772,8 +781,11 @@
             const canOpen = (d.id!=null) && d.exibir !== false && d.exibir !== null && d.exibir !== undefined;
             const btn = (d.id!=null) ? `<button type=\"button\" class=\"peca-doc-btn${canOpen? '':' disabled'}\" ${canOpen? '' : 'aria-disabled=\"true\"'} data-doc-id=\"${escapeHtml(d.id)}\" title=\"${canOpen? 'Abrir PDF':'Documento indisponível'}\">${SVG_JOURNALS}</button>` : '';
             const liClass = canOpen ? '' : ' class=\"disabled-doc\"';
-      // Texto primeiro, botão à direita (margin-left:auto)
-      return `<li${liClass}><span>${tipo}${numero}${data}</span>${btn}</li>`;
+      // Conteúdo com texto + bloco de assinaturas; botão à direita
+      const signBlock = canOpen
+        ? `<div class=\"peca-sign\" data-doc-id=\"${escapeHtml(d.id)}\"><span class=\"sig-title\">Assinaturas</span><span class=\"sig-line\">Carregando...</span></div>`
+        : `<div class=\"peca-sign\"><span class=\"sig-title\">Assinaturas</span><span class=\"sig-line sig-empty\">Indisponível</span></div>`;
+      return `<li${liClass}><div class=\"peca-content\"><span>${tipo}${numero}${data}</span>${signBlock}</div>${btn}</li>`;
         }).join('')}</ul></div>` : '';
         item.innerHTML = `
           <div class="setor-pill">
@@ -816,6 +828,15 @@
           const id = btn.getAttribute('data-doc-id');
           openDocViewer(id);
         });
+      });
+      // Carregar assinaturas para cada peça exibível
+      body.querySelectorAll('.peca-sign[data-doc-id]').forEach(sign => {
+        const docId = sign.getAttribute('data-doc-id');
+        if (window._carregarAssinaturasPeca) {
+          window._carregarAssinaturasPeca(docId, sign).catch(()=>{
+            sign.innerHTML = `<span class="sig-title">Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
+          });
+        }
       });
       const closeBtn = document.getElementById('historico-tramitacoes-viewer-close');
       if (closeBtn && !closeBtn._histBound) {
@@ -1111,4 +1132,69 @@
     }
   }
   };
+})();
+
+// ===== Assinaturas por peça (fetch, cache e render) =====
+(function(){
+  if (window._historicoAssinaturasInit) return; // evitar redefinição
+  window._historicoAssinaturasInit = true;
+  // Se constantes/caches não existirem (módulo alterado), define aqui também
+  const API_ASS = typeof API_DOC_ASSINATURAS === 'string' ? API_DOC_ASSINATURAS : 'https://api-processos.tce.ce.gov.br/documento/assinaturas?documento_id=';
+  const cache = (typeof cacheAssinaturasDoc !== 'undefined' && cacheAssinaturasDoc instanceof Map) ? cacheAssinaturasDoc : (window._historicoCacheAss = (window._historicoCacheAss || new Map()));
+
+  async function fetchAssinaturasDocumento(documentoId) {
+    const key = String(documentoId || '');
+    if (!key) return [];
+    if (cache.has(key)) {
+      const cached = cache.get(key);
+      return Array.isArray(cached.assinaturas) ? cached.assinaturas : [];
+    }
+    try {
+      const resp = await fetch(API_ASS + encodeURIComponent(key), { method: 'GET', credentials: 'omit', cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      let assinaturas = [];
+      if (data && Array.isArray(data.assinaturas)) assinaturas = data.assinaturas;
+      else if (Array.isArray(data)) assinaturas = data;
+      cache.set(key, { assinaturas, fetchedAt: Date.now() });
+      return assinaturas;
+    } catch(_) {
+      cache.set(key, { assinaturas: [], fetchedAt: Date.now() });
+      return [];
+    }
+  }
+
+  function renderAssinaturasSign(container, assinaturas) {
+    if (!container) return;
+    const header = `<span class="sig-title">Assinaturas</span>`;
+    if (!assinaturas || assinaturas.length === 0) {
+      container.innerHTML = `${header}<span class="sig-line sig-empty">Sem assinaturas</span>`;
+      return;
+    }
+    const lines = assinaturas.map(a => {
+      const nome = a && a.nome ? String(a.nome) : '—';
+      const data = a && a.dataAssinatura ? String(a.dataAssinatura) : '';
+      return `<span class="sig-line" title="${nome} • ${data}">${nome} — ${data}</span>`;
+    }).join('');
+    container.innerHTML = `${header}${lines}`;
+  }
+
+  async function carregarAssinaturasPeca(documentoId, container) {
+    if (!documentoId || !container) return;
+    try {
+      if (cache.has(String(documentoId))) {
+        const cached = cache.get(String(documentoId));
+        renderAssinaturasSign(container, cached.assinaturas || []);
+        return;
+      }
+      container.innerHTML = `<span class="sig-title">Assinaturas</span><span class="sig-line">Carregando...</span>`;
+      const assinaturas = await fetchAssinaturasDocumento(documentoId);
+      renderAssinaturasSign(container, assinaturas);
+    } catch(_) {
+      container.innerHTML = `<span class="sig-title">Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
+    }
+  }
+
+  // Disponibiliza função no escopo do arquivo (usada acima no render)
+  window._carregarAssinaturasPeca = carregarAssinaturasPeca;
 })();
