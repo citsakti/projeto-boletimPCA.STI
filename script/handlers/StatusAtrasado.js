@@ -51,114 +51,162 @@ document.addEventListener('DOMContentLoaded', function() {
         'ETP ATRASADO❗',
         'ELABORANDO TR📝',
         'ANÁLISE DE VIABILIDADE 📝',
-        'EM CONTRATAÇÃO 🤝', // Novo
-        'EM RENOVAÇÃO 🔄'    // Novo
+        'EM CONTRATAÇÃO 🤝',
+        'EM RENOVAÇÃO 🔄'
     ];
 
-    // Configurar observer para detectar mudanças na tabela
-    const observer = new MutationObserver(function(mutations) {
-        setupTooltips();
+    // Observa mudanças no corpo da tabela para manter as tags atualizadas
+    const observer = new MutationObserver(function() {
+        renderStatusTags();
     });
 
-    // Configuração inicial do tooltip
-    const tooltip = document.createElement('div');
-    tooltip.className = 'status-tooltip';
-    document.body.appendChild(tooltip);
-
-    // Função para configurar os tooltips
-    function setupTooltips() {
-        // Selecionar todas as células da coluna "Status do Processo" (coluna 6, índice 5 na tabela HTML)
-        const statusCells = document.querySelectorAll('table tbody tr td:nth-child(6)');
-
-        statusCells.forEach(cell => {
-            // Verificar se contém algum dos status definidos
-            const foundStatus = statusList.find(status => cell.textContent.includes(status));
-            if (foundStatus) {
-                // Adicionar classe para marcação visual
-                cell.classList.add('status-atrasado');
-
-                // Remover event listeners antigos (para evitar duplicação)
-                cell.removeEventListener('mouseenter', handleMouseEnter);
-                cell.removeEventListener('mouseleave', handleMouseLeave);
-
-                // Adicionar novos event listeners
-                cell.addEventListener('mouseenter', handleMouseEnter);
-                cell.addEventListener('mouseleave', handleMouseLeave);
-            } else {
-                // Remove a classe e listeners se o status não for mais especial
-                cell.classList.remove('status-atrasado');
-                cell.removeEventListener('mouseenter', handleMouseEnter);
-                cell.removeEventListener('mouseleave', handleMouseLeave);
-            }
-        });
-    }
-
-    // Manipuladores de eventos separados (para poder removê-los facilmente)
-    function handleMouseEnter(event) {
-        const cell = this; // Esta é a célula <td> da coluna "Status do Processo"
-        let tooltipText = '';
-        const statusText = cell.textContent.trim();
+    // Calcula o texto detalhado (antes usado no tooltip) com base nos data-*
+    function getDetalheTexto(cell, statusText) {
+        let texto = '';
 
         if (statusText.includes('AUTUAÇÃO ATRASADA 💣')) {
             const detalhe = cell.dataset.detalheAutuacao;
-            tooltipText = detalhe ? detalhe : 'Autuação Atrasada (informação adicional não disponível)';
-        } 
+            texto = detalhe ? detalhe : 'Autuação Atrasada (informação adicional não disponível)';
+        }
         else if (statusText.includes('CONTRATAÇÃO ATRASADA ⚠️')) {
             const detalhe = cell.dataset.detalheContratacao;
-            tooltipText = detalhe ? detalhe : 'Contratação Atrasada (informação adicional não disponível)';
+            texto = detalhe ? detalhe : 'Contratação Atrasada (informação adicional não disponível)';
         }
-        // Trata os novos status 'EM CONTRATAÇÃO' e 'EM RENOVAÇÃO'
         else if (statusText.includes('EM CONTRATAÇÃO 🤝') || statusText.includes('EM RENOVAÇÃO 🔄')) {
-            const detalhe = cell.dataset.detalheContratacaoRenovacao; 
+            const detalhe = cell.dataset.detalheContratacaoRenovacao;
             if (detalhe) {
                 if (statusText.includes('EM RENOVAÇÃO 🔄')) {
                     if (/^\d+$/.test(detalhe)) {
-                        tooltipText = `Faltam ${detalhe} dias para o Vencimento da Renovação.`;
+                        texto = `${detalhe} dias para o Vencimento da Renovação.`;
                     } else {
-                        tooltipText = detalhe;
+                        texto = detalhe;
                     }
                 } else if (statusText.includes('EM CONTRATAÇÃO 🤝')) {
                     if (/^\d+$/.test(detalhe)) {
-                        tooltipText = `Faltam ${detalhe} dias para a Contratação.`;
+                        texto = `${detalhe} dias para a Contratação.`;
                     } else {
-                        tooltipText = detalhe;
+                        texto = detalhe;
                     }
                 }
             } else {
-                tooltipText = 'Informação adicional não disponível (detalheContratacaoRenovacao ausente).';
+                texto = 'Informação adicional não disponível (detalheContratacaoRenovacao ausente).';
             }
         }
-        // Para os outros status da lista (que usam coluna L), usar o data-detalhe-status-geral
-        else if (statusList.slice(2, 8).some(s => statusText.includes(s))) { 
-            const detalhe = cell.dataset.detalheStatusGeral; 
+        else if (statusList.slice(2, 8).some(s => statusText.includes(s))) {
+            const detalhe = cell.dataset.detalheStatusGeral;
             if (detalhe) {
                 if (/^\d+$/.test(detalhe)) {
-                    tooltipText = `Faltam ${detalhe} dias para a Autuação do Processo.`;
+                    texto = `${detalhe} dias para a Autuação do Processo.`;
                 } else {
-                    tooltipText = detalhe;
+                    texto = detalhe;
                 }
             } else {
-                tooltipText = 'Informação adicional não disponível (detalheStatusGeral ausente).';
+                texto = 'Informação adicional não disponível (detalheStatusGeral ausente).';
             }
         }
 
-        if (tooltipText) {
-            tooltip.textContent = tooltipText;
-            tooltip.style.opacity = '1';
-
-            const rect = cell.getBoundingClientRect();
-            const scrollTop = window.scrollY || document.documentElement.scrollTop;
-            const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-
-            tooltip.style.top = (rect.top + scrollTop - tooltip.offsetHeight - 10) + 'px';
-            tooltip.style.left = (rect.left + scrollLeft + (rect.width / 2) - (tooltip.offsetWidth / 2)) + 'px';
-        } else {
-            tooltip.style.opacity = '0';
-        }
+        return texto;
     }
 
-    function handleMouseLeave() {
-        tooltip.style.opacity = '0';
+    // Garante inserção idempotente da tag na célula (abaixo do conteúdo)
+    function applyTagToCell(cell, texto, highlightSpan) {
+        const oldContainer = cell.querySelector('.status-detalhe-container');
+
+        // Captura cores do highlight para aplicar na tag
+        let bg = '', fg = '';
+        if (highlightSpan && window.getComputedStyle) {
+            const cs = window.getComputedStyle(highlightSpan);
+            bg = cs && cs.backgroundColor || '';
+            fg = cs && cs.color || '';
+        }
+
+        // Se não há texto a exibir, remova o container (se existir) e encerre
+        if (!texto) {
+            if (oldContainer) oldContainer.remove();
+            return;
+        }
+
+        // Se já existir com o mesmo conteúdo, não faça nada (idempotente)
+        if (oldContainer) {
+            const oldTag = oldContainer.querySelector('.status-detalhe-tag');
+            if (oldTag && oldTag.textContent === texto) {
+                // Atualiza somente cores se necessário
+                if (bg) {
+                    oldTag.style.background = bg;
+                    oldTag.style.borderColor = bg;
+                }
+                if (fg) oldTag.style.color = fg;
+                return; // nada mais a atualizar
+            }
+            // Atualiza apenas o texto existente e as cores para evitar childList mutations
+            if (oldTag) {
+                oldTag.textContent = texto;
+                if (bg) {
+                    oldTag.style.background = bg;
+                    oldTag.style.borderColor = bg;
+                }
+                if (fg) oldTag.style.color = fg;
+                return;
+            }
+            // Se não houver a tag interna, remove para recriar corretamente
+            oldContainer.remove();
+        }
+
+        // Criar um span container para garantir quebra de linha e evitar duplicação
+        const container = document.createElement('span');
+        container.className = 'status-detalhe-container';
+        // Força a ficar abaixo do conteúdo sem alterar estilos do status original
+        container.style.display = 'block';
+        container.style.marginTop = '4px';
+
+        // Criar a tag azul reutilizando o estilo existente
+        const tag = document.createElement('span');
+        tag.className = 'tempo-acompanhamento-tag tempo-padrao status-detalhe-tag';
+        tag.textContent = texto;
+        // Aplica cores herdadas do highlight do status
+        if (bg) {
+            tag.style.background = bg;
+            tag.style.borderColor = bg;
+        }
+        if (fg) tag.style.color = fg;
+
+        container.appendChild(tag);
+        cell.appendChild(container);
+    }
+
+    // Renderiza as tags nas células de Status do Processo
+    function renderStatusTags() {
+        // Desconecta o observer durante a renderização para evitar loop por mutações próprias
+        const tbodyEl = document.querySelector('table tbody');
+        if (tbodyEl) observer.disconnect();
+
+        try {
+            const statusCells = document.querySelectorAll('table tbody tr td:nth-child(6)');
+
+            statusCells.forEach(cell => {
+                // Aguarda a aplicação de highlight pelo StatusClasses.js para não afetar o mapeamento
+                const highlightSpan = cell.querySelector('[class$="-highlight"]');
+                const statusText = (highlightSpan ? highlightSpan.textContent : cell.textContent).trim();
+                const foundStatus = statusList.find(status => statusText.includes(status));
+
+                if (foundStatus) {
+                    cell.classList.add('status-atrasado');
+                    // Só injeta a tag após o highlight existir, evitando quebrar o mapeamento de estilos
+                    if (highlightSpan) {
+                        const detalheTexto = getDetalheTexto(cell, statusText);
+                        applyTagToCell(cell, detalheTexto, highlightSpan);
+                    }
+                } else {
+                    cell.classList.remove('status-atrasado');
+                    // Remove qualquer tag previamente inserida se não for mais aplicável
+                    const oldContainer = cell.querySelector('.status-detalhe-container');
+                    if (oldContainer) oldContainer.remove();
+                }
+            });
+        } finally {
+            // Reativa a observação
+            if (tbodyEl) observer.observe(tbodyEl, { childList: true, subtree: true });
+        }
     }
 
     // Iniciar observação da tabela
@@ -167,11 +215,10 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(tbody, { childList: true, subtree: true });
     }
 
-    // Escutar o evento customizado 'tabela-carregada' disparado por main.js
+    // Reagir ao evento customizado de montagem da tabela
     document.addEventListener('tabela-carregada', () => {
-        setupTooltips();
+        renderStatusTags();
     });
 
-    // Chamada inicial para o caso de a tabela já estar populada no DOMContentLoaded (improvável com fetch)
-    setupTooltips(); 
+    // Sem render inicial para não interferir no mapeamento de estilos de StatusClasses.js
 });
