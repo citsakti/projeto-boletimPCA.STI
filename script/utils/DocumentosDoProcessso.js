@@ -15,10 +15,13 @@
 (function(){
   const API_POR_NUMERO = 'https://api-processos.tce.ce.gov.br/processos/porNumero';
   const API_DOC_ARQUIVO = 'https://api-add.tce.ce.gov.br/arquivos/documento?documento_id=';
-  const API_DOC_ASSINATURAS = 'https://api-add.tce.ce.gov.br/arquivos/documento?documento_id=';
+  // API de assinaturas (corrigida conforme especificação do usuário)
+  const API_DOC_ASSINATURAS = 'https://api-processos.tce.ce.gov.br/documento/assinaturas?documento_id=';
 
   // Cache de respostas por número de processo
   const cacheProcessoDocs = new Map(); // numero -> { raw, documentos: [], sigiloso: boolean }
+  // Cache de assinaturas por documento
+  const cacheAssinaturasDoc = new Map(); // documentoId -> { assinaturas: Array, fetchedAt: number }
 
   // Cache global compartilhado entre módulos (Acompanhamento e Documentos)
   function getSharedProcessCache() {
@@ -79,6 +82,11 @@
       .documentos-index .doc-main { display: grid; gap: 2px; min-width: 0; }
       .documentos-index .doc-title { font-size: 13px; font-weight: 600; color: #202124; overflow: hidden; text-overflow: ellipsis;; }
       .documentos-index .doc-sub { font-size: 12px; color: #19191aff; overflow: hidden; text-overflow: ellipsis; }
+      /* Assinaturas dentro do item do índice */
+      .documentos-index .doc-sign { margin-top: 4px; font-size: 11px; color: #5f6368; line-height: 1.25; }
+      .documentos-index .doc-sign .sig-title { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: #3c4043; }
+      .documentos-index .doc-sign .sig-line { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .documentos-index .doc-sign .sig-empty { color: #9aa0a6; font-style: italic; }
   /* .doc-actions removido temporariamente (sem ícones extras no índice) */
       .documentos-index .doc-item.disabled { opacity: .6; cursor: not-allowed; }
       .documento-viewer { overflow: auto; min-width: 0; min-height: 0; height: 100%; }
@@ -195,6 +203,17 @@
       main.appendChild(titulo);
       main.appendChild(sub);
 
+      // Bloco de assinaturas
+      const sign = document.createElement('div');
+      sign.className = 'doc-sign';
+      // Placeholder de carregamento somente para documentos exibíveis
+      if (canDisplay) {
+        sign.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line">Carregando...</span>`;
+      } else {
+        sign.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line sig-empty">Indisponível</span>`;
+      }
+      main.appendChild(sign);
+
   item.appendChild(main);
       indexEl.appendChild(item);
 
@@ -205,6 +224,16 @@
           item.classList.add('active');
           // Carrega PDF
           iframe.src = API_DOC_ARQUIVO + encodeURIComponent(doc.id);
+          // Dispara busca de assinaturas on-click, caso ainda não tenha sido carregada
+          if (!cacheAssinaturasDoc.has(String(doc.id))) {
+            carregarAssinaturasNoElemento(doc.id, sign).catch(()=>{
+              // falha silenciosa
+            });
+          }
+        });
+        // Busca assinaturas para o item assim que construído (carregamento inicial)
+        carregarAssinaturasNoElemento(doc.id, sign).catch(()=>{
+          sign.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
         });
       }
     });
@@ -221,6 +250,65 @@
 
     if (window.modalManager) window.modalManager.openModal('documentos-modal');
     else document.getElementById('documentos-modal-overlay').style.display = 'flex';
+  }
+
+  // ===== Assinaturas: fetch e render =====
+  async function fetchAssinaturasDocumento(documentoId) {
+    const key = String(documentoId || '');
+    if (!key) return [];
+    if (cacheAssinaturasDoc.has(key)) {
+      const cached = cacheAssinaturasDoc.get(key);
+      return cached && Array.isArray(cached.assinaturas) ? cached.assinaturas : [];
+    }
+    try {
+      const url = API_DOC_ASSINATURAS + encodeURIComponent(key);
+      const resp = await fetch(url, { method: 'GET', credentials: 'omit', cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      let assinaturas = [];
+      if (data && Array.isArray(data.assinaturas)) assinaturas = data.assinaturas;
+      else if (Array.isArray(data)) assinaturas = data; // fallback caso API retorne array direto
+      cacheAssinaturasDoc.set(key, { assinaturas, fetchedAt: Date.now() });
+      return assinaturas;
+    } catch (e) {
+      cacheAssinaturasDoc.set(key, { assinaturas: [], fetchedAt: Date.now() });
+      return [];
+    }
+  }
+
+  function renderAssinaturas(signContainer, assinaturas) {
+    if (!signContainer) return;
+    // Cabeçalho
+    const header = `<span class="sig-title">${SVG_PEN} Assinaturas</span>`;
+    if (!assinaturas || assinaturas.length === 0) {
+      signContainer.innerHTML = `${header}<span class="sig-line sig-empty">Sem assinaturas</span>`;
+      return;
+    }
+    // Renderizar cada assinatura: "Nome — dataAssinatura"
+    const lines = assinaturas.map(a => {
+      const nome = a && a.nome ? String(a.nome) : '—';
+      const data = a && a.dataAssinatura ? String(a.dataAssinatura) : '';
+      return `<span class="sig-line" title="${nome} • ${data}">${nome} — ${data}</span>`;
+    }).join('');
+    signContainer.innerHTML = `${header}${lines}`;
+  }
+
+  async function carregarAssinaturasNoElemento(documentoId, signContainer) {
+    if (!documentoId || !signContainer) return;
+    try {
+      // Evitar refetch se já carregado com sucesso
+      if (cacheAssinaturasDoc.has(String(documentoId))) {
+        const cached = cacheAssinaturasDoc.get(String(documentoId));
+        renderAssinaturas(signContainer, cached.assinaturas || []);
+        return;
+      }
+      // Placeholder de carregamento
+      signContainer.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line">Carregando...</span>`;
+      const assinaturas = await fetchAssinaturasDocumento(documentoId);
+      renderAssinaturas(signContainer, assinaturas);
+    } catch (_) {
+      signContainer.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
+    }
   }
 
   // ===== Fetch =====
