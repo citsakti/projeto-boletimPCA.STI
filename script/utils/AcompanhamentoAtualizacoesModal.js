@@ -28,12 +28,16 @@
         const ths = Array.from(table.querySelectorAll('thead th'));
         const idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
         if (idxProjeto >= 0 && tr.children[idxProjeto]) {
-          projectName = tr.children[idxProjeto].textContent.trim();
+          projectName = window.extractCellTextWithSeparator ? 
+            window.extractCellTextWithSeparator(tr.children[idxProjeto]) : 
+            tr.children[idxProjeto].textContent.trim();
         }
       }
       if (!projectName) {
         const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset && c.dataset.label) || ''));
-        if (candidato) projectName = candidato.textContent.trim();
+        if (candidato) projectName = window.extractCellTextWithSeparator ? 
+          window.extractCellTextWithSeparator(candidato) : 
+          candidato.textContent.trim();
       }
     } catch(_) {}
     return projectName;

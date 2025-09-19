@@ -220,5 +220,26 @@
         `;
         document.head.appendChild(style);
     });
+
+    // Função utilitária global para extrair texto de células separando spans por "|"
+    window.extractCellTextWithSeparator = function(cell, separator = ' | ') {
+        if (!cell) return '';
+        
+        // Verifica se a célula tem spans filhos
+        const spans = cell.querySelectorAll('span');
+        if (spans.length > 0) {
+            // Extrai texto de cada span e junta com o separador
+            const spanTexts = Array.from(spans)
+                .map(span => span.textContent.trim())
+                .filter(text => text.length > 0);
+            
+            if (spanTexts.length > 0) {
+                return spanTexts.join(separator);
+            }
+        }
+        
+        // Fallback para textContent normal se não houver spans
+        return cell.textContent.trim();
+    };
     
 })();

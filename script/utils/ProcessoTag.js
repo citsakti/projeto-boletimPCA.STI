@@ -187,7 +187,9 @@
           let projectName = '';
           if (tr){
             const celProjeto = tr.querySelector('td[data-label="Projeto de Aquisição"]') || tr.children[3];
-            if (celProjeto) projectName = (celProjeto.textContent||'').trim();
+            if (celProjeto) projectName = window.extractCellTextWithSeparator ? 
+              window.extractCellTextWithSeparator(celProjeto) : 
+              (celProjeto.textContent||'').trim();
           }
           window.processoModalInstance.openModal(numero, projectName);
         }, 500); // tempo maior que o timeout de fechamento do modal

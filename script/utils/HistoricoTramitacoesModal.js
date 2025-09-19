@@ -947,19 +947,27 @@
             idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
             idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
             if (idxProjeto >= 0 && tr.children[idxProjeto]) {
-              projectName = tr.children[idxProjeto].textContent.trim();
+              projectName = window.extractCellTextWithSeparator ? 
+                window.extractCellTextWithSeparator(tr.children[idxProjeto]) : 
+                tr.children[idxProjeto].textContent.trim();
             }
             if (idxId >= 0 && tr.children[idxId]) {
-              idPca = tr.children[idxId].textContent.trim();
+              idPca = window.extractCellTextWithSeparator ? 
+                window.extractCellTextWithSeparator(tr.children[idxId]) : 
+                tr.children[idxId].textContent.trim();
             }
           }
           if (!projectName) {
             const cand = Array.from(tr.children).find(c => /projeto/i.test((c.dataset && c.dataset.label) || ''));
-            if (cand) projectName = cand.textContent.trim();
+            if (cand) projectName = window.extractCellTextWithSeparator ? 
+              window.extractCellTextWithSeparator(cand) : 
+              cand.textContent.trim();
           }
           if (!idPca) {
             const cand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset && c.dataset.label) || ''));
-            if (cand) idPca = cand.textContent.trim();
+            if (cand) idPca = window.extractCellTextWithSeparator ? 
+              window.extractCellTextWithSeparator(cand) : 
+              cand.textContent.trim();
           }
         } catch(_) { /* ignore */ }
         openHistoricoModal(numero, raw || {}, { idPca, projectName });

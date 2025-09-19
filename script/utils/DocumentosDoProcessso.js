@@ -530,20 +530,28 @@
         const ths = Array.from(table.querySelectorAll('thead th'));
         const idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
         if (idxProjeto >= 0 && tr.children[idxProjeto]) {
-          projectName = tr.children[idxProjeto].textContent.trim();
+          projectName = window.extractCellTextWithSeparator ? 
+            window.extractCellTextWithSeparator(tr.children[idxProjeto]) : 
+            tr.children[idxProjeto].textContent.trim();
         }
         const idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
         if (idxId >= 0 && tr.children[idxId]) {
-          idPca = tr.children[idxId].textContent.trim();
+          idPca = window.extractCellTextWithSeparator ? 
+            window.extractCellTextWithSeparator(tr.children[idxId]) : 
+            tr.children[idxId].textContent.trim();
         }
       }
       if (!projectName) {
         const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
-        if (candidato) projectName = candidato.textContent.trim();
+        if (candidato) projectName = window.extractCellTextWithSeparator ? 
+          window.extractCellTextWithSeparator(candidato) : 
+          candidato.textContent.trim();
       }
       if (!idPca) {
         const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset.label||'')));
-        if (idCand) idPca = idCand.textContent.trim();
+        if (idCand) idPca = window.extractCellTextWithSeparator ? 
+          window.extractCellTextWithSeparator(idCand) : 
+          idCand.textContent.trim();
       }
     } catch(_) { /* ignore */ }
     return { projectName, idPca };
