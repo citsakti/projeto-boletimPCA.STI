@@ -195,7 +195,15 @@
     const raw = normalizeText(cell);
     const n = parseNumeric(raw);
     if(n === null) return; // mantém como está
-    cell.textContent = formatBRL(n);
+    const formatted = formatBRL(n);
+    // Se já existe span padronizado, apenas atualiza
+    const existing = cell.querySelector('.cell-content');
+    if (existing) {
+      existing.textContent = formatted;
+    } else {
+      // Caso tenha sido criada antes sem span, padroniza agora
+      cell.innerHTML = '<span class="cell-content col-valor-pca">'+formatted+'</span>';
+    }
     cell.dataset.currencyFormatted = '1';
   }
 

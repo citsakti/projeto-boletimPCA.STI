@@ -90,6 +90,8 @@ function fetchAndPopulate() {
                         const numeroRegistro = row[22];
                         if (numeroContrato) td.setAttribute('data-contrato', numeroContrato.trim());
                         if (numeroRegistro) td.setAttribute('data-registro', numeroRegistro.trim());
+                        // Guardar valor cru para usos futuros
+                        td.dataset.rawValue = (value || '').trim();
                     }
                     if (colIndex === 7) td.setAttribute('data-valor-original', value);
                     // Coluna 4 agora é "Acompanhamento"; limpar valor CSV (coluna K) e guardar original para referência
@@ -100,7 +102,12 @@ function fetchAndPopulate() {
                     else if (colIndex === 8 && value === '') value = '<Não Orçado>';
                     else if (colIndex === 5) {
                         const statusProcessoTexto = row[6];
-                        td.textContent = statusProcessoTexto;
+                        // Status do Processo sempre em span
+                        td.innerHTML = '';
+                        const spanStatus = document.createElement('span');
+                        spanStatus.className = 'cell-content status-processo';
+                        spanStatus.textContent = statusProcessoTexto;
+                        td.appendChild(spanStatus);
                         if (statusProcessoTexto.includes('AUTUAÇÃO ATRASADA 💣')) {
                             const detalheAutuacao = row[11];
                             if (detalheAutuacao) td.dataset.detalheAutuacao = detalheAutuacao;
@@ -122,7 +129,19 @@ function fetchAndPopulate() {
                         tr.appendChild(td);
                         return;
                     }
-                    td.textContent = value;
+                    // Todas as demais colunas visíveis em span para padronização
+                    if (td.children.length === 0) {
+                        td.innerHTML = '';
+                        const span = document.createElement('span');
+                        // Classes utilitárias: nome genérico + nome da coluna em slug
+                        const slug = td.dataset.label.toLowerCase()
+                            .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // remove acentos
+                            .replace(/[^a-z0-9]+/g,'-')
+                            .replace(/(^-|-$)/g,'');
+                        span.className = 'cell-content col-' + slug + (td.dataset.label === 'Projeto de Aquisição' ? ' proj-aquisicao' : '');
+                        span.textContent = value;
+                        td.appendChild(span);
+                    }
                     tr.appendChild(td);
                 });
 
@@ -317,20 +336,29 @@ function populateTableDOMWithData(processedDataRows) {
 
     processedDataRows.forEach(row => { // row aqui deve ser um array de valores na ordem correta
         const tr = tbody.insertRow();
-    headers.forEach((headerText, index) => {
+        headers.forEach((headerText, index) => {
             const cell = tr.insertCell();
+            cell.dataset.label = headerText;
             let cellData = row[index] !== undefined && row[index] !== null ? row[index] : '';
-            
-            // Aplica a mesma lógica de formatação e manipulação de 'value' e 'td'
-            // que existe dentro do loop de fetchAndPopulate em main.js
-            if (headerText === "Status Início") {
-                // cellData = formatStatusInicio(cellData); // Supondo que você tenha essa função
-            } else if (headerText === "Contratar Até") {
-                // cellData = formatContratarAte(cellData); // Supondo que você tenha essa função
-            }
-            // Adicione mais formatações conforme necessário
 
-            cell.textContent = cellData;
+            // Formatações específicas (replicar se necessário)
+            if (headerText === 'Contratar Até') {
+                try { cellData = formatContratarAte ? formatContratarAte(cellData) : cellData; } catch(_){ }
+            }
+            if (headerText === 'Orçamento' && cellData === '') {
+                cellData = '<Não Orçado>';
+            }
+
+            // Cria span padronizado
+            const span = document.createElement('span');
+            const slug = headerText.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+                .replace(/[^a-z0-9]+/g,'-')
+                .replace(/(^-|-$)/g,'');
+            span.className = 'cell-content col-' + slug + (headerText === 'Projeto de Aquisição' ? ' proj-aquisicao' : '');
+            span.textContent = cellData;
+            cell.innerHTML = '';
+            cell.appendChild(span);
         });
 
         // Célula oculta 'Processo' após as visíveis
