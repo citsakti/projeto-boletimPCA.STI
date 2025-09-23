@@ -549,6 +549,19 @@
       } catch(_) { /* silencioso */ }
     } catch(_) { /* silencioso */ }
 
+    // Ordenar documentos de cada stint do mais recente para o mais antigo
+    try {
+      stints.forEach(s => {
+        if (Array.isArray(s.docs)) {
+          s.docs.sort((a,b) => {
+            const ad = a && a.data instanceof Date ? a.data.getTime() : 0;
+            const bd = b && b.data instanceof Date ? b.data.getTime() : 0;
+            return bd - ad; // desc
+          });
+        }
+      });
+    } catch(_) { /* silencioso */ }
+
     const totals = Array.from(totalsMap.values()).sort((a,b)=> b.totalDias - a.totalDias || a.setor.localeCompare(b.setor));
     return { stints, totals };
   }
@@ -791,8 +804,8 @@
           <div class="setor-pill">
             <div>
               <div class="setor-nome">${setorTitulo}</div>
-              <div class="timeline-dates">Entrada: ${dtIni}</div>
               <div class="timeline-dates">Saída: ${dtFim}</div>
+              <div class="timeline-dates">Entrada: ${dtIni}</div>
               ${acaoSaida ? `<div class=\"timeline-dates\">${(isParecerEmitido || hasParecerJuridico) ? `<span class=\"acao-tag acao-verde\"><strong>${acaoSaida}</strong></span>` : `<strong>${acaoSaida}</strong>`}</div>` : ''}
             </div>
             <div>${tempoTagHtml}</div>

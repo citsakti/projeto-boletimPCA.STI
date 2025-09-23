@@ -1,10 +1,10 @@
-/* =======================
+﻿/* =======================
    ANALYTICS.CSS - BOOTSTRAP PATTERN
    ======================= */
-/* Página de Analytics seguindo o padrão Bootstrap do projeto */
+/* PÃ¡gina de Analytics seguindo o padrÃ£o Bootstrap do projeto */
 
 /* =======================
-   SEÇÃO: Analytics Section - Bootstrap Cards
+   SEÃ‡ÃƒO: Analytics Section - Bootstrap Cards
    ======================= */
 .analytics-section {
     margin-bottom: 2rem;
@@ -30,7 +30,7 @@
 }
 
 /* =======================
-   SEÇÃO: Analytics Subsection
+   SEÃ‡ÃƒO: Analytics Subsection
    ======================= */
 .analytics-subsection {
     margin-bottom: 1.5rem;
@@ -48,7 +48,7 @@
 }
 
 /* =======================
-   SEÇÃO: Status Grid - Usando Bootstrap Grid
+   SEÃ‡ÃƒO: Status Grid - Usando Bootstrap Grid
    ======================= */
 .status-grid {
     display: grid;
@@ -90,7 +90,7 @@
 }
 
 /* =======================
-   SEÇÃO: Tipo Grid
+   SEÃ‡ÃƒO: Tipo Grid
    ======================= */
 .tipo-grid {
     display: grid;
@@ -133,7 +133,7 @@
 }
 
 /* =======================
-   SEÇÃO: Details Containers - Bootstrap Pattern
+   SEÃ‡ÃƒO: Details Containers - Bootstrap Pattern
    ======================= */
 .status-details-row,
 .tipo-details-row {
@@ -154,7 +154,7 @@
 }
 
 /* =======================
-   SEÇÃO: Botões - Bootstrap Pattern
+   SEÃ‡ÃƒO: BotÃµes - Bootstrap Pattern
    ======================= */
 .status-expand-btn,
 .tipo-expand-btn,
@@ -212,7 +212,7 @@
 }
 
 /* =======================
-   SEÇÃO: Tabelas - Bootstrap Pattern
+   SEÃ‡ÃƒO: Tabelas - Bootstrap Pattern
    ======================= */
 .valor-table,
 .situacional-table {
@@ -220,7 +220,7 @@
     margin-top: 1rem;
 }
 
-/* Customizações específicas mantendo Bootstrap */
+/* CustomizaÃ§Ãµes especÃ­ficas mantendo Bootstrap */
 .valor-area-table .analytics-table td:nth-child(4) {
     font-weight: normal !important;
 }
@@ -230,7 +230,52 @@
 }
 
 /* =======================
-   SEÇÃO: Area Projects
+   SEÇÃO: Tabelas - Estilos base independentes do index
+   ======================= */
+.project-details-table,
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: #fff;
+    font-size: 0.95rem;
+}
+
+.project-details-table thead th,
+.analytics-table thead th {
+    background-color: var(--brand-primary);
+    color: #fff;
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+}
+
+.project-details-table tbody td,
+.analytics-table tbody td {
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid rgba(44, 65, 122, 0.15);
+    vertical-align: middle;
+}
+
+/* Zebra striping e hover similares ao Bootstrap */
+.project-details-table tbody tr:nth-child(odd),
+.analytics-table tbody tr:nth-child(odd) {
+    background-color: rgba(44, 65, 122, 0.02);
+}
+
+.project-details-table tbody tr:hover,
+.analytics-table tbody tr:hover {
+    background-color: rgba(44, 65, 122, 0.06);
+}
+
+/* Bordas arredondadas visuais no conjunto (quando contido em cartões) */
+.project-details-table,
+.analytics-table {
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* =======================
+   SEÃ‡ÃƒO: Area Projects
    ======================= */
 .area-projects-grid {
     display: flex;
@@ -282,7 +327,7 @@
 }
 
 /* =======================
-   SEÇÃO: Produtividade
+   SEÃ‡ÃƒO: Produtividade
    ======================= */
 .produtividade-box {
     background-color: var(--brand-neutral-light);
@@ -339,7 +384,7 @@
 }
 
 /* =======================
-   SEÇÃO: Responsividade Mobile
+   SEÃ‡ÃƒO: Responsividade Mobile
    ======================= */
 @media (max-width: 768px) {
     .tipo-grid {
@@ -385,7 +430,7 @@
 }
 
 /* =======================
-   SEÇÃO: Animações
+   SEÃ‡ÃƒO: AnimaÃ§Ãµes
    ======================= */
 @keyframes slideInDetails {
     from {
@@ -404,7 +449,7 @@
 }
 
 /* =======================
-   SEÇÃO: Utilities
+   SEÃ‡ÃƒO: Utilities
    ======================= */
 .expandable-row {
     cursor: default;
@@ -423,7 +468,8 @@
     white-space: nowrap !important;
 }
 
-/* Remove animação de piscar em analytics */
+/* Remove animaÃ§Ã£o de piscar em analytics */
 .status-contratacao-atrasada-highlight {
     animation: none !important;
 }
+

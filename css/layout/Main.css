@@ -218,24 +218,22 @@ table td:nth-child(6) {
     max-width: none !important;
 }
 
-/* Coluna 1 (ID PCA) - largura conforme conteúdo, sem quebra e centralizada */
+/* Coluna 1 (ID PCA) - largura conforme conteúdo, sem quebra */
 table th:nth-child(1),
 table td:nth-child(1) {
     white-space: nowrap !important; /* Impede quebra */
     width: 1%; /* Permite encolher ao mínimo necessário */
     min-width: max-content; /* Garante espaço suficiente para o conteúdo */
     max-width: max-content; /* Evita expandir além do conteúdo */
-    text-align: center !important; /* Centraliza texto */
     vertical-align: middle; /* Alinha verticalmente */
     padding-left: 8px;
     padding-right: 8px;
 }
 
-/* Garante centralização e nowrap também para elementos internos na coluna ID PCA */
-table td:nth-child(1) *,
-table th:nth-child(1) * {
-    white-space: nowrap !important;
-    text-align: center !important;
+/* Aplicar centralização APENAS no index.html (seção #detalhes) */
+#detalhes table th:nth-child(1),
+#detalhes table td:nth-child(1) {
+    text-align: center !important; /* Centraliza texto apenas no index */
 }
 
 /* Adicionado para a coluna "Valor PCA" (8ª coluna) */
