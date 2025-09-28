@@ -184,6 +184,107 @@
     } catch(_) { return null; }
   }
 
+  function normalizeDateKey(value) {
+    if (!value) return '';
+    const str = String(value);
+    const match = str.match(/(\d{2}\/\d{2}\/\d{4})/);
+    if (!match) return '';
+    const [d, m, y] = match[1].split('/');
+    return `${y}-${m}-${d}`;
+  }
+
+  function sameDayDates(dateA, dateB) {
+    if (!(dateA instanceof Date) || !(dateB instanceof Date)) return false;
+    return dateA.getFullYear() === dateB.getFullYear() &&
+      dateA.getMonth() === dateB.getMonth() &&
+      dateA.getDate() === dateB.getDate();
+  }
+
+  function computeAssinaturaInfo(assinaturas) {
+    const arr = Array.isArray(assinaturas) ? assinaturas : [];
+    const parsed = arr
+      .map(a => {
+        const raw = a && (a.dataAssinatura || a.data || a.dataAssinaturaStr || a.data_assinatura);
+        return parseDateBR(raw);
+      })
+      .filter(d => d instanceof Date && !isNaN(d.getTime()))
+      .sort((a,b)=> a - b);
+    if (!parsed.length) {
+      return { assinaturas: arr, earliest: null, latest: null };
+    }
+    return { assinaturas: arr, earliest: parsed[0], latest: parsed[parsed.length - 1] };
+  }
+
+  async function fetchDocAssinaturasInfo(docId) {
+    const key = String(docId || '');
+    if (!key || key === '0') return { assinaturas: [], earliest: null, latest: null };
+    if (cacheAssinaturasDoc.has(key)) {
+      const cached = cacheAssinaturasDoc.get(key);
+      return computeAssinaturaInfo(cached && cached.assinaturas);
+    }
+    if (pendingAssinaturasFetch.has(key)) {
+      return pendingAssinaturasFetch.get(key);
+    }
+    const promise = (async () => {
+      try {
+        const resp = await fetch(API_DOC_ASSINATURAS + encodeURIComponent(key), {
+          method: 'GET',
+          credentials: 'omit',
+          cache: 'no-store'
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        let assinaturas = [];
+        if (data && Array.isArray(data.assinaturas)) assinaturas = data.assinaturas;
+        else if (Array.isArray(data)) assinaturas = data;
+        cacheAssinaturasDoc.set(key, { assinaturas, fetchedAt: Date.now() });
+        return computeAssinaturaInfo(assinaturas);
+      } catch(_) {
+        cacheAssinaturasDoc.set(key, { assinaturas: [], fetchedAt: Date.now() });
+        return { assinaturas: [], earliest: null, latest: null };
+      } finally {
+        pendingAssinaturasFetch.delete(key);
+      }
+    })();
+    pendingAssinaturasFetch.set(key, promise);
+    return promise;
+  }
+
+  async function buildDocSignatureMap(raw) {
+    const map = new Map();
+    if (!raw || !Array.isArray(raw.tramites)) return map;
+    const dateCounts = new Map();
+    raw.tramites.forEach(t => {
+      const key = normalizeDateKey(t && t.data);
+      if (!key) return;
+      dateCounts.set(key, (dateCounts.get(key) || 0) + 1);
+    });
+    const relevantDates = new Set();
+    dateCounts.forEach((count, key) => { if (count > 1) relevantDates.add(key); });
+    if (!relevantDates.size) return map;
+    const docs = raw.documentos && Array.isArray(raw.documentos.documentosPrincipal) ? raw.documentos.documentosPrincipal : [];
+    const promises = [];
+    docs.forEach(doc => {
+      const keyDate = normalizeDateKey(doc && doc.dataFinalizacao);
+      if (!keyDate || !relevantDates.has(keyDate)) return;
+      const docId = (doc && (doc.id || doc.id === 0)) ? doc.id : null;
+      if (docId == null || docId === 0) return;
+      const key = String(docId);
+      if (map.has(key)) return;
+      promises.push(
+        fetchDocAssinaturasInfo(key).then(info => {
+          map.set(key, info || { assinaturas: [], earliest: null, latest: null });
+        }).catch(()=>{
+          map.set(key, { assinaturas: [], earliest: null, latest: null });
+        })
+      );
+    });
+    if (promises.length) {
+      try { await Promise.all(promises); } catch(_) { /* ignore */ }
+    }
+    return map;
+  }
+
   function diffDias(a, b) {
     // diferença inteira em dias entre duas datas (b - a), arredondando para baixo
     if (!(a instanceof Date) || !(b instanceof Date)) return null;
@@ -322,10 +423,10 @@
   .historico-layout.dragging, .historico-resizer.dragging { user-select:none; }
   .historico-layout.dragging #historico-tramitacoes-iframe { pointer-events:none !important; }
   /* Destaque da autuação (independente da posição de data) */
-  .historico-item.autuacao-highlight { border-left:4px solid var(--brand-primary); background:linear-gradient(135deg,#f0f7ff 0%, #ffffff 70%); }
+  .historico-item.autuacao-highlight { border-left:4px solid var(--brand-primary); background:linear-gradient(135deg,#c7ddff 0%, #e3efff 70%); }
   .historico-item.autuacao-highlight .setor-nome::after { content:' (Início)'; font-weight:400; color:#2563eb; }
   /* Destaque de PARECER EMITIDO */
-  .historico-item.parecer-highlight { border-left:4px solid #2e7d32; background:linear-gradient(135deg,#e8f5e9 0%, #ffffff 70%); }
+  .historico-item.parecer-highlight { border-left:4px solid #2e7d32; background:linear-gradient(135deg,#cbead2 0%, #e6f5ec 70%); }
   /* Estilo para a seção de informações do processo */
   .processo-info .historico-item { background: #f8f9fa; border-color: #dee2e6; }
   .processo-info .setor-nome { color: #495057; font-weight: 600; }
@@ -349,10 +450,12 @@
   const API_DOC_ARQUIVO = 'https://api-add.tce.ce.gov.br/arquivos/documento?documento_id=';
   const API_DOC_ASSINATURAS = 'https://api-processos.tce.ce.gov.br/documento/assinaturas?documento_id=';
   const cacheAssinaturasDoc = new Map();
+  const pendingAssinaturasFetch = new Map();
 
   // ================= Cálculo de históricos =================
-  function buildTimeline(raw) {
-    const tram = Array.isArray(raw && raw.tramites) ? raw.tramites.slice() : [];
+  function buildTimeline(raw, options = {}) {
+  const tram = Array.isArray(raw && raw.tramites) ? raw.tramites.slice() : [];
+  const docSignatureMap = (options && options.docSignatures instanceof Map) ? options.docSignatures : null;
     // Normalizar eventos com data e destino
     const eventos = tram
       .map(t => ({
@@ -457,7 +560,8 @@
   nextAcao: prox && prox.acao ? (prox.acao || '') : '', // mantido para retrocompatibilidade, mas não usado na exibição principal
     ateAgora: !prox,
         _synthetic: ev._synthetic || null,
-        docs: [] // será preenchido posteriormente
+        docs: [], // será preenchido posteriormente
+        ordemCronologica: i
       });
     }
     // ================= Cálculo de acaoSaida =================
@@ -488,56 +592,151 @@
     // ================= Vincular documentos aos períodos =================
     try {
       const docsRaw = (raw && raw.documentos && Array.isArray(raw.documentos.documentosPrincipal)) ? raw.documentos.documentosPrincipal : [];
-      const docsNorm = docsRaw.map(d => ({
-        raw: d,
-  id: (d && (d.id || d.id === 0)) ? d.id : null,
-        tipo: d && d.tipoAtoDocumento ? (d.tipoAtoDocumento.descricao || '') : '',
-        numero: (d && (d.numero || d.numero === 0)) ? d.numero : null,
-        ano: (d && (d.ano || d.ano === 0)) ? d.ano : null,
-        dataStr: d && d.dataFinalizacao,
-        data: parseDateBR(d && d.dataFinalizacao),
-        setorId: d && d.setor ? (d.setor.id ?? null) : null,
+      const docsNorm = docsRaw.map(d => {
+        const docId = (d && (d.id || d.id === 0)) ? d.id : null;
+        const docIdStr = docId != null ? String(docId) : null;
+        const baseDate = parseDateBR(d && d.dataFinalizacao);
+        let signatureInfo = null;
+        if (docIdStr && docIdStr !== '0' && docSignatureMap && docSignatureMap.has(docIdStr)) {
+          signatureInfo = docSignatureMap.get(docIdStr);
+        } else if (Array.isArray(d && d.assinaturas) && d.assinaturas.length) {
+          signatureInfo = computeAssinaturaInfo(d.assinaturas);
+        }
+        const assinaturaLatest = signatureInfo && signatureInfo.latest instanceof Date ? signatureInfo.latest : null;
+        const assinaturaEarliest = signatureInfo && signatureInfo.earliest instanceof Date ? signatureInfo.earliest : null;
+        const dataFull = assinaturaLatest || baseDate;
+        return {
+          raw: d,
+  id: docId,
+          docIdStr,
+          tipo: d && d.tipoAtoDocumento ? (d.tipoAtoDocumento.descricao || '') : '',
+          numero: (d && (d.numero || d.numero === 0)) ? d.numero : null,
+          ano: (d && (d.ano || d.ano === 0)) ? d.ano : null,
+          dataStr: d && d.dataFinalizacao,
+          data: baseDate,
+          dataFull,
+          assinaturaEarliest,
+          assinaturaLatest,
+          setorId: d && d.setor ? (d.setor.id ?? null) : null,
   setor: d && d.setor ? (d.setor.descricao || '') : '',
   exibir: d && d.exibirDocumento !== false
-      })).filter(d => d.data instanceof Date);
-      docsNorm.sort((a,b)=> a.data - b.data);
-      stints.forEach((s, idx) => {
-        const inicio = s.inicio;
-        const fim = s.fim; // data do próximo evento (ou agora)
-        const prox = stints[idx+1] || null;
-        s.docs = docsNorm.filter(d => {
-          if (!(d.data instanceof Date)) return false;
-          // Identificadores de data simples (ignorando hora, pois não recebemos hora na maior parte dos casos)
-          const dY = d.data.getFullYear(), dM = d.data.getMonth(), dD = d.data.getDate();
-          const iY = inicio.getFullYear(), iM = inicio.getMonth(), iD = inicio.getDate();
-          const fY = fim.getFullYear(), fM = fim.getMonth(), fD = fim.getDate();
-          const mesmaDataInicio = (dY===iY && dM===iM && dD===iD);
-          const mesmaDataFim = (dY===fY && dM===fM && dD===fD);
+        };
+      }).filter(d => d && d.dataFull instanceof Date);
+      docsNorm.sort((a,b)=>{
+        const at = a.dataFull ? a.dataFull.getTime() : (a.data ? a.data.getTime() : 0);
+        const bt = b.dataFull ? b.dataFull.getTime() : (b.data ? b.data.getTime() : 0);
+        return at - bt;
+      });
+      const docAssignments = Array.from({ length: stints.length }, () => []);
 
-          let matchIntervalo;
-          if (s.ateAgora) {
-            // Último: inclusivo no início e na "data atual" (fim artificial)
-            matchIntervalo = d.data >= inicio && d.data <= fim;
-          } else if (s.dias === 0) {
-            // Permanência de "No mesmo dia": se documento no mesmo dia da permanência
-            // e (quando possível) setor compatível
-            matchIntervalo = mesmaDataInicio; // mesmaDataInicio == mesmaDataFim nesse caso
-          } else {
-            // Permanência com mais de um dia: início inclusivo, fim exclusivo
-            matchIntervalo = (d.data >= inicio && d.data < fim);
-            // EXCEÇÃO: documento exatamente no dia da saída (mesmaDataFim) mas setor ainda é o do stint e
-            // o próximo setor é diferente -> atribuir ao período atual (documento produzido na transição)
-            if (!matchIntervalo && mesmaDataFim) {
-              const proximoSetorId = prox ? prox.setorId : null;
-              if (s.setorId != null && d.setorId === s.setorId && s.setorId !== proximoSetorId) {
-                matchIntervalo = true;
-              }
+      const matchPriority = { interval: 0, mesmaDataFim: 1, mesmaDataInicio: 2, ateAgora: 3 };
+
+      const getDocTime = (doc) => {
+        if (doc && doc.dataFull instanceof Date) return doc.dataFull;
+        if (doc && doc.data instanceof Date) return doc.data;
+        return null;
+      };
+
+      const evaluateMatch = (doc, stint, idx) => {
+        if (!doc || !stint || !(stint.inicio instanceof Date)) return null;
+        const prox = stints[idx + 1] || null;
+        const docTime = getDocTime(doc);
+        if (!(docTime instanceof Date)) return null;
+        const inicio = stint.inicio;
+        const fim = stint.fim instanceof Date ? stint.fim : null;
+        const docTs = docTime.getTime();
+        const inicioTs = inicio.getTime();
+        const fimTs = fim ? fim.getTime() : null;
+        const setorMatch = (stint.setorId != null && doc.setorId != null) ? stint.setorId === doc.setorId : true;
+
+        if (stint.ateAgora) {
+          if (!setorMatch) return null;
+          if (docTs >= inicioTs) {
+            return { reason: 'ateAgora', start: inicio, end: fim };
+          }
+          return null;
+        }
+
+        if (docTs >= inicioTs && (fimTs == null || docTs < fimTs)) {
+          if (setorMatch || stint.setorId == null || doc.setorId == null) {
+            return { reason: 'interval', start: inicio, end: fim };
+          }
+        }
+
+        if (stint.dias === 0) {
+          if (sameDayDates(docTime, inicio) && setorMatch) {
+            return { reason: 'mesmaDataInicio', start: inicio, end: fim };
+          }
+        } else {
+          if (fim && sameDayDates(docTime, fim) && setorMatch) {
+            const proximoSetorId = prox ? prox.setorId : null;
+            if (stint.setorId == null || doc.setorId == null || stint.setorId !== proximoSetorId) {
+              return { reason: 'mesmaDataFim', start: inicio, end: fim };
             }
           }
-          if (!matchIntervalo) return false;
-          if (s.setorId != null && d.setorId != null) return s.setorId === d.setorId; // restringe por setor quando IDs disponíveis
-          return true; // fallback se algum id ausente
+        }
+
+        return null;
+      };
+
+      const distanceToInterval = (docTime, start, end) => {
+        if (!(docTime instanceof Date)) return Number.MAX_SAFE_INTEGER;
+        const docTs = docTime.getTime();
+        const startTs = start instanceof Date ? start.getTime() : Number.NEGATIVE_INFINITY;
+        const endTs = end instanceof Date ? end.getTime() : Number.POSITIVE_INFINITY;
+        if (docTs < startTs) return startTs - docTs;
+        if (docTs > endTs) return docTs - endTs;
+        return 0;
+      };
+
+      const chooseBestMatch = (doc, matches) => {
+        if (!matches.length) return null;
+        const docTime = getDocTime(doc);
+        matches.sort((a, b) => {
+          const pa = matchPriority[a.reason] ?? 99;
+          const pb = matchPriority[b.reason] ?? 99;
+          if (pa !== pb) return pa - pb;
+          if (docTime instanceof Date) {
+            const da = distanceToInterval(docTime, a.start, a.end);
+            const db = distanceToInterval(docTime, b.start, b.end);
+            if (da !== db) return da - db;
+          }
+          return b.idx - a.idx;
         });
+        return matches[0].idx;
+      };
+
+      docsNorm.forEach(doc => {
+        const matches = [];
+        for (let i = 0; i < stints.length; i++) {
+          const res = evaluateMatch(doc, stints[i], i);
+          if (res) matches.push({ idx: i, reason: res.reason, start: res.start, end: res.end });
+        }
+        let chosenIdx = null;
+        if (matches.length === 1) {
+          chosenIdx = matches[0].idx;
+        } else if (matches.length > 1) {
+          chosenIdx = chooseBestMatch(doc, matches);
+        }
+        if (chosenIdx == null && !matches.length) {
+          for (let i = stints.length - 1; i >= 0; i--) {
+            const s = stints[i];
+            if (s.setorId != null && doc.setorId != null && s.setorId === doc.setorId) {
+              chosenIdx = i;
+              break;
+            }
+          }
+        }
+        if (chosenIdx == null && matches.length) {
+          chosenIdx = matches[0].idx;
+        }
+        if (chosenIdx != null) {
+          docAssignments[chosenIdx].push(doc);
+        }
+      });
+
+      stints.forEach((s, idx) => {
+        s.docs = docAssignments[idx];
       });
       // Reatribuição especial: documentos do setor 'EXTERNO AO TCE'
       // agora devem ser vinculados SEMPRE à stint de AUTUAÇÃO (primeiro período),
@@ -564,8 +763,8 @@
       stints.forEach(s => {
         if (Array.isArray(s.docs)) {
           s.docs.sort((a,b) => {
-            const ad = a && a.data instanceof Date ? a.data.getTime() : 0;
-            const bd = b && b.data instanceof Date ? b.data.getTime() : 0;
+            const ad = a && a.dataFull instanceof Date ? a.dataFull.getTime() : (a && a.data instanceof Date ? a.data.getTime() : 0);
+            const bd = b && b.dataFull instanceof Date ? b.dataFull.getTime() : (b && b.data instanceof Date ? b.data.getTime() : 0);
             return bd - ad; // desc
           });
         }
@@ -661,7 +860,7 @@
     });
   }
 
-  function openHistoricoModal(numero, dataRaw, meta = {}) {
+  async function openHistoricoModal(numero, dataRaw, meta = {}) {
     ensureModal();
     const overlay = document.getElementById('historico-tramitacoes-overlay');
     const title = document.getElementById('historico-tramitacoes-title');
@@ -682,7 +881,7 @@
     const left = parts.length ? parts.join(' - ') : 'Histórico de Tramitações';
     const right = numero ? ` | ${numero}` : '';
     title.textContent = `${left}${right}`;
-    body.innerHTML = '';
+  body.innerHTML = '<div class="historico-item">Carregando histórico...</div>';
 
     // Adicionar informações do processo (assunto e espécie) antes do histórico
     const processInfo = document.createElement('div');
@@ -726,7 +925,16 @@
       body.appendChild(processInfo);
     }
 
-    const { stints, totals } = buildTimeline(dataRaw || {});
+    let signatureMap = null;
+    try {
+      signatureMap = await buildDocSignatureMap(dataRaw || {});
+    } catch(_) {
+      signatureMap = new Map();
+    }
+
+    body.innerHTML = '';
+
+    const { stints, totals } = buildTimeline(dataRaw || {}, { docSignatures: signatureMap });
 
     if (!stints.length) {
       const div = document.createElement('div');
@@ -761,6 +969,9 @@
         const rankA = aIsAut ? 3 : (aIsReceb ? 2 : (aIsAnd ? 1 : 0));
         const rankB = bIsAut ? 3 : (bIsReceb ? 2 : (bIsAnd ? 1 : 0));
         if (rankA !== rankB) return rankA - rankB; // menor rank em cima
+  const ordA = typeof a.ordemCronologica === 'number' ? a.ordemCronologica : -1;
+  const ordB = typeof b.ordemCronologica === 'number' ? b.ordemCronologica : -1;
+  if (ordA !== ordB) return ordB - ordA;
         // Dentro do mesmo rank (inclusive múltiplos ANDAMENTO ou RECEBIMENTO, se houver), ordenar por data desc
         const ai = a.inicio ? a.inicio.getTime() : 0;
         const bi = b.inicio ? b.inicio.getTime() : 0;
@@ -1005,7 +1216,7 @@
             }
           }
         } catch(_) { /* ignore */ }
-        openHistoricoModal(numero, raw || {}, { idPca, projectName });
+  await openHistoricoModal(numero, raw || {}, { idPca, projectName });
       } catch(err) {
         // Feedback simples em caso de erro
         try { alert('Não foi possível carregar o histórico deste processo.'); } catch(_) {}
@@ -1138,7 +1349,7 @@
   window.historicoTramitacoes = {
     open: async function(numero){
       const raw = await ensureProcessData(numero);
-      openHistoricoModal(normalizarNumero(numero), raw || {});
+      await openHistoricoModal(normalizarNumero(numero), raw || {});
     },
     injectButtons: insertButtonsForAllRows,
   injectButtonsForNumero: insertButtonsForNumero,
