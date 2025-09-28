@@ -1144,10 +1144,7 @@
   // Ao voltar o foco/visibilidade, força uma atualização rápida
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
-      logAutoRefresh('visibility');
-      // Forçar refetch ao retornar para a aba
-      window._acompanhamentoForceRefetchNext = true;
-      scheduleUpdate(0);
+      console.info('[Acompanhamento] Visibilidade retomada - auto refresh imediato desativado');
     }
   });
 

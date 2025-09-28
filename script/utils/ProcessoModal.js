@@ -101,13 +101,19 @@ class ProcessoModal {
                         projectName = window.extractCellTextWithSeparator ? 
                             window.extractCellTextWithSeparator(tr.children[idxProjeto]) : 
                             tr.children[idxProjeto].textContent.trim();
+                        // Remove emojis (🔗, 🛍️) do nome do projeto
+                        projectName = projectName.replace(/[🔗🛍️]/g, '').trim();
                     }
                 }
                 if (!projectName) {
                     const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
-                    if (candidato) projectName = window.extractCellTextWithSeparator ? 
-                        window.extractCellTextWithSeparator(candidato) : 
-                        candidato.textContent.trim();
+                    if (candidato) {
+                        projectName = window.extractCellTextWithSeparator ? 
+                            window.extractCellTextWithSeparator(candidato) : 
+                            candidato.textContent.trim();
+                        // Remove emojis (🔗, 🛍️) do nome do projeto
+                        projectName = projectName.replace(/[🔗🛍️]/g, '').trim();
+                    }
                 }
             } catch(e) { /* ignore */ }
         }
@@ -184,17 +190,25 @@ class ProcessoModal {
                             idPca = window.extractCellTextWithSeparator ? 
                                 window.extractCellTextWithSeparator(tr.children[idxId]) : 
                                 tr.children[idxId].textContent.trim();
+                            // Remove emojis (🔗, 🛍️) do ID PCA
+                            idPca = idPca.replace(/[🔗🛍️]/g, '').trim();
                         }
                     }
                     if (!idPca) {
                         const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset.label||'')));
-                        if (idCand) idPca = window.extractCellTextWithSeparator ? 
-                            window.extractCellTextWithSeparator(idCand) : 
-                            idCand.textContent.trim();
+                        if (idCand) {
+                            idPca = window.extractCellTextWithSeparator ? 
+                                window.extractCellTextWithSeparator(idCand) : 
+                                idCand.textContent.trim();
+                            // Remove emojis (🔗, 🛍️) do ID PCA
+                            idPca = idPca.replace(/[🔗🛍️]/g, '').trim();
+                        }
                     }
                 }
             } catch(e) { /* ignore */ }
-            const finalTitle = (idPca ? (idPca + ' - ') : '') + projectName;
+            // Incluir o número do processo no título se disponível
+            const processoSuffix = processo ? ` | ${processo}` : '';
+            const finalTitle = (idPca ? (idPca + ' - ') : '') + projectName + processoSuffix;
             if (typeof window.setProcessoModalTitle === 'function') {
                 window.setProcessoModalTitle(finalTitle);
             }

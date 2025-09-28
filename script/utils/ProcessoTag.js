@@ -17,6 +17,16 @@
   const TAG_CLASS = 'processo-tag';
   const WRAPPER_CLASS = 'processo-tag-wrapper';
 
+  function sanitizeProjectMeta(rawValue){
+    if (!rawValue) return '';
+    const cleaned = String(rawValue)
+      .replace(/[🔗🛍️]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const segments = cleaned.split('|').map(part => part.trim()).filter(Boolean);
+    return segments.length ? segments.join(' | ') : cleaned;
+  }
+
   function normalizarNumero(raw){
     if (!raw) return '';
     return String(raw).replace(/[^0-9./-]/g,'').trim();
@@ -187,9 +197,12 @@
           let projectName = '';
           if (tr){
             const celProjeto = tr.querySelector('td[data-label="Projeto de Aquisição"]') || tr.children[3];
-            if (celProjeto) projectName = window.extractCellTextWithSeparator ? 
-              window.extractCellTextWithSeparator(celProjeto) : 
-              (celProjeto.textContent||'').trim();
+            if (celProjeto) {
+              projectName = window.extractCellTextWithSeparator ? 
+                window.extractCellTextWithSeparator(celProjeto) : 
+                (celProjeto.textContent||'').trim();
+              projectName = sanitizeProjectMeta(projectName);
+            }
           }
           window.processoModalInstance.openModal(numero, projectName);
         }, 500); // tempo maior que o timeout de fechamento do modal

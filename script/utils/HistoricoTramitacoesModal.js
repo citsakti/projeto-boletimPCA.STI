@@ -158,6 +158,16 @@
     return String(raw).replace(/[^0-9./-]/g,'').trim();
   }
 
+  function sanitizeMetaValue(rawValue) {
+    if (!rawValue) return '';
+    const cleaned = String(rawValue)
+      .replace(/[🔗🛍️]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const segments = cleaned.split('|').map(seg => seg.trim()).filter(Boolean);
+    return segments.length ? segments.join(' | ') : cleaned;
+  }
+
   function parseDateBR(dstr) {
     // Aceita "dd/mm/aaaa" e "dd/mm/aaaa HH:MM[:SS]"
     if (!dstr || !/\d{2}\/\d{2}\/\d{4}/.test(dstr)) return null;
@@ -664,13 +674,13 @@
   try { const layout = document.getElementById('historico-tramitacoes-layout'); layout && layout.classList.remove('expanded'); } catch(_) {}
   try { const viewer = document.getElementById('historico-tramitacoes-viewer'); if (viewer){ viewer.classList.add('d-none'); viewer.setAttribute('aria-hidden','true'); } } catch(_) {}
     if (!overlay || !title || !body) return;
-    const idPca = (meta && meta.idPca) ? String(meta.idPca).trim() : '';
-    const projectName = (meta && meta.projectName) ? String(meta.projectName).trim() : '';
+    const idPca = sanitizeMetaValue(meta && meta.idPca ? meta.idPca : '');
+    const projectName = sanitizeMetaValue(meta && meta.projectName ? meta.projectName : '');
     const parts = [];
     if (idPca) parts.push(idPca);
     if (projectName) parts.push(projectName);
     const left = parts.length ? parts.join(' - ') : 'Histórico de Tramitações';
-    const right = numero ? ` — ${numero}` : '';
+    const right = numero ? ` | ${numero}` : '';
     title.textContent = `${left}${right}`;
     body.innerHTML = '';
 
@@ -963,24 +973,36 @@
               projectName = window.extractCellTextWithSeparator ? 
                 window.extractCellTextWithSeparator(tr.children[idxProjeto]) : 
                 tr.children[idxProjeto].textContent.trim();
+              // Remove emojis (🔗, 🛍️) do nome do projeto
+              projectName = projectName.replace(/[🔗🛍️]/g, '').trim();
             }
             if (idxId >= 0 && tr.children[idxId]) {
               idPca = window.extractCellTextWithSeparator ? 
                 window.extractCellTextWithSeparator(tr.children[idxId]) : 
                 tr.children[idxId].textContent.trim();
+              // Remove emojis (🔗, 🛍️) do ID PCA
+              idPca = idPca.replace(/[🔗🛍️]/g, '').trim();
             }
           }
           if (!projectName) {
             const cand = Array.from(tr.children).find(c => /projeto/i.test((c.dataset && c.dataset.label) || ''));
-            if (cand) projectName = window.extractCellTextWithSeparator ? 
-              window.extractCellTextWithSeparator(cand) : 
-              cand.textContent.trim();
+            if (cand) {
+              projectName = window.extractCellTextWithSeparator ? 
+                window.extractCellTextWithSeparator(cand) : 
+                cand.textContent.trim();
+              // Remove emojis (🔗, 🛍️) do nome do projeto
+              projectName = projectName.replace(/[🔗🛍️]/g, '').trim();
+            }
           }
           if (!idPca) {
             const cand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset && c.dataset.label) || ''));
-            if (cand) idPca = window.extractCellTextWithSeparator ? 
-              window.extractCellTextWithSeparator(cand) : 
-              cand.textContent.trim();
+            if (cand) {
+              idPca = window.extractCellTextWithSeparator ? 
+                window.extractCellTextWithSeparator(cand) : 
+                cand.textContent.trim();
+              // Remove emojis (🔗, 🛍️) do ID PCA
+              idPca = idPca.replace(/[🔗🛍️]/g, '').trim();
+            }
           }
         } catch(_) { /* ignore */ }
         openHistoricoModal(numero, raw || {}, { idPca, projectName });

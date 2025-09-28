@@ -856,7 +856,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             window.setProcessoModalTitle(titleTxt);
                         }
                     };
-                    const computedTitle = (idPca ? (idPca + ' - ') : '') + projectName;
+                    // Incluir o número do processo no título se disponível
+                    const processoSuffix = processo ? ` | ${processo}` : '';
+                    const computedTitle = (idPca ? (idPca + ' - ') : '') + projectName + processoSuffix;
                     const openWithTitle = (url) => {
                         window.modalManager.openModal('processo-modal', { url, title: computedTitle });
                         applyTitle(computedTitle);

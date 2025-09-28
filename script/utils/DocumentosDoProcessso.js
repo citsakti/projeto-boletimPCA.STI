@@ -166,7 +166,7 @@
     const mainTitle = projectName
       ? `${idPca ? idPca + ' - ' : ''}${projectName}`
       : 'Documentos do Processo';
-    const numSuffix = numeroProcesso ? ` • Nº ${numeroProcesso}` : '';
+    const numSuffix = numeroProcesso ? ` | ${numeroProcesso}` : '';
     titleEl.textContent = `${mainTitle}${numSuffix}`;
     indexEl.innerHTML = '';
 
@@ -521,6 +521,16 @@
   }
 
   // Extrai metadados (projeto e ID PCA) da linha, semelhante ao ProcessoModal
+  function sanitizeMetaField(rawValue) {
+    if (!rawValue) return '';
+    const cleaned = String(rawValue)
+      .replace(/[🔗🛍️]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const segments = cleaned.split('|').map(seg => seg.trim()).filter(Boolean);
+    return segments.length ? segments.join(' | ') : cleaned;
+  }
+
   function extrairMetaDoTR(tr) {
     let projectName = '';
     let idPca = '';
@@ -533,25 +543,33 @@
           projectName = window.extractCellTextWithSeparator ? 
             window.extractCellTextWithSeparator(tr.children[idxProjeto]) : 
             tr.children[idxProjeto].textContent.trim();
+          projectName = sanitizeMetaField(projectName);
         }
         const idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
         if (idxId >= 0 && tr.children[idxId]) {
           idPca = window.extractCellTextWithSeparator ? 
             window.extractCellTextWithSeparator(tr.children[idxId]) : 
             tr.children[idxId].textContent.trim();
+          idPca = sanitizeMetaField(idPca);
         }
       }
       if (!projectName) {
         const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
-        if (candidato) projectName = window.extractCellTextWithSeparator ? 
-          window.extractCellTextWithSeparator(candidato) : 
-          candidato.textContent.trim();
+        if (candidato) {
+          projectName = window.extractCellTextWithSeparator ? 
+            window.extractCellTextWithSeparator(candidato) : 
+            candidato.textContent.trim();
+          projectName = sanitizeMetaField(projectName);
+        }
       }
       if (!idPca) {
         const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset.label||'')));
-        if (idCand) idPca = window.extractCellTextWithSeparator ? 
-          window.extractCellTextWithSeparator(idCand) : 
-          idCand.textContent.trim();
+        if (idCand) {
+          idPca = window.extractCellTextWithSeparator ? 
+            window.extractCellTextWithSeparator(idCand) : 
+            idCand.textContent.trim();
+          idPca = sanitizeMetaField(idPca);
+        }
       }
     } catch(_) { /* ignore */ }
     return { projectName, idPca };

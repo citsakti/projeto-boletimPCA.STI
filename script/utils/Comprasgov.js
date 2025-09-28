@@ -66,10 +66,11 @@ class Comprasgov {
         const numeroY = (icon.getAttribute('data-y') || '').trim();
 
         // Capturar nome do projeto (mesma linha)
+        const tr = icon.closest('tr');
         let projectName = '';
         let idPca = '';
+        let processNumber = this.extractProcessNumberFromRow(tr);
         try {
-            const tr = icon.closest('tr');
             if (tr) {
                 const table = tr.closest('table');
                 let idxProjeto = -1;
@@ -78,24 +79,40 @@ class Comprasgov {
                     const ths = Array.from(table.querySelectorAll('thead th'));
                     idxProjeto = ths.findIndex(th => /projeto/i.test(th.textContent));
                     idxId = ths.findIndex(th => /ID\s*PCA/i.test(th.textContent));
-                    if (idxProjeto >= 0 && tr.children[idxProjeto]) projectName = window.extractCellTextWithSeparator ? 
-                        window.extractCellTextWithSeparator(tr.children[idxProjeto]) : 
-                        tr.children[idxProjeto].textContent.trim();
-                    if (idxId >= 0 && tr.children[idxId]) idPca = window.extractCellTextWithSeparator ? 
-                        window.extractCellTextWithSeparator(tr.children[idxId]) : 
-                        tr.children[idxId].textContent.trim();
+                    if (idxProjeto >= 0 && tr.children[idxProjeto]) {
+                        projectName = window.extractCellTextWithSeparator ? 
+                            window.extractCellTextWithSeparator(tr.children[idxProjeto]) : 
+                            tr.children[idxProjeto].textContent.trim();
+                        // Remove emojis (🔗, 🛍️) do nome do projeto
+                        projectName = projectName.replace(/[🔗🛍️]/g, '').trim();
+                    }
+                    if (idxId >= 0 && tr.children[idxId]) {
+                        idPca = window.extractCellTextWithSeparator ? 
+                            window.extractCellTextWithSeparator(tr.children[idxId]) : 
+                            tr.children[idxId].textContent.trim();
+                        // Remove emojis (🔗, 🛍️) do ID PCA
+                        idPca = idPca.replace(/[🔗🛍️]/g, '').trim();
+                    }
                 }
                 if (!projectName) {
                     const candidato = Array.from(tr.children).find(c => /projeto/i.test((c.dataset.label||'')));
-                    if (candidato) projectName = window.extractCellTextWithSeparator ? 
-                        window.extractCellTextWithSeparator(candidato) : 
-                        candidato.textContent.trim();
+                    if (candidato) {
+                        projectName = window.extractCellTextWithSeparator ? 
+                            window.extractCellTextWithSeparator(candidato) : 
+                            candidato.textContent.trim();
+                        // Remove emojis (🔗, 🛍️) do nome do projeto
+                        projectName = projectName.replace(/[🔗🛍️]/g, '').trim();
+                    }
                 }
                 if (!idPca) {
                     const idCand = Array.from(tr.children).find(c => /id\s*pca/i.test((c.dataset.label||'')));
-                    if (idCand) idPca = window.extractCellTextWithSeparator ? 
-                        window.extractCellTextWithSeparator(idCand) : 
-                        idCand.textContent.trim();
+                    if (idCand) {
+                        idPca = window.extractCellTextWithSeparator ? 
+                            window.extractCellTextWithSeparator(idCand) : 
+                            idCand.textContent.trim();
+                        // Remove emojis (🔗, 🛍️) do ID PCA
+                        idPca = idPca.replace(/[🔗🛍️]/g, '').trim();
+                    }
                 }
             }
         } catch(e) { /* ignore */ }
@@ -106,9 +123,24 @@ class Comprasgov {
         }
 
         const yy = this.mapYY(modalidadeX);
-    const url = `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra/item/1?compra=925467${yy}${numeroY}`;
-    const finalTitle = (idPca ? (idPca + ' - ') : '') + projectName;
-    this.openModal(url, finalTitle);
+        const formattedProcess = this.formatProcessNumber(numeroY);
+        const displayProcess = processNumber || formattedProcess;
+        const baseTitleRaw = (idPca ? `${idPca} - ` : '') + projectName;
+        const baseTitle = baseTitleRaw.trim();
+        let finalTitle = baseTitle;
+
+        if (displayProcess) {
+            if (baseTitle) {
+                const normalizedBase = baseTitle.replace(/\s+$/, '');
+                const endsWithPipe = /\|$/.test(normalizedBase);
+                finalTitle = endsWithPipe ? `${normalizedBase} ${displayProcess}` : `${normalizedBase} | ${displayProcess}`;
+            } else {
+                finalTitle = displayProcess;
+            }
+        }
+
+        const url = `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra/item/1?compra=925467${yy}${numeroY}`;
+        this.openModal(url, finalTitle);
     }
 
     mapYY(modalidadeX) {
@@ -117,6 +149,54 @@ class Comprasgov {
         if (normalized.includes('DISPENSA')) return '06';
         // Padrão seguro: DISPENSA (06) quando modalidade não reconhecida
         return '06';
+    }
+
+    formatProcessNumber(numeroY) {
+        const raw = (numeroY || '').trim();
+        if (!raw || raw === '-') {
+            return '';
+        }
+
+        if (/[\/-]/.test(raw)) {
+            return raw;
+        }
+
+        const digits = raw.replace(/\D/g, '');
+        if (digits.length < 9) {
+            return raw;
+        }
+
+        const prefix = digits.slice(0, 5);
+        const middle = digits.slice(5, 9);
+        const suffix = digits.slice(9);
+        let formatted = `${prefix}/${middle}`;
+        if (suffix) {
+            formatted += `-${suffix}`;
+        }
+        return formatted;
+    }
+
+    extractProcessNumberFromRow(tr) {
+        if (!tr) return '';
+        let numero = tr.getAttribute('data-processo-numero') || '';
+        if (!numero) {
+            const tdProc = tr.querySelector('td[data-label="Processo"]');
+            if (tdProc) {
+                numero = tdProc.dataset.processoNumero || (window.extractCellTextWithSeparator ? window.extractCellTextWithSeparator(tdProc) : tdProc.textContent) || '';
+            }
+        }
+
+        if (!numero && typeof window.debugProcessoTag === 'object' && window.debugProcessoTag !== null) {
+            try {
+                const tdFallback = tr.querySelector('[data-label="Tipo"] .processo-tag');
+                if (tdFallback) {
+                    numero = tdFallback.getAttribute('data-proc') || tdFallback.textContent || '';
+                }
+            } catch(_e) { /* ignore */ }
+        }
+
+        if (!numero) return '';
+        return String(numero).replace(/[🔗🛍️]/g, '').trim();
     }
 
     openModal(url, projectTitle = '') {

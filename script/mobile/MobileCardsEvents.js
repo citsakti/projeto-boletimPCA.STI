@@ -262,7 +262,9 @@ class MobileCardsEvents {
                 if (idEl) idPca = idEl.textContent.trim();
             }
         } catch(e) { /* ignore */ }
-        const computedTitle = (idPca ? (idPca + ' - ') : '') + projectName;
+        // Incluir o número do processo no título se disponível
+        const processoSuffix = processo ? ` | ${processo}` : '';
+        const computedTitle = (idPca ? (idPca + ' - ') : '') + projectName + processoSuffix;
 
         const openInModal = (url) => {
             if (window.modalManager) {
