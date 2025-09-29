@@ -500,6 +500,25 @@ function renderSetorProcessoRow(projeto) {
         contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
     }
 
+    // Preparar dados para célula de processo no padrão global (renderProcessCell)
+    let htmlProcessoCell;
+    try {
+        const numeroProc = projeto.numeroProcesso || '';
+        const numeroNormalizado = normalizarNumeroProcesso(numeroProc);
+        const dadosAPI = apiCacheSetores.get(numeroNormalizado);
+        const modalidadeX = (dadosAPI?.modalidade || projeto.modalidadeX || projeto.modalidade || projeto.tipo || '').toString();
+        const numeroY = (dadosAPI?.numeroComprasgov || projeto.numeroY || projeto.numeroComprasgov || '').toString();
+        if (typeof window.renderProcessCell === 'function') {
+            htmlProcessoCell = window.renderProcessCell(numeroProc, modalidadeX, numeroY);
+        } else {
+            // Fallback para implementação local antiga
+            htmlProcessoCell = renderProcessoCell(projeto);
+        }
+    } catch (e) {
+        console.warn('[ProcessosPorSetor] Falha ao usar renderProcessCell, aplicando fallback:', e);
+        htmlProcessoCell = renderProcessoCell(projeto);
+    }
+
     return `
         <tr>
             <td>${projeto.id || ''}</td>
@@ -510,7 +529,7 @@ function renderSetorProcessoRow(projeto) {
             <td>${formatDateCell(projeto.contratar_ate) || ''}</td>
             <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
             <td>${formatOrcamentoWithClasses(getOrcamentoFromProject(projeto) || '')}</td>
-            <td>${renderProcessoCell(projeto)}</td>
+            <td>${htmlProcessoCell}</td>
         </tr>
     `;
 }

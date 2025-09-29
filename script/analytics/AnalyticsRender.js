@@ -663,6 +663,11 @@ function renderProcessCell(processValue, modalidadeX = '', numeroY = '') {
             </div>`;
 }
 
+// Expor helper globalmente para reutilização em outras seções (ex.: 3.2 Processos por Setor)
+if (typeof window !== 'undefined') {
+    window.renderProcessCell = renderProcessCell;
+}
+
 /**
  * Função para adicionar listeners nos botões de Detalhar/contrair valores por área
  */
