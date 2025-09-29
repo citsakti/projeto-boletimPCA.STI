@@ -78,7 +78,7 @@
   .documentos-index { border-right: 1px solid #eee; overflow: auto; padding: 10px; min-width: 0; box-sizing: border-box; }
   /* Barra de busca fixa no topo do índice */
   .documentos-index .documentos-index-controls { position: sticky; top: 0; z-index: 2; background: #f5f7fb; padding: 10px; margin: 0 0 8px 0; border: 1px solid #e5e7eb; border-radius: 8px; }
-  .documentos-index .documentos-index-controls .row { display:flex; gap:8px; align-items:center; width:100%; box-sizing:border-box; }
+  .documentos-index .documentos-index-controls .row { display:contents; gap:8px; align-items:center; width:100%; box-sizing:border-box; }
   .documentos-index .documentos-index-controls select,
   .documentos-index .documentos-index-controls input[type="text"] { border: 1px solid #d1d5db; border-radius: 6px; padding: 8px 10px; font-size: 12px; background: #fff; color:#111827; box-sizing:border-box; }
   .documentos-index .documentos-index-controls select { flex: 0 0 140px; max-width: 45%; min-width: 120px; }
@@ -91,9 +91,9 @@
   .documentos-index .documentos-index-controls .doc-index-clear-btn svg { width:16px; height:16px; display:block; }
   .documentos-index .documentos-index-controls .meta { margin-top:6px; font-size:11px; color:#6b7280; }
   .documentos-index .documentos-index-list { display:block; }
-  .documentos-index .doc-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px; border-radius: 6px; cursor: pointer; border: 1px solid #e5e7eb; background: #ffffff; margin-bottom: 8px; }
-    .documentos-index .doc-item:hover { background: #f6f8fc; border-color: #e9eef6; }
-      .documentos-index .doc-item.active { background: #e8f0fe; border-color: #d2e3fc; }
+  .documentos-index .doc-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px; border-radius: 6px; cursor: pointer; border: 1px solid #585858ff; background: #ffffff; margin-bottom: 8px; }
+    .documentos-index .doc-item:hover { background: #e2e8f3ff; border-color: #585858ff; }
+      .documentos-index .doc-item.active { background: #feffd3; border-color: #ffc107; }
   /* Destaque verde para PARECER JURÍDICO (alinhado com o Histórico) */
   .documentos-index .doc-item.parecer-highlight { background: linear-gradient(135deg, #cbead2 0%, #e6f5ec 70%); border-color: #a5d6a7; box-shadow: inset 0 0 0 1px rgba(165,214,167,.3); }
   .documentos-index .doc-item.parecer-highlight:hover { background: linear-gradient(135deg, #c3e5cc 0%, #def2e6 70%); border-color: #9ccc9b; }
@@ -108,10 +108,18 @@
       /* Assinaturas dentro do item do índice */
       .documentos-index .doc-sign { margin-top: 4px; font-size: 11px; color: #5f6368; line-height: 1.25; }
       .documentos-index .doc-sign .sig-title { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: #3c4043; }
-      .documentos-index .doc-sign .sig-line { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .documentos-index .doc-sign .sig-line { display: block; overflow: hidden; text-overflow: ellipsis; }
     .documentos-index .doc-sign .sig-empty { color: #9aa0a6; font-style: italic; }
   /* Afastar levemente os controles do limite esquerdo */
-  .documentos-index .documentos-index-controls .row { padding-left: 12px; }
+  .documentos-index .documentos-index-controls .row { 
+    /* Desativa gutter do Bootstrap nessa .row específica */
+    --bs-gutter-x: 0; 
+    --bs-gutter-y: 0; 
+    margin-left: 0 !important; 
+    margin-right: 0 !important; 
+    padding-left: 12px; 
+    padding-right: 0;
+  }
   /* .doc-actions removido temporariamente (sem ícones extras no índice) */
       .documentos-index .doc-item.disabled { opacity: .6; cursor: not-allowed; }
       .documento-viewer { overflow: auto; min-width: 0; min-height: 0; height: 100%; }
