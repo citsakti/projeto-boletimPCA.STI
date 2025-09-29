@@ -119,7 +119,9 @@ const analyticData = {
         processosConcluidos: [],
         processosSuspensos: [],
         processosAIniciar: []
-    }
+    },
+    // Lista completa de projetos (não cancelados) para uso em análises específicas (ex.: pareceres jurídicos)
+    todosProjetos: []
 };
 
 /**
@@ -369,6 +371,7 @@ function resetAnalyticData() {
         processosSuspensos: [],
         processosAIniciar: []
     };
+    analyticData.todosProjetos = [];
 }
 
 /**
@@ -379,6 +382,8 @@ function processProjectCounters(projetoObj, statusProcesso, tipo, orcamento, are
     if (statusProcesso === 'CANCELADO ❌' || (tipo !== '🛒 Aquisição' && tipo !== '🔄 Renovação')) {
         return; // Pular este projeto completamente
     }
+    // Registrar projeto na lista completa (para análises que precisam de todos os projetos elegíveis independentemente de ter status contabilizado)
+    analyticData.todosProjetos.push(projetoObj);
       // Contar status
     if (statusProcesso) {
         analyticData.statusCounts[statusProcesso] = (analyticData.statusCounts[statusProcesso] || 0) + 1;

@@ -435,6 +435,15 @@ function renderSituacionalSection() {
                 </div>
             </div>
         </div>
+        <div class="analytics-subsection" id="pareceres-juridicos-subsection">
+            <h3>3.3 Pareceres Jurídicos</h3>
+            <div class="pareceres-container" id="pareceres-juridicos-container">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Carregando dados de pareceres jurídicos... Aguarde enquanto buscamos documentos dos processos.
+                </div>
+            </div>
+        </div>
                 </div>
             </div>
         </div>
