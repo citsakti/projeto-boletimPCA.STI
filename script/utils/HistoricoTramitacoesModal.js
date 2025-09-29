@@ -431,6 +431,22 @@
   .processo-info .historico-item { background: #f8f9fa; border-color: #dee2e6; }
   .processo-info .setor-nome { color: #495057; font-weight: 600; }
   .processo-info .historico-sub { margin-top: 4px; font-size: 14px; line-height: 1.4; }
+  /* Toggle linha do tempo */
+  .historico-title.timeline-header { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .historico-toggle-btn { border:1px solid #cbd5e1; background:#ffffff; color:#1f2937; padding:4px 8px; font-size:12px; border-radius:4px; cursor:pointer; line-height:1.1; }
+  .historico-toggle-btn:hover { background:#f1f5f9; }
+  .timeline-items-wrapper.collapsed { display:none; }
+  /* Filtro de setores na linha do tempo */
+  .timeline-filter-bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0 12px; }
+  .timeline-filter-bar label { font-size:12px; font-weight:600; color:#374151; margin-right:4px; }
+  .timeline-filter-select { font-size:12px; padding:4px 6px; border:1px solid #cbd5e1; border-radius:4px; background:#ffffff; min-width:200px; }
+  .timeline-filter-select:focus { outline:0; border-color: var(--brand-primary); box-shadow:0 0 0 2px rgba(59,130,246,0.3); }
+  .timeline-filter-info { font-size:11px; color:#555; margin-left:auto; }
+  .historico-item.filtro-hidden { display:none !important; }
+  .timeline-filter-clear-btn { width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #cbd5e1; background:#ffffff; color:#374151; border-radius:6px; cursor:pointer; padding:0; }
+  .timeline-filter-clear-btn:hover { background:#f3f4f6; }
+  .timeline-filter-clear-btn:focus { outline:none; border-color:#93c5fd; box-shadow:0 0 0 3px rgba(147,197,253,.3); }
+  .timeline-filter-clear-btn svg { width:16px; height:16px; display:block; }
     `;
     document.head.appendChild(style);
   }
@@ -940,9 +956,50 @@
       const s2 = document.createElement('div');
       s2.className = 'historico-section historico-group';
       const h2 = document.createElement('div');
-      h2.className = 'historico-title';
-      h2.textContent = 'Linha do tempo';
+      h2.className = 'historico-title timeline-header';
+      const h2Span = document.createElement('span');
+      h2Span.textContent = 'Linha do tempo';
+      const toggleBtn = document.createElement('button');
+      toggleBtn.type = 'button';
+      toggleBtn.className = 'historico-toggle-btn';
+      toggleBtn.setAttribute('aria-expanded','true');
+      toggleBtn.textContent = 'Ocultar';
+      h2.appendChild(h2Span);
+      h2.appendChild(toggleBtn);
       s2.appendChild(h2);
+      // Barra de filtro de setores
+      const filterBar = document.createElement('div');
+      filterBar.className = 'timeline-filter-bar';
+      filterBar.innerHTML = `
+        <label for="timeline-filter-select">Filtrar setor:</label>
+        <select id="timeline-filter-select" class="timeline-filter-select">
+          <option value="">Todos os setores</option>
+        </select>
+        <button type="button" class="timeline-filter-clear-btn" id="timeline-filter-clear-btn" title="Limpar filtro" aria-label="Limpar filtro">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+          </svg>
+        </button>
+        <div class="timeline-filter-info" id="timeline-filter-info"></div>
+      `;
+      s2.appendChild(filterBar);
+      const timelineWrapper = document.createElement('div');
+      timelineWrapper.className = 'timeline-items-wrapper';
+      s2.appendChild(timelineWrapper);
+      toggleBtn.addEventListener('click',()=>{
+        const collapsed = timelineWrapper.classList.toggle('collapsed');
+        // Ocultar também a barra de filtro quando a timeline estiver colapsada
+        if (filterBar) {
+          filterBar.style.display = collapsed ? 'none' : 'flex';
+        }
+        toggleBtn.textContent = collapsed ? 'Mostrar' : 'Ocultar';
+        toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+        if (!collapsed) {
+          // ao reabrir, garantir rolagem suave para o topo da própria timeline
+          try { timelineWrapper.scrollIntoView({behavior:'smooth', block:'start'}); } catch(_) {}
+        }
+      });
       // Exibir em ordem decrescente (mais recentes primeiro) forçando AUTUAÇÃO como último, independentemente da data
       const normAcao = v => (v||'').toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase();
       // Regras de ordenação especial:
@@ -974,6 +1031,7 @@
         const bf = b.fim ? b.fim.getTime() : 0;
         return bf - af;
       });
+      const setoresSet = new Set();
       stintsProcessed.forEach((s) => {
         const item = document.createElement('div');
         item.className = 'historico-item';
@@ -982,6 +1040,7 @@
         const dtIni = s.inicio ? s.inicio.toLocaleDateString('pt-BR') : '';
         const dtFim = s.ateAgora ? '—' : (s.fim ? s.fim.toLocaleDateString('pt-BR') : '');
   const setorTitulo = s.setor || s.destino || '(sem setor)';
+  setoresSet.add(setorTitulo);
   // Regra de exibição: se não for autuação e houver acaoSaida, mostrar acaoSaida; caso contrário mostrar acaoOriginal.
   let acaoMostrar = '';
   if (s._synthetic === 'autuacao') acaoMostrar = s.acaoOriginal || s.acao || '';
@@ -1025,8 +1084,51 @@
             </div>
             <div>${tempoTagHtml}</div>
           </div>${pecasHtml}`;
-        s2.appendChild(item);
+        timelineWrapper.appendChild(item);
       });
+      // Popular select com setores (ordem alfabética)
+      try {
+        const select = filterBar.querySelector('#timeline-filter-select');
+        if (select) {
+          Array.from(setoresSet).filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR')).forEach(nome => {
+            const opt = document.createElement('option');
+            opt.value = nome;
+            opt.textContent = nome;
+            select.appendChild(opt);
+          });
+        }
+      } catch(_){}
+      // Função de filtragem
+      function aplicarFiltroSetor(valor){
+        const itens = timelineWrapper.querySelectorAll('.historico-item');
+        let visiveis = 0;
+        itens.forEach(it => {
+          if (!valor) { it.classList.remove('filtro-hidden'); visiveis++; return; }
+          const nome = it.querySelector('.setor-nome') ? it.querySelector('.setor-nome').textContent.trim() : '';
+          if (nome === valor) { it.classList.remove('filtro-hidden'); visiveis++; }
+          else it.classList.add('filtro-hidden');
+        });
+        const info = filterBar.querySelector('#timeline-filter-info');
+        if (info) {
+          if (!valor) info.textContent = `${itens.length} registros`;
+          else info.textContent = `${visiveis} registro(s) para "${valor}"`;
+        }
+      }
+      // Listener select
+      const selectFiltro = filterBar.querySelector('#timeline-filter-select');
+      const clearBtnFiltro = filterBar.querySelector('#timeline-filter-clear-btn');
+      if (selectFiltro) {
+        selectFiltro.addEventListener('change', () => aplicarFiltroSetor(selectFiltro.value));
+        aplicarFiltroSetor('');
+      }
+      if (clearBtnFiltro && selectFiltro) {
+        clearBtnFiltro.addEventListener('click', () => {
+          selectFiltro.value = '';
+          aplicarFiltroSetor('');
+          // Foco volta para o select para acessibilidade
+          try { selectFiltro.focus(); } catch(_) {}
+        });
+      }
       body.appendChild(s2);
 
       // Sumário por setor (depois)

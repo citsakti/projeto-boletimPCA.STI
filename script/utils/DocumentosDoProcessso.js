@@ -81,7 +81,8 @@
   .documentos-index .documentos-index-controls .row { display:contents; gap:8px; align-items:center; width:100%; box-sizing:border-box; }
   .documentos-index .documentos-index-controls select,
   .documentos-index .documentos-index-controls input[type="text"] { border: 1px solid #d1d5db; border-radius: 6px; padding: 8px 10px; font-size: 12px; background: #fff; color:#111827; box-sizing:border-box; }
-  .documentos-index .documentos-index-controls select { flex: 0 0 140px; max-width: 45%; min-width: 120px; }
+  /* Ajuste: selects agora ocupam 100% para padronizar alturas e larguras */
+  .documentos-index .documentos-index-controls select { width:100%; flex:1 1 auto; min-width:0; }
   .documentos-index .documentos-index-controls input[type="text"] { flex: 1 1 auto; min-width: 0; }
   .documentos-index .documentos-index-controls select:focus,
   .documentos-index .documentos-index-controls input[type="text"]:focus { outline: none; border-color:#93c5fd; box-shadow: 0 0 0 3px rgba(147,197,253,.3); }
@@ -202,23 +203,30 @@
     const numSuffix = numeroProcesso ? ` | ${numeroProcesso}` : '';
     titleEl.textContent = `${mainTitle}${numSuffix}`;
     indexEl.innerHTML = '';
-    // Controles de busca
+    // Controles (agora filtro por listas)
     const controls = document.createElement('div');
     controls.className = 'documentos-index-controls';
-      controls.innerHTML = `
-      <div class="row">
-          <select id="doc-index-filter-mode" aria-label="Selecionar modo de filtro">
-            <option value="peca">Peça</option>
-            <option value="setor">Setor</option>
-            <option value="pessoa">Pessoas</option>
-          </select>
-          <input id="doc-index-filter-input" type="text" placeholder="Filtrar por peça..." aria-label="Filtrar itens" />
-          <button id="doc-index-clear-btn" class="doc-index-clear-btn" type="button" title="Limpar busca" aria-label="Limpar busca">
+    controls.innerHTML = `
+      <div class="doc-filter-row" style="margin-bottom:4px;">
+        <label for="doc-index-filter-mode" class="doc-filter-label">Filtro por</label>
+        <select id="doc-index-filter-mode" class="doc-filter-select" aria-label="Selecionar tipo de filtro">
+          <option value="peca">Peça</option>
+          <option value="setor">Setor</option>
+          <option value="pessoa">Pessoas</option>
+        </select>
+      </div>
+      <div class="doc-filter-row" id="doc-index-filter-value-row">
+        <label for="doc-index-filter-value" class="doc-filter-label">Valor</label>
+        <div class="doc-filter-value-wrapper">
+          <select id="doc-index-filter-value" class="doc-filter-select" aria-label="Selecionar valor do filtro"></select>
+          <button id="doc-index-clear-btn" class="doc-index-clear-btn doc-filter-clear" type="button" title="Limpar filtro" aria-label="Limpar filtro">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
               <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
               <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
             </svg>
           </button>
+        </div>
+        <div id="doc-index-meta" class="meta doc-filter-meta">&nbsp;</div>
       </div>`;
     indexEl.appendChild(controls);
     // Container da lista
@@ -270,6 +278,8 @@
       try {
         item.dataset.peca = `${tituloBase}`;
         item.dataset.setor = `${setor}`;
+        // Guardar tipo “base” (sem número) para filtro mais limpo
+        item.dataset.tipo = tipo;
       } catch(_) {}
       sub.textContent = [setor, data].filter(Boolean).join('');
       main.appendChild(titulo);
@@ -338,48 +348,131 @@
       iframe.title = 'Nenhum documento disponível para visualização';
     }
 
-    // Filtro dinâmico
+    // Filtro dinâmico baseado em listas (com suporte a Pessoas / assinaturas carregadas depois)
     try {
       const modeSel = document.getElementById('doc-index-filter-mode');
-      const input = document.getElementById('doc-index-filter-input');
-      const applyFilter = () => {
-        const mode = (modeSel && modeSel.value) || 'peca';
-        const q = (input && input.value || '').normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase().trim();
+      const valueSel = document.getElementById('doc-index-filter-value');
+      const clearBtn = document.getElementById('doc-index-clear-btn');
+      const metaEl = document.getElementById('doc-index-meta');
+      // CSS complementares injetados uma vez
+      if (!document.getElementById('doc-filters-inline-style')) {
+        const st = document.createElement('style');
+        st.id = 'doc-filters-inline-style';
+        st.textContent = `
+          .documentos-index .documentos-index-controls .doc-filter-row { display:flex; flex-direction:column; }
+          .documentos-index .documentos-index-controls .doc-filter-label { font-size:11px; font-weight:600; color:#374151; letter-spacing:.5px; margin-bottom:2px; }
+          .documentos-index .documentos-index-controls .doc-filter-select { padding:4px 8px; font-size:12px; line-height:1.2; height:32px; border:1px solid #d1d5db; border-radius:6px; background:#fff; box-sizing:border-box; }
+          .documentos-index .documentos-index-controls .doc-filter-select:focus { outline:none; border-color:#93c5fd; box-shadow:0 0 0 2px rgba(147,197,253,.4); }
+          .documentos-index .documentos-index-controls .doc-filter-value-wrapper { display:flex; align-items:center; gap:6px; }
+          .documentos-index .documentos-index-controls .doc-filter-value-wrapper .doc-filter-select { flex:1 1 auto; }
+          .documentos-index .documentos-index-controls .doc-filter-clear { flex:0 0 32px; width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+          .documentos-index .documentos-index-controls .doc-filter-meta { font-size:10px; margin-top:4px; }
+        `;
+        document.head.appendChild(st);
+      }
+
+      function normalizar(str){
+        return String(str||'').normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase().trim();
+      }
+
+      function coletarValores(mode){
         const items = listEl.querySelectorAll('.doc-item');
+        const set = new Set();
         items.forEach(el => {
-          const peca = (el.dataset.peca || '').toUpperCase();
-          const setor = (el.dataset.setor || '').toUpperCase();
-          const pessoas = (el.dataset.signers || '').toUpperCase();
-          const hay = q ? (mode === 'setor' ? setor.includes(q) : (mode === 'pessoa' ? pessoas.includes(q) : peca.includes(q))) : true;
-          el.style.display = hay ? '' : 'none';
+          if (el.classList.contains('disabled')) return; // ignora indisponíveis
+          if (mode === 'setor') {
+            const v = el.dataset.setor || '';
+            if (v) set.add(v.trim());
+          } else if (mode === 'pessoa') {
+            // Se nenhuma assinatura carregada ainda, retornará vazio (tratado adiante)
+            const raw = el.dataset.signers || '';
+            if (!raw) return;
+            const signers = raw.split('|').map(s=>s.trim()).filter(Boolean);
+            signers.forEach(s=>{ if (s) set.add(s); });
+          } else { // peca -> usar dataset.tipo (tipo base da peça)
+            const t = el.dataset.tipo || '';
+            if (t) set.add(t.trim());
+          }
         });
-        // Não alterar iframe durante digitação; apenas esconder/exibir cards.
-        // Se o item ativo foi ocultado, remover apenas o destaque visual.
+        return Array.from(set).sort((a,b)=> a.localeCompare(b,'pt-BR'));
+      }
+
+      function popularOpcoes(){
+        if (!valueSel) return;
+        const mode = (modeSel && modeSel.value) || 'peca';
+        const vals = coletarValores(mode);
+        const previous = valueSel.value;
+        valueSel.innerHTML = '';
+        const optAll = document.createElement('option');
+        optAll.value = '';
+        optAll.textContent = 'Todos';
+        valueSel.appendChild(optAll);
+        if (mode === 'pessoa' && vals.length === 0) {
+          const optLoading = document.createElement('option');
+          optLoading.disabled = true;
+          optLoading.value = '';
+          optLoading.textContent = 'Carregando assinaturas...';
+          valueSel.appendChild(optLoading);
+        } else {
+          vals.forEach(v => {
+            const o = document.createElement('option');
+            o.value = v; o.textContent = v; valueSel.appendChild(o);
+          });
+        }
+        // Restaurar seleção se ainda existir
+        if (previous && vals.includes(previous)) {
+          valueSel.value = previous;
+        } else {
+          valueSel.value = '';
+        }
+      }
+
+      function applyFilter(){
+        const mode = (modeSel && modeSel.value) || 'peca';
+        const selVal = valueSel ? valueSel.value : '';
+        const selNorm = normalizar(selVal);
+        const items = listEl.querySelectorAll('.doc-item');
+        let visiveis = 0;
+        items.forEach(el => {
+          let hay = true;
+            if (selVal) {
+              if (mode === 'setor') hay = normalizar(el.dataset.setor||'') === selNorm;
+              else if (mode === 'pessoa') {
+                const signers = (el.dataset.signers||'').split('|').map(s=>normalizar(s));
+                hay = signers.includes(selNorm);
+              } else { // peca
+                hay = normalizar(el.dataset.tipo||'') === selNorm;
+              }
+            }
+          el.style.display = hay ? '' : 'none';
+          if (hay) visiveis++;
+        });
+        // Ajusta item ativo caso tenha sido ocultado
         const active = listEl.querySelector('.doc-item.active');
         if (active && active.style.display === 'none') active.classList.remove('active');
-      };
-      if (modeSel) modeSel.addEventListener('change', () => {
-        // Atualiza placeholder conforme modo
-        if (input) {
-          const m = (modeSel.value || 'peca');
-          input.placeholder = m === 'setor' ? 'Filtrar por setor...' : (m === 'pessoa' ? 'Filtrar por pessoa (assinaturas)...' : 'Filtrar por peça...');
-          // Limpa o campo quando trocar o modo
-          input.value = '';
+        if (metaEl) {
+          const totalVisiveis = visiveis;
+          const total = items.length - listEl.querySelectorAll('.doc-item.disabled').length;
+          metaEl.textContent = selVal ? `${totalVisiveis} de ${total} exibidos` : `${total} documentos`;
         }
-        applyFilter();
-      });
-      if (input) input.addEventListener('input', applyFilter);
-      const clearBtn = document.getElementById('doc-index-clear-btn');
-      if (clearBtn && input) {
-        clearBtn.addEventListener('click', () => {
-          input.value = '';
-          applyFilter();
-          // Foco volta para o input
-          try { input.focus(); } catch(_) {}
-        });
       }
-      // Expor função para reuso quando assinaturas chegarem
-      indexEl._applyFilter = applyFilter;
+
+  if (modeSel) modeSel.addEventListener('change', () => { popularOpcoes(); applyFilter(); });
+      if (valueSel) valueSel.addEventListener('change', applyFilter);
+      if (clearBtn && valueSel) clearBtn.addEventListener('click', ()=>{ valueSel.value=''; applyFilter(); try{ valueSel.focus(); }catch(_){} });
+
+      // Expor para que atualizações de assinaturas repovoem opções (especialmente modo pessoa)
+      indexEl._applyFilter = () => {
+        const currentMode = (modeSel && modeSel.value) || 'peca';
+        const wasPessoa = currentMode === 'pessoa';
+        const hadLoading = wasPessoa && valueSel && valueSel.querySelector('option[disabled]');
+        popularOpcoes();
+        applyFilter();
+        if (wasPessoa && hadLoading) { try { valueSel.focus(); } catch(_) {} }
+      };
+      // Inicial
+      popularOpcoes();
+      applyFilter();
     } catch(_) {}
 
     if (window.modalManager) window.modalManager.openModal('documentos-modal');
@@ -428,27 +521,34 @@
   }
 
   async function carregarAssinaturasNoElemento(documentoId, signContainer) {
-    if (!documentoId || !signContainer) return;
+    if (!documentoId || !signContainer) return [];
+    const key = String(documentoId);
     try {
-      const key = String(documentoId);
-      // Evitar refetch se já carregado com sucesso
+      // Placeholder (sempre mostra enquanto valida cache / fetch)
+      signContainer.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line">Carregando...</span>`;
+      let assinaturas;
       if (cacheAssinaturasDoc.has(key)) {
         const cached = cacheAssinaturasDoc.get(key);
-        renderAssinaturas(signContainer, cached.assinaturas || []);
-        return;
+        assinaturas = cached.assinaturas || [];
+      } else {
+        assinaturas = await fetchAssinaturasDocumento(documentoId);
       }
-      // Placeholder de carregamento e busca assíncrona em background
-      signContainer.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line">Carregando...</span>`;
-      setTimeout(async () => {
-        try {
-          const assinaturas = await fetchAssinaturasDocumento(documentoId);
-          renderAssinaturas(signContainer, assinaturas);
-        } catch (_) {
-          signContainer.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
+      renderAssinaturas(signContainer, assinaturas);
+      // Atualiza dataset.signers no item para possibilitar o filtro de "Pessoas"
+      try {
+        const item = signContainer.closest('.doc-item');
+        if (item) {
+          const nomes = Array.isArray(assinaturas) ? assinaturas.map(a => a && a.nome ? String(a.nome) : '').filter(Boolean) : [];
+            item.dataset.signers = nomes.join(' | ');
+          // Reaplicar opções se modo atual for Pessoas
+          const host = document.getElementById('documentos-index');
+          if (host && typeof host._applyFilter === 'function') host._applyFilter();
         }
-      }, 0);
-    } catch (_) {
+      } catch(_) {}
+      return assinaturas;
+    } catch(_) {
       signContainer.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
+      return [];
     }
   }
 

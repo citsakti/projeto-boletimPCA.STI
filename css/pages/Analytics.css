@@ -790,6 +790,22 @@
     box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
 }
 
+/* Botões de mostrar/ocultar (Pareceres Jurídicos) - estado ativo */
+.pareceres-cards button.pareceres-btn-ativo {
+    background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+    color: #fff !important;
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 0.2rem rgba(40,167,69,.25);
+    font-weight: 600;
+    transition: all .25s ease;
+}
+.pareceres-cards button.pareceres-btn-ativo:hover {
+    filter: brightness(1.05);
+}
+.pareceres-cards button.pareceres-btn-ativo:active {
+    filter: brightness(0.9);
+}
+
 /* Efeito shimmer na barra de progresso */
 .progress-bar::before {
     content: '';

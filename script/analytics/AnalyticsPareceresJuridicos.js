@@ -210,21 +210,32 @@
   }
 
   function renderResumoCards(meta){
+    // Botões foram movidos para dentro dos cards, logo abaixo dos indicadores
     return `
       <div class="row g-3 mb-3 pareceres-cards">
         <div class="col-12 col-md-6">
           <div class="card h-100 border-success">
-            <div class="card-body">
-              <h5 class="card-title text-success mb-2">Com Parecer Jurídico</h5>
-              <p class="display-6 mb-0">${meta.com}</p>
+            <div class="card-body d-flex flex-column justify-content-between">
+              <div>
+                <h5 class="card-title text-success mb-2">Com Parecer Jurídico</h5>
+                <p class="display-6 mb-3">${meta.com}</p>
+              </div>
+              <div>
+                <button class="btn btn-outline-success btn-sm w-100" data-toggle="pareceres-com">Mostrar Projetos COM Parecer</button>
+              </div>
             </div>
           </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="card h-100 border-danger">
-            <div class="card-body">
-              <h5 class="card-title text-danger mb-2">Sem Parecer Jurídico</h5>
-              <p class="display-6 mb-0">${meta.sem}</p>
+            <div class="card-body d-flex flex-column justify-content-between">
+              <div>
+                <h5 class="card-title text-danger mb-2">Sem Parecer Jurídico</h5>
+                <p class="display-6 mb-3">${meta.sem}</p>
+              </div>
+              <div>
+                <button class="btn btn-outline-danger btn-sm w-100" data-toggle="pareceres-sem">Mostrar Projetos SEM Parecer</button>
+              </div>
             </div>
           </div>
         </div>
@@ -239,11 +250,9 @@
       ${renderResumoCards({ com: listas.comParecer.length, sem: listas.semParecer.length })}
       <div class="pareceres-tabelas">
         <div class="mb-4">
-          <button class="btn btn-outline-success btn-sm mb-2" data-toggle="pareceres-com">Mostrar / Ocultar Projetos COM Parecer</button>
           <div id="pareceres-com" style="display:none;">${renderTabela(listas.comParecer, 'Com Parecer')}</div>
         </div>
         <div class="mb-4">
-          <button class="btn btn-outline-danger btn-sm mb-2" data-toggle="pareceres-sem">Mostrar / Ocultar Projetos SEM Parecer</button>
           <div id="pareceres-sem" style="display:none;">${renderTabela(listas.semParecer, 'Sem Parecer')}</div>
         </div>
       </div>`;
@@ -258,7 +267,18 @@
         if (!el) return;
         const visible = el.style.display !== 'none';
         el.style.display = visible ? 'none' : 'block';
-        btn.innerHTML = (visible ? 'Mostrar' : 'Ocultar') + (id==='pareceres-com' ? ' Projetos COM Parecer' : ' Projetos SEM Parecer');
+        // Atualiza texto do botão de forma contextual
+        const base = id==='pareceres-com' ? 'Projetos COM Parecer' : 'Projetos SEM Parecer';
+        const agoraVisivel = !visible;
+        btn.innerHTML = (agoraVisivel ? 'Ocultar ' : 'Mostrar ') + base;
+        // Alterna classe de estado ativo (gradiente verde)
+        if (agoraVisivel) {
+          btn.classList.add('pareceres-btn-ativo');
+          btn.setAttribute('aria-pressed','true');
+        } else {
+          btn.classList.remove('pareceres-btn-ativo');
+          btn.setAttribute('aria-pressed','false');
+        }
       });
     });
 
