@@ -23,6 +23,8 @@
       <!-- Pages -->
     <link rel="stylesheet" href="./css/pages/Analytics.css">
     <link rel="stylesheet" href="./css/pages/Analytics-Bootstrap.css"><script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>    <!-- Mobile Utils - Adicionar ANTES dos outros scripts -->
+    <!-- CSS do Índice Lateral extraído -->
+    <link rel="stylesheet" href="./css/components/TOC.css">
       <!-- Utils -->
     <script src="./script/utils/TableFormatters.js"></script>
     <script src="./script/utils/BootstrapAdapter.js"></script>
@@ -60,7 +62,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
-<body>    
+<body>
+    <button class="btn btn-sm btn-secondary toc-toggle-btn" id="tocToggle" type="button" title="Mostrar/Ocultar índice">
+        <i class="bi bi-list"></i> Índice
+    </button>
+    <div class="container-fluid">
     
     <!-- overlay de carregamento -->   
     <div id="loading-overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none justify-content-center align-items-center" style="background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 1000;">
@@ -70,7 +76,7 @@
       </div>
     </div>
 
-    <div class="container-fluid">        <header class="row">
+    <header class="row" id="main-header">
             <div class="col-12">
                 <div class="d-flex align-items-center justify-content-between py-3 px-2">
                     <div class="d-flex align-items-center">
@@ -79,54 +85,62 @@
                     </div>
                 </div>
             </div>
-        </header>        
-        
-    <!-- Toolbar para botões -->
-        <div class="row mb-3">
-            <div class="col-12">                <div class="d-flex flex-wrap gap-2 toolbar p-3 bg-light rounded">
+        </header>
+
+        <!-- Toolbar para botões (deve ficar acima do índice) -->
+        <div class="row mb-3" id="toolbar-row">
+            <div class="col-12">
+                <div id="main-toolbar" class="d-flex flex-wrap gap-2 toolbar p-3 bg-light rounded">
                     <button class="btn btn-primary" id="btnVoltar">
                         <i class="bi bi-arrow-left me-1"></i>Voltar ao Boletim
                     </button>
                     <script>
                         document.getElementById('btnVoltar').addEventListener('click', function() {
                             window.location.href = 'index.html';
-                            // Não precisamos passar o ano na URL, pois já está no localStorage
                         });
                     </script>
                     <button class="btn btn-info btn-toolbar" id="btnFonteDeDados">
                         <i class="bi bi-graph-up me-1"></i>
                         <span class="btn-text">Fonte de Dados</span>
-                    </button>                    <button class="btn btn-success btn-pca-publicada btn-toolbar auto-resize" id="btnPCAPublicada">
+                    </button>
+                    <button class="btn btn-success btn-pca-publicada btn-toolbar auto-resize" id="btnPCAPublicada">
                         <i class="bi bi-link me-1"></i>
                         <span class="btn-text">PCA Publicada</span>
                     </button>
-                    <!-- <button class="btn btn-outline-dark btn-print" id="btnPrint">
-                        <i class="bi bi-printer me-1"></i>Imprimir
-                    </button> -->
-                    <!-- Botão para expandir/recolher todas as seções (mobile) -->
                 </div>
             </div>
-        </div>        
-        
-        <!-- Conteúdo específico dos dados analíticos -->
-        <div class="row">
-            <div class="col-12">
-                <main role="main">
-                    <section id="analytics-dashboard" class="analytics-dashboard">
-                        
-                        <!-- O conteúdo será gerado dinamicamente pelo Analytics.js -->
-                    </section>
-                </main>
-            </div>
-        </div>        <footer class="row mt-4">
-            <div class="col-12">
-                <div class="text-center text-muted py-3">
-                    <p class="mb-0">Dados atualizados em: <span id="data-atualizacao" class="fw-medium">--/--/----</span></p>
+        </div>
+
+    <!-- Layout principal: Índice à esquerda, conteúdo à direita (abaixo da toolbar) -->
+    <div class="main-content-wrapper">
+    <div class="row gx-3">
+            <aside class="col-auto d-none d-lg-block" style="max-width:260px;">
+                <nav id="toc-container" class="toc-container" aria-label="Índice da página">
+                    <div class="toc-title">ÍNDICE</div>
+                    <ul id="toc-list" class="toc-list"></ul>
+                </nav>
+            </aside>
+            <div class="col">
+                <div class="row">
+                    <div class="col-12">
+                        <main role="main">
+                            <section id="analytics-dashboard" class="analytics-dashboard">
+                                <!-- O conteúdo será gerado dinamicamente pelo Analytics.js -->
+                            </section>
+                        </main>
+                    </div>
                 </div>
+                <footer class="row mt-4">
+                    <div class="col-12">
+                        <div class="text-center text-muted py-3">
+                            <p class="mb-0">Dados atualizados em: <span id="data-atualizacao" class="fw-medium">--/--/----</span></p>
+                        </div>
+                    </div>
+                </footer>
             </div>
-        </footer>
-    </div> 
-    <!-- Fim do container-fluid -->    
+        </div>
+        </div><!-- fim main-content-wrapper -->
+    </div> <!-- fim container-fluid -->
     
     <!-- Modal para exibir o iframe -->
     <div class="modal fade" id="processo-modal" tabindex="-1" aria-labelledby="processoModalLabel" aria-hidden="true">
@@ -177,6 +191,63 @@
     </div>
 
 <script src="./script/ui/PrintFunction.js"></script>
+<script>
+// Índice com seções (h2) e subitens (h3) – adaptado para layout flex sem sobrepor conteúdo
+(function() {
+    const dashboard = document.getElementById('analytics-dashboard');
+    const tocList = document.getElementById('toc-list');
+    const tocContainer = document.getElementById('toc-container');
+    const tocToggle = document.getElementById('tocToggle');
+    let sectionObserver = null; let subheadingObserver = null;
+
+    function slugify(text){return text.toLowerCase().trim().replace(/[áàâãä]/g,'a').replace(/[éèêë]/g,'e').replace(/[íìîï]/g,'i').replace(/[óòôõö]/g,'o').replace(/[úùûü]/g,'u').replace(/ç/g,'c').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+    function clearActive(){document.querySelectorAll('.toc-link.active').forEach(a=>a.classList.remove('active'));}
+
+    function buildTOC(){
+        if(!dashboard) return; const sections = dashboard.querySelectorAll('.analytics-section'); if(!sections.length) return;
+        tocList.innerHTML=''; if(sectionObserver) sectionObserver.disconnect(); if(subheadingObserver) subheadingObserver.disconnect();
+        const sectionLinks=new Map(); const subLinks=new Map();
+        sections.forEach(sec=>{ const h2=sec.querySelector('h2'); if(!h2) return; if(!sec.id){let base=slugify(h2.textContent||'secao');let id=base,i=2;while(document.getElementById(id)) id=base+'-'+i++; sec.id=id;}
+            const li=document.createElement('li'); const a=document.createElement('a'); a.href='#'+sec.id; a.textContent=h2.textContent.replace(/^[0-9]+\.\s*/,''); a.className='toc-link'; a.addEventListener('click',e=>{e.preventDefault(); document.getElementById(sec.id).scrollIntoView({behavior:'smooth',block:'start'}); history.replaceState(null,'','#'+sec.id); clearActive(); a.classList.add('active');}); li.appendChild(a);
+            const h3s=sec.querySelectorAll('h3'); if(h3s.length){ const subUl=document.createElement('ul'); subUl.className='toc-sublist'; h3s.forEach(h3=>{ if(!h3.id){let base=slugify(h3.textContent||'subsecao'); let id=base,i=2; while(document.getElementById(id)) id=base+'-'+i++; h3.id=id;} const subLi=document.createElement('li'); const subA=document.createElement('a'); subA.href='#'+h3.id; subA.textContent=h3.textContent.trim(); subA.className='toc-link'; subA.addEventListener('click',ev=>{ev.preventDefault(); document.getElementById(h3.id).scrollIntoView({behavior:'smooth',block:'start'}); history.replaceState(null,'','#'+h3.id); clearActive(); subA.classList.add('active');}); subLi.appendChild(subA); subUl.appendChild(subLi); subLinks.set(h3.id,subA); }); li.appendChild(subUl);} tocList.appendChild(li); sectionLinks.set(sec.id,a); });
+    sectionObserver=new IntersectionObserver(entries=>{ const anySubActive=document.querySelector('.toc-sublist .toc-link.active'); entries.forEach(entry=>{ if(entry.isIntersecting && !anySubActive){ clearActive(); const l=sectionLinks.get(entry.target.id); if(l) l.classList.add('active'); }}); }, {rootMargin:'-35% 0px -55% 0px',threshold:0}); sections.forEach(sec=>sectionObserver.observe(sec));
+        const allH3=dashboard.querySelectorAll('.analytics-section h3'); subheadingObserver=new IntersectionObserver(entries=>{ entries.forEach(entry=>{ if(entry.isIntersecting){ clearActive(); const l=subLinks.get(entry.target.id); if(l) l.classList.add('active'); }}); }, {rootMargin:'-40% 0px -50% 0px',threshold:0}); allH3.forEach(h3=>subheadingObserver.observe(h3));
+    }
+    const mo=new MutationObserver(()=>buildTOC()); if(dashboard) mo.observe(dashboard,{childList:true,subtree:true}); buildTOC();
+    if(tocToggle){ tocToggle.addEventListener('click',()=>{ tocContainer.classList.toggle('toc-visible'); }); }
+})();
+</script>
+<script>
+// Ajuste de layout fixo (header, toolbar e índice) com cálculo dinâmico de alturas
+(function(){
+    const body = document.body; body.classList.add('with-fixed-layout');
+    const header = document.getElementById('main-header');
+    const toolbar = document.getElementById('main-toolbar');
+    const toc = document.getElementById('toc-container');
+    const contentWrapper = document.querySelector('.main-content-wrapper');
+
+    function updateMetrics(){
+        const headerH = header ? header.offsetHeight : 0;
+        const toolbarH = toolbar ? toolbar.offsetHeight : 0;
+        const totalTop = headerH + toolbarH + 16; // espaço extra
+        document.documentElement.style.setProperty('--header-height', headerH + 'px');
+        document.documentElement.style.setProperty('--toolbar-height', toolbarH + 'px');
+        document.documentElement.style.setProperty('--fixed-toc-top', (headerH + toolbarH + 12) + 'px');
+        if (contentWrapper) {
+            contentWrapper.style.paddingTop = totalTop + 'px';
+        }
+        if (toc) {
+            toc.style.top = 'var(--fixed-toc-top)';
+        }
+    }
+    window.addEventListener('resize', updateMetrics);
+    window.addEventListener('orientationchange', updateMetrics);
+    // tentativa de recálculo após fontes/bootstrap
+    setTimeout(updateMetrics, 50);
+    setTimeout(updateMetrics, 300);
+    updateMetrics();
+})();
+</script>
     
 </body>
 </html>
