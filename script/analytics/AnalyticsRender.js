@@ -632,16 +632,35 @@ function renderAreaValorDetails(projetos) {
 
 /** Helper para renderizar célula de processo com ícone clicável e ícone 🛍️ (Comprasgov) quando disponível */
 function renderProcessCell(processValue, modalidadeX = '', numeroY = '') {
-    const val = (processValue || '').toString().trim();
-    if (!val || val === 'N/A' || val === '-') return val || '-';
-    let html = `${val} <span class="processo-link-icon" title="Abrir processo">🔗</span>`;
-    const hasNumeroY = typeof numeroY === 'string' ? numeroY.trim() !== '' && numeroY.trim() !== '-' : !!numeroY;
-    if (hasNumeroY) {
-        const x = (modalidadeX || '').toString().trim();
-        const y = (numeroY || '').toString().trim();
-        html += ` <span class="comprasgov-link-icon" title="Abrir acompanhamento no Comprasnet" data-x="${x}" data-y="${y}">🛍️</span>`;
-    }
-    return html;
+        const raw = (processValue || '').toString().trim();
+        if (!raw || raw === 'N/A' || raw === '-') return raw || '-';
+        const numero = raw.replace(/[^0-9./-]/g, '').trim();
+        const hasCompras = typeof numeroY === 'string' ? (numeroY.trim() !== '' && numeroY.trim() !== '-') : !!numeroY;
+
+        // SVGs inline (copiados dos utilitários para consistência visual)
+        const SVG_JOURNALS = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-journals" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <path d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2 2 2 0 0 1-2 2H3a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1H1a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2"/>
+                <path d="M1 6v-.5a.5.5 0 0 1 1 0V6h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V9h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 2.5v.5H.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H2v-.5a.5.5 0 0 0-1 0"/>
+            </svg>`;
+        const SVG_HISTORY = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <path d="M8.515 1.019A7 7 0 0 0 8 1a7 7 0 1 0 6.48 9.271.5.5 0 1 0-.936-.352A6 6 0 1 1 8 2a.5.5 0 0 0 .515-.981z"/>
+                <path d="M7.5 3a.5.5 0 0 1 .5.5v4.21l3.248 1.856a.5.5 0 1 1-.496.868l-3.5-2A.5.5 0 0 1 7 8V3.5a.5.5 0 0 1 .5-.5z"/>
+            </svg>`;
+
+        const comprasAttrs = hasCompras ? ` data-x="${(modalidadeX||'').toString().trim()}" data-y="${(numeroY||'').toString().trim()}"` : '';
+
+        // Estrutura: Tag do processo + ações (docs, histórico, compras)
+        return `
+            <div class="analytics-proc-cell">
+                <div class="processo-tag-wrapper"><span class="processo-tag" data-proc="${numero}" title="Abrir processo ${numero}" role="button" tabindex="0">${numero}</span></div>
+                <div class="analytics-proc-actions" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px;width:100%;">
+                    <button type="button" class="analytics-docs-btn doc-icon-btn" data-proc="${numero}" title="Documentos do processo">${SVG_JOURNALS}</button>
+                    <button type="button" class="acomp-historico-btn" data-proc="${numero}" title="Histórico de tramitações">${SVG_HISTORY}</button>
+                    ${hasCompras ? `<span class="comprasgov-link-icon" title="Abrir acompanhamento no Comprasnet"${comprasAttrs}>🛍️</span>` : ''}
+                </div>
+            </div>`;
 }
 
 /**

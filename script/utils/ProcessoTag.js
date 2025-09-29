@@ -159,7 +159,12 @@
   }
 
   function handleClick(event){
-    const el = event.target.closest('.'+TAG_CLASS);
+    let el = event.target.closest('.'+TAG_CLASS);
+    // Se clicar no wrapper, procurar a tag interna
+    if (!el){
+      const wrapper = event.target.closest('.'+WRAPPER_CLASS);
+      if (wrapper) el = wrapper.querySelector('.'+TAG_CLASS) || null;
+    }
     if (!el) return;
     const numero = el.getAttribute('data-proc');
     if (!numero) return;

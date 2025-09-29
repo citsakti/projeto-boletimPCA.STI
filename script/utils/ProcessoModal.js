@@ -162,9 +162,11 @@ class ProcessoModal {
             ? `${BASE_PROCESSO_URL}?search=${encodeURIComponent(processo)}`
             : BASE_PROCESSO_URL; // fallback sem parâmetro de busca quando não há número
 
-        // Configura o iframe e abre o modal
-        this.modalIframe.src = url;
-        this.modalOverlay.style.display = 'flex';
+    // Configura o iframe e abre o modal
+    this.modalIframe.src = url;
+    // Remover classe Bootstrap que força display:none (!important)
+    try { this.modalOverlay.classList.remove('d-none'); } catch(_) {}
+    this.modalOverlay.style.display = 'flex';
 
         // Animação de abertura
         this.modalContent.classList.remove('show');
@@ -235,6 +237,8 @@ class ProcessoModal {
 
         setTimeout(() => {
             this.modalOverlay.style.display = 'none';
+            // Reaplica a classe de ocultação para garantir que não fique visível por CSS externo
+            try { this.modalOverlay.classList.add('d-none'); } catch(_) {}
             // Restaurar propriedades para próxima abertura
             this.modalOverlay.style.opacity = '';
             this.modalOverlay.style.pointerEvents = '';
