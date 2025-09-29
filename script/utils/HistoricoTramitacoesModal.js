@@ -925,16 +925,10 @@
       body.appendChild(processInfo);
     }
 
-    let signatureMap = null;
-    try {
-      signatureMap = await buildDocSignatureMap(dataRaw || {});
-    } catch(_) {
-      signatureMap = new Map();
-    }
-
+    // Não bloquear a abertura do modal aguardando assinaturas; renderizar imediatamente
     body.innerHTML = '';
 
-    const { stints, totals } = buildTimeline(dataRaw || {}, { docSignatures: signatureMap });
+    const { stints, totals } = buildTimeline(dataRaw || {}, { docSignatures: null });
 
     if (!stints.length) {
       const div = document.createElement('div');
@@ -1063,15 +1057,19 @@
           openDocViewer(id);
         });
       });
-      // Carregar assinaturas para cada peça exibível
-      body.querySelectorAll('.peca-sign[data-doc-id]').forEach(sign => {
-        const docId = sign.getAttribute('data-doc-id');
-        if (window._carregarAssinaturasPeca) {
-          window._carregarAssinaturasPeca(docId, sign).catch(()=>{
-            sign.innerHTML = `<span class="sig-title">Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
+      // Carregar assinaturas para cada peça exibível em background (não bloquear UI)
+      setTimeout(() => {
+        try {
+          body.querySelectorAll('.peca-sign[data-doc-id]').forEach(sign => {
+            const docId = sign.getAttribute('data-doc-id');
+            if (window._carregarAssinaturasPeca) {
+              window._carregarAssinaturasPeca(docId, sign).catch(()=>{
+                sign.innerHTML = `<span class="sig-title">Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
+              });
+            }
           });
-        }
-      });
+        } catch(_) {}
+      }, 0);
       const closeBtn = document.getElementById('historico-tramitacoes-viewer-close');
       if (closeBtn && !closeBtn._histBound) {
   closeBtn.addEventListener('click', (e)=>{ e.preventDefault(); resetHistoricoLayout(); });
@@ -1094,41 +1092,23 @@
   }
 
   // ================= Dados / Cache / Fetch =================
+  // Apenas utiliza o cache já preenchido por outros módulos (sem fetch por clique)
   async function ensureProcessData(numero) {
     const num = normalizarNumero(numero);
     const shared = getSharedProcessCache();
-    if (shared && shared.has(num) && shared.get(num) && shared.get(num).raw) {
-      return shared.get(num).raw;
-    }
-    // Tenta reaproveitar módulo de documentos, se existir
-    try {
-      const mod = (window && window.debugDocumentosProcesso) ? window.debugDocumentosProcesso : null;
-      if (mod && typeof mod.buscarPorNumero === 'function') {
-        const r = await mod.buscarPorNumero(num, { force: true });
-        // esperar que o módulo preencha seu cache; procurar no compartilhado
-        if (shared && shared.has(num) && shared.get(num).raw) return shared.get(num).raw;
-        if (r && r.raw) return r.raw;
-      }
-    } catch(_) {}
+    const entry = shared && shared.has(num) ? shared.get(num) : null;
+    return entry && entry.raw ? entry.raw : null;
+  }
 
-    // Fallback: chamada direta à API por número (compatível com AcompanhamentoProcessos.js)
-    try {
-      const resp = await fetch('https://api-processos.tce.ce.gov.br/processos/porNumero', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ numero: num })
-      });
-      if (!resp.ok) throw new Error('HTTP '+resp.status);
-      const data = await resp.json();
-      const item = data && data.data && Array.isArray(data.data.lista) ? data.data.lista[0] : null;
-      // Sincroniza no cache compartilhado no formato esperado
-      const entry = { raw: item || null, documentos: [], sigiloso: !!(item && item.sigiloso) };
-      shared.set(num, entry);
-      return item;
-    } catch(err) {
-      console.error('[HistoricoTramitacoes] Falha ao buscar processo', num, err);
-      throw err;
+  async function waitForNumeroInCache(numero, { timeoutMs = 12000 } = {}){
+    const num = normalizarNumero(numero);
+    const shared = getSharedProcessCache();
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      if (shared && shared.has(num) && shared.get(num) && shared.get(num).raw) return shared.get(num);
+      await new Promise(r=>setTimeout(r, 150));
     }
+    return null;
   }
 
   // ================= Botão nos TRs =================
@@ -1168,7 +1148,6 @@
       if (!numero) return;
       btn.disabled = true;
       try {
-        const raw = await ensureProcessData(numero);
         // Extrai Projeto e ID PCA da mesma linha (similar ao ModalManager)
         let projectName = '';
         let idPca = '';
@@ -1216,7 +1195,21 @@
             }
           }
         } catch(_) { /* ignore */ }
-  await openHistoricoModal(numero, raw || {}, { idPca, projectName });
+
+        // Abre imediatamente com o que houver em cache (mesmo que incompleto)
+        const shared = getSharedProcessCache();
+        const entryNow = shared && shared.has(numero) ? shared.get(numero) : null;
+        const hadRaw = !!(entryNow && entryNow.raw);
+        await openHistoricoModal(numero, (entryNow && entryNow.raw) || {}, { idPca, projectName });
+
+        // Em background, aguarda o cache ficar disponível; ao chegar, re-renderiza o conteúdo
+        waitForNumeroInCache(numero, { timeoutMs: 15000 }).then(entry => {
+          try {
+            if (entry && entry.raw && !hadRaw) {
+              openHistoricoModal(numero, entry.raw, { idPca, projectName });
+            }
+          } catch(_) {}
+        });
       } catch(err) {
         // Feedback simples em caso de erro
         try { alert('Não foi possível carregar o histórico deste processo.'); } catch(_) {}

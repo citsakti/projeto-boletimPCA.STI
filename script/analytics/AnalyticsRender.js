@@ -979,3 +979,14 @@ function renderTipoDetails(tipo) {
     
     return html;
 }
+
+/** Helper para renderizar célula de Projeto com ícone 🛍️ (Comprasgov) quando disponível */
+function renderProjectCellWithCompras(projectText, modalidadeX = '', numeroY = '') {
+    const text = projectText == null ? '' : String(projectText);
+    const y = numeroY == null ? '' : String(numeroY).trim();
+    const hasCompras = y !== '' && y !== '-';
+    if (!hasCompras) return text;
+    const x = modalidadeX == null ? '' : String(modalidadeX).trim();
+    const comprasAttrs = ` class="comprasgov-link-icon" title="Abrir acompanhamento no Comprasnet" data-x="${x}" data-y="${y}"`;
+    return `${text} <span${comprasAttrs}>🛍️</span>`;
+}

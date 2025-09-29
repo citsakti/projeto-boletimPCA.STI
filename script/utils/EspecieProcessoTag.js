@@ -37,41 +37,98 @@
     return String(raw).replace(/[^0-9./-]/g,'').trim();
   }
 
-  // Extrai número do processo a partir do TR (mesmo padrão do AcompanhamentoProcessos.js)
+  // Tenta obter a célula de processo tanto na tabela principal (#detalhes) quanto nas analíticas (.project-details-table)
+  function obterCelulaProcesso(tr) {
+    if (!tr) return null;
+    // Layout clássico (index.html)
+    let processoCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
+    // Layout Analytics (.project-details-table): a última coluna também é Processo, mas tem HTML estruturado
+    const isAnalyticsRow = tr.closest('table') && tr.closest('table').classList.contains('project-details-table');
+    if (isAnalyticsRow) {
+      const tds = tr.querySelectorAll('td');
+      if (tds.length > 0) processoCell = tds[tds.length - 1];
+    }
+    return processoCell || null;
+  }
+
+  // Extrai número do processo a partir do TR para ambos layouts
   function obterNumeroDoTR(tr) {
     if (!tr) return '';
-    let processoCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
+    const processoCell = obterCelulaProcesso(tr);
     if (!processoCell) return '';
+    // No layout Analytics, o número está dentro de .processo-tag[data-proc]
+    const tag = processoCell.querySelector('.processo-tag');
+    if (tag && tag.getAttribute('data-proc')) {
+      return normalizarNumero(tag.getAttribute('data-proc'));
+    }
     let texto = processoCell.dataset?.processoNumero || processoCell.textContent || '';
     texto = texto.replace('🔗', '').trim();
     return normalizarNumero(texto);
   }
 
-  // Obtém a célula da coluna "Projeto de Aquisição" para uma linha específica
+  // Obtém a célula da coluna "Projeto" para uma linha específica (index.html e analytics)
   function obterCelulaProjeto(tr) {
     if (!tr) return null;
-    return tr.querySelector('td[data-label="Projeto de Aquisição"]') || tr.children[3] || null;
+    // index.html (tabela principal): coluna com data-label
+    let cel = tr.querySelector('td[data-label="Projeto de Aquisição"]') || tr.children[3] || null;
+    // analytics: terceira coluna é "Projeto" nas tabelas .project-details-table
+    const isAnalyticsRow = tr.closest('table') && tr.closest('table').classList.contains('project-details-table');
+    if (isAnalyticsRow) {
+      try {
+        const table = tr.closest('table');
+        const ths = table ? Array.from(table.querySelectorAll('thead th')) : [];
+        let projetoIdx = -1;
+        if (ths.length) {
+          projetoIdx = ths.findIndex(th => /\bprojeto\b/i.test(th.textContent || ''));
+        }
+        const tds = tr.querySelectorAll('td');
+        if (projetoIdx >= 0 && projetoIdx < tds.length) {
+          cel = tds[projetoIdx];
+        } else if (tds.length >= 3) {
+          // Fallback para a 3ª coluna caso não encontre o cabeçalho
+          cel = tds[2];
+        }
+      } catch(_err) {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 3) cel = tds[2];
+      }
+    }
+    return cel;
   }
 
-  // Obtém dados do Comprasnet da célula do processo
+  // Obtém dados do Comprasnet da célula do processo (suporta layout analytics)
   function obterDadosComprasnet(tr) {
     if (!tr) return null;
-    
     try {
-      // Buscar na célula do processo pelos data attributes
-      const processoCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
+      const processoCell = obterCelulaProcesso(tr);
       if (!processoCell) return null;
-      
+      // No analytics, o ícone possui .comprasgov-link-icon com data-x/data-y
+      const icon = processoCell.querySelector('.comprasgov-link-icon');
+      if (icon) {
+        const dataX = icon.getAttribute('data-x') || '';
+        const dataY = icon.getAttribute('data-y') || '';
+        if (dataY && dataY.trim() !== '' && dataY.trim() !== '-') {
+          return { modalidade: dataX.trim(), numero: dataY.trim() };
+        }
+      }
+      // Fallback adicional: caso o ícone já tenha sido movido para a célula de Projeto
+      const projetoCell = obterCelulaProjeto(tr);
+      if (projetoCell) {
+        const iconProj = projetoCell.querySelector('.comprasgov-link-icon');
+        if (iconProj) {
+          const dataX = iconProj.getAttribute('data-x') || '';
+          const dataY = iconProj.getAttribute('data-y') || '';
+          if (dataY && dataY.trim() !== '' && dataY.trim() !== '-') {
+            return { modalidade: dataX.trim(), numero: dataY.trim() };
+          }
+        }
+      }
+      // Fallback para layout antigo com data-x/data-y no TD
       const dataX = processoCell.getAttribute('data-x');
       const dataY = processoCell.getAttribute('data-y');
-      
       if (dataY && dataY.trim() !== '' && dataY.trim() !== '-') {
-        return {
-          modalidade: dataX ? dataX.trim() : '',
-          numero: dataY.trim()
-        };
+        return { modalidade: dataX ? dataX.trim() : '', numero: dataY.trim() };
       }
-      
       return null;
     } catch (error) {
       console.warn('[EspecieProcesso] Erro ao obter dados Comprasnet:', error);
@@ -92,7 +149,7 @@
   // Remove o ícone do Comprasnet da célula de processo para evitar duplicação
   function removeComprasnetIconFromProcessCell(tr) {
     try {
-      const processoCell = tr.querySelector('td[data-label="Processo"]') || tr.children[9] || tr.querySelector('td:last-child');
+      const processoCell = obterCelulaProcesso(tr);
       if (processoCell) {
         const icon = processoCell.querySelector('.comprasgov-link-icon');
         if (icon && icon.parentNode) {
@@ -107,14 +164,41 @@
   // Extrai a espécie do processo dos dados da API
   function extrairEspecieProcesso(dadosProcesso) {
     try {
-      if (!dadosProcesso || !dadosProcesso.raw) return null;
-      const raw = dadosProcesso.raw;
-      if (raw.especie && raw.especie.descricao) {
-        return {
-          descricao: raw.especie.descricao,
-          id: raw.especie.id || null
-        };
+      if (!dadosProcesso) return null;
+      const raw = dadosProcesso.raw || dadosProcesso;
+      if (!raw) return null;
+
+      // 1) Formato esperado: raw.especie.descricao
+      if (raw.especie && (raw.especie.descricao || raw.especie.nome || raw.especie.label)) {
+        const desc = raw.especie.descricao || raw.especie.nome || raw.especie.label;
+        return { descricao: String(desc), id: raw.especie.id || null };
       }
+
+      // 2) Alternativas comuns de campo direto
+      const candidates = [
+        raw.especieDescricao,
+        raw.descricaoEspecie,
+        raw.tipoEspecie,
+        raw.especie, // caso venha string simples
+        raw.modalidade && (raw.modalidade.descricao || raw.modalidade.nome) // fallback aproximado
+      ].filter(Boolean);
+      if (candidates.length) {
+        return { descricao: String(candidates[0]).trim(), id: null };
+      }
+
+      // 3) Busca por chave contendo 'especie' genericamente
+      try {
+        for (const k of Object.keys(raw)) {
+          if (/esp(e|é)cie/i.test(k) && raw[k]) {
+            const val = raw[k];
+            if (typeof val === 'string' && val.trim()) return { descricao: val.trim(), id: null };
+            if (typeof val === 'object' && (val.descricao || val.nome || val.label)) {
+              return { descricao: String(val.descricao || val.nome || val.label), id: val.id || null };
+            }
+          }
+        }
+      } catch(_){}
+
       return null;
     } catch (error) {
       console.warn('[EspecieProcesso] Erro ao extrair espécie:', error);
@@ -135,48 +219,64 @@
     return `<span class="especie-processo-tag ${classeEspecie}" title="${tooltip}">${descricao}</span>`;
   }
 
-  // Insere a tag da espécie na célula do projeto
+  // Insere/atualiza a tag da espécie na célula do projeto sem remover outros elementos (ex.: ícone 🛍️, contrato-tag)
   function inserirEspecieNaCelula(celulaProjeto, especieTag, comprasnetIcon = '') {
     if (!celulaProjeto) return;
-    
     try {
-      // Verificar se já existe um wrapper para tags
+      // 1) Garantir wrapper e container
       let wrapper = celulaProjeto.querySelector('.projeto-tags-wrapper');
       if (!wrapper) {
         wrapper = document.createElement('div');
         wrapper.className = 'projeto-tags-wrapper';
         celulaProjeto.appendChild(wrapper);
       }
-      
-      // Remover containers anteriores se existirem
-      const tagExistente = wrapper.querySelector('.projeto-especie-container');
-      if (tagExistente) {
-        tagExistente.remove();
+      let container = wrapper.querySelector('.projeto-especie-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'projeto-especie-container';
+        wrapper.appendChild(container);
       }
-      
-      // Criar container principal para a linha de tags
-      const div = document.createElement('div');
-      div.className = 'projeto-especie-container';
-      
-      // Inserir tag de espécie se houver
+
+      // 2) Atualizar/Inserir a tag de espécie
+      const existingEspecie = container.querySelector('.especie-processo-tag');
       if (especieTag) {
-        div.innerHTML = especieTag;
-      }
-      
-      // Inserir ícone do Comprasnet se houver
-      if (comprasnetIcon) {
-        if (especieTag) {
-          div.innerHTML += ' ' + comprasnetIcon;
+        // Criar nó a partir do HTML fornecido
+        const temp = document.createElement('div');
+        temp.innerHTML = especieTag.trim();
+        const newTag = temp.firstElementChild;
+        if (existingEspecie) {
+          existingEspecie.replaceWith(newTag);
         } else {
-          div.innerHTML = comprasnetIcon;
+          container.insertBefore(newTag, container.firstChild);
+        }
+      } else {
+        // Sem espécie: se houver placeholder, removê-lo; manter demais itens (como 🛍️ e contrato-tag)
+        if (existingEspecie) existingEspecie.remove();
+      }
+
+      // 3) Garantir/Preservar ícone do Comprasnet
+      const existingIcon = container.querySelector('.comprasgov-link-icon');
+      if (comprasnetIcon) {
+        if (!existingIcon) {
+          const tempIcon = document.createElement('div');
+          tempIcon.innerHTML = comprasnetIcon.trim();
+          const iconEl = tempIcon.firstElementChild;
+          container.appendChild(iconEl);
+        } else {
+          // Atualiza data-x/data-y se necessário
+          const tempIcon = document.createElement('div');
+          tempIcon.innerHTML = comprasnetIcon.trim();
+          const newIcon = tempIcon.firstElementChild;
+          if (newIcon) {
+            const dx = newIcon.getAttribute('data-x') || '';
+            const dy = newIcon.getAttribute('data-y') || '';
+            if (dx) existingIcon.setAttribute('data-x', dx);
+            if (dy) existingIcon.setAttribute('data-y', dy);
+          }
         }
       }
-      
-      // Só adicionar se há conteúdo
-      if (div.innerHTML.trim()) {
-        wrapper.appendChild(div);
-      }
-      
+      // Se comprasnetIcon não foi fornecido nesta chamada, preservamos o existente (não removemos)
+
     } catch (error) {
       console.warn('[EspecieProcesso] Erro ao inserir tag na célula:', error);
     }
@@ -370,35 +470,44 @@
   // Insere placeholder enquanto aguarda dados da API
   function inserirPlaceholderEspecie(celulaProjeto, comprasnetIcon = '') {
     if (!celulaProjeto) return;
-    
     try {
+      // Garantir wrapper e container
       let wrapper = celulaProjeto.querySelector('.projeto-tags-wrapper');
       if (!wrapper) {
         wrapper = document.createElement('div');
         wrapper.className = 'projeto-tags-wrapper';
         celulaProjeto.appendChild(wrapper);
       }
-      
-      // Remover container anterior se existir
-      const tagExistente = wrapper.querySelector('.projeto-especie-container');
-      if (tagExistente) {
-        tagExistente.remove();
+      let container = wrapper.querySelector('.projeto-especie-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'projeto-especie-container';
+        wrapper.appendChild(container);
       }
-      
-      // Inserir placeholder
-      const div = document.createElement('div');
-      div.className = 'projeto-especie-container';
-      
-      let content = '<span class="especie-processo-tag especie-loading" title="Carregando espécie...">⏳ Carregando...</span>';
-      
-      // Incluir ícone do Comprasnet se houver
+
+      // Atualizar/Inserir placeholder de espécie (preserva outros elementos)
+      const existingEspecie = container.querySelector('.especie-processo-tag');
+      const placeholderHtml = '<span class="especie-processo-tag especie-loading" title="Carregando espécie...">⏳ Carregando...</span>';
+      const temp = document.createElement('div');
+      temp.innerHTML = placeholderHtml;
+      const placeholderEl = temp.firstElementChild;
+      if (existingEspecie) {
+        existingEspecie.replaceWith(placeholderEl);
+      } else {
+        container.insertBefore(placeholderEl, container.firstChild);
+      }
+
+      // Garantir/Adicionar ícone do Comprasnet se fornecido e ainda não presente
       if (comprasnetIcon) {
-        content += ' ' + comprasnetIcon;
+        const hasIcon = container.querySelector('.comprasgov-link-icon');
+        if (!hasIcon) {
+          const tempIcon = document.createElement('div');
+          tempIcon.innerHTML = comprasnetIcon.trim();
+          const iconEl = tempIcon.firstElementChild;
+          if (iconEl) container.appendChild(iconEl);
+        }
       }
-      
-      div.innerHTML = content;
-      wrapper.appendChild(div);
-      
+
     } catch (error) {
       console.warn('[EspecieProcesso] Erro ao inserir placeholder:', error);
     }
@@ -450,20 +559,115 @@
       
       // Se não estiver no cache, inserir placeholder
       inserirPlaceholderEspecie(celulaProjeto, comprasnetIcon);
+
+      // Retry direcionado aguardando cache (limitado)
+      iniciarAguardoCache(numero, celulaProjeto, comprasnetIcon);
       
     } catch (error) {
       console.warn('[EspecieProcesso] Erro ao processar linha:', error);
     }
   }
 
+  // Controle de retries por número para evitar múltiplos timers
+  const _aguardos = new Map(); // numero -> { tries, timer }
+  function atualizarTodasLinhasComNumero(num){
+    const cache = getSharedProcessCache();
+    const dados = cache.get(num);
+    const especie = extrairEspecieProcesso(dados);
+    const updateInContainer = (container) => {
+      if (!container) return;
+      container.querySelectorAll('tr').forEach(tr => {
+        const nTr = obterNumeroDoTR(tr);
+        if (nTr === num) {
+          const celProj = obterCelulaProjeto(tr);
+          if (!celProj) return;
+          // recomputar comprasnet por linha
+          const dadosComprasnet = obterDadosComprasnet(tr);
+          const icon = dadosComprasnet ? renderComprasnetIcon(dadosComprasnet) : '';
+          if (dadosComprasnet) removeComprasnetIconFromProcessCell(tr);
+          if (especie) {
+            const tag = renderEspecieTag(especie);
+            inserirEspecieNaCelula(celProj, tag, icon);
+          } else if (icon) {
+            inserirEspecieNaCelula(celProj, '', icon);
+          } else {
+            const wrapper = celProj.querySelector('.projeto-tags-wrapper');
+            if (wrapper) {
+              const container = wrapper.querySelector('.projeto-especie-container');
+              if (container) container.remove();
+            }
+          }
+        }
+      });
+    };
+    atualizarTodasLinhasNoDOM(num, updateInContainer);
+  }
+
+  function atualizarTodasLinhasNoDOM(num, cb){
+    const tbMain = document.querySelector('#detalhes table tbody');
+    if (tbMain) cb(tbMain);
+    document.querySelectorAll('table.project-details-table tbody').forEach(tb => cb(tb));
+  }
+  function iniciarAguardoCache(numero, celulaProjeto, comprasnetIcon){
+    const num = normalizarNumero(numero);
+    if (!num) return;
+    if (_aguardos.has(num)) return; // já aguardando
+    const cache = getSharedProcessCache();
+    const maxTries = 60; // ~12s @200ms
+    const intervalMs = 200;
+    const state = { tries: 0, timer: null };
+    const tick = () => {
+      try {
+        state.tries++;
+        if (cache.has(num)) {
+          // Atualiza todas as linhas que possuem esse número
+          atualizarTodasLinhasComNumero(num);
+          clearInterval(state.timer);
+          _aguardos.delete(num);
+          return;
+        }
+        if (state.tries >= maxTries) {
+          // Timeout: substitui placeholder por apenas o ícone (se houver) ou limpa
+          atualizarTodasLinhasNoDOM(num, (tb)=>{
+            tb.querySelectorAll('tr').forEach(tr=>{
+              const nTr = obterNumeroDoTR(tr);
+              if (nTr !== num) return;
+              const celProj = obterCelulaProjeto(tr);
+              if (!celProj) return;
+              const dadosComprasnet = obterDadosComprasnet(tr);
+              const icon = dadosComprasnet ? renderComprasnetIcon(dadosComprasnet) : '';
+              if (icon) inserirEspecieNaCelula(celProj, '', icon);
+              else {
+                const wrapper = celProj.querySelector('.projeto-tags-wrapper');
+                if (wrapper) {
+                  const container = wrapper.querySelector('.projeto-especie-container');
+                  if (container) container.remove();
+                }
+              }
+            });
+          });
+          clearInterval(state.timer);
+          _aguardos.delete(num);
+        }
+      } catch (e) {
+        clearInterval(state.timer);
+        _aguardos.delete(num);
+      }
+    };
+    state.timer = setInterval(tick, intervalMs);
+    _aguardos.set(num, state);
+  }
+
   // Processa todas as linhas da tabela
   function processarTodasAsLinhas() {
-    const tbody = document.querySelector('#detalhes table tbody');
-    if (!tbody) return;
-    
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach(tr => {
-      processarLinha(tr);
+    // 1) Tabela principal no index.html
+    const tbodyMain = document.querySelector('#detalhes table tbody');
+    if (tbodyMain) {
+      tbodyMain.querySelectorAll('tr').forEach(tr => processarLinha(tr));
+    }
+    // 2) Tabelas analíticas (.project-details-table)
+    document.querySelectorAll('table.project-details-table tbody').forEach(tb => {
+      tb.querySelectorAll('tr').forEach(tr => processarLinha(tr));
     });
   }
 
@@ -479,16 +683,15 @@
   // Processa apenas uma linha específica por número (para atualizações parciais)
   function processarLinhaPorNumero(numero) {
     if (!numero) return;
-    const tbody = document.querySelector('#detalhes table tbody');
-    if (!tbody) return;
-    
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach(tr => {
-      const numeroTr = obterNumeroDoTR(tr);
-      if (numeroTr === numero) {
-        processarLinha(tr);
-      }
-    });
+    const tryProcess = (container) => {
+      if (!container) return;
+      container.querySelectorAll('tr').forEach(tr => {
+        const numeroTr = obterNumeroDoTR(tr);
+        if (numeroTr === numero) processarLinha(tr);
+      });
+    };
+    tryProcess(document.querySelector('#detalhes table tbody'));
+    document.querySelectorAll('table.project-details-table tbody').forEach(tb => tryProcess(tb));
   }
 
   // Função principal que é executada quando a tabela é carregada
@@ -544,6 +747,46 @@
       scheduleUpdate(300);
     }
   });
+
+  // Quando o cache de processos for atualizado pelo AnalyticsProcessoAPI, reprocessar rapidamente
+  document.addEventListener('processo-cache-atualizado', (ev) => {
+    try {
+      const nums = (ev && ev.detail && Array.isArray(ev.detail.numeros)) ? ev.detail.numeros : [];
+      if (nums.length === 1) {
+        processarLinhaPorNumero(nums[0]);
+      } else {
+        scheduleUpdate(150);
+      }
+    } catch (_) {
+      scheduleUpdate(200);
+    }
+  });
+
+  // Observar inserções no DOM para detectar tabelas analíticas renderizadas depois
+  try {
+    const observer = new MutationObserver((mutations) => {
+      let shouldUpdate = false;
+      for (const m of mutations) {
+        if (m.type === 'childList') {
+          m.addedNodes.forEach((node) => {
+            if (node.nodeType !== Node.ELEMENT_NODE) return;
+            if (
+              node.matches?.('table.project-details-table') ||
+              node.querySelector?.('table.project-details-table') ||
+              node.matches?.('#detalhes table') ||
+              node.querySelector?.('#detalhes table')
+            ) {
+              shouldUpdate = true;
+            }
+          });
+        }
+      }
+      if (shouldUpdate) scheduleUpdate(200);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  } catch (errObs) {
+    console.warn('[EspecieProcesso] MutationObserver não pôde ser iniciado:', errObs);
+  }
 
   // Também tentar executar se a tabela já estiver carregada
   if (document.readyState === 'loading') {

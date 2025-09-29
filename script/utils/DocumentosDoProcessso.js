@@ -75,10 +75,33 @@
   #documentos-modal-overlay .flex-fill { flex: 1 1 auto; min-height: 0; }
   /* Corpo com índice à esquerda e viewer à direita */
   .documentos-modal-body { flex: 1 1 auto; height: 100%; min-height: 0; overflow: hidden; display: grid; grid-template-columns: 320px 1fr; }
-      .documentos-index { border-right: 1px solid #eee; overflow: auto; padding: 10px; min-width: 0; }
-      .documentos-index .doc-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; }
-      .documentos-index .doc-item:hover { background: #f6f8fc; border-color: #e9eef6; }
+  .documentos-index { border-right: 1px solid #eee; overflow: auto; padding: 10px; min-width: 0; box-sizing: border-box; }
+  /* Barra de busca fixa no topo do índice */
+  .documentos-index .documentos-index-controls { position: sticky; top: 0; z-index: 2; background: #f5f7fb; padding: 10px; margin: 0 0 8px 0; border: 1px solid #e5e7eb; border-radius: 8px; }
+  .documentos-index .documentos-index-controls .row { display:flex; gap:8px; align-items:center; width:100%; box-sizing:border-box; }
+  .documentos-index .documentos-index-controls select,
+  .documentos-index .documentos-index-controls input[type="text"] { border: 1px solid #d1d5db; border-radius: 6px; padding: 8px 10px; font-size: 12px; background: #fff; color:#111827; box-sizing:border-box; }
+  .documentos-index .documentos-index-controls select { flex: 0 0 140px; max-width: 45%; min-width: 120px; }
+  .documentos-index .documentos-index-controls input[type="text"] { flex: 1 1 auto; min-width: 0; }
+  .documentos-index .documentos-index-controls select:focus,
+  .documentos-index .documentos-index-controls input[type="text"]:focus { outline: none; border-color:#93c5fd; box-shadow: 0 0 0 3px rgba(147,197,253,.3); }
+  .documentos-index .documentos-index-controls .doc-index-clear-btn { flex: 0 0 28px; width: 28px; height: 28px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #d1d5db; background:#fff; color:#374151; border-radius:6px; cursor:pointer; }
+  .documentos-index .documentos-index-controls .doc-index-clear-btn:hover { background:#f3f4f6; }
+  .documentos-index .documentos-index-controls .doc-index-clear-btn:focus { outline:none; border-color:#93c5fd; box-shadow:0 0 0 3px rgba(147,197,253,.3); }
+  .documentos-index .documentos-index-controls .doc-index-clear-btn svg { width:16px; height:16px; display:block; }
+  .documentos-index .documentos-index-controls .meta { margin-top:6px; font-size:11px; color:#6b7280; }
+  .documentos-index .documentos-index-list { display:block; }
+  .documentos-index .doc-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px; border-radius: 6px; cursor: pointer; border: 1px solid #e5e7eb; background: #ffffff; margin-bottom: 8px; }
+    .documentos-index .doc-item:hover { background: #f6f8fc; border-color: #e9eef6; }
       .documentos-index .doc-item.active { background: #e8f0fe; border-color: #d2e3fc; }
+  /* Destaque verde para PARECER JURÍDICO (alinhado com o Histórico) */
+  .documentos-index .doc-item.parecer-highlight { background: linear-gradient(135deg, #cbead2 0%, #e6f5ec 70%); border-color: #a5d6a7; box-shadow: inset 0 0 0 1px rgba(165,214,167,.3); }
+  .documentos-index .doc-item.parecer-highlight:hover { background: linear-gradient(135deg, #c3e5cc 0%, #def2e6 70%); border-color: #9ccc9b; }
+  .documentos-index .doc-item.parecer-highlight.active { background: linear-gradient(135deg, #cbead2 0%, #e6f5ec 70%); border-color: #81c784; }
+  /* Destaque azul para TERMO DE REFERÊNCIA (alinhado com os cards azuis do Histórico) */
+  .documentos-index .doc-item.termo-ref-highlight { background: linear-gradient(135deg, #c7ddff 0%, #e3efff 70%); border-color: #90caf9; box-shadow: inset 0 0 0 1px rgba(144,202,249,.3); border-left: 4px solid var(--brand-primary); }
+  .documentos-index .doc-item.termo-ref-highlight:hover { background: linear-gradient(135deg, #bfd6ff 0%, #dbeaff 70%); border-color: #7fb6f2; }
+  .documentos-index .doc-item.termo-ref-highlight.active { background: linear-gradient(135deg, #c7ddff 0%, #e3efff 70%); border-color: #64b5f6; }
       .documentos-index .doc-main { display: grid; gap: 2px; min-width: 0; }
       .documentos-index .doc-title { font-size: 13px; font-weight: 600; color: #202124; overflow: hidden; text-overflow: ellipsis;; }
       .documentos-index .doc-sub { font-size: 12px; color: #19191aff; overflow: hidden; text-overflow: ellipsis; }
@@ -86,7 +109,9 @@
       .documentos-index .doc-sign { margin-top: 4px; font-size: 11px; color: #5f6368; line-height: 1.25; }
       .documentos-index .doc-sign .sig-title { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: #3c4043; }
       .documentos-index .doc-sign .sig-line { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .documentos-index .doc-sign .sig-empty { color: #9aa0a6; font-style: italic; }
+    .documentos-index .doc-sign .sig-empty { color: #9aa0a6; font-style: italic; }
+  /* Afastar levemente os controles do limite esquerdo */
+  .documentos-index .documentos-index-controls .row { padding-left: 12px; }
   /* .doc-actions removido temporariamente (sem ícones extras no índice) */
       .documentos-index .doc-item.disabled { opacity: .6; cursor: not-allowed; }
       .documento-viewer { overflow: auto; min-width: 0; min-height: 0; height: 100%; }
@@ -156,8 +181,8 @@
   function openDocumentosModal(numeroProcesso, documentos, meta = {}) {
     ensureStyles();
     ensureModal();
-    const titleEl = document.getElementById('documentos-modal-title');
-    const indexEl = document.getElementById('documentos-index');
+  const titleEl = document.getElementById('documentos-modal-title');
+  const indexEl = document.getElementById('documentos-index');
     const iframe = document.getElementById('documento-viewer-frame');
     if (!indexEl || !iframe) return;
 
@@ -169,6 +194,29 @@
     const numSuffix = numeroProcesso ? ` | ${numeroProcesso}` : '';
     titleEl.textContent = `${mainTitle}${numSuffix}`;
     indexEl.innerHTML = '';
+    // Controles de busca
+    const controls = document.createElement('div');
+    controls.className = 'documentos-index-controls';
+      controls.innerHTML = `
+      <div class="row">
+          <select id="doc-index-filter-mode" aria-label="Selecionar modo de filtro">
+            <option value="peca">Peça</option>
+            <option value="setor">Setor</option>
+            <option value="pessoa">Pessoas</option>
+          </select>
+          <input id="doc-index-filter-input" type="text" placeholder="Filtrar por peça..." aria-label="Filtrar itens" />
+          <button id="doc-index-clear-btn" class="doc-index-clear-btn" type="button" title="Limpar busca" aria-label="Limpar busca">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>
+          </button>
+      </div>`;
+    indexEl.appendChild(controls);
+    // Container da lista
+    const listEl = document.createElement('div');
+    listEl.className = 'documentos-index-list';
+    indexEl.appendChild(listEl);
 
   // Montar itens do índice e determinar primeiro documento exibível
   let firstDisplayable = null;
@@ -182,11 +230,22 @@
       item.dataset.docId = String(doc.id || '');
       item.title = canDisplay ? 'Abrir documento' : 'Documento indisponível';
 
-      const main = document.createElement('div');
+  const main = document.createElement('div');
       main.className = 'doc-main';
   const titulo = document.createElement('div');
   titulo.className = 'doc-title';
   const tipo = (doc.tipoAtoDocumento && doc.tipoAtoDocumento.descricao) ? doc.tipoAtoDocumento.descricao : 'Documento';
+  // Se for PARECER JURÍDICO, aplicar destaque verde no card
+  try {
+    const normTipo = String(tipo).normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase();
+    if (normTipo.includes('PARECER JURIDICO')) {
+      item.classList.add('parecer-highlight');
+    }
+    // Se for TERMO DE REFERÊNCIA, aplicar destaque azul no card
+    if (normTipo.includes('TERMO DE REFERENCIA')) {
+      item.classList.add('termo-ref-highlight');
+    }
+  } catch(_) {}
   // Anexar número do ato (numero/ano) após o tipo, conforme JSON
   const partesAto = [];
   if (doc && doc.numero) partesAto.push(String(doc.numero));
@@ -199,6 +258,11 @@
       sub.className = 'doc-sub';
       const data = doc.dataFinalizacao ? ` • ${doc.dataFinalizacao}` : '';
       const setor = (doc.setor && doc.setor.descricao) ? doc.setor.descricao : '';
+      // Atributos de dados para filtragem
+      try {
+        item.dataset.peca = `${tituloBase}`;
+        item.dataset.setor = `${setor}`;
+      } catch(_) {}
       sub.textContent = [setor, data].filter(Boolean).join('');
       main.appendChild(titulo);
       main.appendChild(sub);
@@ -215,7 +279,7 @@
       main.appendChild(sign);
 
   item.appendChild(main);
-      indexEl.appendChild(item);
+  listEl.appendChild(item);
 
       if (canDisplay) {
         item.addEventListener('click', () => {
@@ -226,20 +290,38 @@
           iframe.src = API_DOC_ARQUIVO + encodeURIComponent(doc.id);
           // Dispara busca de assinaturas on-click, caso ainda não tenha sido carregada
           if (!cacheAssinaturasDoc.has(String(doc.id))) {
-            carregarAssinaturasNoElemento(doc.id, sign).catch(()=>{
+            carregarAssinaturasNoElemento(doc.id, sign).then(()=>{
+              try {
+                const key = String(doc.id);
+                const cached = cacheAssinaturasDoc.get(key);
+                const nomes = Array.isArray(cached && cached.assinaturas) ? cached.assinaturas.map(a=>a && a.nome ? String(a.nome) : '').filter(Boolean) : [];
+                item.dataset.signers = nomes.join(' | ');
+                const host = document.getElementById('documentos-index');
+                if (host && typeof host._applyFilter === 'function') host._applyFilter();
+              } catch(_) {}
+            }).catch(()=>{
               // falha silenciosa
             });
           }
         });
         // Busca assinaturas para o item assim que construído (carregamento inicial)
-        carregarAssinaturasNoElemento(doc.id, sign).catch(()=>{
+        carregarAssinaturasNoElemento(doc.id, sign).then(() => {
+          try {
+            const key = String(doc.id);
+            const cached = cacheAssinaturasDoc.get(key);
+            const nomes = Array.isArray(cached && cached.assinaturas) ? cached.assinaturas.map(a=>a && a.nome ? String(a.nome) : '').filter(Boolean) : [];
+            item.dataset.signers = nomes.join(' | ');
+            const host = document.getElementById('documentos-index');
+            if (host && typeof host._applyFilter === 'function') host._applyFilter();
+          } catch(_) {}
+        }).catch(()=>{
           sign.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
         });
       }
     });
 
     // Seleciona e carrega primeiro documento exibível
-    const firstItem = indexEl.querySelector('.doc-item:not(.disabled)');
+  const firstItem = listEl.querySelector('.doc-item:not(.disabled)');
     if (firstDisplayable && firstItem) {
       firstItem.classList.add('active');
       iframe.src = API_DOC_ARQUIVO + encodeURIComponent(firstDisplayable.id);
@@ -247,6 +329,50 @@
       iframe.removeAttribute('src');
       iframe.title = 'Nenhum documento disponível para visualização';
     }
+
+    // Filtro dinâmico
+    try {
+      const modeSel = document.getElementById('doc-index-filter-mode');
+      const input = document.getElementById('doc-index-filter-input');
+      const applyFilter = () => {
+        const mode = (modeSel && modeSel.value) || 'peca';
+        const q = (input && input.value || '').normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase().trim();
+        const items = listEl.querySelectorAll('.doc-item');
+        items.forEach(el => {
+          const peca = (el.dataset.peca || '').toUpperCase();
+          const setor = (el.dataset.setor || '').toUpperCase();
+          const pessoas = (el.dataset.signers || '').toUpperCase();
+          const hay = q ? (mode === 'setor' ? setor.includes(q) : (mode === 'pessoa' ? pessoas.includes(q) : peca.includes(q))) : true;
+          el.style.display = hay ? '' : 'none';
+        });
+        // Não alterar iframe durante digitação; apenas esconder/exibir cards.
+        // Se o item ativo foi ocultado, remover apenas o destaque visual.
+        const active = listEl.querySelector('.doc-item.active');
+        if (active && active.style.display === 'none') active.classList.remove('active');
+      };
+      if (modeSel) modeSel.addEventListener('change', () => {
+        // Atualiza placeholder conforme modo
+        if (input) {
+          const m = (modeSel.value || 'peca');
+          input.placeholder = m === 'setor' ? 'Filtrar por setor...' : (m === 'pessoa' ? 'Filtrar por pessoa (assinaturas)...' : 'Filtrar por peça...');
+          // Limpa o campo quando trocar o modo
+          input.value = '';
+        }
+        applyFilter();
+      });
+      if (input) input.addEventListener('input', applyFilter);
+      const clearBtn = document.getElementById('doc-index-clear-btn');
+      if (clearBtn && input) {
+        clearBtn.addEventListener('click', () => {
+          input.value = '';
+          applyFilter();
+          // Foco volta para o input
+          try { input.focus(); } catch(_) {}
+        });
+      }
+      // Expor função para reuso quando assinaturas chegarem
+      indexEl._applyFilter = applyFilter;
+    } catch(_) {}
 
     if (window.modalManager) window.modalManager.openModal('documentos-modal');
     else document.getElementById('documentos-modal-overlay').style.display = 'flex';
@@ -296,16 +422,23 @@
   async function carregarAssinaturasNoElemento(documentoId, signContainer) {
     if (!documentoId || !signContainer) return;
     try {
+      const key = String(documentoId);
       // Evitar refetch se já carregado com sucesso
-      if (cacheAssinaturasDoc.has(String(documentoId))) {
-        const cached = cacheAssinaturasDoc.get(String(documentoId));
+      if (cacheAssinaturasDoc.has(key)) {
+        const cached = cacheAssinaturasDoc.get(key);
         renderAssinaturas(signContainer, cached.assinaturas || []);
         return;
       }
-      // Placeholder de carregamento
+      // Placeholder de carregamento e busca assíncrona em background
       signContainer.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line">Carregando...</span>`;
-      const assinaturas = await fetchAssinaturasDocumento(documentoId);
-      renderAssinaturas(signContainer, assinaturas);
+      setTimeout(async () => {
+        try {
+          const assinaturas = await fetchAssinaturasDocumento(documentoId);
+          renderAssinaturas(signContainer, assinaturas);
+        } catch (_) {
+          signContainer.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
+        }
+      }, 0);
     } catch (_) {
       signContainer.innerHTML = `<span class="sig-title">${SVG_PEN} Assinaturas</span><span class="sig-line sig-empty">Erro ao carregar</span>`;
     }

@@ -22,9 +22,52 @@
     return window._processoPorNumeroCache;
   }
 
+  // Acessa o módulo de documentos se carregado, para reutilizar o cache e manter consistência
+  function getDocsModule(){
+    return (window && window.debugDocumentosProcesso) ? window.debugDocumentosProcesso : null;
+  }
+  function getDocsCache(){
+    const mod = getDocsModule();
+    return mod && mod.cache ? mod.cache : null; // Map numero -> { raw, documentos, sigiloso }
+  }
+
   function normalizarNumero(raw){
     if (!raw) return '';
     return String(raw).replace(/[^0-9./-]/g,'').trim();
+  }
+
+  // Gerenciador de pré-carregamento em lote
+  function getPrefetchManager(){
+    if (!window._analyticsProcPrefetch) {
+      window._analyticsProcPrefetch = {
+        running: false,
+        lastRunAt: 0,
+        promise: null,
+        // números cobertos no último prefetch
+        covered: new Set(),
+      };
+    }
+    return window._analyticsProcPrefetch;
+  }
+
+  async function waitForNumeroInCache(numero, { timeoutMs = 10000 } = {}){
+    const num = normalizarNumero(numero);
+    if (!num) return null;
+    const shared = getSharedProcessCache();
+    if (shared.has(num)) return shared.get(num);
+    // aguarda prefetch ativo/concluindo
+    const mgr = getPrefetchManager();
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      if (shared.has(num)) return shared.get(num);
+      // se houver uma promessa de prefetch, aguarda-a uma vez
+      if (mgr.promise) {
+        try { await mgr.promise; } catch(_) { /* ignore */ }
+      }
+      if (shared.has(num)) return shared.get(num);
+      await new Promise(r=>setTimeout(r, 150));
+    }
+    return null;
   }
 
   function ensureStyles(){
@@ -44,71 +87,130 @@
     document.head.appendChild(style);
   }
 
-  // Busca compatível, reaproveitando cache do DocumentosDoProcessso se existir
-  async function fetchProcessoPorNumeroCompat(numero){
-    const num = normalizarNumero(numero);
-    if (!num) return null;
-    const shared = getSharedProcessCache();
-    if (shared.has(num)) return shared.get(num);
-    try {
-      const resp = await fetch(API_POR_NUMERO, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero: num })
-      });
-      if (!resp.ok) throw new Error('HTTP '+resp.status);
-      const data = await resp.json();
-      const item = data && data.data && Array.isArray(data.data.lista) ? data.data.lista[0] : null;
-      const documentosSessao = item && item.documentos ? item.documentos : null;
-      const sigiloso = !documentosSessao;
-      const grupos = documentosSessao ? [
+  // Processamento compatível com DocumentosDoProcessso.js
+  function processarRespostaLocal(numero, data){
+    let item = null;
+    try { item = data && data.data && Array.isArray(data.data.lista) ? data.data.lista[0] : null; } catch(_) {}
+    const documentosSessao = item && item.documentos ? item.documentos : null;
+    const sigiloso = !documentosSessao;
+    let documentos = [];
+    if (documentosSessao) {
+      const grupos = [
         documentosSessao.documentosPrincipal,
         documentosSessao.documentosApensados,
         documentosSessao.documentosJuntados,
         documentosSessao.documentosProtocolosJuntados,
         documentosSessao.documentoAgrupados
-      ].filter(Array.isArray) : [];
-      const documentos = grupos.flat();
-      const result = { raw: item || null, documentos, sigiloso };
-      shared.set(num, result);
+      ].filter(Array.isArray);
+      documentos = grupos.flat();
+    }
+    return { raw: item || null, documentos, sigiloso };
+  }
+
+  // Busca robusta (timeout + fallback para {nrProcesso}), sincronizando ambos caches
+  async function fetchProcessoPorNumeroCompat(numero, { timeoutMs = 15000 } = {}){
+    const num = normalizarNumero(numero);
+    if (!num) return null;
+    const shared = getSharedProcessCache();
+    const docsCache = getDocsCache();
+    if (shared.has(num)) return shared.get(num);
+    if (docsCache && docsCache.has(num)) {
+      const v = docsCache.get(num);
+      try { shared.set(num, v); } catch(_) {}
+      return v;
+    }
+    const controller = new AbortController();
+    const to = setTimeout(()=>controller.abort(), timeoutMs);
+    try {
+      let resp = await fetch(API_POR_NUMERO, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero: num }), signal: controller.signal
+      });
+      if (!resp.ok) {
+        if ([400,415,500].includes(resp.status)){
+          try {
+            const resp2 = await fetch(API_POR_NUMERO, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nrProcesso: num }), signal: controller.signal
+            });
+            if (resp2.ok) resp = resp2; else throw new Error('HTTP '+resp.status);
+          } catch(e){ throw e; }
+        } else {
+          const t = await resp.text().catch(()=> '');
+          const err = new Error(`HTTP ${resp.status} ${t || resp.statusText}`);
+          err.httpStatus = resp.status; throw err;
+        }
+      }
+      const data = await resp.json();
+      const result = processarRespostaLocal(num, data);
+      try { shared.set(num, result); } catch(_) {}
+      try { if (docsCache) docsCache.set(num, result); } catch(_) {}
       return result;
-    } catch(e){
-      return null;
+    } finally {
+      clearTimeout(to);
     }
   }
 
   function coletarNumerosDasTabelas(){
     const set = new Set();
-    document.querySelectorAll('.project-details-table tbody tr, .project-details tbody tr').forEach(tr=>{
-      try{
+    try {
+      // Elementos com data-proc nas células renderizadas
+      document.querySelectorAll('.analytics-proc-cell [data-proc], .project-details-table [data-proc], .project-details [data-proc]').forEach(el=>{
+        const n = normalizarNumero(el.getAttribute('data-proc'));
+        if (n) set.add(n);
+      });
+      // Botões de ação com data-proc
+      document.querySelectorAll('.analytics-docs-btn[data-proc], .acomp-historico-btn[data-proc]').forEach(btn=>{
+        const n = normalizarNumero(btn.getAttribute('data-proc'));
+        if (n) set.add(n);
+      });
+      // Fallback: última coluna das linhas
+      document.querySelectorAll('.project-details-table tbody tr, .project-details tbody tr').forEach(tr=>{
         const td = Array.from(tr.children).slice(-1)[0];
         if (!td) return;
-        // Novo HTML já contém a tag com data-proc
-        const tag = td.querySelector('.processo-tag');
-        let numero = tag ? tag.getAttribute('data-proc') : '';
-        if (!numero) {
-          const text = (td.textContent||'').replace(/[🔗🛍️]/g,'');
-          numero = normalizarNumero(text);
-        }
-        if (numero) set.add(numero);
-      } catch(_){}
-    });
+        const text = (td.textContent||'').replace(/[🔗🛍️]/g,'');
+        const n = normalizarNumero(text);
+        if (n) set.add(n);
+      });
+    } catch(_) {}
     return Array.from(set);
   }
 
   async function prefetchProcessos(){
+    const mgr = getPrefetchManager();
     const numeros = coletarNumerosDasTabelas();
     if (!numeros.length) return;
     const shared = getSharedProcessCache();
+    // Não refaça desnecessariamente: cobre novos números ainda não em cache
     const faltantes = numeros.filter(n=>!shared.has(n));
-    const conc = 5; let i = 0; const workers = [];
+    if (!faltantes.length) { mgr.covered = new Set(numeros); return; }
+    // Evita múltiplos prefetch concorrentes
+    if (mgr.running && mgr.promise) {
+      try { await mgr.promise; } catch(_) {}
+      return;
+    }
+    mgr.running = true;
+    mgr.lastRunAt = Date.now();
+    const conc = 10; let i = 0; const workers = [];
     async function worker(){
       while(i < faltantes.length){
         const idx = i++; const n = faltantes[idx];
         await fetchProcessoPorNumeroCompat(n);
       }
     }
-    for(let k=0;k<Math.min(conc,faltantes.length);k++) workers.push(worker());
-    await Promise.all(workers);
-    try { updateDocButtonsState(); } catch(_) {}
+    mgr.promise = (async ()=>{
+      for(let k=0;k<Math.min(conc,faltantes.length);k++) workers.push(worker());
+      await Promise.all(workers);
+      mgr.covered = new Set(numeros);
+      mgr.running = false;
+      mgr.promise = null;
+      try { updateDocButtonsState(); } catch(_) {}
+      try {
+        // Notificar que o cache foi atualizado (compatível com EspecieProcessoTag.js)
+        document.dispatchEvent(new CustomEvent('processo-cache-atualizado', { detail: { numeros: faltantes } }));
+        // Reusar evento já escutado por outros módulos
+        document.dispatchEvent(new Event('acompanhamento-atualizado'));
+      } catch(_){}
+    })();
+    await mgr.promise;
   }
 
   function sanitizeMeta(raw){
@@ -161,7 +263,20 @@
       const meta = tr ? extrairMetaDoTR(tr) : {};
       const shared = getSharedProcessCache();
       let entry = shared.get(normalizarNumero(numero));
-      if (!entry) entry = await fetchProcessoPorNumeroCompat(numero);
+      if (!entry) {
+        // não buscar por clique; aguardar cache do prefetch
+        btn.setAttribute('aria-disabled','true');
+        btn.title = 'Aguardando carregar do cache...';
+        try { await waitForNumeroInCache(numero, { timeoutMs: 12000 }); } catch(_) {}
+        btn.removeAttribute('aria-disabled');
+        btn.removeAttribute('title');
+        entry = shared.get(normalizarNumero(numero));
+        if (!entry) {
+          // ainda indisponível: feedback discreto
+          try { console.warn('[AnalyticsProcessoAPI] Dados do processo ainda não disponíveis no cache.', numero); } catch(_){ }
+          return;
+        }
+      }
       const docs = entry && Array.isArray(entry.documentos) ? entry.documentos : [];
       if (window.debugDocumentosProcesso && typeof window.debugDocumentosProcesso.abrir === 'function'){
         window.debugDocumentosProcesso.abrir(numero, docs, meta);
@@ -180,7 +295,13 @@
       const meta = tr ? extrairMetaDoTR(tr) : {};
       const shared = getSharedProcessCache();
       let entry = shared.get(normalizarNumero(numero));
-      if (!entry) entry = await fetchProcessoPorNumeroCompat(numero);
+      if (!entry) {
+        // aguarda prefetch; não faz fetch aqui
+        btn.setAttribute('disabled','true');
+        try { await waitForNumeroInCache(numero, { timeoutMs: 12000 }); } catch(_) {}
+        btn.removeAttribute('disabled');
+        entry = shared.get(normalizarNumero(numero));
+      }
       const raw = entry ? entry.raw : null;
       if (window.historicoTramitacoes && typeof window.historicoTramitacoes.open === 'function'){
         await window.historicoTramitacoes.open(numero);
@@ -193,7 +314,7 @@
   function afterRenderHook(){
     ensureStyles();
     // Prefetch leve para deixar ícones responsivos
-    setTimeout(()=>{ prefetchProcessos().catch(()=>{}); }, 200);
+    setTimeout(()=>{ prefetchProcessos().catch(()=>{}); }, 100);
   }
 
   function updateDocButtonsState(){
@@ -226,12 +347,38 @@
     ensureStyles();
     attachListeners();
     // Sinal de render concluída: o próprio Analytics.js chama add...Listeners na sequência; aguardar um pouco
-    setTimeout(afterRenderHook, 1000);
+    setTimeout(afterRenderHook, 400);
+    try { observeAnalyticsDashboard(); } catch(_) {}
   });
   // Caso o DOM já tenha carregado
   if (document.readyState !== 'loading'){
     ensureStyles();
     attachListeners();
-    setTimeout(afterRenderHook, 600);
+    setTimeout(afterRenderHook, 200);
+    try { observeAnalyticsDashboard(); } catch(_) {}
+  }
+
+  // Reagir a eventos do ciclo de renderização da tabela para manter o cache fresco
+  document.addEventListener('tabela-carregada', ()=>{ setTimeout(()=>{ prefetchProcessos().catch(()=>{}); }, 50); });
+  document.addEventListener('acompanhamento-atualizado', ()=>{ setTimeout(()=>{ prefetchProcessos().catch(()=>{}); }, 50); });
+
+  // Observa o container do dashboard para prefetch quando se expande/contrai
+  function observeAnalyticsDashboard(){
+    const container = document.getElementById('analytics-dashboard');
+    if (!container || container._analyticsObsInit) return;
+    container._analyticsObsInit = true;
+    const obs = new MutationObserver((muts)=>{
+      if (muts.some(m=>m.type==='childList' || m.type==='attributes')){
+        setTimeout(()=>{ prefetchProcessos().catch(()=>{}); }, 80);
+      }
+    });
+    obs.observe(container, { childList: true, subtree: true, attributes: true, attributeFilter: ['style','class'] });
+
+    document.addEventListener('click', (e)=>{
+      const sel = '.expand-btn, .area-valor-expand-btn, .status-expand-btn, .tipo-expand-btn, .situacional-expand-btn, .area-expand-btn';
+      if (e.target.closest(sel)) {
+        setTimeout(()=>{ prefetchProcessos().catch(()=>{}); }, 120);
+      }
+    });
   }
 })();
