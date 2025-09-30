@@ -1,0 +1,62 @@
+/* ModalOverrides.css - garante que TODOS os modais/overlays fiquem acima do layout fixo */
+
+/* Escala unificada de empilhamento
+	 1000+  header / toolbar / toc
+	 6000   overlays utilitários (loading)
+	 7000   backdrop bootstrap
+	 7010   modal bootstrap
+	 7020   overlays custom (processo, documentos, histórico)
+	 7030   conteúdo interno crítico do overlay custom
+*/
+:root {
+	--z-header: 1200;
+	--z-toolbar: 1201;
+	--z-toc: 1202;
+	--z-loading-overlay: 6000;
+	--z-modal-backdrop: 7000;
+	--z-modal: 7010;
+	--z-modal-overlay: 7020;
+	--z-modal-overlay-content: 7030;
+}
+
+/* Elementos fixos de layout (mantidos abaixo dos modais) */
+#main-header { z-index: var(--z-header) !important; }
+#toolbar-row { z-index: var(--z-toolbar) !important; }
+.toc-container { z-index: var(--z-toc) !important; }
+
+/* Overlay de carregamento (id existente em DadosAnaliticos.html) */
+#loading-overlay { z-index: var(--z-loading-overlay) !important; }
+
+/* Bootstrap modal padrão */
+.modal-backdrop { z-index: var(--z-modal-backdrop) !important; position: fixed; }
+.modal-backdrop.show { opacity: .65; }
+.modal { z-index: var(--z-modal) !important; position: fixed; }
+.modal.show { display: block; }
+
+/* Overlays custom (legado + novos) */
+#processo-modal-overlay,
+#documentos-modal-overlay,
+#historico-tramitacoes-overlay { z-index: var(--z-modal-overlay) !important; position: fixed !important; top:0; left:0; right:0; bottom:0; }
+
+#processo-modal-overlay .modal-content,
+#documentos-modal-overlay .modal-content,
+#historico-tramitacoes-overlay .modal-content { z-index: var(--z-modal-overlay-content) !important; position: relative; }
+
+/* Ajustar iframes dentro dos modais para preencher corretamente */
+#processo-iframe, #processo-iframe-legacy { background: #fff; }
+
+/* Prevenir que transform em ancestrais crie novo contexto de empilhamento */
+body.with-fixed-layout, .main-content-wrapper { transform: none !important; }
+
+/* Garantir que nenhum ancestral limite overflow dos modais */
+body, html { overflow-x: hidden; }
+.container-fluid, .main-content-wrapper { overflow: visible !important; }
+
+/* Prevenir recorte por possíveis propriedades de perspective/filters futuras */
+[data-modal-scope] { isolation: isolate; }
+
+/* Ajustar foco visível dentro do modal (melhora acessibilidade) */
+.modal-content :focus { outline: 2px solid var(--brand-primary, #0d6efd); outline-offset: 2px; }
+
+/* Fallback: qualquer .modal-overlay genérica ganha elevação */
+.modal-overlay { z-index: var(--z-modal-overlay) !important; }

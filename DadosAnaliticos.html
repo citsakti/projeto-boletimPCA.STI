@@ -25,6 +25,8 @@
     <link rel="stylesheet" href="./css/pages/Analytics-Bootstrap.css"><script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>    <!-- Mobile Utils - Adicionar ANTES dos outros scripts -->
     <!-- CSS do Índice Lateral extraído -->
     <link rel="stylesheet" href="./css/components/TOC.css">
+        <!-- Override de Modais para ficar acima de conteúdo fixo -->
+        <link rel="stylesheet" href="./css/components/ModalOverrides.css">
       <!-- Utils -->
     <script src="./script/utils/TableFormatters.js"></script>
     <script src="./script/utils/BootstrapAdapter.js"></script>
@@ -69,7 +71,7 @@
     <div class="container-fluid">
     
     <!-- overlay de carregamento -->   
-    <div id="loading-overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none justify-content-center align-items-center" style="background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 1000;">
+    <div id="loading-overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none justify-content-center align-items-center" style="background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 6000;">
       <div class="loader bg-white p-3 rounded shadow text-center">
         <div class="spinner-border me-2" role="status" aria-hidden="true"></div>
         <span>Carregando dados analíticos, por favor aguarde...</span>
@@ -246,6 +248,110 @@
     setTimeout(updateMetrics, 50);
     setTimeout(updateMetrics, 300);
     updateMetrics();
+})();
+</script>
+<script>
+// Reforçar z-index de modais e backdrops em caso de interferência de outros estilos dinâmicos
+(function(){
+    function elevateModals(){
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(b=>{ b.style.zIndex = getComputedStyle(document.documentElement).getPropertyValue('--z-modal-backdrop') || '5000'; });
+        const modals = document.querySelectorAll('.modal.show, .modal.fade.show');
+        modals.forEach(m=>{ m.style.zIndex = getComputedStyle(document.documentElement).getPropertyValue('--z-modal') || '5010'; m.style.position='fixed'; });
+    }
+    const obs = new MutationObserver(()=>elevateModals());
+    obs.observe(document.body,{subtree:true,childList:true});
+    ['shown.bs.modal','hide.bs.modal','shown','modalopen'].forEach(ev=>document.addEventListener(ev,elevateModals));
+    window.addEventListener('load', elevateModals);
+})();
+</script>
+<script>
+// Forçar modais a serem filhos diretos de <body> para evitar problemas de empilhamento (z-index)
+(function(){
+    const MODAL_IDS = ['processo-modal'];
+    const LEGACY_OVERLAY_ID = 'processo-modal-overlay';
+
+    function moveToBody(id){
+        const el = document.getElementById(id);
+        if(el && el.parentNode !== document.body){
+            document.body.appendChild(el);
+        }
+    }
+
+    function reparentAll(){
+        MODAL_IDS.forEach(moveToBody);
+        moveToBody(LEGACY_OVERLAY_ID);
+    }
+
+    // Bootstrap: garantir antes e depois de mostrar
+    document.addEventListener('show.bs.modal', reparentAll);
+    document.addEventListener('shown.bs.modal', reparentAll);
+    // Tentativas tardias (caso conteúdo seja injetado depois)
+    window.addEventListener('load', ()=>{
+        reparentAll();
+        setTimeout(reparentAll, 100);
+        setTimeout(reparentAll, 400);
+    });
+
+    // Observa mutações que possam recriar o modal
+    const mo = new MutationObserver(()=>reparentAll());
+    mo.observe(document.body,{childList:true,subtree:true});
+
+    // Ajustar backdrop sempre que existir
+    function fixBackdrop(){
+        document.querySelectorAll('.modal-backdrop').forEach(b=>{
+            b.style.zIndex = '5000';
+            b.style.position = 'fixed';
+        });
+        MODAL_IDS.forEach(id=>{
+            const m = document.getElementById(id);
+            if(m){
+                m.style.zIndex = '5010';
+                m.style.position = 'fixed';
+                m.style.inset = '0';
+                m.style.display = m.classList.contains('show') ? 'block' : '';
+            }
+        });
+        const legacy = document.getElementById(LEGACY_OVERLAY_ID);
+        if(legacy){ legacy.style.zIndex = '5020'; }
+    }
+    document.addEventListener('shown.bs.modal', fixBackdrop);
+    document.addEventListener('show.bs.modal', fixBackdrop);
+    setInterval(fixBackdrop, 1500); // fallback leve
+})();
+</script>
+<script>
+// Reforço unificado de z-index para overlays custom (histórico, documentos, processo) e loading
+(function(){
+    const IDS = [
+        'processo-modal-overlay',
+        'documentos-modal-overlay',
+        'historico-tramitacoes-overlay',
+        'loading-overlay'
+    ];
+    function elevate(){
+        const root = getComputedStyle(document.documentElement);
+        const zOverlay = root.getPropertyValue('--z-modal-overlay') || '7020';
+        const zOverlayContent = root.getPropertyValue('--z-modal-overlay-content') || '7030';
+        const zLoading = root.getPropertyValue('--z-loading-overlay') || '6000';
+        IDS.forEach(id=>{
+            const el = document.getElementById(id);
+            if(!el) return;
+            if(id === 'loading-overlay') {
+                el.style.zIndex = zLoading.trim();
+            } else {
+                el.style.zIndex = zOverlay.trim();
+                el.style.position = 'fixed';
+                el.style.top = '0'; el.style.left = '0'; el.style.right = '0'; el.style.bottom = '0';
+                const content = el.querySelector('.modal-content');
+                if(content) content.style.zIndex = zOverlayContent.trim();
+            }
+        });
+    }
+    const mo = new MutationObserver(elevate);
+    mo.observe(document.body,{subtree:true,childList:true});
+    ['load','resize'].forEach(ev=>window.addEventListener(ev, elevate));
+    setTimeout(elevate, 50); setTimeout(elevate, 300); setInterval(elevate, 4000);
 })();
 </script>
     
