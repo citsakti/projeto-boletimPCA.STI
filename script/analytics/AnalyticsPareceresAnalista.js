@@ -733,14 +733,14 @@
         <thead class="table-dark">
           <tr>
             <th>ID PCA</th>
-            <th>Área</th>
-            <th>Tipo</th>
+            <th style="width: 1%; white-space: nowrap;">Área</th>
+            <th style="width: 1%; white-space: nowrap;">Tipo</th>
             <th>Projeto</th>
-            <th>Status do Processo</th>
-            <th>Contratar Até</th>
-            <th>Valor PCA</th>
-            <th>Orçamento</th>
-            <th>Número do Processo</th>
+            <th style="width: 1%; white-space: nowrap;">Status do Processo</th>
+            <th style="width: 1%; white-space: nowrap;">Contratar Até</th>
+            <th style="width: 1%; white-space: nowrap;">Valor PCA</th>
+            <th style="width: 1%; white-space: nowrap;">Orçamento</th>
+            <th style="width: 1%; white-space: nowrap;">Processo</th>
           </tr>
         </thead>
         <tbody>
@@ -802,18 +802,18 @@
     
     return `
       <tr data-processo-numero="${escapeHtml(projeto.numeroProcesso || '')}" ${projeto.id ? `data-id-pca="${escapeHtml(projeto.id)}"` : ''}>
-        <td>${projeto.id || ''}</td>
-        <td>${formatAreaWithClasses(projeto.area || '')}</td>
-        <td data-label="Tipo"><span class="tipo-badge">${getTipoFromProject(projeto) || ''}</span></td>
+        <td style="white-space: nowrap;">${projeto.id || ''}</td>
+        <td style="white-space: nowrap;">${formatAreaWithClasses(projeto.area || '')}</td>
+        <td data-label="Tipo" style="white-space: nowrap;"><span class="tipo-badge">${getTipoFromProject(projeto) || ''}</span></td>
         <td class="projeto-cell" data-label="Projeto de Aquisição"${contratoAttrs} style="font-weight: bold;">
           ${htmlProjetoCell}
           ${parecerContainer}
         </td>
-        <td>${formatStatusWithClasses(projeto.status || '')}</td>
-        <td>${formatDateCell(projeto.contratar_ate)}</td>
-        <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
-        <td>${formatOrcamentoWithClasses(getOrcamentoFromProject(projeto) || '')}</td>
-        <td data-label="Processo" ${projeto.numeroProcesso ? `data-processo-numero="${escapeHtml(projeto.numeroProcesso)}"` : ''}>${htmlProcessoCell}</td>
+        <td style="white-space: nowrap;">${formatStatusWithClasses(projeto.status || '')}</td>
+        <td style="white-space: nowrap;">${formatDateCell(projeto.contratar_ate)}</td>
+        <td style="white-space: nowrap;">R$ ${formatCurrency(projeto.valor || 0)}</td>
+        <td style="white-space: nowrap;">${formatOrcamentoWithClasses(getOrcamentoFromProject(projeto) || '')}</td>
+        <td data-label="Processo" style="white-space: nowrap;" ${projeto.numeroProcesso ? `data-processo-numero="${escapeHtml(projeto.numeroProcesso)}"` : ''}>${htmlProcessoCell}</td>
       </tr>
     `;
   }

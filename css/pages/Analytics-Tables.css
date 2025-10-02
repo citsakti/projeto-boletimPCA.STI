@@ -1,0 +1,213 @@
+/**
+ * Analytics-Tables.css
+ * 
+ * Estilos específicos para tabelas nas páginas de Analytics
+ * Sobrescreve regras globais do Main.css para garantir comportamento correto
+ */
+
+/* ==================== TABELAS DE ANALYTICS ==================== */
+
+/* Regras específicas para tabelas dentro de seções analytics */
+#analytics-dashboard table,
+#processos-setor-container table,
+#pareceres-juridicos-container table,
+#pareceres-analista-container table,
+.project-details-table {
+    table-layout: auto !important;
+    width: 100%;
+}
+
+/* ==================== COLUNAS COM NOWRAP E WIDTH MÍNIMO ==================== */
+
+/* ID PCA - nowrap, width mínimo */
+#analytics-dashboard table th:nth-child(1),
+#analytics-dashboard table td:nth-child(1),
+#processos-setor-container table th:nth-child(1),
+#processos-setor-container table td:nth-child(1),
+#pareceres-juridicos-container table th:nth-child(1),
+#pareceres-juridicos-container table td:nth-child(1),
+#pareceres-analista-container table th:nth-child(1),
+#pareceres-analista-container table td:nth-child(1) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Área - nowrap, width mínimo */
+#analytics-dashboard table th:nth-child(2),
+#analytics-dashboard table td:nth-child(2),
+#processos-setor-container table th:nth-child(2),
+#processos-setor-container table td:nth-child(2),
+#pareceres-juridicos-container table th:nth-child(2),
+#pareceres-juridicos-container table td:nth-child(2),
+#pareceres-analista-container table th:nth-child(2),
+#pareceres-analista-container table td:nth-child(2) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Tipo - nowrap, width mínimo */
+#analytics-dashboard table th:nth-child(3),
+#analytics-dashboard table td:nth-child(3),
+#processos-setor-container table th:nth-child(3),
+#processos-setor-container table td:nth-child(3),
+#pareceres-juridicos-container table th:nth-child(3),
+#pareceres-juridicos-container table td:nth-child(3),
+#pareceres-analista-container table th:nth-child(3),
+#pareceres-analista-container table td:nth-child(3) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Projeto - permite expansão (ÚNICA coluna que pode expandir) */
+#analytics-dashboard table th:nth-child(4),
+#analytics-dashboard table td:nth-child(4),
+#processos-setor-container table th:nth-child(4),
+#processos-setor-container table td:nth-child(4),
+#pareceres-juridicos-container table th:nth-child(4),
+#pareceres-juridicos-container table td:nth-child(4),
+#pareceres-analista-container table th:nth-child(4),
+#pareceres-analista-container table td:nth-child(4) {
+    white-space: normal !important;
+    width: auto !important;
+    max-width: none !important;
+}
+
+/* Status do Processo - nowrap, width mínimo */
+#analytics-dashboard table th:nth-child(5),
+#analytics-dashboard table td:nth-child(5),
+#processos-setor-container table th:nth-child(5),
+#processos-setor-container table td:nth-child(5),
+#pareceres-juridicos-container table th:nth-child(5),
+#pareceres-juridicos-container table td:nth-child(5),
+#pareceres-analista-container table th:nth-child(5),
+#pareceres-analista-container table td:nth-child(5) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Garante que elementos dentro de Status do Processo não quebrem */
+#analytics-dashboard table td:nth-child(5) *,
+#processos-setor-container table td:nth-child(5) *,
+#pareceres-juridicos-container table td:nth-child(5) *,
+#pareceres-analista-container table td:nth-child(5) *,
+#analytics-dashboard table td:nth-child(5) span,
+#processos-setor-container table td:nth-child(5) span,
+#pareceres-juridicos-container table td:nth-child(5) span,
+#pareceres-analista-container table td:nth-child(5) span {
+    white-space: nowrap !important;
+}
+
+/* Contratar Até - nowrap, width mínimo */
+#analytics-dashboard table th:nth-child(6),
+#analytics-dashboard table td:nth-child(6),
+#processos-setor-container table th:nth-child(6),
+#processos-setor-container table td:nth-child(6),
+#pareceres-juridicos-container table th:nth-child(6),
+#pareceres-juridicos-container table td:nth-child(6),
+#pareceres-analista-container table th:nth-child(6),
+#pareceres-analista-container table td:nth-child(6) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+    text-align: center !important;
+}
+
+/* Valor PCA - nowrap, width mínimo */
+#analytics-dashboard table th:nth-child(7),
+#analytics-dashboard table td:nth-child(7),
+#processos-setor-container table th:nth-child(7),
+#processos-setor-container table td:nth-child(7),
+#pareceres-juridicos-container table th:nth-child(7),
+#pareceres-juridicos-container table td:nth-child(7),
+#pareceres-analista-container table th:nth-child(7),
+#pareceres-analista-container table td:nth-child(7) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Orçamento - nowrap, width mínimo */
+#analytics-dashboard table th:nth-child(8),
+#analytics-dashboard table td:nth-child(8),
+#processos-setor-container table th:nth-child(8),
+#processos-setor-container table td:nth-child(8),
+#pareceres-juridicos-container table th:nth-child(8),
+#pareceres-juridicos-container table td:nth-child(8),
+#pareceres-analista-container table th:nth-child(8),
+#pareceres-analista-container table td:nth-child(8) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Processo - nowrap, width mínimo */
+#analytics-dashboard table th:nth-child(9),
+#analytics-dashboard table td:nth-child(9),
+#processos-setor-container table th:nth-child(9),
+#processos-setor-container table td:nth-child(9),
+#pareceres-juridicos-container table th:nth-child(9),
+#pareceres-juridicos-container table td:nth-child(9),
+#pareceres-analista-container table th:nth-child(9),
+#pareceres-analista-container table td:nth-child(9) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* ==================== CLASSES ESPECÍFICAS (inline styles do JS) ==================== */
+
+/* Garantir que spans com classes de highlight também não quebrem */
+.status-autuacao-atrasada-highlight,
+.status-contratacao-atrasada-highlight,
+.status-aguardando-dfd-highlight,
+.status-aguardando-etp-highlight,
+.status-etp-atrasado-highlight,
+.status-dfd-atrasado-highlight,
+.status-elaborando-tr-highlight,
+.status-aguardando-definicao-highlight,
+.status-analise-viabilidade-highlight,
+.status-em-contratacao-highlight,
+.status-em-renovacao-highlight,
+.status-renovado-highlight,
+.status-contratado-highlight,
+.status-revisao-pca-highlight,
+.status-a-iniciar-highlight {
+    white-space: nowrap !important;
+    display: inline-block !important;
+}
+
+/* ==================== ÁREA E ORÇAMENTO HIGHLIGHTS ==================== */
+
+.area-sti-highlight,
+.area-operacoes-highlight,
+.area-dev-highlight,
+.area-analytics-highlight,
+.area-governanca-highlight,
+.orcamento-investimento-highlight,
+.orcamento-custeio-highlight {
+    white-space: nowrap !important;
+    display: inline-block !important;
+}
+
+/* ==================== TIPO BADGE ==================== */
+
+.tipo-badge {
+    white-space: nowrap !important;
+    display: inline-block !important;
+}
+
+/* ==================== RESPONSIVE - Mantém nowrap em mobile ==================== */
+
+@media (max-width: 768px) {
+    /* Em mobile, as colunas ainda devem respeitar nowrap */
+    #analytics-dashboard table td[style*="white-space: nowrap"],
+    #processos-setor-container table td[style*="white-space: nowrap"],
+    #pareceres-juridicos-container table td[style*="white-space: nowrap"],
+    #pareceres-analista-container table td[style*="white-space: nowrap"] {
+        white-space: nowrap !important;
+    }
+}
