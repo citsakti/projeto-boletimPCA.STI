@@ -264,18 +264,19 @@
       }
 
       // 3) Garantir/Preservar ícone do Comprasnet
-      // Verificar se já existe ícone na célula inteira (não só no container)
-      const projetoCell = tr.querySelector('td[data-label="Projeto de Aquisição"], td[data-label*="Projeto"]');
-      const existingIconInCell = projetoCell ? projetoCell.querySelector('.comprasgov-link-icon') : null;
+      // Verificar se já existe ícone DENTRO DO CONTAINER (escopo correto)
+      const existingIconInContainer = container.querySelector('.comprasgov-link-icon');
       
       if (comprasnetIcon) {
-        if (!existingIconInCell) {
-          // Não existe ícone na célula: adicionar ao container
+        if (!existingIconInContainer) {
+          // Não existe ícone no container: adicionar
           const tempIcon = document.createElement('div');
           tempIcon.innerHTML = comprasnetIcon.trim();
           const iconEl = tempIcon.firstElementChild;
-          container.appendChild(iconEl);
-        } else if (container.contains(existingIconInCell)) {
+          if (iconEl) {
+            container.appendChild(iconEl);
+          }
+        } else {
           // Ícone já existe no container: atualizar data-x/data-y se necessário
           const tempIcon = document.createElement('div');
           tempIcon.innerHTML = comprasnetIcon.trim();
@@ -283,11 +284,10 @@
           if (newIcon) {
             const dx = newIcon.getAttribute('data-x') || '';
             const dy = newIcon.getAttribute('data-y') || '';
-            if (dx) existingIconInCell.setAttribute('data-x', dx);
-            if (dy) existingIconInCell.setAttribute('data-y', dy);
+            if (dx) existingIconInContainer.setAttribute('data-x', dx);
+            if (dy) existingIconInContainer.setAttribute('data-y', dy);
           }
         }
-        // Se ícone existe mas não está no container: deixar onde está (foi criado inline)
       }
       // Se comprasnetIcon não foi fornecido nesta chamada, preservamos o existente (não removemos)
 
@@ -520,10 +520,10 @@
       }
 
       // Garantir/Adicionar ícone do Comprasnet se fornecido e ainda não presente
-      // Verificar se já existe ícone na célula inteira (não só no container)
+      // Verificar se já existe ícone DENTRO DO CONTAINER (escopo correto)
       if (comprasnetIcon) {
-        const hasIconInCell = celulaProjeto.querySelector('.comprasgov-link-icon');
-        if (!hasIconInCell) {
+        const hasIconInContainer = container.querySelector('.comprasgov-link-icon');
+        if (!hasIconInContainer) {
           const tempIcon = document.createElement('div');
           tempIcon.innerHTML = comprasnetIcon.trim();
           const iconEl = tempIcon.firstElementChild;

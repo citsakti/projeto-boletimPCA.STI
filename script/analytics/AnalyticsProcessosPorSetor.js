@@ -641,12 +641,8 @@ function renderSetorProcessoRow(projeto) {
             htmlProcessoCell = renderProcessoCell(projeto);
         }
         
-        // Renderizar célula de projeto com ícone Comprasgov
-        if (typeof window.renderProjectCellWithCompras === 'function') {
-            htmlProjetoCell = window.renderProjectCellWithCompras(projeto.objeto || '', modalidadeX, numeroY);
-        } else {
-            htmlProjetoCell = projeto.objeto || '';
-        }
+        // Renderizar célula de projeto SEM ícone Comprasgov (já está na célula de processo)
+        htmlProjetoCell = projeto.objeto || '';
     } catch (e) {
         console.warn('[ProcessosPorSetor] Falha ao usar renderProcessCell, aplicando fallback:', e);
         htmlProcessoCell = renderProcessoCell(projeto);
