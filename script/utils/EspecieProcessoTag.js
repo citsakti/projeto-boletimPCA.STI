@@ -237,8 +237,10 @@
         wrapper.appendChild(container);
       }
 
-      // 2) Atualizar/Inserir a tag de espécie
+      // 2) Atualizar/Inserir a tag de espécie (APÓS tag de parecer jurídico, se existir)
       const existingEspecie = container.querySelector('.especie-processo-tag');
+      const parecerTag = container.querySelector('.parecer-juridico-tag');
+      
       if (especieTag) {
         // Criar nó a partir do HTML fornecido
         const temp = document.createElement('div');
@@ -247,7 +249,14 @@
         if (existingEspecie) {
           existingEspecie.replaceWith(newTag);
         } else {
-          container.insertBefore(newTag, container.firstChild);
+          // Inserir DEPOIS da tag de parecer jurídico (se existir)
+          if (parecerTag && parecerTag.nextSibling) {
+            container.insertBefore(newTag, parecerTag.nextSibling);
+          } else if (parecerTag) {
+            container.appendChild(newTag);
+          } else {
+            container.insertBefore(newTag, container.firstChild);
+          }
         }
       } else {
         // Sem espécie: se houver placeholder, removê-lo; manter demais itens (como 🛍️ e contrato-tag)
@@ -255,25 +264,30 @@
       }
 
       // 3) Garantir/Preservar ícone do Comprasnet
-      const existingIcon = container.querySelector('.comprasgov-link-icon');
+      // Verificar se já existe ícone na célula inteira (não só no container)
+      const projetoCell = tr.querySelector('td[data-label="Projeto de Aquisição"], td[data-label*="Projeto"]');
+      const existingIconInCell = projetoCell ? projetoCell.querySelector('.comprasgov-link-icon') : null;
+      
       if (comprasnetIcon) {
-        if (!existingIcon) {
+        if (!existingIconInCell) {
+          // Não existe ícone na célula: adicionar ao container
           const tempIcon = document.createElement('div');
           tempIcon.innerHTML = comprasnetIcon.trim();
           const iconEl = tempIcon.firstElementChild;
           container.appendChild(iconEl);
-        } else {
-          // Atualiza data-x/data-y se necessário
+        } else if (container.contains(existingIconInCell)) {
+          // Ícone já existe no container: atualizar data-x/data-y se necessário
           const tempIcon = document.createElement('div');
           tempIcon.innerHTML = comprasnetIcon.trim();
           const newIcon = tempIcon.firstElementChild;
           if (newIcon) {
             const dx = newIcon.getAttribute('data-x') || '';
             const dy = newIcon.getAttribute('data-y') || '';
-            if (dx) existingIcon.setAttribute('data-x', dx);
-            if (dy) existingIcon.setAttribute('data-y', dy);
+            if (dx) existingIconInCell.setAttribute('data-x', dx);
+            if (dy) existingIconInCell.setAttribute('data-y', dy);
           }
         }
+        // Se ícone existe mas não está no container: deixar onde está (foi criado inline)
       }
       // Se comprasnetIcon não foi fornecido nesta chamada, preservamos o existente (não removemos)
 
@@ -485,8 +499,9 @@
         wrapper.appendChild(container);
       }
 
-      // Atualizar/Inserir placeholder de espécie (preserva outros elementos)
+      // Atualizar/Inserir placeholder de espécie (preserva outros elementos, APÓS tag de parecer)
       const existingEspecie = container.querySelector('.especie-processo-tag');
+      const parecerTag = container.querySelector('.parecer-juridico-tag');
       const placeholderHtml = '<span class="especie-processo-tag especie-loading" title="Carregando espécie...">⏳ Carregando...</span>';
       const temp = document.createElement('div');
       temp.innerHTML = placeholderHtml;
@@ -494,13 +509,22 @@
       if (existingEspecie) {
         existingEspecie.replaceWith(placeholderEl);
       } else {
-        container.insertBefore(placeholderEl, container.firstChild);
+        // Inserir DEPOIS da tag de parecer jurídico (se existir)
+        if (parecerTag && parecerTag.nextSibling) {
+          container.insertBefore(placeholderEl, parecerTag.nextSibling);
+        } else if (parecerTag) {
+          container.appendChild(placeholderEl);
+        } else {
+          container.insertBefore(placeholderEl, container.firstChild);
+        }
       }
 
       // Garantir/Adicionar ícone do Comprasnet se fornecido e ainda não presente
+      // Verificar se já existe ícone na célula inteira (não só no container)
       if (comprasnetIcon) {
-        const hasIcon = container.querySelector('.comprasgov-link-icon');
-        if (!hasIcon) {
+        const projetoCell = tr.querySelector('td[data-label="Projeto de Aquisição"], td[data-label*="Projeto"]');
+        const hasIconInCell = projetoCell ? projetoCell.querySelector('.comprasgov-link-icon') : false;
+        if (!hasIconInCell) {
           const tempIcon = document.createElement('div');
           tempIcon.innerHTML = comprasnetIcon.trim();
           const iconEl = tempIcon.firstElementChild;
@@ -535,6 +559,9 @@
         removeComprasnetIconFromProcessCell(tr);
       }
       
+      // Mover ícone inline existente para dentro do container (se houver)
+      moverIconeInlineParaContainer(celulaProjeto);
+      
       // Verificar se os dados já estão no cache
       if (cache.has(numero)) {
         const dadosProcesso = cache.get(numero);
@@ -565,6 +592,46 @@
       
     } catch (error) {
       console.warn('[EspecieProcesso] Erro ao processar linha:', error);
+    }
+  }
+
+  // Move ícone do Comprasnet que foi criado inline (fora do container) para dentro do container
+  function moverIconeInlineParaContainer(celulaProjeto) {
+    try {
+      // Procurar por ícones do Comprasgov que estão fora do container
+      const icons = celulaProjeto.querySelectorAll('.comprasgov-link-icon');
+      if (!icons || !icons.length) return;
+      
+      // Garantir que existe wrapper e container
+      let wrapper = celulaProjeto.querySelector('.projeto-tags-wrapper');
+      if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'projeto-tags-wrapper';
+        celulaProjeto.appendChild(wrapper);
+      }
+      
+      let container = wrapper.querySelector('.projeto-especie-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'projeto-especie-container';
+        wrapper.appendChild(container);
+      }
+      
+      // Mover cada ícone para o container (se não estiver dentro dele)
+      icons.forEach(icon => {
+        if (!container.contains(icon)) {
+          // Adicionar classe projeto-comprasgov-icon se não tiver
+          if (!icon.classList.contains('projeto-comprasgov-icon')) {
+            icon.classList.add('projeto-comprasgov-icon');
+          }
+          // Remover do local atual e adicionar ao container
+          icon.parentNode.removeChild(icon);
+          container.appendChild(icon);
+        }
+      });
+      
+    } catch (error) {
+      console.warn('[EspecieProcesso] Erro ao mover ícone inline:', error);
     }
   }
 

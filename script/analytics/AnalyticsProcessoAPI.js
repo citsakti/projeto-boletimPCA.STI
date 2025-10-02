@@ -379,7 +379,7 @@
       statusDiv.innerHTML = `
         <div class="status-icon">⏳</div>
         <div class="status-message">
-          <strong>Carregando processos...</strong><br>
+          <strong>Carregando Dados...</strong><br>
           ${success} de ${total} carregados${errorCount > 0 ? ` (${errorCount} erros)` : ''}
         </div>
       `;

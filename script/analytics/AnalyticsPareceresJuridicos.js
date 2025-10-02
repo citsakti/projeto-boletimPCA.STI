@@ -254,8 +254,11 @@
     const processoAttr = p.numeroProcesso ? ` data-label="Processo" data-processo-numero="${escapeHtml(p.numeroProcesso)}"` : '';
     const projetoAttr = ` data-label="Projeto de Aquisição"`;
     
+    // Adicionar data-id-pca para facilitar identificação pela tag de parecer
+    const idPcaAttr = p.id ? ` data-id-pca="${escapeHtml(p.id)}"` : '';
+    
     return `
-      <tr data-processo-numero="${escapeHtml(p.numeroProcesso || '')}">
+      <tr data-processo-numero="${escapeHtml(p.numeroProcesso || '')}"${idPcaAttr}>
         <td>${p.id || ''}</td>
         <td>${areaFmt}</td>
         <td data-label="Tipo"><span class="tipo-badge">${p.tipo}</span></td>
