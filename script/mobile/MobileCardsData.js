@@ -42,6 +42,35 @@
  *   - Coordena com MobileCardsManager para apresentação dos dados
  */
 
+/**
+ * Extrai o texto de uma célula, ignorando tags adicionais
+ * @param {HTMLElement} cell - Célula da tabela
+ * @returns {string} - Texto limpo da célula
+ */
+function extractCellTextForMobile(cell) {
+    if (!cell) return '';
+    
+    // Primeiro tenta pegar o texto do span com classe que termina em '-highlight'
+    const highlightSpan = cell.querySelector('[class$="-highlight"]');
+    if (highlightSpan) {
+        return highlightSpan.textContent.trim();
+    }
+    
+    // Se não encontrar o span de highlight, pega apenas o texto antes da tag adicional
+    // (ignorando elementos com classe 'status-detalhe-container')
+    const detalheContainer = cell.querySelector('.status-detalhe-container');
+    if (detalheContainer) {
+        // Cria um clone da célula e remove o container de detalhes
+        const clone = cell.cloneNode(true);
+        const detalheClone = clone.querySelector('.status-detalhe-container');
+        if (detalheClone) detalheClone.remove();
+        return clone.textContent.trim();
+    }
+    
+    // Fallback: retorna o texto completo da célula
+    return cell.textContent.trim();
+}
+
 class MobileCardsData {
     constructor() {
         // Lista de status especiais para tooltips (similar ao StatusAtrasado.js)
@@ -93,7 +122,7 @@ class MobileCardsData {
                 tipo: cells[2]?.textContent?.trim() || '',
                 projeto: cells[3]?.textContent?.trim() || '',
                 acompanhamento: cells[4]?.textContent?.trim() || '',
-                status: cells[5]?.textContent?.trim() || '',
+                status: extractCellTextForMobile(cells[5]) || '',
                 contratarAte: contratarAteText || '',                contratarAteDate: contratarAteDate, // Para ordenação
                 valorPca: cells[7]?.getAttribute('data-valor-original') || cells[7]?.textContent?.trim() || '', // Valor total original do CSV
                 orcamento: cells[8]?.textContent?.trim() || '',

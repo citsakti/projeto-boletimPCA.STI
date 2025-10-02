@@ -13,6 +13,35 @@ document.addEventListener('tabela-carregada', () => {
     }, 100); 
 });
 
+/**
+ * Extrai o texto de uma célula, ignorando tags adicionais
+ * @param {HTMLElement} cell - Célula da tabela
+ * @returns {string} - Texto limpo da célula
+ */
+function extractCellText(cell) {
+    if (!cell) return '';
+    
+    // Primeiro tenta pegar o texto do span com classe que termina em '-highlight'
+    const highlightSpan = cell.querySelector('[class$="-highlight"]');
+    if (highlightSpan) {
+        return highlightSpan.textContent.trim();
+    }
+    
+    // Se não encontrar o span de highlight, pega apenas o texto antes da tag adicional
+    // (ignorando elementos com classe 'status-detalhe-container')
+    const detalheContainer = cell.querySelector('.status-detalhe-container');
+    if (detalheContainer) {
+        // Cria um clone da célula e remove o container de detalhes
+        const clone = cell.cloneNode(true);
+        const detalheClone = clone.querySelector('.status-detalhe-container');
+        if (detalheClone) detalheClone.remove();
+        return clone.textContent.trim();
+    }
+    
+    // Fallback: retorna o texto completo da célula
+    return cell.textContent.trim();
+}
+
 function initializeGoogleSheetFilters() {
     const filterButtons = document.querySelectorAll('.google-sheet-filter-btn');
     filterButtons.forEach(button => {
@@ -316,7 +345,7 @@ function getUniqueColumnValues(columnIndex) {
     tableRows.forEach(row => {
         const cells = row.querySelectorAll('td'); // Mais seguro para pegar a célula
         if (cells && cells[columnIndex]) {
-            values.add(cells[columnIndex].textContent.trim());
+            values.add(extractCellText(cells[columnIndex]));
         }
     });
     return Array.from(values).sort();
@@ -505,7 +534,11 @@ function masterFilterFunction() {
     // Renomeado para clareza e consistência na nomenclatura
     const activeColumnFilterButtons = document.querySelectorAll('.google-sheet-filter-btn.filter-active, .google-sheet-filter-btn[data-active-filters]');
 
-    const painelFilterAtivo = window.painelFilterStatus && window.painelFilterStatus !== 'TODOS';
+    // Verifica se há filtro ativo do painel (status, setor ou tempo)
+    const painelFilterAtivo = window.painelFilterStatus && (
+        (typeof window.painelFilterStatus === 'string' && window.painelFilterStatus !== 'TODOS') ||
+        (typeof window.painelFilterStatus === 'object' && window.painelFilterStatus.tipo)
+    );
 
     // Atualiza o botão "Limpar Filtros" com base nos filtros ativos
     const limparBtn = document.getElementById("btnLimparFiltros");
@@ -519,8 +552,49 @@ function masterFilterFunction() {
 
     // 1. Determinar visibilidade inicial baseada no filtro do painel (se ativo)
     if (painelFilterAtivo) {
-        // Presume-se que filterTableByStatus modifica row.style.display diretamente
-        filterTableByStatus(window.painelFilterStatus);
+        // Verifica se é filtro de status (string) ou filtro de setor/tempo (objeto)
+        if (typeof window.painelFilterStatus === 'string') {
+            // Filtro de status (comportamento antigo)
+            filterTableByStatus(window.painelFilterStatus);
+        } else if (typeof window.painelFilterStatus === 'object') {
+            // Filtro de setor ou tempo
+            const { tipo, valor } = window.painelFilterStatus;
+            
+            tableRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                
+                if (tipo === 'setor') {
+                    // Filtro por setor (coluna Acompanhamento, índice 4)
+                    const setorAtual = extractSetorText(cells[4]);
+                    row.style.display = (setorAtual === valor) ? '' : 'none';
+                } else if (tipo === 'tempo') {
+                    // Filtro por tempo (coluna Acompanhamento, índice 4)
+                    // EXCLUI processos RENOVADO e CONTRATADO
+                    const status = extractStatusText(cells[5]);
+                    const statusUpper = status.toUpperCase().trim();
+                    // Remove caracteres especiais como ✅ e espaços extras
+                    const statusClean = statusUpper.replace(/[✅\s]+/g, ' ').trim();
+                    const isExcluido = statusClean === 'RENOVADO' || statusClean === 'CONTRATADO' || 
+                                      statusUpper.includes('RENOVADO') || statusUpper.includes('CONTRATADO');
+                    
+                    if (isExcluido) {
+                        row.style.display = 'none';
+                        return;
+                    }
+                    
+                    const tempoAtual = extractTempoText(cells[4]);
+                    // Se o filtro é "Hoje", mostra todas as linhas que começam com "Hoje"
+                    // Caso contrário, faz comparação exata
+                    let mostrarLinha = false;
+                    if (valor.toLowerCase() === 'hoje') {
+                        mostrarLinha = tempoAtual.toLowerCase().startsWith('hoje');
+                    } else {
+                        mostrarLinha = (tempoAtual === valor);
+                    }
+                    row.style.display = mostrarLinha ? '' : 'none';
+                }
+            });
+        }
     } else {
         // Se o filtro do painel não está ativo, todas as linhas devem começar visíveis
         // antes de aplicar os filtros de coluna.
@@ -566,7 +640,7 @@ function masterFilterFunction() {
 
             const cell = row.querySelectorAll('td')[colIndex];
             if (cell) {
-                const cellValue = cell.textContent.trim().toLowerCase();
+                const cellValue = extractCellText(cell).toLowerCase();
                 if (!activeFilters.includes(cellValue)) {
                     rowPassesAllColumnFilters = false; // Não corresponde ao filtro desta coluna
                 }
@@ -588,6 +662,49 @@ function masterFilterFunction() {
     if (typeof updateStatusCounts === 'function') {
         updateStatusCounts();
     }
+}
+
+// Função auxiliar para extrair texto de setor
+function extractSetorText(cell) {
+    if (!cell) return '';
+    const setorTag = cell.querySelector('.setor-processo-tag');
+    if (setorTag) {
+        return setorTag.textContent.trim();
+    }
+    return '';
+}
+
+// Função auxiliar para extrair texto de tempo
+function extractTempoText(cell) {
+    if (!cell) return '';
+    const tempoTag = cell.querySelector('.tempo-acompanhamento-tag');
+    if (tempoTag) {
+        return tempoTag.textContent.trim();
+    }
+    return '';
+}
+
+// Função auxiliar para extrair texto de status
+function extractStatusText(cell) {
+    if (!cell) return '';
+    
+    // Primeiro tenta pegar o texto do span com classe que termina em '-highlight'
+    const highlightSpan = cell.querySelector('[class$="-highlight"]');
+    if (highlightSpan) {
+        return highlightSpan.textContent.trim();
+    }
+    
+    // Se não encontrar o span de highlight, pega apenas o texto antes da tag adicional
+    const detalheContainer = cell.querySelector('.status-detalhe-container');
+    if (detalheContainer) {
+        const clone = cell.cloneNode(true);
+        const detalheClone = clone.querySelector('.status-detalhe-container');
+        if (detalheClone) detalheClone.remove();
+        return clone.textContent.trim();
+    }
+    
+    // Fallback: retorna o texto completo da célula
+    return cell.textContent.trim();
 }
 
 
