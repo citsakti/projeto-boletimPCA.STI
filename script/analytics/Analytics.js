@@ -281,6 +281,7 @@ function processData(rawData) {    // Mapear índices das colunas necessárias
             numProcesso,
             tipo,      // Adicionando o tipo ao objeto
             status: statusProcesso, // Adicionando o status ao objeto
+            orcamento, // Adicionar campo de orçamento (CUSTEIO/INVESTIMENTO)
             i: dataInicio,   // Apenas armazenando a data de início (coluna I - AUTUAR EM)
             dataProcesso, // Adicionar esta linha para incluir a data de "Contratar Até"
             diasAtraso,   // Adicionar os dias de atraso para status "AUTUAÇÃO ATRASADA 💣"

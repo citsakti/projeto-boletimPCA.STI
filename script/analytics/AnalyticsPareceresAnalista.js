@@ -127,6 +127,7 @@
           numeroProcesso: numeroProcesso,
           tipo: p.tipo || inferirTipoPeloStatus(p.status) || '🛒 Aquisição',
           status: p.status || '',
+          orcamento: p.orcamento || '',
           modalidadeX: p.modalidadeX || '',
           numeroY: p.numeroY || '',
           numeroContrato: p.numeroContrato || '',

@@ -50,7 +50,7 @@
         line-height: 1.2;
         cursor: pointer;
         transition: all 0.2s ease;
-        white-space: normal;
+        white-space: nowrap;
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
