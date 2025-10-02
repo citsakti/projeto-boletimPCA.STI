@@ -220,7 +220,7 @@
   }
 
   // Insere/atualiza a tag da espécie na célula do projeto sem remover outros elementos (ex.: ícone 🛍️, contrato-tag)
-  function inserirEspecieNaCelula(celulaProjeto, especieTag, comprasnetIcon = '') {
+  function inserirEspecieNaCelula(celulaProjeto, especieTag, comprasnetIcon = '', tr = null) {
     if (!celulaProjeto) return;
     try {
       // 1) Garantir wrapper e container
@@ -482,7 +482,7 @@
   }
 
   // Insere placeholder enquanto aguarda dados da API
-  function inserirPlaceholderEspecie(celulaProjeto, comprasnetIcon = '') {
+  function inserirPlaceholderEspecie(celulaProjeto, comprasnetIcon = '', tr = null) {
     if (!celulaProjeto) return;
     try {
       // Garantir wrapper e container
@@ -522,8 +522,7 @@
       // Garantir/Adicionar ícone do Comprasnet se fornecido e ainda não presente
       // Verificar se já existe ícone na célula inteira (não só no container)
       if (comprasnetIcon) {
-        const projetoCell = tr.querySelector('td[data-label="Projeto de Aquisição"], td[data-label*="Projeto"]');
-        const hasIconInCell = projetoCell ? projetoCell.querySelector('.comprasgov-link-icon') : false;
+        const hasIconInCell = celulaProjeto.querySelector('.comprasgov-link-icon');
         if (!hasIconInCell) {
           const tempIcon = document.createElement('div');
           tempIcon.innerHTML = comprasnetIcon.trim();
@@ -560,6 +559,7 @@
       }
       
       // Mover ícone inline existente para dentro do container (se houver)
+      // Esta função apenas move, não remove se não houver comprasnetIcon
       moverIconeInlineParaContainer(celulaProjeto);
       
       // Verificar se os dados já estão no cache
@@ -569,23 +569,40 @@
         
         if (especie) {
           const especieTag = renderEspecieTag(especie);
-          inserirEspecieNaCelula(celulaProjeto, especieTag, comprasnetIcon);
-        } else if (comprasnetIcon) {
-          // Se não há espécie mas há Comprasnet, inserir só o ícone
-          inserirEspecieNaCelula(celulaProjeto, '', comprasnetIcon);
+          // Sempre passar comprasnetIcon (mesmo vazio) para preservar ícone existente
+          inserirEspecieNaCelula(celulaProjeto, especieTag, comprasnetIcon, tr);
         } else {
-          // Se não há espécie nem Comprasnet, remover qualquer placeholder
-          const wrapper = celulaProjeto.querySelector('.projeto-tags-wrapper');
-          if (wrapper) {
-            const container = wrapper.querySelector('.projeto-especie-container');
-            if (container) container.remove();
+          // Se não há espécie mas há dados de Comprasnet, inserir só o ícone
+          if (comprasnetIcon) {
+            inserirEspecieNaCelula(celulaProjeto, '', comprasnetIcon, tr);
+          } else {
+            // Não há espécie nem comprasnetIcon: preservar ícone existente se houver
+            const existingIcon = celulaProjeto.querySelector('.comprasgov-link-icon');
+            if (existingIcon) {
+              // Manter ícone existente, apenas remover espécie
+              const wrapper = celulaProjeto.querySelector('.projeto-tags-wrapper');
+              if (wrapper) {
+                const container = wrapper.querySelector('.projeto-especie-container');
+                if (container) {
+                  const especieTag = container.querySelector('.especie-processo-tag');
+                  if (especieTag) especieTag.remove();
+                }
+              }
+            } else {
+              // Sem espécie e sem ícone: remover container vazio
+              const wrapper = celulaProjeto.querySelector('.projeto-tags-wrapper');
+              if (wrapper) {
+                const container = wrapper.querySelector('.projeto-especie-container');
+                if (container) container.remove();
+              }
+            }
           }
         }
         return;
       }
       
       // Se não estiver no cache, inserir placeholder
-      inserirPlaceholderEspecie(celulaProjeto, comprasnetIcon);
+      inserirPlaceholderEspecie(celulaProjeto, comprasnetIcon, tr);
 
       // Retry direcionado aguardando cache (limitado)
       iniciarAguardoCache(numero, celulaProjeto, comprasnetIcon);
