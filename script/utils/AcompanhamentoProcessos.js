@@ -1101,7 +1101,7 @@
     if (tbody) observer.observe(tbody, { childList: true });
   });
 
-  // Atualização automática a cada 10 minutos (600.000 ms)
+  // Atualização automática a cada 1 hora (3.600.000 ms)
   let autoRefreshId = null;
   let autoRefreshCount = 0;
   function logAutoRefresh(reason = 'interval') {
@@ -1116,7 +1116,7 @@
       }));
     } catch(_) {}
   }
-  function startAutoRefresh(intervalMs = 600000) {
+  function startAutoRefresh(intervalMs = 3600000) {
     try { if (autoRefreshId) clearInterval(autoRefreshId); } catch(_) {}
     {
       const now = new Date();
