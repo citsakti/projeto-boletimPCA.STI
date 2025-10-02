@@ -145,22 +145,9 @@ function initAnalytics() {
                 container.innerHTML += renderProdutividadeDetalhada();
             }
             
-            // Inicializar seção 3.2 Processos por Setor (após renderização das seções base)
-            if (typeof initProcessosPorSetor === 'function') {
-                // Aguardar que o módulo AnalyticsTempoSetor esteja carregado
-                const waitForTempoSetor = () => {
-                    if (typeof window.buscarDadosTempoSetor === 'function' && 
-                        typeof window.renderTempoSetorParaProcesso === 'function') {
-                        console.log('[Analytics] Módulo TempoSetor carregado, iniciando ProcessosPorSetor');
-                        initProcessosPorSetor();
-                    } else {
-                        console.log('[Analytics] Aguardando módulo TempoSetor...');
-                        setTimeout(waitForTempoSetor, 100);
-                    }
-                };
-                
-                setTimeout(waitForTempoSetor, 300); // Delay inicial para garantir renderização
-            }
+            // REMOVIDO: Inicialização automática da seção 3.2 Processos por Setor
+            // Agora é carregada sob demanda via botão "Gerar Informação"
+            console.log('[Analytics] Seção 3.2 (Processos por Setor) configurada para carregamento sob demanda');
             
             // Atualizar a data de atualização
             document.getElementById('data-atualizacao').textContent = new Date().toLocaleDateString('pt-BR');

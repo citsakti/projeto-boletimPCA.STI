@@ -49,8 +49,131 @@ const FILTROS_SECAO_32 = {
     setoresIgnorados: ['Arquivo Virtual']
 };
 
+// Estado de carregamento
+let estadoCarregamento = {
+    carregado: false,
+    carregando: false,
+    erro: false,
+    mensagemErro: ''
+};
+
+/**
+ * Função para iniciar o carregamento dos dados de setores (chamada pelo botão)
+ */
+async function iniciarCarregamentoSetores() {
+    const button = document.getElementById('btn-gerar-setores');
+    const container = document.getElementById('setores-container');
+    
+    if (!button || !container) {
+        console.error('[ProcessosPorSetor] Elementos não encontrados');
+        return;
+    }
+    
+    // Se já está carregando, ignorar
+    if (estadoCarregamento.carregando) {
+        console.log('[ProcessosPorSetor] Carregamento já em andamento...');
+        return;
+    }
+    
+    // Atualizar estado
+    estadoCarregamento.carregando = true;
+    estadoCarregamento.erro = false;
+    estadoCarregamento.mensagemErro = '';
+    
+    // Limpar dados anteriores se for uma recarga
+    if (estadoCarregamento.carregado) {
+        console.log('[ProcessosPorSetor] Limpando dados anteriores para recarregamento...');
+        apiCacheSetores.clear();
+        processosPorSetor.clear();
+        setoresCounts.clear();
+    }
+    
+    // Atualizar UI - botão desabilitado e loading
+    button.disabled = true;
+    button.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Carregando...';
+    
+    container.innerHTML = `
+        <div class="alert alert-info">
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-3" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <div>
+                    <strong>Buscando dados da API do TCE-CE...</strong>
+                    <br>
+                    <small>Este processo pode levar alguns segundos.</small>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    try {
+        console.log('🚀 [ProcessosPorSetor] Iniciando processamento sob demanda...');
+        
+        // Verificar se o módulo AnalyticsTempoSetor está disponível
+        const tempoSetorDisponivel = typeof window.buscarDadosTempoSetor === 'function' && 
+                                     typeof window.renderTempoSetorParaProcesso === 'function';
+        
+        if (!tempoSetorDisponivel) {
+            console.warn('⚠️ [ProcessosPorSetor] Módulo AnalyticsTempoSetor não disponível - continuando sem dados de tempo no setor');
+        }
+        
+        // Executar o processamento
+        await initProcessosPorSetor();
+        
+        // Sucesso
+        estadoCarregamento.carregado = true;
+        estadoCarregamento.carregando = false;
+        
+        // Atualizar botão para "Atualizar Informação"
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Atualizar Informação';
+        button.className = 'btn btn-success';
+        
+        console.log('✅ [ProcessosPorSetor] Dados carregados com sucesso');
+        
+    } catch (error) {
+        console.error('❌ [ProcessosPorSetor] Erro ao carregar dados:', error);
+        
+        // Erro
+        estadoCarregamento.carregando = false;
+        estadoCarregamento.erro = true;
+        estadoCarregamento.mensagemErro = error.message || 'Erro desconhecido ao buscar dados da API';
+        
+        // Atualizar botão para "Regerar Informação"
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Regerar Informação';
+        button.className = 'btn btn-warning';
+        
+        // Mostrar mensagem de erro detalhada
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+                    <div>
+                        <strong>Erro ao carregar dados</strong>
+                        <p class="mb-2 mt-1">${estadoCarregamento.mensagemErro}</p>
+                        <small class="text-muted">
+                            Possíveis causas:
+                            <ul class="mb-0 mt-1">
+                                <li>Problemas de conexão com a API do TCE-CE</li>
+                                <li>Tempo limite de resposta excedido</li>
+                                <li>Dados de processos não disponíveis</li>
+                            </ul>
+                        </small>
+                        <div class="mt-2">
+                            <small><strong>Clique no botão "Regerar Informação" acima para tentar novamente.</strong></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
 /**
  * Função principal para inicializar o processamento de processos por setor
+ * MODIFICADA: Agora é chamada sob demanda pelo botão
  */
 async function initProcessosPorSetor() {
     console.log('🚀 [ProcessosPorSetor] Iniciando processamento...');
@@ -783,7 +906,9 @@ function addProcessosPorSetorExpandListeners() {
 // Exportar funções para uso global
 window.initProcessosPorSetor = initProcessosPorSetor;
 window.renderProcessosPorSetorSection = renderProcessosPorSetorSection;
+window.iniciarCarregamentoSetores = iniciarCarregamentoSetores;
 
 console.log('✅ [ProcessosPorSetor] Módulo AnalyticsProcessosPorSetor.js carregado completamente');
 console.log('🔗 [ProcessosPorSetor] Função initProcessosPorSetor() disponível globalmente');
+console.log('🔗 [ProcessosPorSetor] Função iniciarCarregamentoSetores() disponível para carregamento sob demanda');
 console.log('🔄 [ProcessosPorSetor] Pronto para integração com AnalyticsTempoSetor.js');

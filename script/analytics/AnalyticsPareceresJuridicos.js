@@ -157,7 +157,42 @@
       }
     });
 
+    // Ordenar projetos com parecer: do mais recente para o mais antigo
+    comParecer.sort((a, b) => {
+      const dataA = obterDataMaisRecenteParecer(a.pareceres);
+      const dataB = obterDataMaisRecenteParecer(b.pareceres);
+      return dataB - dataA; // decrescente (mais recente primeiro)
+    });
+
     return { comParecer, semParecer };
+  }
+
+  function obterDataMaisRecenteParecer(pareceres) {
+    if (!pareceres || !pareceres.length) return new Date(0);
+    
+    const datas = pareceres.map(p => {
+      if (p.dataFinalizacao) {
+        return parseDataBrasileira(p.dataFinalizacao);
+      }
+      if (p.ano) {
+        return new Date(p.ano, 11, 31); // 31 de dezembro do ano
+      }
+      return new Date(0);
+    });
+    
+    return Math.max(...datas);
+  }
+
+  function parseDataBrasileira(str) {
+    if (!str) return new Date(0);
+    // Tenta formato dd/mm/yyyy
+    const match = str.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (match) {
+      return new Date(match[3], match[2] - 1, match[1]);
+    }
+    // Tenta formato ISO yyyy-mm-dd
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? new Date(0) : d;
   }
 
   function renderTabela(lista, titulo){
@@ -165,6 +200,7 @@
       return `<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>Nenhum projeto ${titulo.toLowerCase()}.</div>`;
     }
     return `
+      <h5 class="mb-3 mt-2">${titulo}</h5>
       <div class="table-responsive">
         <table class="table table-striped table-hover project-details-table">
           <thead class="table-dark">

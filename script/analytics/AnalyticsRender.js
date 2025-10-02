@@ -428,10 +428,15 @@ function renderSituacionalSection() {
         
         <div class="analytics-subsection" id="processos-por-setor-subsection">
             <h3>3.2 Processos por Setor</h3>
+            <div class="mb-3">
+                <button class="btn btn-primary" id="btn-gerar-setores" onclick="iniciarCarregamentoSetores()">
+                    <i class="bi bi-play-circle me-2"></i>Gerar Informação
+                </button>
+            </div>
             <div class="setores-container" id="setores-container">
-                <div class="alert alert-info">
+                <div class="alert alert-secondary">
                     <i class="bi bi-info-circle me-2"></i>
-                    Carregando dados de setor... Por favor, aguarde.
+                    Clique no botão acima para carregar os dados de processos por setor.
                 </div>
             </div>
         </div>
