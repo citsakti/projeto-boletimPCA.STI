@@ -227,17 +227,31 @@
     // (Se futuramente quisermos atrelar contrato/registro, basta adicionar no pipeline de coleta)
     const statusFmt = (typeof formatStatusWithClasses === 'function') ? formatStatusWithClasses(p.status) : p.status;
     const areaFmt = (typeof formatAreaWithClasses === 'function') ? formatAreaWithClasses(p.area) : p.area;
-    const procCell = (typeof window.renderProcessCell === 'function') ? window.renderProcessCell(p.numeroProcesso) : (p.numeroProcesso || '-');
+    
+    // Renderizar célula de processo com todos os dados
+    const procCell = (typeof window.renderProcessCell === 'function') ? 
+        window.renderProcessCell(p.numeroProcesso, p.modalidadeX, p.numeroY) : 
+        (p.numeroProcesso || '-');
+    
+    // Renderizar célula de projeto com ícone Comprasgov
+    const projetoCell = (typeof window.renderProjectCellWithCompras === 'function') ? 
+        window.renderProjectCellWithCompras(escapeHtml(p.objeto), p.modalidadeX, p.numeroY) : 
+        escapeHtml(p.objeto);
+    
+    // Atributos essenciais para ProcessoTag.js e outros módulos
+    const processoAttr = p.numeroProcesso ? ` data-label="Processo" data-processo-numero="${escapeHtml(p.numeroProcesso)}"` : '';
+    const projetoAttr = ` data-label="Projeto de Aquisição"`;
+    
     return `
-      <tr>
+      <tr data-processo-numero="${escapeHtml(p.numeroProcesso || '')}">
         <td>${p.id || ''}</td>
         <td>${areaFmt}</td>
-        <td><span class="tipo-badge">${p.tipo}</span></td>
-        <td style="font-weight:600;"${contratoAttrs}>${escapeHtml(p.objeto)}</td>
+        <td data-label="Tipo"><span class="tipo-badge">${p.tipo}</span></td>
+        <td${projetoAttr} style="font-weight:600;"${contratoAttrs}>${projetoCell}</td>
         <td>${statusFmt}</td>
         <td>${p.contratar_ate || ''}</td>
         <td>R$ ${formatCurrency(p.valor || 0)}</td>
-        <td>${procCell}</td>
+        <td${processoAttr}>${procCell}</td>
       </tr>`;
   }
 
@@ -311,6 +325,32 @@
         if (agoraVisivel) {
           btn.classList.add('pareceres-btn-ativo');
           btn.setAttribute('aria-pressed','true');
+          
+          // Notificar módulos de tags quando tabela é expandida
+          setTimeout(() => {
+            // Notificar módulo de Comprasgov para reinicializar listeners
+            if (window.comprasgovInstance && typeof window.comprasgovInstance.reinitialize === 'function') {
+              window.comprasgovInstance.reinitialize();
+              console.log('[PareceresJuridicos] Comprasgov reinicializado para tabela expandida');
+            }
+            
+            // Notificar módulo de EspecieProcesso para processar novas linhas
+            if (window.debugEspecieProcesso && typeof window.debugEspecieProcesso.scheduleUpdate === 'function') {
+              window.debugEspecieProcesso.scheduleUpdate(200);
+              console.log('[PareceresJuridicos] EspecieProcesso notificado para processar tabela expandida');
+            }
+            
+            // Notificar módulo de ProcessoTag para adicionar tags de processo
+            if (window.debugProcessoTag && typeof window.debugProcessoTag.processarTabela === 'function') {
+              window.debugProcessoTag.processarTabela();
+              console.log('[PareceresJuridicos] ProcessoTag notificado para processar tabela expandida');
+            }
+            
+            // Disparar evento global para que outros módulos possam reagir
+            document.dispatchEvent(new CustomEvent('pareceres-tabela-expandida', { 
+              detail: { tabelaId: id } 
+            }));
+          }, 150);
         } else {
           btn.classList.remove('pareceres-btn-ativo');
           btn.setAttribute('aria-pressed','false');

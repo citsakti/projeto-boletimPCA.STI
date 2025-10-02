@@ -625,21 +625,32 @@ function renderSetorProcessoRow(projeto) {
 
     // Preparar dados para célula de processo no padrão global (renderProcessCell)
     let htmlProcessoCell;
+    let htmlProjetoCell;
     try {
         const numeroProc = projeto.numeroProcesso || '';
         const numeroNormalizado = normalizarNumeroProcesso(numeroProc);
         const dadosAPI = apiCacheSetores.get(numeroNormalizado);
         const modalidadeX = (dadosAPI?.modalidade || projeto.modalidadeX || projeto.modalidade || projeto.tipo || '').toString();
         const numeroY = (dadosAPI?.numeroComprasgov || projeto.numeroY || projeto.numeroComprasgov || '').toString();
+        
+        // Renderizar célula de processo
         if (typeof window.renderProcessCell === 'function') {
             htmlProcessoCell = window.renderProcessCell(numeroProc, modalidadeX, numeroY);
         } else {
             // Fallback para implementação local antiga
             htmlProcessoCell = renderProcessoCell(projeto);
         }
+        
+        // Renderizar célula de projeto com ícone Comprasgov
+        if (typeof window.renderProjectCellWithCompras === 'function') {
+            htmlProjetoCell = window.renderProjectCellWithCompras(projeto.objeto || '', modalidadeX, numeroY);
+        } else {
+            htmlProjetoCell = projeto.objeto || '';
+        }
     } catch (e) {
         console.warn('[ProcessosPorSetor] Falha ao usar renderProcessCell, aplicando fallback:', e);
         htmlProcessoCell = renderProcessoCell(projeto);
+        htmlProjetoCell = projeto.objeto || '';
     }
 
     return `
@@ -647,7 +658,7 @@ function renderSetorProcessoRow(projeto) {
             <td>${projeto.id || ''}</td>
             <td>${formatAreaWithClasses(projeto.area || '')}</td>
             <td><span class="tipo-badge">${getTipoFromProject(projeto) || ''}</span></td>
-            <td class="projeto-cell" style="font-weight: bold;"${contratoAttrs}>${projeto.objeto || ''}</td>
+            <td class="projeto-cell" style="font-weight: bold;"${contratoAttrs}>${htmlProjetoCell}</td>
             <td>${formatStatusComTempoSetor(projeto.status || '', projeto.numeroProcesso || '')}</td>
             <td>${formatDateCell(projeto.contratar_ate) || ''}</td>
             <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
@@ -891,6 +902,21 @@ function addProcessosPorSetorExpandListeners() {
                         window.setupAnalyticsTooltips();
                     }, 100);
                 }
+                
+                // Notificar módulos de tags (Comprasgov e EspecieProcesso) sobre nova tabela
+                setTimeout(() => {
+                    // Notificar módulo de Comprasgov para reinicializar listeners
+                    if (window.comprasgovInstance && typeof window.comprasgovInstance.reinitialize === 'function') {
+                        window.comprasgovInstance.reinitialize();
+                        console.log('[ProcessosPorSetor] Comprasgov reinicializado para setor expandido');
+                    }
+                    
+                    // Notificar módulo de EspecieProcesso para processar novas linhas
+                    if (window.debugEspecieProcesso && typeof window.debugEspecieProcesso.scheduleUpdate === 'function') {
+                        window.debugEspecieProcesso.scheduleUpdate(200);
+                        console.log('[ProcessosPorSetor] EspecieProcesso notificado para processar setor expandido');
+                    }
+                }, 150);
                 
                 console.log(`[ProcessosPorSetor] Expandindo setor: ${setorNome}`);
             } else {

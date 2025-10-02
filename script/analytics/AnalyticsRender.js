@@ -627,7 +627,7 @@ function renderAreaValorDetails(projetos) {
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${projeto.tipo}</td>
-                <td${contratoAttrs}>${projeto.projeto}</td>
+                <td${contratoAttrs}>${renderProjectCellWithCompras(projeto.projeto, projeto.modalidadeX, projeto.numeroY)}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
@@ -680,6 +680,7 @@ function renderProcessCell(processValue, modalidadeX = '', numeroY = '') {
 // Expor helper globalmente para reutilização em outras seções (ex.: 3.2 Processos por Setor)
 if (typeof window !== 'undefined') {
     window.renderProcessCell = renderProcessCell;
+    window.renderProjectCellWithCompras = renderProjectCellWithCompras;
 }
 
 /**
@@ -921,7 +922,7 @@ function renderStatusDetails(status) {
             <tr>
                 <td>${projeto.id || 'N/A'}</td>
                 <td>${formatAreaWithClasses(projeto.area || 'N/A')}</td>
-                <td${contratoAttrs}>${projeto.objeto || 'N/A'}</td>
+                <td${contratoAttrs}>${renderProjectCellWithCompras(projeto.objeto || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
                 <td>${projeto.contratar_ate || 'N/A'}</td>
                 <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
                 <td>${renderProcessCell(projeto.numeroProcesso || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
@@ -978,7 +979,7 @@ function renderTipoDetails(tipo) {
             <tr>
                 <td>${projeto.id || 'N/A'}</td>
                 <td>${formatAreaWithClasses(projeto.area || 'N/A')}</td>
-                <td${contratoAttrs}>${projeto.objeto || 'N/A'}</td>
+                <td${contratoAttrs}>${renderProjectCellWithCompras(projeto.objeto || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
                 <td>${projeto.contratar_ate || 'N/A'}</td>
                 <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
                 <td>${renderProcessCell(projeto.numeroProcesso || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>

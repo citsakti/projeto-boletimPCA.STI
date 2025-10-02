@@ -45,6 +45,10 @@
         promise: null,
         // números cobertos no último prefetch
         covered: new Set(),
+        // controle de erros
+        errors: new Map(), // numero -> erro
+        successCount: 0,
+        totalCount: 0,
       };
     }
     return window._analyticsProcPrefetch;
@@ -83,6 +87,15 @@
       .analytics-proc-actions .doc-icon-btn:hover{ background:#e2ecf7; }
       .acomp-historico-btn{ display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:4px; background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe; cursor:pointer; }
       .acomp-historico-btn:hover{ background:#e0e7ff; }
+      #analytics-fetch-status{ margin-top:1rem; padding:.75rem; border-radius:6px; font-size:.85rem; background:#f8f9fa; border:1px solid #dee2e6; }
+      #analytics-fetch-status.loading{ background:#e7f3ff; border-color:#b3d9ff; color:#004085; }
+      #analytics-fetch-status.success{ background:#d4edda; border-color:#c3e6cb; color:#155724; }
+      #analytics-fetch-status.error{ background:#f8d7da; border-color:#f5c6cb; color:#721c24; }
+      #analytics-fetch-status .status-icon{ display:inline-block; margin-right:.5rem; font-size:1rem; }
+      #analytics-fetch-status .status-message{ display:inline-block; }
+      #analytics-fetch-status .retry-btn{ margin-top:.5rem; padding:.25rem .75rem; font-size:.8rem; background:#007bff; color:#fff; border:none; border-radius:4px; cursor:pointer; transition:background .2s; }
+      #analytics-fetch-status .retry-btn:hover{ background:#0056b3; }
+      #analytics-fetch-status .error-details{ margin-top:.5rem; font-size:.75rem; opacity:.8; max-height:120px; overflow-y:auto; }
     `;
     document.head.appendChild(style);
   }
@@ -181,7 +194,11 @@
     const shared = getSharedProcessCache();
     // Não refaça desnecessariamente: cobre novos números ainda não em cache
     const faltantes = numeros.filter(n=>!shared.has(n));
-    if (!faltantes.length) { mgr.covered = new Set(numeros); return; }
+    if (!faltantes.length) { 
+      mgr.covered = new Set(numeros); 
+      updateFetchStatus('success', 0, 0);
+      return; 
+    }
     // Evita múltiplos prefetch concorrentes
     if (mgr.running && mgr.promise) {
       try { await mgr.promise; } catch(_) {}
@@ -189,11 +206,23 @@
     }
     mgr.running = true;
     mgr.lastRunAt = Date.now();
+    mgr.errors.clear();
+    mgr.successCount = 0;
+    mgr.totalCount = faltantes.length;
+    
+    updateFetchStatus('loading', 0, faltantes.length);
+    
     const conc = 10; let i = 0; const workers = [];
     async function worker(){
       while(i < faltantes.length){
         const idx = i++; const n = faltantes[idx];
-        await fetchProcessoPorNumeroCompat(n);
+        try {
+          await fetchProcessoPorNumeroCompat(n);
+          mgr.successCount++;
+        } catch(err) {
+          mgr.errors.set(n, err.message || 'Erro desconhecido');
+        }
+        updateFetchStatus('loading', mgr.successCount, mgr.totalCount, mgr.errors.size);
       }
     }
     mgr.promise = (async ()=>{
@@ -202,6 +231,14 @@
       mgr.covered = new Set(numeros);
       mgr.running = false;
       mgr.promise = null;
+      
+      // Atualizar status final
+      if (mgr.errors.size === 0) {
+        updateFetchStatus('success', mgr.successCount, mgr.totalCount);
+      } else {
+        updateFetchStatus('error', mgr.successCount, mgr.totalCount, mgr.errors.size);
+      }
+      
       try { updateDocButtonsState(); } catch(_) {}
       try {
         // Notificar que o cache foi atualizado (compatível com EspecieProcessoTag.js)
@@ -313,9 +350,126 @@
 
   function afterRenderHook(){
     ensureStyles();
+    injectStatusContainer();
     // Prefetch leve para deixar ícones responsivos
     setTimeout(()=>{ prefetchProcessos().catch(()=>{}); }, 100);
   }
+
+  function injectStatusContainer(){
+    const toc = document.getElementById('toc-container');
+    if (!toc) return;
+    if (document.getElementById('analytics-fetch-status')) return;
+    
+    const statusDiv = document.createElement('div');
+    statusDiv.id = 'analytics-fetch-status';
+    statusDiv.style.display = 'none';
+    toc.appendChild(statusDiv);
+  }
+
+  function updateFetchStatus(status, success, total, errorCount = 0){
+    const statusDiv = document.getElementById('analytics-fetch-status');
+    if (!statusDiv) return;
+    
+    statusDiv.style.display = 'block';
+    statusDiv.className = status;
+    
+    const mgr = getPrefetchManager();
+    
+    if (status === 'loading') {
+      statusDiv.innerHTML = `
+        <div class="status-icon">⏳</div>
+        <div class="status-message">
+          <strong>Carregando processos...</strong><br>
+          ${success} de ${total} carregados${errorCount > 0 ? ` (${errorCount} erros)` : ''}
+        </div>
+      `;
+    } else if (status === 'success') {
+      statusDiv.innerHTML = `
+        <div class="status-icon">✅</div>
+        <div class="status-message">
+          <strong>Todas as informações carregadas!</strong>
+        </div>
+      `;
+      // Ocultar após 5 segundos
+      setTimeout(() => {
+        if (statusDiv.className === 'success') {
+          statusDiv.style.display = 'none';
+        }
+      }, 5000);
+    } else if (status === 'error') {
+      const errorDetails = Array.from(mgr.errors.entries())
+        .slice(0, 5)
+        .map(([num, err]) => `• ${num}: ${err}`)
+        .join('<br>');
+      
+      const moreErrors = mgr.errors.size > 5 ? `<br>... e mais ${mgr.errors.size - 5} erros` : '';
+      
+      statusDiv.innerHTML = `
+        <div class="status-icon">⚠️</div>
+        <div class="status-message">
+          <strong>Carregamento parcial</strong><br>
+          ${success} de ${total} processos carregados com sucesso<br>
+          ${errorCount} processo(s) com erro
+        </div>
+        <button class="retry-btn" onclick="window._retryFailedProcessos()">
+          🔄 Recarregar processos com erro
+        </button>
+        ${mgr.errors.size > 0 ? `<div class="error-details">${errorDetails}${moreErrors}</div>` : ''}
+      `;
+    }
+  }
+
+  // Função global para retry apenas dos processos com erro
+  window._retryFailedProcessos = async function(){
+    const mgr = getPrefetchManager();
+    const shared = getSharedProcessCache();
+    const numerosComErro = Array.from(mgr.errors.keys());
+    
+    if (!numerosComErro.length) return;
+    
+    updateFetchStatus('loading', 0, numerosComErro.length);
+    
+    mgr.errors.clear();
+    mgr.successCount = 0;
+    mgr.totalCount = numerosComErro.length;
+    
+    const conc = 5;
+    let i = 0;
+    const workers = [];
+    
+    async function worker(){
+      while(i < numerosComErro.length){
+        const idx = i++;
+        const n = numerosComErro[idx];
+        try {
+          await fetchProcessoPorNumeroCompat(n, { timeoutMs: 20000 });
+          mgr.successCount++;
+        } catch(err) {
+          mgr.errors.set(n, err.message || 'Erro desconhecido');
+        }
+        updateFetchStatus('loading', mgr.successCount, mgr.totalCount, mgr.errors.size);
+      }
+    }
+    
+    for(let k=0; k<Math.min(conc, numerosComErro.length); k++) {
+      workers.push(worker());
+    }
+    
+    await Promise.all(workers);
+    
+    // Atualizar status final
+    if (mgr.errors.size === 0) {
+      updateFetchStatus('success', mgr.successCount, mgr.totalCount);
+    } else {
+      updateFetchStatus('error', mgr.successCount, mgr.totalCount, mgr.errors.size);
+    }
+    
+    try { updateDocButtonsState(); } catch(_) {}
+    try {
+      document.dispatchEvent(new CustomEvent('processo-cache-atualizado', { detail: { numeros: numerosComErro } }));
+      document.dispatchEvent(new Event('acompanhamento-atualizado'));
+    } catch(_){}
+  };
 
   function updateDocButtonsState(){
     const shared = getSharedProcessCache();

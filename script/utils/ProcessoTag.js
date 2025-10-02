@@ -35,13 +35,30 @@
   // Localiza a célula "Tipo" do TR
   function obterCelulaTipo(tr){
     if (!tr) return null;
-    return tr.querySelector('td[data-label="Tipo"]') || tr.children[2] || null;
+    // Buscar por data-label primeiro (mais confiável)
+    let cel = tr.querySelector('td[data-label="Tipo"]');
+    if (cel) return cel;
+    
+    // Fallback: buscar pela posição (index 2 na tabela principal, pode variar em analíticas)
+    // Nas tabelas analíticas de Pareceres Jurídicos, a coluna Tipo também é index 2
+    const children = Array.from(tr.children);
+    const tipoIndex = children.findIndex(td => {
+      const text = (td.textContent || '').trim();
+      return text.includes('🛒 Aquisição') || text.includes('🔄 Renovação') || text.includes('Aquisição') || text.includes('Renovação');
+    });
+    
+    return tipoIndex >= 0 ? children[tipoIndex] : (tr.children[2] || null);
   }
 
   // Localiza a célula (oculta) "Processo" do TR
   function obterCelulaProcesso(tr){
     if (!tr) return null;
-    return tr.querySelector('td[data-label="Processo"]') || tr.children[9] || null;
+    // Buscar por data-label primeiro
+    let cel = tr.querySelector('td[data-label="Processo"]');
+    if (cel) return cel;
+    
+    // Fallback: buscar pela posição (index 9 na tabela principal, pode variar)
+    return tr.children[9] || null;
   }
 
   function extrairNumeroProcesso(tr){
@@ -222,10 +239,19 @@
   }
 
   function processarTabela(){
+    // Processar tabela principal (#detalhes)
     const tbody = document.querySelector('#detalhes table tbody');
-    if (!tbody) return;
-    const trs = Array.from(tbody.querySelectorAll('tr'));
-    trs.forEach(inserirTagNoTipo);
+    if (tbody) {
+      const trs = Array.from(tbody.querySelectorAll('tr'));
+      trs.forEach(inserirTagNoTipo);
+    }
+    
+    // Processar também tabelas analíticas (ex: seção 3.3 Pareceres Jurídicos)
+    const tabelasAnaliticas = document.querySelectorAll('.project-details-table tbody');
+    tabelasAnaliticas.forEach(tbody => {
+      const trs = Array.from(tbody.querySelectorAll('tr'));
+      trs.forEach(inserirTagNoTipo);
+    });
   }
 
   function scheduleUpdate(delay=200){
@@ -241,6 +267,7 @@
   document.addEventListener('tabela-carregada', ()=>scheduleUpdate(50));
   document.addEventListener('acompanhamento-atualizado', ()=>scheduleUpdate(50));
   document.addEventListener('acompanhamento-loading', ()=>scheduleUpdate(0));
+  document.addEventListener('pareceres-tabela-expandida', ()=>scheduleUpdate(100));
 
   // Delegação de clique para abrir modal
   document.addEventListener('click', handleClick);

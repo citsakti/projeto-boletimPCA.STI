@@ -86,6 +86,21 @@ function _renderProcessCell(value, modalidadeX = '', numeroY = ''){
     return html;
 }
 
+// Usa helper global se disponível para célula de projeto
+function _renderProjectCell(projectText, modalidadeX = '', numeroY = ''){
+    if (typeof window.renderProjectCellWithCompras === 'function') {
+        return window.renderProjectCellWithCompras(projectText, modalidadeX, numeroY);
+    }
+    // Fallback: renderizar sem formatação especial
+    const text = projectText == null ? '' : String(projectText);
+    const y = numeroY == null ? '' : String(numeroY).trim();
+    const hasCompras = y !== '' && y !== '-';
+    if (!hasCompras) return text;
+    const x = modalidadeX == null ? '' : String(modalidadeX).trim();
+    const comprasAttrs = ` class="comprasgov-link-icon" title="Abrir acompanhamento no Comprasnet" data-x="${x}" data-y="${y}"`;
+    return `${text} <span${comprasAttrs}>🛍️</span>`;
+}
+
 /**
  * Função para renderizar detalhes dos projetos por categoria
  * @param {string} categoria Nome da categoria 
@@ -125,7 +140,7 @@ function renderProjectDetails(categoria) {
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${formatAreaWithClasses(projeto.area)}</td>
-                <td${contratoAttrs}>${projeto.projeto}</td>
+                <td${contratoAttrs}>${_renderProjectCell(projeto.projeto, projeto.modalidadeX, projeto.numeroY)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
                 <td>${_renderProcessCell(projeto.numProcesso, projeto.modalidadeX, projeto.numeroY)}</td>
@@ -184,7 +199,7 @@ function renderSituacionalDetails(categoria) {
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${formatAreaWithClasses(projeto.area)}</td>
-                <td${contratoAttrs}>${projeto.projeto}</td>
+                <td${contratoAttrs}>${_renderProjectCell(projeto.projeto, projeto.modalidadeX, projeto.numeroY)}</td>
                 <td>${statusComDiasAtraso}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
@@ -245,7 +260,7 @@ function renderAreaDetails(area) {
             <tr>
                 <td>${projeto.idPca}</td>
                 <td>${projeto.tipo}</td>
-                <td${contratoAttrs}>${projeto.projeto}</td>
+                <td${contratoAttrs}>${_renderProjectCell(projeto.projeto, projeto.modalidadeX, projeto.numeroY)}</td>
                 <td>${formatStatusWithClasses(projeto.status)}</td>
                 <td>${projeto.dataProcesso || '-'}</td>
                 <td>R$ ${formatCurrency(projeto.valor)}</td>
@@ -260,6 +275,21 @@ function renderAreaDetails(area) {
     `;
     
     return html;
+}
+
+/**
+ * Função helper para notificar módulos de tags após expansão de tabelas
+ */
+function notifyTagModulesAfterExpansion() {
+    // Notificar módulo de Comprasgov para reinicializar listeners
+    if (window.comprasgovInstance && typeof window.comprasgovInstance.reinitialize === 'function') {
+        window.comprasgovInstance.reinitialize();
+    }
+    
+    // Notificar módulo de EspecieProcesso para processar novas linhas
+    if (window.debugEspecieProcesso && typeof window.debugEspecieProcesso.scheduleUpdate === 'function') {
+        window.debugEspecieProcesso.scheduleUpdate(200);
+    }
 }
 
 /**
@@ -305,6 +335,8 @@ function addExpandListeners() {
                     if (typeof window.setupAnalyticsTooltips === 'function') {
                         window.setupAnalyticsTooltips();
                     }
+                    // Notificar módulos de tags
+                    notifyTagModulesAfterExpansion();
                 }, 10);
                 
                 // Atualizar texto e ícone do botão
@@ -378,6 +410,8 @@ function addSituacionalExpandListeners() {
                     if (typeof window.setupAnalyticsTooltips === 'function') {
                         window.setupAnalyticsTooltips();
                     }
+                    // Notificar módulos de tags
+                    notifyTagModulesAfterExpansion();
                 }, 10);
                 
                 // Atualizar texto e ícone do botão
