@@ -58,7 +58,12 @@
         contratar_ate: p.dataProcesso || p.contratar_ate || '',
         numeroProcesso: normalizarNumero(p.numProcesso),
         tipo: p.tipo || inferirTipoPeloStatus(p.status) || '🛒 Aquisição',
-        status: p.status || ''
+        status: p.status || '',
+        // Campos adicionais para Comprasgov e AnalyticsContratos
+        modalidadeX: p.modalidadeX || '',
+        numeroY: p.numeroY || '',
+        numeroContrato: p.numeroContrato || '',
+        numeroRegistro: p.numeroRegistro || ''
       }))
       .filter(p => p.numeroProcesso);
   }
@@ -223,12 +228,19 @@
   }
 
   function renderLinhaProjeto(p){
+    // Construir atributos de contrato para AnalyticsContratos.js
     let contratoAttrs = '';
-    // (Se futuramente quisermos atrelar contrato/registro, basta adicionar no pipeline de coleta)
+    if (p.numeroContrato && String(p.numeroContrato).trim() !== '') {
+      contratoAttrs += ` data-contrato="${escapeHtml(String(p.numeroContrato).trim())}"`;
+    }
+    if (p.numeroRegistro && String(p.numeroRegistro).trim() !== '') {
+      contratoAttrs += ` data-registro="${escapeHtml(String(p.numeroRegistro).trim())}"`;
+    }
+    
     const statusFmt = (typeof formatStatusWithClasses === 'function') ? formatStatusWithClasses(p.status) : p.status;
     const areaFmt = (typeof formatAreaWithClasses === 'function') ? formatAreaWithClasses(p.area) : p.area;
     
-    // Renderizar célula de processo com todos os dados
+    // Renderizar célula de processo com todos os dados (incluindo modalidadeX e numeroY para Comprasgov)
     const procCell = (typeof window.renderProcessCell === 'function') ? 
         window.renderProcessCell(p.numeroProcesso, p.modalidadeX, p.numeroY) : 
         (p.numeroProcesso || '-');
@@ -247,7 +259,7 @@
         <td>${p.id || ''}</td>
         <td>${areaFmt}</td>
         <td data-label="Tipo"><span class="tipo-badge">${p.tipo}</span></td>
-        <td${projetoAttr} style="font-weight:600;"${contratoAttrs}>${projetoCell}</td>
+        <td${projetoAttr}${contratoAttrs} style="font-weight:600;">${projetoCell}</td>
         <td>${statusFmt}</td>
         <td>${p.contratar_ate || ''}</td>
         <td>R$ ${formatCurrency(p.valor || 0)}</td>
@@ -344,6 +356,12 @@
             if (window.debugProcessoTag && typeof window.debugProcessoTag.processarTabela === 'function') {
               window.debugProcessoTag.processarTabela();
               console.log('[PareceresJuridicos] ProcessoTag notificado para processar tabela expandida');
+            }
+            
+            // Notificar módulo de AnalyticsContratos para adicionar tags de contrato
+            if (window.debugAnalyticsContratoTag && typeof window.debugAnalyticsContratoTag.reprocess === 'function') {
+              window.debugAnalyticsContratoTag.reprocess();
+              console.log('[PareceresJuridicos] AnalyticsContratos notificado para processar tabela expandida');
             }
             
             // Disparar evento global para que outros módulos possam reagir

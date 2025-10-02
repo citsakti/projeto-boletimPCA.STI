@@ -733,6 +733,9 @@
   // Quando iniciar o loading das células, inserir placeholders imediatamente
   document.addEventListener('acompanhamento-loading', () => scheduleUpdate(0));
   
+  // Quando tabelas de pareceres jurídicos forem expandidas
+  document.addEventListener('pareceres-tabela-expandida', () => scheduleUpdate(200));
+  
   // Atualizações parciais por número: atualizar espécie apenas daquela(s) linha(s)
   document.addEventListener('acompanhamento-atualizado-parcial', (ev) => {
     try {

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const observers = new WeakMap();
 
-    ['tabela-carregada','acompanhamento-atualizado','acompanhamento-loading','acompanhamento-atualizado-parcial']
+    ['tabela-carregada','acompanhamento-atualizado','acompanhamento-loading','acompanhamento-atualizado-parcial','pareceres-tabela-expandida']
         .forEach(ev => document.addEventListener(ev, () => schedule(140)));
 
     schedule(100);
