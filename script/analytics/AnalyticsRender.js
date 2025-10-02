@@ -449,6 +449,16 @@ function renderSituacionalSection() {
                 </div>
             </div>
         </div>
+        
+        <div class="analytics-subsection" id="pareceres-analista-subsection">
+            <h3>3.4 Pareceres por Analista</h3>
+            <div class="pareceres-analista-container" id="pareceres-analista-container">
+                <div class="alert alert-secondary">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Esta seção é gerada sob demanda. Clique no botão para carregar os dados de pareceres agrupados por analista.
+                </div>
+            </div>
+        </div>
                 </div>
             </div>
         </div>

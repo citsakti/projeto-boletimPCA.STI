@@ -635,94 +635,111 @@
     
     if (DEBUG_TAG) console.log('[PareceresJuridicosTag] processarTabela chamado');
     
-    // Processar apenas a tabela "Com Parecer Jurídico"
-    const tabelaComParecer = document.querySelector('#pareceres-com table');
-    if (!tabelaComParecer) {
-      if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Tabela #pareceres-com não encontrada');
-      return;
-    }
-
-    const linhas = tabelaComParecer.querySelectorAll('tbody tr');
-    if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Processando', linhas.length, 'linhas');
+    // Processar tabelas de pareceres jurídicos:
+    // 1. Tabela "Com Parecer Jurídico" (seção 3.3)
+    // 2. Tabelas de analistas (seção 3.4)
     
+    const seletores = [
+      '#pareceres-com table',                      // 3.3 Com Parecer
+      '.setor-details table.project-details-table' // 3.4 Pareceres por Analista
+    ];
+    
+    let tabelasProcessadas = 0;
     let tagsAdicionadas = 0;
     
-    linhas.forEach(tr => {
-      const projetoCell = tr.querySelector('td[data-label="Projeto de Aquisição"]');
-      if (!projetoCell) {
-        if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Célula de projeto não encontrada');
-        return;
-      }
-
-      // Evitar duplicação
-      if (projetoCell.querySelector('.parecer-juridico-tag')) {
-        if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Tag já existe, pulando');
-        return;
-      }
-
-      const meta = extrairMetaDaLinha(tr);
-      if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Meta extraída:', meta);
+    seletores.forEach(seletor => {
+      const tabelas = document.querySelectorAll(seletor);
+      if (DEBUG_TAG) console.log(`[PareceresJuridicosTag] Encontradas ${tabelas.length} tabelas para seletor: ${seletor}`);
       
-      const pareceres = extrairPareceresDoCache(meta.numeroProcesso);
-      if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Pareceres encontrados:', pareceres.length, pareceres);
-      
-      if (!pareceres || !pareceres.length) {
-        if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Nenhum parecer encontrado para', meta.numeroProcesso);
-        return;
-      }
+      tabelas.forEach(tabela => {
+        const linhas = tabela.querySelectorAll('tbody tr');
+        if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Processando', linhas.length, 'linhas da tabela');
+        
+        linhas.forEach(tr => {
+          const projetoCell = tr.querySelector('td[data-label="Projeto de Aquisição"]');
+          if (!projetoCell) {
+            if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Célula de projeto não encontrada');
+            return;
+          }
 
-      // Criar tag
-      const tag = criarTag(pareceres, meta);
-      if (!tag) {
-        if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Falha ao criar tag');
-        return;
-      }
+          // Evitar duplicação
+          if (projetoCell.querySelector('.parecer-juridico-tag')) {
+            if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Tag já existe, pulando');
+            return;
+          }
 
-      // Procurar pelo container de tags de espécie (padrão do EspecieProcessoTag.js)
-      let wrapper = projetoCell.querySelector('.projeto-tags-wrapper');
-      if (!wrapper) {
-        // Criar wrapper se não existir
-        wrapper = document.createElement('div');
-        wrapper.className = 'projeto-tags-wrapper';
-        projetoCell.appendChild(wrapper);
-      }
-      
-      let container = wrapper.querySelector('.projeto-especie-container');
-      if (!container) {
-        // Criar container de espécie se não existir
-        container = document.createElement('div');
-        container.className = 'projeto-especie-container';
-        wrapper.appendChild(container);
-      }
+          const meta = extrairMetaDaLinha(tr);
+          if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Meta extraída:', meta);
+          
+          const pareceres = extrairPareceresDoCache(meta.numeroProcesso);
+          if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Pareceres encontrados:', pareceres.length, pareceres);
+          
+          if (!pareceres || !pareceres.length) {
+            if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Nenhum parecer encontrado para', meta.numeroProcesso);
+            return;
+          }
 
-      // Evitar duplicação - remover tag existente antes de adicionar nova
-      const existingTag = container.querySelector('.parecer-juridico-tag');
-      if (existingTag) {
-        existingTag.remove();
-      }
+          // Criar tag
+          const tag = criarTag(pareceres, meta);
+          if (!tag) {
+            if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Falha ao criar tag');
+            return;
+          }
 
-      // Inserir tag de parecer SEMPRE como primeiro elemento do container
-      // Mesmo que outras tags já existam, inserir antes de todas
-      if (container.firstChild) {
-        container.insertBefore(tag, container.firstChild);
-      } else {
-        container.appendChild(tag);
-      }
-      tagsAdicionadas++;
-      
-      if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Tag adicionada com sucesso para', meta.numeroProcesso);
+          // Procurar pelo container de tags de espécie (padrão do EspecieProcessoTag.js)
+          let wrapper = projetoCell.querySelector('.projeto-tags-wrapper');
+          if (!wrapper) {
+            // Criar wrapper se não existir
+            wrapper = document.createElement('div');
+            wrapper.className = 'projeto-tags-wrapper';
+            projetoCell.appendChild(wrapper);
+          }
+          
+          let container = wrapper.querySelector('.projeto-especie-container');
+          if (!container) {
+            // Criar container de espécie se não existir
+            container = document.createElement('div');
+            container.className = 'projeto-especie-container';
+            wrapper.appendChild(container);
+          }
+
+          // Evitar duplicação - remover tag existente antes de adicionar nova
+          const existingTag = container.querySelector('.parecer-juridico-tag');
+          if (existingTag) {
+            existingTag.remove();
+          }
+
+          // Inserir tag de parecer SEMPRE como primeiro elemento do container
+          // Mesmo que outras tags já existam, inserir antes de todas
+          if (container.firstChild) {
+            container.insertBefore(tag, container.firstChild);
+          } else {
+            container.appendChild(tag);
+          }
+          tagsAdicionadas++;
+          
+          if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Tag adicionada com sucesso para', meta.numeroProcesso);
+        });
+        
+        tabelasProcessadas++;
+      });
     });
 
-    if (DEBUG_TAG) console.log('[PareceresJuridicosTag] Total de tags adicionadas:', tagsAdicionadas);
+    if (DEBUG_TAG) console.log(`[PareceresJuridicosTag] Processamento concluído: ${tabelasProcessadas} tabelas, ${tagsAdicionadas} tags adicionadas`);
   }
 
   // Inicialização
   function init() {
-    // Processar quando a tabela for expandida
+    // Processar quando a tabela for expandida (seção 3.3)
     document.addEventListener('pareceres-tabela-expandida', (e) => {
       if (e.detail && e.detail.tabelaId === 'pareceres-com') {
         setTimeout(processarTabela, 100);
       }
+    });
+
+    // Processar quando analista for expandido (seção 3.4)
+    document.addEventListener('pareceres-analista-expandido', () => {
+      setTimeout(processarTabela, 100);
     });
 
     // Processar após carregamento inicial
