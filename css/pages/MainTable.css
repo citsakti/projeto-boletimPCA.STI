@@ -157,11 +157,6 @@
 
 /* ==================== COLUNAS ESPECÍFICAS ADICIONAIS ==================== */
 
-/* Coluna 1 (ID PCA) - Identificador específico */
-#detalhes table td:nth-child(1) {
-    background-color: #f8f9fa;
-    font-weight: bold;
-}
 
 /* Coluna 8 (Valor PCA) - formatação monetária */
 #detalhes table td:nth-child(8) {

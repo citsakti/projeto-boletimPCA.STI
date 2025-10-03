@@ -485,6 +485,7 @@
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             border-color: #90caf9;
             color: #1565c0;
+            white-space: nowrap;
         }
         
     /* Variação verde pastel para Hoje (0 dias) */
