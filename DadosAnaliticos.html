@@ -118,14 +118,18 @@
 
     <!-- Layout principal: Índice à esquerda, conteúdo à direita (abaixo da toolbar) -->
     <div class="main-content-wrapper">
+    <!-- Botão flutuante para expandir/recolher índice (sempre visível) -->
+    <button id="toc-toggle-sidebar-btn" class="btn btn-primary shadow-sm toc-toggle-sidebar-btn" title="Recolher índice" aria-label="Recolher índice" aria-pressed="true">
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+    </button>
     <div class="row gx-3">
-            <aside class="col-auto d-none d-lg-block" style="max-width:260px;">
+            <aside id="toc-sidebar" class="col-auto d-none d-lg-block toc-sidebar-open">
                 <nav id="toc-container" class="toc-container" aria-label="Índice da página">
                     <div class="toc-title">ÍNDICE</div>
                     <ul id="toc-list" class="toc-list"></ul>
                 </nav>
             </aside>
-            <div class="col">
+            <div class="col" id="main-content-col">
                 <div class="row">
                     <div class="col-12">
                         <main role="main">
@@ -197,29 +201,68 @@
 
 <script src="./script/ui/PrintFunction.js"></script>
 <script>
-// Índice com seções (h2) e subitens (h3) – adaptado para layout flex sem sobrepor conteúdo
+// Índice (TOC) + funcionalidade de recolher/expandir em todas as larguras
 (function() {
     const dashboard = document.getElementById('analytics-dashboard');
     const tocList = document.getElementById('toc-list');
     const tocContainer = document.getElementById('toc-container');
-    const tocToggle = document.getElementById('tocToggle');
+    const tocToggleMobile = document.getElementById('tocToggle'); // botão existente (mobile)
+    const tocSidebar = document.getElementById('toc-sidebar');
+    const toggleBtn = document.getElementById('toc-toggle-sidebar-btn');
+    const body = document.body;
     let sectionObserver = null; let subheadingObserver = null;
 
-    function slugify(text){return text.toLowerCase().trim().replace(/[áàâãä]/g,'a').replace(/[éèêë]/g,'e').replace(/[íìîï]/g,'i').replace(/[óòôõö]/g,'o').replace(/[úùûü]/g,'u').replace(/ç/g,'c').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+    function slugify(text){return text.toLowerCase().trim()
+        .replace(/[áàâãä]/g,'a').replace(/[éèêë]/g,'e').replace(/[íìîï]/g,'i')
+        .replace(/[óòôõö]/g,'o').replace(/[úùûü]/g,'u').replace(/ç/g,'c')
+        .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
     function clearActive(){document.querySelectorAll('.toc-link.active').forEach(a=>a.classList.remove('active'));}
 
     function buildTOC(){
         if(!dashboard) return; const sections = dashboard.querySelectorAll('.analytics-section'); if(!sections.length) return;
         tocList.innerHTML=''; if(sectionObserver) sectionObserver.disconnect(); if(subheadingObserver) subheadingObserver.disconnect();
         const sectionLinks=new Map(); const subLinks=new Map();
-        sections.forEach(sec=>{ const h2=sec.querySelector('h2'); if(!h2) return; if(!sec.id){let base=slugify(h2.textContent||'secao');let id=base,i=2;while(document.getElementById(id)) id=base+'-'+i++; sec.id=id;}
-            const li=document.createElement('li'); const a=document.createElement('a'); a.href='#'+sec.id; a.textContent=h2.textContent.replace(/^[0-9]+\.\s*/,''); a.className='toc-link'; a.addEventListener('click',e=>{e.preventDefault(); document.getElementById(sec.id).scrollIntoView({behavior:'smooth',block:'start'}); history.replaceState(null,'','#'+sec.id); clearActive(); a.classList.add('active');}); li.appendChild(a);
-            const h3s=sec.querySelectorAll('h3'); if(h3s.length){ const subUl=document.createElement('ul'); subUl.className='toc-sublist'; h3s.forEach(h3=>{ if(!h3.id){let base=slugify(h3.textContent||'subsecao'); let id=base,i=2; while(document.getElementById(id)) id=base+'-'+i++; h3.id=id;} const subLi=document.createElement('li'); const subA=document.createElement('a'); subA.href='#'+h3.id; subA.textContent=h3.textContent.trim(); subA.className='toc-link'; subA.addEventListener('click',ev=>{ev.preventDefault(); document.getElementById(h3.id).scrollIntoView({behavior:'smooth',block:'start'}); history.replaceState(null,'','#'+h3.id); clearActive(); subA.classList.add('active');}); subLi.appendChild(subA); subUl.appendChild(subLi); subLinks.set(h3.id,subA); }); li.appendChild(subUl);} tocList.appendChild(li); sectionLinks.set(sec.id,a); });
-    sectionObserver=new IntersectionObserver(entries=>{ const anySubActive=document.querySelector('.toc-sublist .toc-link.active'); entries.forEach(entry=>{ if(entry.isIntersecting && !anySubActive){ clearActive(); const l=sectionLinks.get(entry.target.id); if(l) l.classList.add('active'); }}); }, {rootMargin:'-35% 0px -55% 0px',threshold:0}); sections.forEach(sec=>sectionObserver.observe(sec));
-        const allH3=dashboard.querySelectorAll('.analytics-section h3'); subheadingObserver=new IntersectionObserver(entries=>{ entries.forEach(entry=>{ if(entry.isIntersecting){ clearActive(); const l=subLinks.get(entry.target.id); if(l) l.classList.add('active'); }}); }, {rootMargin:'-40% 0px -50% 0px',threshold:0}); allH3.forEach(h3=>subheadingObserver.observe(h3));
+        sections.forEach(sec=>{
+            const h2=sec.querySelector('h2'); if(!h2) return;
+            if(!sec.id){ let base=slugify(h2.textContent||'secao'); let id=base,i=2; while(document.getElementById(id)) id=base+'-'+i++; sec.id=id; }
+            const li=document.createElement('li');
+            const a=document.createElement('a'); a.href='#'+sec.id; a.textContent=h2.textContent.replace(/^[0-9]+\.\s*/,''); a.className='toc-link';
+            a.addEventListener('click',e=>{ e.preventDefault(); document.getElementById(sec.id).scrollIntoView({behavior:'smooth',block:'start'}); history.replaceState(null,'','#'+sec.id); clearActive(); a.classList.add('active'); });
+            li.appendChild(a);
+            const h3s=sec.querySelectorAll('h3');
+            if(h3s.length){
+                const subUl=document.createElement('ul'); subUl.className='toc-sublist';
+                h3s.forEach(h3=>{ if(!h3.id){ let base=slugify(h3.textContent||'subsecao'); let id=base,i=2; while(document.getElementById(id)) id=base+'-'+i++; h3.id=id; }
+                    const subLi=document.createElement('li'); const subA=document.createElement('a'); subA.href='#'+h3.id; subA.textContent=h3.textContent.trim(); subA.className='toc-link';
+                    subA.addEventListener('click',ev=>{ ev.preventDefault(); document.getElementById(h3.id).scrollIntoView({behavior:'smooth',block:'start'}); history.replaceState(null,'','#'+h3.id); clearActive(); subA.classList.add('active'); });
+                    subLi.appendChild(subA); subUl.appendChild(subLi); subLinks.set(h3.id,subA); });
+                li.appendChild(subUl);
+            }
+            tocList.appendChild(li); sectionLinks.set(sec.id,a);
+        });
+        sectionObserver=new IntersectionObserver(entries=>{ const anySubActive=document.querySelector('.toc-sublist .toc-link.active'); entries.forEach(entry=>{ if(entry.isIntersecting && !anySubActive){ clearActive(); const l=sectionLinks.get(entry.target.id); if(l) l.classList.add('active'); }}); }, {rootMargin:'-35% 0px -55% 0px',threshold:0});
+        document.querySelectorAll('.analytics-section').forEach(sec=>sectionObserver.observe(sec));
+        const allH3=dashboard.querySelectorAll('.analytics-section h3');
+        subheadingObserver=new IntersectionObserver(entries=>{ entries.forEach(entry=>{ if(entry.isIntersecting){ clearActive(); const l=subLinks.get(entry.target.id); if(l) l.classList.add('active'); }}); }, {rootMargin:'-40% 0px -50% 0px',threshold:0});
+        allH3.forEach(h3=>subheadingObserver.observe(h3));
     }
+
     const mo=new MutationObserver(()=>buildTOC()); if(dashboard) mo.observe(dashboard,{childList:true,subtree:true}); buildTOC();
-    if(tocToggle){ tocToggle.addEventListener('click',()=>{ tocContainer.classList.toggle('toc-visible'); }); }
+
+    // Toggle geral (desktop + mobile)
+    function toggleCollapse(){
+        const collapsed = body.classList.toggle('toc-collapsed');
+        if(toggleBtn){
+            toggleBtn.innerHTML = collapsed ? '<i class="bi bi-chevron-right" aria-hidden="true"></i>' : '<i class="bi bi-chevron-left" aria-hidden="true"></i>';
+            toggleBtn.title = collapsed ? 'Expandir índice' : 'Recolher índice';
+            toggleBtn.setAttribute('aria-pressed', String(!collapsed));
+        }
+    }
+    if(toggleBtn){ toggleBtn.addEventListener('click', toggleCollapse); }
+    if(tocToggleMobile){ tocToggleMobile.addEventListener('click', ()=>{ // comportamento antigo para mobile
+        if(window.innerWidth < 992){ tocContainer.classList.toggle('toc-visible'); return; }
+        toggleCollapse();
+    }); }
 })();
 </script>
 <script>
@@ -230,27 +273,48 @@
     const toolbar = document.getElementById('main-toolbar');
     const toc = document.getElementById('toc-container');
     const contentWrapper = document.querySelector('.main-content-wrapper');
+    const toggleBtn = document.getElementById('toc-toggle-sidebar-btn');
 
     function updateMetrics(){
         const headerH = header ? header.offsetHeight : 0;
         const toolbarH = toolbar ? toolbar.offsetHeight : 0;
         const totalTop = headerH + toolbarH + 16; // espaço extra
+        const btnTop = headerH + toolbarH + 15;
+        
         document.documentElement.style.setProperty('--header-height', headerH + 'px');
         document.documentElement.style.setProperty('--toolbar-height', toolbarH + 'px');
         document.documentElement.style.setProperty('--fixed-toc-top', (headerH + toolbarH + 12) + 'px');
+        
         if (contentWrapper) {
             contentWrapper.style.paddingTop = totalTop + 'px';
         }
         if (toc) {
             toc.style.top = 'var(--fixed-toc-top)';
         }
+        if (toggleBtn) {
+            toggleBtn.style.top = btnTop + 'px';
+        }
     }
+    
     window.addEventListener('resize', updateMetrics);
     window.addEventListener('orientationchange', updateMetrics);
     // tentativa de recálculo após fontes/bootstrap
     setTimeout(updateMetrics, 50);
     setTimeout(updateMetrics, 300);
     updateMetrics();
+    
+    // Debug: verificar se botão existe
+    setTimeout(() => {
+        const btn = document.getElementById('toc-toggle-sidebar-btn');
+        if (btn) {
+            console.log('✅ Botão TOC encontrado:', btn);
+            console.log('Display:', window.getComputedStyle(btn).display);
+            console.log('Position:', window.getComputedStyle(btn).position);
+            console.log('Z-index:', window.getComputedStyle(btn).zIndex);
+        } else {
+            console.error('❌ Botão TOC não encontrado!');
+        }
+    }, 500);
 })();
 </script>
 <script>

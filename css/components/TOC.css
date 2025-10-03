@@ -1,6 +1,10 @@
 /* TOC.css - Estilos do índice lateral analítico */
 
-:root { --toc-width: 250px; }
+:root { 
+  --toc-width: 250px; 
+  /* Espaço reservado quando o TOC está recolhido para o botão não sobrepor o conteúdo */
+  --toc-collapsed-button-space: 64px; /* 40px botão + 15px margem + ~9px respiro */
+}
 
 /* Layout fixo geral */
 body.with-fixed-layout { overflow-x: hidden; }
@@ -14,7 +18,12 @@ body.with-fixed-layout { overflow-x: hidden; }
 .toc-container { position: fixed; left: 0; top: var(--fixed-toc-top, 140px); width: var(--toc-width); bottom: 0; background:#f8f9fa; border-right:1px solid #dee2e6; padding: 1rem .85rem 1.25rem; overflow-y:auto; font-size:.9rem; z-index:1029; }
 
 /* Ajustar coluna principal para não ficar sob o TOC */
-@media (min-width: 992px) { .main-content-wrapper .row.gx-3 > .col { margin-left: var(--toc-width); } }
+@media (min-width: 992px) { 
+  .main-content-wrapper .row.gx-3 > .col { margin-left: var(--toc-width); transition: margin-left .25s ease; }
+  body.toc-collapsed .main-content-wrapper .row.gx-3 > .col { margin-left: var(--toc-collapsed-button-space); }
+  /* Ajustar também qualquer footer interno alinhado ao grid */
+  body.toc-collapsed footer.row { padding-left: 0; }
+}
 
 .toc-title {
   font-weight: 600;
@@ -23,7 +32,84 @@ body.with-fixed-layout { overflow-x: hidden; }
   letter-spacing: .05em;
   color: #6c757d;
   margin-bottom: .5rem;
+  position: relative;
 }
+
+/* Botão flutuante para expandir/recolher índice */
+.toc-toggle-sidebar-btn {
+  position: fixed;
+  /* Posiciona o botão colado na borda direita do índice, avançando alguns pixels */
+  left: calc(var(--toc-width) - 50px);
+  top: calc(var(--fixed-toc-top, 140px) + 10px);
+  z-index: 3000 !important; /* acima de overlays comuns e do próprio TOC */
+  pointer-events: auto;
+  /* Prevenir clipping em algum ancestor inesperado */
+  contain: layout style paint; /* evita criação de stacking context acidental externo interferir */
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px !important;
+  background: white !important;
+  border: 2px solid #0d6efd !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+  color: #0d6efd !important;
+}
+
+.toc-toggle-sidebar-btn:hover {
+  background: #0d6efd !important;
+  color: white !important;
+  border-color: #0d6efd !important;
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3) !important;
+}
+
+body.toc-collapsed .toc-toggle-sidebar-btn {
+  left: 15px;
+  background: #0d6efd !important;
+  color: #fff !important;
+}
+
+/* Força o TOC a não sobrepor o botão mesmo visivelmente (garantia extra) */
+#toc-container { z-index: 1029; }
+
+.toc-toggle-sidebar-btn i {
+  font-size: 1.3rem;
+  transition: transform 0.3s ease;
+  line-height: 1;
+}
+
+/* Esconder botão flutuante em mobile */
+@media (max-width: 991.98px) {
+  .toc-toggle-sidebar-btn {
+    display: none !important;
+  }
+}
+
+/* Transição suave do sidebar */
+#toc-sidebar {
+  transition: all 0.3s ease;
+}
+
+/* Colapso via classe no body (desktop) */
+@media (min-width: 992px){
+  body.toc-collapsed #toc-sidebar { display: none !important; }
+}
+
+/* Animação simulada de fade ao colapsar */
+@media (min-width: 992px){
+  #toc-sidebar { opacity: 1; transition: opacity .2s ease; }
+  body.toc-collapsed #toc-sidebar { opacity: 0; }
+}
+
+/* Ajustar botão quando hover enquanto colapsado */
+body.toc-collapsed .toc-toggle-sidebar-btn:hover { filter: brightness(1.05); }
+
+/* Elevar conteúdo para largura cheia quando colapsado */
+body.toc-collapsed .analytics-dashboard { transition: padding .25s ease; }
 
 .toc-list { list-style: none; margin: 0; padding: 0; }
 .toc-list > li { margin: 0 0 .25rem 0; padding: 0; }
