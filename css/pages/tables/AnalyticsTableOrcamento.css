@@ -1,0 +1,61 @@
+/**
+ * AnalyticsTableOrcamento.css
+ * 
+ * Estilos EXCLUSIVOS para tabelas de detalhes por ORÇAMENTO (Seção 2.1)
+ * Isolado para permitir modificações sem afetar outras tabelas
+ */
+
+/* Seletor específico para tabelas de orçamento */
+.details-row .project-details-table {
+    table-layout: auto !important;
+    width: 100%;
+}
+
+/* ID PCA */
+.details-row .project-details-table th:nth-child(1),
+.details-row .project-details-table td:nth-child(1) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Área */
+.details-row .project-details-table th:nth-child(2),
+.details-row .project-details-table td:nth-child(2) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Projeto - ÚNICA coluna que pode expandir */
+.details-row .project-details-table th:nth-child(3),
+.details-row .project-details-table td:nth-child(3) {
+    white-space: normal !important;
+    width: auto !important;
+    max-width: none !important;
+}
+
+/* Contratar Até */
+.details-row .project-details-table th:nth-child(4),
+.details-row .project-details-table td:nth-child(4) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+    text-align: center !important;
+}
+
+/* Valor (R$) */
+.details-row .project-details-table th:nth-child(5),
+.details-row .project-details-table td:nth-child(5) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Processo */
+.details-row .project-details-table th:nth-child(6),
+.details-row .project-details-table td:nth-child(6) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}

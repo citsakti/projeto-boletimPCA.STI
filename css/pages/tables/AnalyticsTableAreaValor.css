@@ -1,0 +1,69 @@
+/**
+ * AnalyticsTableAreaValor.css
+ * 
+ * Estilos EXCLUSIVOS para tabelas de valores por ÁREA E TIPO (Seção 2.2)
+ * Isolado para permitir modificações sem afetar outras tabelas
+ */
+
+/* Seletor específico para tabelas de área-valor */
+.details-row[id^="details-area-"] .project-details-table {
+    table-layout: auto !important;
+    width: 100%;
+}
+
+/* ID PCA */
+.details-row[id^="details-area-"] .project-details-table th:nth-child(1),
+.details-row[id^="details-area-"] .project-details-table td:nth-child(1) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Tipo */
+.details-row[id^="details-area-"] .project-details-table th:nth-child(2),
+.details-row[id^="details-area-"] .project-details-table td:nth-child(2) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Projeto - ÚNICA coluna que pode expandir */
+.details-row[id^="details-area-"] .project-details-table th:nth-child(3),
+.details-row[id^="details-area-"] .project-details-table td:nth-child(3) {
+    white-space: normal !important;
+    width: auto !important;
+    max-width: none !important;
+}
+
+/* Status */
+.details-row[id^="details-area-"] .project-details-table th:nth-child(4),
+.details-row[id^="details-area-"] .project-details-table td:nth-child(4) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Contratar Até */
+.details-row[id^="details-area-"] .project-details-table th:nth-child(5),
+.details-row[id^="details-area-"] .project-details-table td:nth-child(5) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+    text-align: center !important;
+}
+
+/* Valor (R$) */
+.details-row[id^="details-area-"] .project-details-table th:nth-child(6),
+.details-row[id^="details-area-"] .project-details-table td:nth-child(6) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Processo */
+.details-row[id^="details-area-"] .project-details-table th:nth-child(7),
+.details-row[id^="details-area-"] .project-details-table td:nth-child(7) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}

@@ -23,7 +23,15 @@
       <!-- Pages -->
     <link rel="stylesheet" href="./css/pages/Analytics.css">
     <link rel="stylesheet" href="./css/pages/Analytics-Bootstrap.css">
-    <link rel="stylesheet" href="./css/pages/Analytics-Tables.css"><script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>    <!-- Mobile Utils - Adicionar ANTES dos outros scripts -->
+    
+    <!-- Tabelas Isoladas (cada seção tem seu próprio CSS) -->
+    <link rel="stylesheet" href="./css/pages/tables/AnalyticsTableStatus.css">
+    <link rel="stylesheet" href="./css/pages/tables/AnalyticsTableTipo.css">
+    <link rel="stylesheet" href="./css/pages/tables/AnalyticsTableOrcamento.css">
+    <link rel="stylesheet" href="./css/pages/tables/AnalyticsTableSituacional.css">
+    <link rel="stylesheet" href="./css/pages/tables/AnalyticsTableArea.css">
+    <link rel="stylesheet" href="./css/pages/tables/AnalyticsTableAreaValor.css">
+    <link rel="stylesheet" href="./css/pages/tables/AnalyticsTableProdutividade.css"><script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>    <!-- Mobile Utils - Adicionar ANTES dos outros scripts -->
     <!-- CSS do Índice Lateral extraído -->
     <link rel="stylesheet" href="./css/components/TOC.css">
         <!-- Override de Modais para ficar acima de conteúdo fixo -->
@@ -49,6 +57,13 @@
     <script src="./script/core/ModalManager.js"></script>
     <script src="./script/core/YearSelector.js"></script>
       <!-- Analytics -->
+    <script src="./script/analytics/renders/AnalyticsRenderStatus.js"></script>
+    <script src="./script/analytics/renders/AnalyticsRenderTipo.js"></script>
+    <script src="./script/analytics/renders/AnalyticsRenderOrcamento.js"></script>
+    <script src="./script/analytics/renders/AnalyticsRenderSituacional.js"></script>
+    <script src="./script/analytics/renders/AnalyticsRenderArea.js"></script>
+    <script src="./script/analytics/renders/AnalyticsRenderAreaValor.js"></script>
+    <script src="./script/analytics/renders/AnalyticsRenderProdutividade.js"></script>
     <script src="./script/analytics/AnalyticsYearSelector.js"></script>
     <script src="./script/analytics/AnalyticsYearSelectorUI.js"></script>
     <script src="./script/analytics/AnalyticsDiasAtraso.js"></script>
@@ -212,6 +227,27 @@
     const body = document.body;
     let sectionObserver = null; let subheadingObserver = null;
 
+    // Calcula o offset total (header + toolbar + respiro) dinamicamente
+    function getFixedOffset(){
+        const headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || (document.getElementById('main-header')?.offsetHeight || 0);
+        const toolbarH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--toolbar-height')) || (document.getElementById('main-toolbar')?.offsetHeight || 0);
+        return headerH + toolbarH + 18; // respiro extra
+    }
+
+    // Rolagem precisa para um heading (h2/h3) evitando sobreposição
+    function scrollToHeading(heading){
+        if(!heading) return;
+        const offset = getFixedOffset();
+        const targetY = heading.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({top: targetY, behavior: 'smooth'});
+        // Ajuste tardio (caso layout mude ao expandir algo dinâmico)
+        setTimeout(()=>{
+            const againY = heading.getBoundingClientRect().top + window.pageYOffset - offset;
+            const delta = Math.abs(againY - window.pageYOffset);
+            if(delta > 4){ window.scrollTo({top: againY, behavior:'auto'}); }
+        }, 260);
+    }
+
     function slugify(text){return text.toLowerCase().trim()
         .replace(/[áàâãä]/g,'a').replace(/[éèêë]/g,'e').replace(/[íìîï]/g,'i')
         .replace(/[óòôõö]/g,'o').replace(/[úùûü]/g,'u').replace(/ç/g,'c')
@@ -224,17 +260,43 @@
         const sectionLinks=new Map(); const subLinks=new Map();
         sections.forEach(sec=>{
             const h2=sec.querySelector('h2'); if(!h2) return;
-            if(!sec.id){ let base=slugify(h2.textContent||'secao'); let id=base,i=2; while(document.getElementById(id)) id=base+'-'+i++; sec.id=id; }
+            // Garantir ID diretamente no h2 (não mais no container) para que o destino seja exatamente o texto exibido
+            if(!h2.id){
+                let base=slugify(h2.textContent||'secao'); let id=base, i=2;
+                while(document.getElementById(id)) id=base+'-'+i++;
+                h2.id = id;
+            }
+            const headingId = h2.id;
             const li=document.createElement('li');
-            const a=document.createElement('a'); a.href='#'+sec.id; a.textContent=h2.textContent.replace(/^[0-9]+\.\s*/,''); a.className='toc-link';
-            a.addEventListener('click',e=>{ e.preventDefault(); document.getElementById(sec.id).scrollIntoView({behavior:'smooth',block:'start'}); history.replaceState(null,'','#'+sec.id); clearActive(); a.classList.add('active'); });
+            const a=document.createElement('a'); a.href='#'+headingId; a.textContent=h2.textContent.replace(/^[0-9]+\.\s*/,''); a.className='toc-link';
+            a.addEventListener('click',e=>{ 
+                e.preventDefault();
+                const target = document.getElementById(headingId);
+                if(target){
+                    scrollToHeading(target);
+                    history.replaceState(null,'','#'+headingId);
+                    target.classList.add('toc-highlight-temp');
+                    setTimeout(()=>target.classList.remove('toc-highlight-temp'),1200);
+                }
+                clearActive(); a.classList.add('active');
+            });
             li.appendChild(a);
             const h3s=sec.querySelectorAll('h3');
             if(h3s.length){
                 const subUl=document.createElement('ul'); subUl.className='toc-sublist';
                 h3s.forEach(h3=>{ if(!h3.id){ let base=slugify(h3.textContent||'subsecao'); let id=base,i=2; while(document.getElementById(id)) id=base+'-'+i++; h3.id=id; }
                     const subLi=document.createElement('li'); const subA=document.createElement('a'); subA.href='#'+h3.id; subA.textContent=h3.textContent.trim(); subA.className='toc-link';
-                    subA.addEventListener('click',ev=>{ ev.preventDefault(); document.getElementById(h3.id).scrollIntoView({behavior:'smooth',block:'start'}); history.replaceState(null,'','#'+h3.id); clearActive(); subA.classList.add('active'); });
+                    subA.addEventListener('click',ev=>{ 
+                        ev.preventDefault();
+                        const target = document.getElementById(h3.id);
+                        if(target){
+                            scrollToHeading(target);
+                            history.replaceState(null,'','#'+h3.id);
+                            target.classList.add('toc-highlight-temp');
+                            setTimeout(()=>target.classList.remove('toc-highlight-temp'),1200);
+                        }
+                        clearActive(); subA.classList.add('active');
+                    });
                     subLi.appendChild(subA); subUl.appendChild(subLi); subLinks.set(h3.id,subA); });
                 li.appendChild(subUl);
             }

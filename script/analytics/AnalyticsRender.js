@@ -19,8 +19,8 @@
  * # Funções de Renderização de Detalhes:
  *   - renderAreaValorDetails(): Gera tabelas detalhadas para valores por área/tipo
  *   - renderProjectDetails(): Gera tabelas de projetos por categoria (de AnalyticsDetails.js)
- *   - renderSituacionalDetails(): Gera tabelas de projetos por situação (de AnalyticsDetails.js)
- *   - renderAreaDetails(): Gera tabelas de projetos por área (de AnalyticsDetails.js)
+ *   - renderSituacionalDetailsTable(): Gera tabelas de projetos por situação (de AnalyticsDetails.js)
+ *   - renderAreaDetailsTable(): Gera tabelas de projetos por área (de AnalyticsDetails.js)
  * 
  * # Funções de Formatação:
  *   - formatAreaWithClasses(): Aplica estilos CSS específicos por área
@@ -77,7 +77,7 @@ function renderGeneralSection() {
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="project-details">
-                                            ${renderStatusDetails(status)}
+                                            ${renderStatusDetailsTable(status)}
                                         </div>
                                     </div>
                                 </div>
@@ -101,7 +101,7 @@ function renderGeneralSection() {
                             <div class="card">
                                 <div class="card-body">
                                     <div class="project-details">
-                                        ${renderTipoDetails("🛒 Aquisição")}
+                                        ${renderTipoDetailsTable("🛒 Aquisição")}
                                     </div>
                                 </div>
                             </div>
@@ -110,7 +110,7 @@ function renderGeneralSection() {
                             <div class="card">
                                 <div class="card-body">
                                     <div class="project-details">
-                                        ${renderTipoDetails("🔄 Renovação")}
+                                        ${renderTipoDetailsTable("🔄 Renovação")}
                                     </div>
                                 </div>
                             </div>                        </div>
@@ -164,7 +164,7 @@ function renderOrcamentoSection() {
                                                 <div class="card">
                                                     <div class="card-body">
                                                         <div class="project-details">
-                                                            ${renderProjectDetails('custeio')}
+                                                            ${renderOrcamentoDetailsTable('custeio')}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -180,7 +180,7 @@ function renderOrcamentoSection() {
                                                 <div class="card">
                                                     <div class="card-body">
                                                         <div class="project-details">
-                                                            ${renderProjectDetails('investimento')}
+                                                            ${renderOrcamentoDetailsTable('investimento')}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -201,7 +201,7 @@ function renderOrcamentoSection() {
                                                 <div class="card">
                                                     <div class="card-body">
                                                         <div class="project-details">
-                                                            ${renderProjectDetails('custoAquisicao')}
+                                                            ${renderOrcamentoDetailsTable('custoAquisicao')}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -217,7 +217,7 @@ function renderOrcamentoSection() {
                                                 <div class="card">
                                                     <div class="card-body">
                                                         <div class="project-details">
-                                                            ${renderProjectDetails('custoRenovacao')}
+                                                            ${renderOrcamentoDetailsTable('custoRenovacao')}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -235,7 +235,7 @@ function renderOrcamentoSection() {
                                         <tr class="details-row" id="details-investimentoAquisicao" style="display:none;">
                                             <td colspan="3">
                                                 <div class="project-details">
-                                                    ${renderProjectDetails('investimentoAquisicao')}
+                                                    ${renderOrcamentoDetailsTable('investimentoAquisicao')}
                                                 </div>
                                             </td>
                                         </tr>
@@ -247,7 +247,7 @@ function renderOrcamentoSection() {
                                         <tr class="details-row" id="details-investimentoRenovacao" style="display:none;">
                                             <td colspan="3">
                                                 <div class="project-details">
-                                                    ${renderProjectDetails('investimentoRenovacao')}
+                                                    ${renderOrcamentoDetailsTable('investimentoRenovacao')}
                                                 </div>
                                             </td>                                        </tr>
                                         <tr class="table-warning">
@@ -322,7 +322,7 @@ function renderSituacionalSection() {
                             <tr class="details-row" id="situacional-details-contratacaoForaSTI" style="display:none;">
                                 <td colspan="4">
                                     <div class="project-details">
-                                        ${renderSituacionalDetails('contratacaoForaSTI')}
+                                        ${renderSituacionalDetailsTable('contratacaoForaSTI')}
                                     </div>
                                 </td>
                             </tr>
@@ -337,7 +337,7 @@ function renderSituacionalSection() {
                             <tr class="details-row" id="situacional-details-autuacaoAtrasada" style="display:none;">
                                 <td colspan="4">
                                     <div class="project-details">
-                                        ${renderSituacionalDetails('autuacaoAtrasada')}
+                                        ${renderSituacionalDetailsTable('autuacaoAtrasada')}
                                     </div>
                                 </td>
                             </tr>
@@ -356,7 +356,7 @@ function renderSituacionalSection() {
                             <tr class="details-row" id="situacional-details-elaboracaoInterna" style="display:none;">
                                 <td colspan="4">
                                     <div class="project-details">
-                                        ${renderSituacionalDetails('elaboracaoInterna')}
+                                        ${renderSituacionalDetailsTable('elaboracaoInterna')}
                                     </div>
                                 </td>
                             </tr>
@@ -371,7 +371,7 @@ function renderSituacionalSection() {
                             <tr class="details-row" id="situacional-details-contratacaoAtrasadaForaSTI" style="display:none;">
                                 <td colspan="4">
                                     <div class="project-details">
-                                        ${renderSituacionalDetails('contratacaoAtrasadaForaSTI')}
+                                        ${renderSituacionalDetailsTable('contratacaoAtrasadaForaSTI')}
                                     </div>
                                 </td>
                             </tr>
@@ -385,7 +385,7 @@ function renderSituacionalSection() {
                             <tr class="details-row" id="situacional-details-processosConcluidos" style="display:none;">
                                 <td colspan="4">
                                     <div class="project-details">
-                                        ${renderSituacionalDetails('processosConcluidos')}
+                                        ${renderSituacionalDetailsTable('processosConcluidos')}
                                     </div>
                                 </td>
                             </tr>
@@ -398,7 +398,7 @@ function renderSituacionalSection() {
                             <tr class="details-row" id="situacional-details-processosSuspensos" style="display:none;">
                                 <td colspan="4">
                                     <div class="project-details">
-                                        ${renderSituacionalDetails('processosSuspensos')}
+                                        ${renderSituacionalDetailsTable('processosSuspensos')}
                                     </div>
                                 </td>
                             </tr>
@@ -411,7 +411,7 @@ function renderSituacionalSection() {
                             <tr class="details-row" id="situacional-details-processosAIniciar" style="display:none;">
                                 <td colspan="4">
                                     <div class="project-details">
-                                        ${renderSituacionalDetails('processosAIniciar')}
+                                        ${renderSituacionalDetailsTable('processosAIniciar')}
                                     </div>
                                 </td>
                             </tr>
@@ -569,21 +569,21 @@ function renderValoresPorAreaETipo() {
             <tr class="details-row" id="details-area-custeio-${areaId}" style="display:none;">
                 <td colspan="7">
                     <div class="project-details">
-                        ${renderAreaValorDetails(areaData.custeio.projetos)}
+                        ${renderAreaValorDetailsTable(areaData.custeio.projetos)}
                     </div>
                 </td>
             </tr>
             <tr class="details-row" id="details-area-investimento-${areaId}" style="display:none;">
                 <td colspan="7">
                     <div class="project-details">
-                        ${renderAreaValorDetails(areaData.investimento.projetos)}
+                        ${renderAreaValorDetailsTable(areaData.investimento.projetos)}
                     </div>
                 </td>
             </tr>
             <tr class="details-row" id="details-area-total-${areaId}" style="display:none;">
                 <td colspan="7">
                     <div class="project-details">
-                        ${renderAreaValorDetails(todosProjetos)}
+                        ${renderAreaValorDetailsTable(todosProjetos)}
                     </div>
                 </td>
             </tr>
@@ -593,62 +593,6 @@ function renderValoresPorAreaETipo() {
     html += `
                 </tbody>
             </table>
-    `;
-    
-    return html;
-}
-
-/**
- * Função para renderizar os detalhes dos projetos por área e tipo de orçamento
- * @param {Array} projetos Lista de projetos a renderizar
- * @returns {string} HTML dos detalhes
- */
-function renderAreaValorDetails(projetos) {
-    if (projetos.length === 0) {
-        return '<p>Nenhum projeto encontrado nesta categoria.</p>';
-    }
-    
-    let html = `
-        <table class="project-details-table">
-            <thead>
-                <tr>
-                    <th>ID PCA</th>
-                    <th>Tipo</th>
-                    <th>Projeto</th>
-                    <th>Status</th>
-                    <th>Contratar Até</th>
-                    <th>Valor (R$)</th>
-                    <th>Processo</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    projetos.forEach(projeto => {
-        let contratoAttrs = '';
-        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
-            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
-        }
-        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
-            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
-        }
-
-        html += `
-            <tr>
-                <td>${projeto.idPca}</td>
-                <td>${projeto.tipo}</td>
-                <td${contratoAttrs}>${renderProjectCellWithCompras(projeto.projeto, projeto.modalidadeX, projeto.numeroY)}</td>
-                <td>${formatStatusWithClasses(projeto.status)}</td>
-                <td>${projeto.dataProcesso || '-'}</td>
-                <td>R$ ${formatCurrency(projeto.valor)}</td>
-                <td>${renderProcessCell(projeto.numProcesso, projeto.modalidadeX, projeto.numeroY)}</td>
-            </tr>
-        `;
-    });
-    
-    html += `
-            </tbody>
-        </table>
     `;
     
     return html;
@@ -814,7 +758,7 @@ function renderAreaProjectsHtml() {
                 
                 <div class="area-details" id="area-details-${area.replace(/\s+/g, '-')}" style="display:none;">
                     <div class="project-details">
-                        ${renderAreaDetails(area)}
+                        ${renderAreaDetailsTable(area)}
                     </div>
                 </div>
             </div>
@@ -889,120 +833,6 @@ function formatStatusWithClasses(statusText) {
     
     // Sem formatação especial para status desconhecidos
     return statusText;
-}
-
-/**
- * Função para renderizar detalhes dos projetos por status
- * @param {string} status - O status dos projetos a serem exibidos
- * @returns {string} - HTML da tabela com os projetos do status
- */
-function renderStatusDetails(status) {
-    const projetos = analyticData.projetosPorStatus[status] || [];
-    
-    if (projetos.length === 0) {
-        return '<p>Nenhum projeto encontrado neste status.</p>';
-    }
-    
-    let html = `
-        <table class="project-details-table">
-            <thead>
-                <tr>
-                    <th>ID PCA</th>
-                    <th>Área</th>
-                    <th>Projeto</th>
-                    <th>Contratar Até</th>
-                    <th>Valor (R$)</th>
-                    <th>Processo</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    projetos.forEach(projeto => {
-        // Atributos de contrato/registro na célula do Projeto (compatível com AnalyticsContratos.js)
-        let contratoAttrs = '';
-        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
-            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
-        }
-        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
-            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
-        }
-        
-        html += `
-            <tr>
-                <td>${projeto.id || 'N/A'}</td>
-                <td>${formatAreaWithClasses(projeto.area || 'N/A')}</td>
-                <td${contratoAttrs}>${renderProjectCellWithCompras(projeto.objeto || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
-                <td>${projeto.contratar_ate || 'N/A'}</td>
-                <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
-                <td>${renderProcessCell(projeto.numeroProcesso || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
-            </tr>
-        `;
-    });
-    
-    html += `
-            </tbody>
-        </table>
-    `;
-    
-    return html;
-}
-
-/**
- * Função para renderizar detalhes dos projetos por tipo de contratação
- * @param {string} tipo - O tipo de contratação dos projetos a serem exibidos
- * @returns {string} - HTML da tabela com os projetos do tipo
- */
-function renderTipoDetails(tipo) {
-    const projetos = analyticData.projetosPorTipo[tipo] || [];
-    
-    if (projetos.length === 0) {
-        return '<p>Nenhum projeto encontrado neste tipo de contratação.</p>';
-    }
-    
-    let html = `
-        <table class="project-details-table">
-            <thead>
-                <tr>
-                    <th>ID PCA</th>
-                    <th>Área</th>
-                    <th>Projeto</th>
-                    <th>Contratar Até</th>
-                    <th>Valor (R$)</th>
-                    <th>Processo</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    projetos.forEach(projeto => {
-        // Atributos de contrato/registro na célula do Projeto (compatível com AnalyticsContratos.js)
-        let contratoAttrs = '';
-        if (projeto.numeroContrato && String(projeto.numeroContrato).trim() !== '') {
-            contratoAttrs += ` data-contrato="${String(projeto.numeroContrato).trim()}"`;
-        }
-        if (projeto.numeroRegistro && String(projeto.numeroRegistro).trim() !== '') {
-            contratoAttrs += ` data-registro="${String(projeto.numeroRegistro).trim()}"`;
-        }
-        
-        html += `
-            <tr>
-                <td>${projeto.id || 'N/A'}</td>
-                <td>${formatAreaWithClasses(projeto.area || 'N/A')}</td>
-                <td${contratoAttrs}>${renderProjectCellWithCompras(projeto.objeto || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
-                <td>${projeto.contratar_ate || 'N/A'}</td>
-                <td>R$ ${formatCurrency(projeto.valor || 0)}</td>
-                <td>${renderProcessCell(projeto.numeroProcesso || 'N/A', projeto.modalidadeX, projeto.numeroY)}</td>
-            </tr>
-        `;
-    });
-    
-    html += `
-            </tbody>
-        </table>
-    `;
-    
-    return html;
 }
 
 /** Helper para renderizar célula de Projeto com ícone 🛍️ (Comprasgov) quando disponível */

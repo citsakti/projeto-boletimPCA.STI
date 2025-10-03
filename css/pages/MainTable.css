@@ -1,0 +1,214 @@
+/**
+ * MainTable.css
+ * 
+ * Estilos EXCLUSIVOS para a tabela principal do index.html (Boletim PCA)
+ * Isolado do Main.css para evitar conflitos com as tabelas de Analytics
+ */
+
+/* ==================== TABELA PRINCIPAL (index.html) ==================== */
+
+/* Seletor específico apenas para a tabela dentro de #detalhes */
+#detalhes table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: var(--space-3);
+    background: #fff;
+    border-radius: var(--radius-md);
+    overflow: visible;
+    box-shadow: var(--shadow-sm);
+    table-layout: auto;
+}
+
+/* Cabeçalho fixo */
+#detalhes table thead.cabecalho tr:first-child {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background-color: var(--brand-primary);
+}
+
+/* Arredondar as pontas do cabeçalho fixo */
+#detalhes table thead.cabecalho tr:first-child th:first-child {
+    border-top-left-radius: var(--radius-md);
+}
+#detalhes table thead.cabecalho tr:first-child th:last-child {
+    border-top-right-radius: var(--radius-md);
+}
+
+/* Linha de filtros fixa logo abaixo do cabeçalho */
+#detalhes table thead.cabecalho tr.filter-row {
+    position: sticky;
+    top: 40px;
+    z-index: 2;
+    background-color: #fff;
+}
+
+/* Estilização dos filtros */
+#detalhes table thead.cabecalho tr.filter-row th input[type="text"],
+#detalhes table thead.cabecalho tr.filter-row th select,
+#detalhes table thead.cabecalho tr.filter-row th .filter-toggle {
+    width: 100% !important;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    height: auto !important;
+    border: 1px solid var(--brand-neutral);
+    border-radius: var(--radius-sm);
+    background-color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Zerar larguras inline */
+#detalhes table thead.cabecalho tr.filter-row th input[style] {
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* Foco nos filtros */
+#detalhes table thead.cabecalho tr.filter-row th input[type="text"]:focus,
+#detalhes table thead.cabecalho tr.filter-row th select:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 2px rgba(44, 65, 122, 0.1);
+}
+
+/* ==================== COLUNAS ESPECÍFICAS ==================== */
+
+/* Coluna 2 (Área) e Coluna 7 (Valor PCA) - nowrap */
+#detalhes table td:nth-child(2),
+#detalhes table th:nth-child(2),
+#detalhes table td:nth-child(7) {
+    white-space: nowrap;
+}
+
+/* Coluna 5 (Acompanhamento) - permite quebra e text-align center */
+#detalhes table td:nth-child(5) {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-align: center;
+}
+
+/* Negrito para elementos strong na coluna 5 */
+#detalhes table td:nth-child(5) strong {
+    font-weight: bold;
+}
+
+/* Coluna 7 (Valor PCA) - text-align right */
+#detalhes table td:nth-child(7) {
+    text-align: right;
+}
+
+/* Coluna 6 (Status do Processo) - nowrap obrigatório */
+#detalhes table td:nth-child(6) {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    width: auto !important;
+    max-width: none !important;
+}
+
+/* Garantir que elementos dentro do Status não quebrem */
+#detalhes table td:nth-child(6) *,
+#detalhes table td:nth-child(6) span,
+#detalhes table td:nth-child(6) div {
+    white-space: nowrap !important;
+}
+
+/* Coluna 6 - Suporte para popup de dias de atraso */
+#detalhes table td:nth-child(6) {
+    position: relative;
+    z-index: 1;
+}
+
+/* Coluna 1 (ID PCA) - centralizado */
+#detalhes table td:nth-child(1) {
+    text-align: center;
+}
+
+/* ==================== ESTILOS GERAIS DAS CÉLULAS ==================== */
+
+#detalhes table th,
+#detalhes table td {
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+    border-bottom: 1px solid var(--brand-neutral-light);
+}
+
+/* Cabeçalhos */
+#detalhes table th {
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.025em;
+}
+
+/* Hover nas linhas */
+#detalhes table tbody tr:hover {
+    background: var(--brand-neutral-lightest);
+    transition: background 0.2s ease;
+}
+
+/* Última linha sem borda inferior */
+#detalhes table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ==================== COLUNAS ESPECÍFICAS ADICIONAIS ==================== */
+
+/* Coluna 1 (ID PCA) - Identificador específico */
+#detalhes table td:nth-child(1) {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* Coluna 8 (Valor PCA) - formatação monetária */
+#detalhes table td:nth-child(8) {
+    font-weight: 500;
+}
+
+/* Coluna 9 (Orçamento) - badge style */
+#detalhes table td:nth-child(9) {
+    font-size: 0.85rem;
+}
+
+/* Coluna 10 (Processo) - nowrap */
+#detalhes table td:nth-child(10) {
+    white-space: nowrap;
+}
+
+/* Colunas 2, 3, 9 (Área, Tipo, Orçamento) - nowrap */
+#detalhes table td:nth-child(2),
+#detalhes table th:nth-child(2),
+#detalhes table td:nth-child(3),
+#detalhes table td:nth-child(9) {
+    white-space: nowrap;
+}
+
+/* ==================== COLUNA 4 - PROJETO ==================== */
+
+/* Coluna 4 (Projeto de Aquisição) - permite quebra de linha */
+#detalhes table td:nth-child(4) {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ==================== MOBILE RESPONSIVO ==================== */
+
+@media (max-width: 768px) {
+    #detalhes table {
+        font-size: 0.85rem;
+    }
+    
+    #detalhes table th,
+    #detalhes table td {
+        padding: var(--space-1) var(--space-2);
+    }
+    
+    /* Manter nowrap mesmo em mobile para colunas críticas */
+    #detalhes table td:nth-child(6) {
+        white-space: nowrap !important;
+    }
+}

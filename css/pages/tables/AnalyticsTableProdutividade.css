@@ -1,0 +1,77 @@
+/**
+ * AnalyticsTableProdutividade.css
+ * 
+ * Estilos EXCLUSIVOS para tabelas de PRODUTIVIDADE (Seção 4.1)
+ * Isolado para permitir modificações sem afetar outras tabelas
+ */
+
+/* Seletor específico para tabelas de produtividade */
+.detalhes-produtividade .project-details-table {
+    table-layout: auto !important;
+    width: 100%;
+}
+
+/* ID PCA */
+.detalhes-produtividade .project-details-table th:nth-child(1),
+.detalhes-produtividade .project-details-table td:nth-child(1) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Área */
+.detalhes-produtividade .project-details-table th:nth-child(2),
+.detalhes-produtividade .project-details-table td:nth-child(2) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Tipo */
+.detalhes-produtividade .project-details-table th:nth-child(3),
+.detalhes-produtividade .project-details-table td:nth-child(3) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Projeto - ÚNICA coluna que pode expandir */
+.detalhes-produtividade .project-details-table th:nth-child(4),
+.detalhes-produtividade .project-details-table td:nth-child(4) {
+    white-space: normal !important;
+    width: auto !important;
+    max-width: none !important;
+}
+
+/* Status */
+.detalhes-produtividade .project-details-table th:nth-child(5),
+.detalhes-produtividade .project-details-table td:nth-child(5) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Data PCA */
+.detalhes-produtividade .project-details-table th:nth-child(6),
+.detalhes-produtividade .project-details-table td:nth-child(6) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+    text-align: center !important;
+}
+
+/* Valor (R$) */
+.detalhes-produtividade .project-details-table th:nth-child(7),
+.detalhes-produtividade .project-details-table td:nth-child(7) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}
+
+/* Processo */
+.detalhes-produtividade .project-details-table th:nth-child(8),
+.detalhes-produtividade .project-details-table td:nth-child(8) {
+    white-space: nowrap !important;
+    width: 1% !important;
+    min-width: max-content !important;
+}

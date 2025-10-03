@@ -324,20 +324,20 @@ table tbody tr.contratacao-atrasada {
 }
 
 /* highlights de status */
-.status-autuacao-atrasada-highlight     { background: #d29eee; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-contratacao-atrasada-highlight  { background: #b10202; border-radius:6px; padding:2px 6px; display:inline-block; color: #fff; white-space: normal; }
-.status-aguardando-dfd-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-etp-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-elaborando-tr-highlight         { background: #afdcf8; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
-.status-aguardando-definicao-highlight  { background: #d29eee; border-radius:6px; padding:2px 6px; display:inline-block; white-space: normal; }
+.status-autuacao-atrasada-highlight     { background: #d29eee; border-radius:6px; padding:2px 6px; display:inline-block; white-space: nowrap; }
+.status-contratacao-atrasada-highlight  { background: #b10202; border-radius:6px; padding:2px 6px; display:inline-block; color: #fff; white-space: nowrap; }
+.status-aguardando-dfd-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: nowrap; }
+.status-aguardando-etp-highlight        { background: #ffe5a0; border-radius:6px; padding:2px 6px; display:inline-block; white-space: nowrap; }
+.status-etp-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: nowrap; }
+.status-dfd-atrasado-highlight          { background: #ffcfc9; border-radius:6px; padding:2px 6px; display:inline-block; white-space: nowrap; }
+.status-elaborando-tr-highlight         { background: #afdcf8; border-radius:6px; padding:2px 6px; display:inline-block; white-space: nowrap; }
+.status-aguardando-definicao-highlight  { background: #d29eee; border-radius:6px; padding:2px 6px; display:inline-block; white-space: nowrap; }
 .status-analise-viabilidade-highlight   { background: #afdcf8; border-radius:6px; padding:2px 6px; display:inline-block; white-space: nowrap; }
-.status-em-contratacao-highlight        { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
-.status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
-.status-renovado-highlight              { background: #11734b; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
-.status-contratado-highlight            { background: #11734b; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: normal; }
-.status-revisao-pca-highlight           { background: #000000; border-radius:6px; padding:2px 6px; display:inline-block; color:#ffe5a0; white-space: normal; }
+.status-em-contratacao-highlight        { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: nowrap; }
+.status-em-renovacao-highlight          { background: #0a53a8; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: nowrap; }
+.status-renovado-highlight              { background: #11734b; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: nowrap; }
+.status-contratado-highlight            { background: #11734b; border-radius:6px; padding:2px 6px; display:inline-block; color:#fff; white-space: nowrap; }
+.status-revisao-pca-highlight           { background: #000000; border-radius:6px; padding:2px 6px; display:inline-block; color:#ffe5a0; white-space: nowrap; }
 .status-a-iniciar-highlight             { background: #e6e6e6; border-radius:6px; padding:2px 6px; display:inline-block; color:#000000; white-space: nowrap; }
 
 /* Badges de status */
